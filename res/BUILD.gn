@@ -1,0 +1,31 @@
+
+import("//tools/grit/grit_rule.gni")
+import("//tools/grit/repack.gni")
+
+group("resources") {
+  deps = [
+    ":common",
+  ]
+}
+
+grit("common") {
+  source = "common.grd"
+  resource_ids = ""
+  outputs = [
+    "grit/common.h",
+    "common.pak",
+  ]
+}
+
+repack("res") {
+  sources = [
+    "$root_gen_dir/lordaeron/res/common.pak",
+  ]
+
+  output = "$root_out_dir/lordaeron_resource.pak"
+  deps = [
+    "//ui/resources",
+    "//ui/strings",
+    ":resources",
+  ]
+}
