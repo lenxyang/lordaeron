@@ -6,7 +6,7 @@
 namespace lord {
 ObjectControlToolbar::ObjectControlToolbar(nelf::Mainframe* mainframe) {
   Context* context = Context::instance();
-  model_.reset(new nelf::SimpleToolbarModel);
+  scoped_ptr<nelf::SimpleToolbarModel> model(new nelf::SimpleToolbarModel);
   int32 toolbar_id1[] = {
     IDR_ICON32_SELECT,
     IDR_ICON32_MOVE,
@@ -17,11 +17,15 @@ ObjectControlToolbar::ObjectControlToolbar(nelf::Mainframe* mainframe) {
     nelf::ToolbarModel::Item item;
     item.id = toolbar_id1[i];
     item.icon = context->resource_bundle()->GetImageSkiaNamed(item.id);
-    model_->AddItem(item);
+    model->AddItem(item);
   }
 
-  toolbar_ = new nelf::Toolbar(mainframe, model_.get(), this);
+  nelf::ToggleToolbarContents* contents =
+      new nelf::ToggleToolbarContents(model.Pass());
+  contents->set_listener(this);
+  toolbar_ = new nelf::Toolbar(mainframe, contents);
   toolbar_->Float();
+  toolbar_->Dock(0, 0);
 }
 
 ObjectControlToolbar::~ObjectControlToolbar() {

@@ -3,7 +3,7 @@
 #include "nelf/nelf.h"
 
 namespace lord {
-class CameraControlToolbar {
+class CameraControlToolbar : public nelf::ToolbarButtonListener {
  public:
  private:
 };
