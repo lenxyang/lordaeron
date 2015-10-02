@@ -7,6 +7,7 @@
 #include "lordaeron/render/rotate_controller_object.h"
 
 namespace lord {
+class RendererInfoPane;
 class MainframeRenderDelegate : public nelf::RenderDelegate {
  public:
   MainframeRenderDelegate();
@@ -21,6 +22,7 @@ class MainframeRenderDelegate : public nelf::RenderDelegate {
   azer::Camera camera_;
   azer::DirLight light_;
   azer::Matrix4 pv_;
+  RendererInfoPane* renderer_pane_;
   scoped_ptr<CameraOverlay> camera_overlay_;
   scoped_ptr<azer::CoordinateGrid> gridline_;
   scoped_ptr<azer::FPSCameraController> camera_controller_;

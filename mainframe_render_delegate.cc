@@ -1,11 +1,14 @@
 #include "lordaeron/mainframe_render_delegate.h"
 
+#include "lordaeron/ui/renderer_info_pane.h"
+
 namespace lord {
 using namespace azer;
 
 const Vector4 kGridLineColor = Vector4(0.663f, 0.663f, 0.663f, 1.0f);
 const Vector4 kRenderBgColor = Vector4(0.427f, 0.427f, 0.427f, 1.0f);
-MainframeRenderDelegate::MainframeRenderDelegate() {
+MainframeRenderDelegate::MainframeRenderDelegate()
+    : renderer_pane_(NULL) {
 }
 
 bool MainframeRenderDelegate::Initialize() { 
@@ -26,6 +29,11 @@ bool MainframeRenderDelegate::Initialize() {
 
   rotate_controller_object_.reset(new RotateControllerObject);
   camera_overlay_.reset(new CameraOverlay(&camera_));
+  this->window()->SetRenderUI(true);
+
+  renderer_pane_ = new RendererInfoPane;
+  renderer_pane_->SetBounds(10, 10, 180, 120);
+  this->window()->AddChildView(renderer_pane_);
   return true;
 }
 
@@ -34,6 +42,8 @@ void MainframeRenderDelegate::OnUpdate(const FrameArgs& args) {
   gridline_->Update(camera_);
   pv_ = camera_.GetProjViewMatrix();
   camera_overlay_->Update();
+  Renderer* renderer = window()->GetRenderer().get();
+  renderer_pane_->Update(renderer, args);
 }
 
 void MainframeRenderDelegate::OnRender(const FrameArgs& args) {

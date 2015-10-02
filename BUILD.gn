@@ -17,6 +17,8 @@ static_library("lordaeron") {
     "ui/camera_view.h",
     "ui/render_frame_window.cc",
     "ui/render_frame_window.h",
+    "ui/renderer_info_pane.cc",
+    "ui/renderer_info_pane.h",
     "ui/toolbar/camera_control_toolbar.cc",
     "ui/toolbar/camera_control_toolbar.h",
     "ui/toolbar/object_control_toolbar.cc",
