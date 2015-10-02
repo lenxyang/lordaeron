@@ -1,5 +1,7 @@
 #pragma once
 
+#include "azer/render/render.h"
+#include "azer/render/util.h"
 #include "nelf/nelf.h"
 
 namespace lord {
@@ -11,6 +13,8 @@ class Context {
   nelf::Context* GetNelfContext() { return nelf_context_.get();}
   bool LoadResourcePack(const base::FilePath& path);
   nelf::ResourceBundle* resource_bundle() { return resource_bundle_.get();}
+
+  const azer::DirLight& GetInternalLight() const { return internal_light_;}
  private:
   Context();
   ~Context();
@@ -18,6 +22,7 @@ class Context {
   bool Init(int argc, char* argv[]);
 
   scoped_ptr<nelf::ResourceBundle> resource_bundle_;
+  azer::DirLight internal_light_;
   nelf::ContextPtr nelf_context_;
   static Context* instance_;
   DISALLOW_COPY_AND_ASSIGN(Context);
