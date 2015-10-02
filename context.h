@@ -15,6 +15,7 @@ class Context {
   nelf::ResourceBundle* resource_bundle() { return resource_bundle_.get();}
 
   const azer::DirLight& GetInternalLight() const { return internal_light_;}
+  azer::BlendingPtr GetDefaultBlending() { return blending_;}
  private:
   Context();
   ~Context();
@@ -22,6 +23,7 @@ class Context {
   bool Init(int argc, char* argv[]);
 
   scoped_ptr<nelf::ResourceBundle> resource_bundle_;
+  azer::BlendingPtr blending_;
   azer::DirLight internal_light_;
   nelf::ContextPtr nelf_context_;
   static Context* instance_;

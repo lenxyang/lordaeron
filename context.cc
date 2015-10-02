@@ -1,6 +1,7 @@
 #include "lordaeron/context.h"
 
 #include "base/logging.h"
+#include "azer/render/render.h"
 
 namespace lord {
 Context* Context::instance_ = NULL;;
@@ -32,6 +33,20 @@ bool Context::Init(int argc, char* argv[]) {
 
   CHECK(LoadResourcePack(::base::FilePath(FILE_PATH_LITERAL(
       "out/dbg/lordaeron_resource.pak"))));
+
+  azer::RenderSystem* rs = azer::RenderSystem::Current();
+
+  using azer::Blending;
+  Blending::Desc blend_desc;
+  blend_desc.src = Blending::kSrcAlpha;
+  blend_desc.dest = Blending::kSrcInvAlpha;
+  blend_desc.oper = Blending::kAdd;
+  blend_desc.src_alpha = Blending::kOne;
+  blend_desc.dest_alpha = Blending::kZero;
+  blend_desc.alpha_oper = Blending::kAdd;
+  blend_desc.mask = Blending::kWriteColor;
+  blending_ = rs->CreateBlending(blend_desc);
+  CHECK(blending_.get());
 
   return true;
 }

@@ -16,8 +16,8 @@ CircleCoordinateObject::CircleCoordinateObject(azer::ColoredDiffuseEffectPtr eff
   reset_color();
 
   axis_world_[0] = std::move(RotateY(Degree(-90.0f)));
-  axis_world_[1] = Matrix4::kIdentity;
-  axis_world_[2] = std::move(RotateX(Degree(90.0f)));
+  axis_world_[1] = std::move(RotateX(Degree(90.0f)));
+  axis_world_[2] = Matrix4::kIdentity;
 }
 
 CircleCoordinateObject::~CircleCoordinateObject() {
@@ -56,18 +56,6 @@ RotateControllerObject::RotateControllerObject()
   effect_ = CreateColoredDiffuseEffect();
   sphere_color_ = Vector4(1.0f, 1.0f, 1.0f, 0.4f);
   sphere_ = new SphereObject(effect_->GetVertexDesc(), 24, 24);
-  
-
-  Blending::Desc blend_desc;
-  blend_desc.src = Blending::kSrcAlpha;
-  blend_desc.dest = Blending::kSrcInvAlpha;
-  blend_desc.oper = Blending::kAdd;
-  blend_desc.src_alpha = Blending::kOne;
-  blend_desc.dest_alpha = Blending::kZero;
-  blend_desc.alpha_oper = Blending::kAdd;
-  blend_desc.mask = Blending::kWriteColor;
-  blending_ = rs->CreateBlending(blend_desc);
-  CHECK(blending_.get());
 
   circles_.reset(new CircleCoordinateObject(effect_));
 }
@@ -84,7 +72,8 @@ void RotateControllerObject::Render(const azer::Matrix4& world,
                                     azer::Renderer* renderer) {
   circles_->Render(world, pvw, renderer);
   Context* context = Context::instance();
-  renderer->UseBlending(blending_.get(), 0);
+  BlendingPtr blending = context->GetDefaultBlending();
+  renderer->UseBlending(blending.get(), 0);
   effect_->SetDirLight(context->GetInternalLight());
   effect_->SetColor(sphere_color_);
   effect_->SetWorld(world);

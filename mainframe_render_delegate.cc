@@ -25,7 +25,7 @@ bool MainframeRenderDelegate::Initialize() {
   gridline_->SetZCoordColor(kGridLineColor);
 
   rotate_controller_object_.reset(new RotateControllerObject);
-
+  camera_overlay_.reset(new CameraOverlay(&camera_));
   return true;
 }
 
@@ -33,6 +33,7 @@ void MainframeRenderDelegate::OnUpdate(const FrameArgs& args) {
   camera_controller_->Update(args);
   gridline_->Update(camera_);
   pv_ = camera_.GetProjViewMatrix();
+  camera_overlay_->Update();
 }
 
 void MainframeRenderDelegate::OnRender(const FrameArgs& args) {
@@ -45,5 +46,6 @@ void MainframeRenderDelegate::OnRender(const FrameArgs& args) {
   gridline_->Render(renderer);
 
   rotate_controller_object_->Render(Matrix4::kIdentity, pv_, renderer);
+  camera_overlay_->Render(renderer);
 }
 }  // namespace lord

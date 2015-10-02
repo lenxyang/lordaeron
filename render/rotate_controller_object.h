@@ -44,7 +44,6 @@ class RotateControllerObject {
               const azer::Matrix4& pvw, 
               azer::Renderer* renderer);
  private:
-  azer::BlendingPtr blending_;
   azer::GeometryObjectPtr sphere_;
   scoped_ptr<CircleCoordinateObject> circles_;
   

@@ -5,6 +5,8 @@ static_library("lordaeron") {
     "context.h",
     "mainframe_render_delegate.cc",
     "mainframe_render_delegate.h",
+    "render/camera_overlay.cc",
+    "render/camera_overlay.h",
     "render/rotate_controller_object.cc",
     "render/rotate_controller_object.h",
     "scene/scene_node.cc",
