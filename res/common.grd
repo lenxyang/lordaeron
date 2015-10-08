@@ -29,5 +29,15 @@
       <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_UNKNOWN" 
                  file="icon/scene/unknown.png"/>
     </structures>
-  </release>
+      <structures fallback_to_low_resolution="true" first_id="40000">
+        <structure type="chrome_scaled_image" name="IDR_FRAME_FIVE_TOP" 
+                   file="frame/five/top.png"/>
+        <structure type="chrome_scaled_image" name="IDR_FRAME_FIVE_BOTTOM" 
+                   file="frame/five/bottom.png"/>
+        <structure type="chrome_scaled_image" name="IDR_FRAME_FIVE_LEFT" 
+                   file="frame/five/left.png"/>
+        <structure type="chrome_scaled_image" name="IDR_FRAME_FIVE_RIGHT" 
+                   file="frame/five/right.png"/>
+      </structures>
+    </release>
 </grit>
