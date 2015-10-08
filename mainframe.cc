@@ -9,6 +9,8 @@
 #include "lordaeron/ui/toolbar/object_control_toolbar.h"
 #include "lordaeron/ui/render_frame_window.h"
 #include "lordaeron/mainframe_render_delegate.h"
+#include "lordaeron/scene/scene_node.h"
+#include "lordaeron/scene/scene_node_data.h"
 #include "azer/render/util.h"
 
 using views::Widget;
@@ -21,9 +23,13 @@ int main(int argc, char* argv[]) {
       gfx::Rect(0, 0, 800, 600), delegate.Pass());
   window->Show();
 
-  lord::SceneTreeWindow* window = new SceneTreeWindow(node);
-  window->Init();
-  window->Show();
+  lord::SceneNodePtr root(new lord::SceneNode("root"));
+  root->AddChild(lord::SceneNodePtr(new lord::SceneNode("lamp1")));
+  root->AddChild(lord::SceneNodePtr(new lord::SceneNode("lamp2")));
+  root->AddChild(lord::SceneNodePtr(new lord::SceneNode("lamp3")));
+  lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(window, root);
+  scene->Init();
+  scene->Show();
 
   lord::ObjectControlToolbar* toolbar = new lord::ObjectControlToolbar(window);
   window->GetRenderLoop()->Run();

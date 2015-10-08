@@ -8,9 +8,14 @@ namespace lord {
 //
 SceneTreeModelNode::SceneTreeModelNode(SceneNodePtr node)
     : node_(node) {
+  title_ = ::base::UTF8ToUTF16(node->name());
 }
 
 SceneTreeModelNode::~SceneTreeModelNode() {
+}
+
+const base::string16& SceneTreeModelNode::GetTitle() const {
+  return title_;
 }
 
 SceneTreeModelNode* SceneTreeModelNode::child_at(int index) {

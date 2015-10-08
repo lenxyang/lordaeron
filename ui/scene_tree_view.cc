@@ -2,14 +2,28 @@
 
 #include "ui/views/layout/fill_layout.h"
 #include "lordaeron/context.h"
+#include "lordaeron/res/grit/common.h"
 #include "lordaeron/scene/scene_tree_model.h"
 #include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
 SceneTreeView::SceneTreeView(SceneNodePtr node) {
   InitUI();
+
+  Context* context = Context::instance();
+  std::vector<gfx::ImageSkia> icons;
+  int32 toolbar_id[] = {
+    IDR_ICON_SCENE_LAMP,
+    IDR_ICON_SCENE_MESH,
+    IDR_ICON_SCENE_SUN,
+  };
+  for (int i = 0; i < arraysize(toolbar_id); ++i) {
+    int32 id = toolbar_id[i];
+    icons.push_back(*(context->resource_bundle()->GetImageSkiaNamed(id)));
+  }
   tree_model_.reset(new SceneTreeModel(node));
-  tree_view_->SetModel(tree_model_);
+  tree_model_->SetImageVec(icons);
+  tree_view_->SetModel(tree_model_.get());
 }
 
 SceneTreeView::~SceneTreeView() {
@@ -34,8 +48,9 @@ bool SceneTreeView::CanEdit(views::TreeView* tree_view, ui::TreeModelNode* node)
 }
 
 // class SceneTreeWindow
-SceneTreeWindow::SceneTreeWindow(SceneNodePtr node) 
-    : view_(NULL) {
+SceneTreeWindow::SceneTreeWindow(nelf::Window* window, SceneNodePtr node)
+    : nelf::Window(window),
+      view_(NULL) {
   view_ = new SceneTreeView(node);
   AddChildView(view_);
   SetLayoutManager(new views::FillLayout);

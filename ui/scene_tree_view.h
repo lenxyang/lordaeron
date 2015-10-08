@@ -2,6 +2,7 @@
 
 #include "ui/views/view.h"
 #include "ui/views/controls/tree/tree_view.h"
+#include "ui/views/controls/tree/tree_view_controller.h"
 #include "nelf/nelf.h"
 #include "lordaeron/scene/scene_node.h"
 
@@ -19,7 +20,7 @@ class SceneTreeView : public views::View,
   bool CanEdit(views::TreeView* tree_view, ui::TreeModelNode* node) override;
  private:
   void InitUI();
-  void Init()
+  void Init();
   scoped_ptr<SceneTreeModel> tree_model_;
   views::TreeView* tree_view_;
   DISALLOW_COPY_AND_ASSIGN(SceneTreeView);
@@ -27,7 +28,7 @@ class SceneTreeView : public views::View,
 
 class SceneTreeWindow : public nelf::Window {
  public:
-  SceneTreeWindow(SceneNodePtr node);
+  SceneTreeWindow(nelf::Window* window, SceneNodePtr node);
   ~SceneTreeWindow() override;
  private:
   SceneTreeView* view_;

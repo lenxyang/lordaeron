@@ -23,6 +23,7 @@ class SceneTreeModelNode : public ui::TreeModelNode {
   // override from ui::TreeModelNode
   const base::string16& GetTitle() const override;
  private:
+  base::string16 title_;
   SceneNodePtr node_;
   std::vector<SceneTreeModelNode*> children_;
   DISALLOW_COPY_AND_ASSIGN(SceneTreeModelNode);

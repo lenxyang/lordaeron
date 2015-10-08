@@ -8,10 +8,10 @@ ObjectControlToolbar::ObjectControlToolbar(nelf::Mainframe* mainframe) {
   Context* context = Context::instance();
   scoped_ptr<nelf::SimpleToolbarModel> model(new nelf::SimpleToolbarModel);
   int32 toolbar_id1[] = {
-    IDR_ICON32_SELECT,
-    IDR_ICON32_MOVE,
-    IDR_ICON32_ROTATE,
-    IDR_ICON32_SCALE,
+    IDR_ICON_TOOLBAR_SELECT,
+    IDR_ICON_TOOLBAR_MOVE,
+    IDR_ICON_TOOLBAR_ROTATE,
+    IDR_ICON_TOOLBAR_SCALE,
   };
   for (int i = 0; i < arraysize(toolbar_id1); ++i) {
     nelf::ToolbarModel::Item item;

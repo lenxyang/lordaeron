@@ -12,14 +12,20 @@
       <!-- KEEP THESE IN ALPHABETICAL ORDER!  DO NOT ADD TO RANDOM PLACES JUST
            BECAUSE YOUR RESOURCES ARE FUNCTIONALLY RELATED OR FALL UNDER THE
            SAME CONDITIONALS. -->
-      <structure type="chrome_scaled_image" name="IDR_ICON32_SELECT" 
-                 file="icon/select32.png"/>
-      <structure type="chrome_scaled_image" name="IDR_ICON32_MOVE" 
-                 file="icon/move32.png"/>
-      <structure type="chrome_scaled_image" name="IDR_ICON32_ROTATE" 
-                 file="icon/rotate32.png"/>
-      <structure type="chrome_scaled_image" name="IDR_ICON32_SCALE" 
-                 file="icon/scale32.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_SELECT" 
+                 file="icon/toolbar/select.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_MOVE" 
+                 file="icon/toolbar/move.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_ROTATE" 
+                 file="icon/toolbar/rotate.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_SCALE" 
+                 file="icon/toolbar/scale.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_LAMP" 
+                 file="icon/scene/lamp.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_MESH" 
+                 file="icon/scene/mesh.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_SUN" 
+                 file="icon/scene/sun.png"/>
     </structures>
   </release>
 </grit>
