@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
   root->AddChild(lord::SceneNodePtr(new lord::SceneNode("lamp3")));
   lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(window, root);
   scene->Init();
+  scene->Layout();
   scene->Show();
 
   lord::ObjectControlToolbar* toolbar = new lord::ObjectControlToolbar(window);

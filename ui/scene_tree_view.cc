@@ -13,8 +13,9 @@ SceneTreeView::SceneTreeView(SceneNodePtr node) {
   Context* context = Context::instance();
   std::vector<gfx::ImageSkia> icons;
   int32 toolbar_id[] = {
-    IDR_ICON_SCENE_LAMP,
+    IDR_ICON_SCENE_UNKNOWN,
     IDR_ICON_SCENE_MESH,
+    IDR_ICON_SCENE_LAMP,
     IDR_ICON_SCENE_SUN,
   };
   for (int i = 0; i < arraysize(toolbar_id); ++i) {
@@ -51,9 +52,9 @@ bool SceneTreeView::CanEdit(views::TreeView* tree_view, ui::TreeModelNode* node)
 SceneTreeWindow::SceneTreeWindow(nelf::Window* window, SceneNodePtr node)
     : nelf::Window(window),
       view_(NULL) {
+  SetLayoutManager(new views::FillLayout);
   view_ = new SceneTreeView(node);
   AddChildView(view_);
-  SetLayoutManager(new views::FillLayout);
 }
 
 SceneTreeWindow::~SceneTreeWindow() {

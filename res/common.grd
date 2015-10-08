@@ -26,6 +26,8 @@
                  file="icon/scene/mesh.png"/>
       <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_SUN" 
                  file="icon/scene/sun.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_UNKNOWN" 
+                 file="icon/scene/unknown.png"/>
     </structures>
   </release>
 </grit>

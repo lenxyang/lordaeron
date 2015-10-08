@@ -48,22 +48,17 @@ SceneTreeModel::~SceneTreeModel() {
 }
 
 SceneTreeModelNode* SceneTreeModel::BuildTree(SceneNodePtr node) {
-  if (node->child_count() > 0) {
-    SceneTreeModelNode* child = new SceneTreeModelNode(node);
-    node->set_user_data(child);
-    nodes_.push_back(child);
-
-    for (auto iter = node->children().begin();
-         iter != node->children().end(); ++iter) {
-      SceneTreeModelNode* sub = BuildTree(*iter);
-      if (sub) {
-        child->AddChild(sub);
-      }
+  SceneTreeModelNode* child = new SceneTreeModelNode(node);
+  node->set_user_data(child);
+  nodes_.push_back(child);
+  for (auto iter = node->children().begin();
+       iter != node->children().end(); ++iter) {
+    SceneTreeModelNode* sub = BuildTree(*iter);
+    if (sub) {
+      child->AddChild(sub);
     }
-    return child;
-  } else {
-    return NULL;
   }
+  return child;
 }
 
 void SceneTreeModel::SetImageVec(const std::vector<gfx::ImageSkia>& icons) {
@@ -107,8 +102,16 @@ void SceneTreeModel::GetIcons(std::vector<gfx::ImageSkia>* icons)  {
   *icons = icons_;
 }
 
-int SceneTreeModel::GetIconIndex(ui::TreeModelNode* node)  {
-  return 0;
+int SceneTreeModel::GetIconIndex(ui::TreeModelNode* n)  {
+  SceneTreeModelNode* node = dynamic_cast<SceneTreeModelNode*>(n);
+  SceneNodePtr rnode = node->scene_node();
+  switch (rnode->type()) {
+    case SceneNode::kEmptyNode: return 0;
+    case SceneNode::kObjectNode: return 1;
+    case SceneNode::kLampNode: return 2;
+    case SceneNode::kCameraNode: return 3;
+    default: return 0;
+  }
 }
 
 void SceneTreeModel::AddObserver(ui::TreeModelObserver* observer) {
