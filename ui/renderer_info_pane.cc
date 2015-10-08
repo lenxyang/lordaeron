@@ -28,7 +28,8 @@ views::Label* CreateLabel() {
   return label;
 }
 
-RendererInfoPane::RendererInfoPane() {
+RendererInfoPane::RendererInfoPane() 
+    : last_update_time_(0.0) {
   scoped_ptr<views::Border> border(new views::ShadowBorder(8, 0x3D3C3AFF, 4, 4));
   SetBorder(border.Pass());
   set_background(views::Background::CreateSolidBackground(0x504A4B80));
@@ -46,11 +47,14 @@ void RendererInfoPane::Update(azer::Renderer* renderer,
                               const azer::FrameArgs& args) {
   using base::StringPrintf;
   using base::UTF8ToUTF16;
-  fps_label_->SetText(UTF8ToUTF16(StringPrintf(
-      "FPS: %f/s", args.total_average_fps())));
-  cull_mode_->SetText(UTF8ToUTF16(StringPrintf(
-      "Cull Mode: %s", CullModeName(renderer->GetCullingMode()))));
-  depth_mode_->SetText(UTF8ToUTF16(StringPrintf(
-      "Depth Test: %s", (renderer->IsDepthTestEnable() ? "enabled" : "disabled"))));
+  if (args.time() - last_update_time_ > 0.5) {
+    fps_label_->SetText(UTF8ToUTF16(StringPrintf(
+        "FPS: %f/s", args.total_average_fps())));
+    cull_mode_->SetText(UTF8ToUTF16(StringPrintf(
+        "Cull Mode: %s", CullModeName(renderer->GetCullingMode()))));
+    depth_mode_->SetText(UTF8ToUTF16(StringPrintf(
+        "Depth Test: %s", (renderer->IsDepthTestEnable() ? "enabled" : "disabled"))));
+    last_update_time_ = args.time();
+  }
 }
 }  // namespace lord

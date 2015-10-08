@@ -13,6 +13,7 @@ class RendererInfoPane : public views::View {
   views::Label* fps_label_;
   views::Label* cull_mode_;
   views::Label* depth_mode_;
+  double last_update_time_;
   DISALLOW_COPY_AND_ASSIGN(RendererInfoPane);
 };
 }  // namespace lord
