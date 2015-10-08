@@ -6,18 +6,21 @@
 #include "base/strings/string_tokenizer.h"
 #include "azer/render/render.h"
 #include "azer/math/math.h"
+#include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
 using namespace azer;
 SceneNode::SceneNode() 
-    : visible_(false)
-    , parent_(NULL) {
+    : visible_(false),
+      parent_(NULL),
+      user_data_(NULL) {
 }
 
 SceneNode::SceneNode(const std::string& name)
-    : visible_(false)
-    , parent_(NULL)
-    , name_(name) {
+    : visible_(false),
+      parent_(NULL),
+      name_(name),
+      user_data_(NULL) {
 }
 
 SceneNode::~SceneNode() {
@@ -128,6 +131,14 @@ SceneNodePtr SceneNode::RemoveChildAtPath(const std::string& path) {
     pnode->parent()->RemoveChild(pnode.get());
   }
   return pnode;
+}
+
+SceneNode::Type SceneNode::type() const {
+  if (data_.get()) {
+    return data_->type();
+  } else {
+    return SceneNode::kEmptyNode;
+  }
 }
 
 std::string SceneNode::print_info() {

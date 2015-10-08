@@ -5,10 +5,21 @@
 
 namespace lord {
 class SceneNode;
+class SceneNodeData;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
+typedef scoped_refptr<SceneNodeData> SceneNodeDataPtr;
+
 
 class SceneNode: public ::base::RefCounted<SceneNode> {
  public:
+  enum Type {
+    kEmptyNode,
+    kObjectNode,
+    kLampNode,
+    kCameraNode,
+    kTerrainTileNode,
+  };
+
   SceneNode();
   explicit SceneNode(const std::string& name);
   ~SceneNode();
@@ -20,7 +31,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
 
   void AddChild(SceneNodePtr child);
   void RemoveChild(SceneNodePtr child);
-  bool has_child() const { return !children_.empty();} 
+  bool has_child() const { return !children_.empty();}
+  int32 child_count() const { return children_.size();}
   bool HasAncestor(SceneNode* node) const;
 
   // absolute path: //level1/level2/level3
@@ -44,6 +56,15 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   const azer::TransformHolder& holder() const { return holder_;}
   azer::TransformHolder* mutable_holder() { return &holder_;}
   std::string print_info();
+
+  void attach(SceneNodeDataPtr object) { data_ = object;}
+  Type type() const;
+  const SceneNodeDataPtr& data() const { return data_;}
+  SceneNodeDataPtr mutable_data() { return data_.get();}
+
+  void set_user_data(void* data) { user_data_ = data;}
+  void* user_data() {return user_data_;}
+  const void* user_data() const {return user_data_;}
  protected:
   SceneNodePtr GetLocalChild(const std::string& name);
   void print_info(std::string* str, int depth, SceneNode* node);
@@ -52,6 +73,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   SceneNode* parent_;
   SceneNodes children_;
   std::string name_;
+  void* user_data_;
+  SceneNodeDataPtr data_;
   azer::TransformHolder holder_;
   DISALLOW_COPY_AND_ASSIGN(SceneNode);
 };
