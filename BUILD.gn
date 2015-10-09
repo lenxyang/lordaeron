@@ -1,12 +1,18 @@
 
 static_library("lordaeron") {
   sources = [
+    "config/project_config.cc",
+    "config/project_config.h",
+    "config/xml_util.cc",
+    "config/xml_util.h",
     "context.cc",
     "context.h",
     "mainframe_render_delegate.cc",
     "mainframe_render_delegate.h",
     "render/camera_overlay.cc",
     "render/camera_overlay.h",
+    "render/mesh.cc",
+    "render/mesh.h",
     "render/rotate_controller_object.cc",
     "render/rotate_controller_object.h",
     "scene/scene_node.cc",
@@ -17,16 +23,24 @@ static_library("lordaeron") {
     "scene/scene_tree_model.h",
     "ui/camera_view.cc",
     "ui/camera_view.h",
+    "ui/models/repository_model.cc",
+    "ui/models/repository_model.h",
     "ui/render_frame_window.cc",
     "ui/render_frame_window.h",
     "ui/renderer_info_pane.cc",
     "ui/renderer_info_pane.h",
     "ui/scene_tree_view.cc",
     "ui/scene_tree_view.h",
+    "ui/theme/theme.cc",
+    "ui/theme/theme.h",
+    "ui/nelf_context.cc",
+    "ui/nelf_context.h",
     "ui/toolbar/camera_control_toolbar.cc",
     "ui/toolbar/camera_control_toolbar.h",
     "ui/toolbar/object_control_toolbar.cc",
     "ui/toolbar/object_control_toolbar.h",
+    "ui/window.cc",
+    "ui/window.h",
   ]
   public_deps = [
     "//skia",
@@ -38,6 +52,7 @@ static_library("lordaeron") {
     "//azer",
     "//azer/math",
     "//azer/render/util",
+    "//azer/util/xml",
     "//nelf",
     "res",
   ]
@@ -47,4 +62,8 @@ executable("mainframe") {
   output_name = "lordaeron_mainframe"
   sources = ["mainframe.cc",]
   deps = [":lordaeron"]
+}
+
+group("sandbox") {
+  deps = ["sandbox"]
 }

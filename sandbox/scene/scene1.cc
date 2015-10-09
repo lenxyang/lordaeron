@@ -15,6 +15,8 @@
 #include "azer/render/util.h"
 
 using views::Widget;
+using lord::SceneNodePtr;
+using lord::SceneNode;
 using namespace azer;
 
 int main(int argc, char* argv[]) {
@@ -27,16 +29,16 @@ int main(int argc, char* argv[]) {
   window->set_window_icon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
   window->Show();
 
-  lord::SceneNodePtr root(new lord::SceneNode("root"));
-  root->AddChild(lord::SceneNodePtr(new lord::SceneNode("lamp1")));
-  root->AddChild(lord::SceneNodePtr(new lord::SceneNode("lamp2")));
-  root->AddChild(lord::SceneNodePtr(new lord::SceneNode("lamp3")));
-  lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(
-      gfx::Rect(300, 400), window);
-  scene->SetSceneNode(root);
-  scene->Init();
-  scene->Show();
-  scene->SetTitle(base::UTF8ToUTF16("Scene"));
+  SceneNodePtr root(new SceneNode("root"));
+  SceneNodePtr obj1(new SceneNode("obj1"));
+  SceneNodePtr obj2(new SceneNode("obj1"));
+  SceneNodePtr obj3(new SceneNode("obj1"));
+  root->AddChild(obj1);
+  root->AddChild(obj2);
+  root->AddChild(obj3);
+
+  azer::ColoredDiffuseEffectPtr effect = azer::CreateColoredDiffuseEffect();
+  GeometryObjectPtr object(new ConeObject(effect->GetVertexDesc()));
 
   lord::ObjectControlToolbar* toolbar = new lord::ObjectControlToolbar(window);
   window->GetRenderLoop()->Run();
