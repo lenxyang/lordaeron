@@ -1,11 +1,28 @@
 #include "lordaeron/ui/window.h"
 
-#include "nelf/theme/nine_pic_nonclient_frame_theme.h"
-#include "nelf/theme/five_pic_nonclient_frame_theme.h"
+#include "ui/views/layout/box_layout.h"
+#include "ui/views/controls/button/button.h"
+#include "ui/views/controls/button/image_button.h"
+#include "lordaeron/context.h"
+#include "lordaeron/res/grit/common.h"
 
 namespace lord {
 Window::Window(const gfx::Rect& init_bounds, nelf::Window* window)
     : nelf::Window(init_bounds, window) {
+  // int32 id = IDR_ICON_CAPTION_NEXT_ARROW;
+  int32 id = IDR_ICON_CAPTION_TRIANGLE_CLEAR_RIGHT;
+  Context* ctx = Context::instance();
+  nelf::ResourceBundle* bundle = ctx->resource_bundle();
+  const gfx::ImageSkia* img = bundle->GetImageSkiaNamed(id);
+  set_window_icon(*img);
+  set_show_icon(true);
+}
+
+void Window::OnAfterShow() {
+}
+
+void Window::Layout() {
+  nelf::Window::Layout();
 }
 
 void Window::OnBeforeWidgetInit(views::Widget::InitParams* params,
@@ -19,21 +36,6 @@ void Window::OnAfterWidgetInit() {
 }
 
 views::NonClientFrameView* Window::CreateNonClientFrameView(views::Widget* widget) {
-  widget->set_frame_type(views::Widget::FRAME_TYPE_FORCE_CUSTOM);
-  Theme* theme = context()->theme();
-  NonClientFrameThemePtr nonclient_theme = theme->CreateNineWindowTheme(this);
-  WindowNonClientFrame* frame = new WindowNonClientFrame(this);
-  frame->SetTheme(nonclient_theme);
-
-  gfx::Size minsize = minsize_;
-  gfx::Size maxsize = maxsize_;
-  if (minsize.IsEmpty())
-    minsize = context()->setting().pane_minsize();
-  if (maxsize.IsEmpty())
-    maxsize = context()->setting().pane_maxsize();
-
-  frame->set_min_size(minsize);
-  frame->set_max_size(maxsize);
-  return frame;
+  return nelf::Window::CreateNonClientFrameView(widget);
 }
 }  // namespace lord

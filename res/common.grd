@@ -29,15 +29,26 @@
       <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_UNKNOWN" 
                  file="icon/scene/unknown.png"/>
     </structures>
-      <structures fallback_to_low_resolution="true" first_id="40000">
-        <structure type="chrome_scaled_image" name="IDR_FRAME_FIVE_TOP" 
-                   file="frame/five/top.png"/>
-        <structure type="chrome_scaled_image" name="IDR_FRAME_FIVE_BOTTOM" 
-                   file="frame/five/bottom.png"/>
-        <structure type="chrome_scaled_image" name="IDR_FRAME_FIVE_LEFT" 
-                   file="frame/five/left.png"/>
-        <structure type="chrome_scaled_image" name="IDR_FRAME_FIVE_RIGHT" 
-                   file="frame/five/right.png"/>
-      </structures>
-    </release>
+    <structures fallback_to_low_resolution="true" first_id="40000">
+      <structure type="chrome_scaled_image" name="IDR_WINDOW_TOP" 
+                 file="window/top.png"/>
+      <structure type="chrome_scaled_image" name="IDR_WINDOW_BOTTOM" 
+                 file="window/bottom.png"/>
+      <structure type="chrome_scaled_image" name="IDR_WINDOW_LEFT" 
+                 file="window/left.png"/>
+      <structure type="chrome_scaled_image" name="IDR_WINDOW_RIGHT" 
+                 file="window/right.png"/>
+      <structure type="chrome_scaled_image" name="IDR_WINDOW_BG" 
+                 file="window/bg.png"/>
+    </structures>
+    <structures fallback_to_low_resolution="true" first_id="50000">
+      <structure type="chrome_scaled_image" name="IDR_ICON_CAPTION_RULE" 
+                 file="caption/rule.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_CAPTION_NEXT_ARROW" 
+                 file="caption/next-arrow.png"/>
+      <structure type="chrome_scaled_image" 
+                 name="IDR_ICON_CAPTION_TRIANGLE_CLEAR_RIGHT" 
+                 file="caption/triangle-clear-right.png"/>
+    </structures>
+  </release>
 </grit>

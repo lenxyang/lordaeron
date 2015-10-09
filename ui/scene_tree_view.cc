@@ -1,5 +1,6 @@
 #include "lordaeron/ui/scene_tree_view.h"
 
+#include "base/strings/utf_string_conversions.h"
 #include "ui/views/layout/fill_layout.h"
 #include "lordaeron/context.h"
 #include "lordaeron/res/grit/common.h"
@@ -49,14 +50,21 @@ bool SceneTreeView::CanEdit(views::TreeView* tree_view, ui::TreeModelNode* node)
 }
 
 // class SceneTreeWindow
-SceneTreeWindow::SceneTreeWindow(nelf::Window* window, SceneNodePtr node)
-    : nelf::Window(window),
+SceneTreeWindow::SceneTreeWindow(const gfx::Rect& init_bounds, nelf::Window* window)
+    : Window(init_bounds, window),
       view_(NULL) {
   SetLayoutManager(new views::FillLayout);
-  view_ = new SceneTreeView(node);
-  AddChildView(view_);
+  set_show_title(true);
+  SetTitle(base::UTF8ToUTF16("Scene"));
 }
 
 SceneTreeWindow::~SceneTreeWindow() {
+}
+
+void SceneTreeWindow::SetSceneNode(SceneNodePtr node) {
+  if (view_)
+    delete view_;
+  view_ = new SceneTreeView(node);
+  AddChildView(view_);
 }
 }  // namespace lord

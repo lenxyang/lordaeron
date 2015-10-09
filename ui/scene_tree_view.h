@@ -5,6 +5,7 @@
 #include "ui/views/controls/tree/tree_view_controller.h"
 #include "nelf/nelf.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/ui/window.h"
 
 namespace lord {
 
@@ -26,10 +27,12 @@ class SceneTreeView : public views::View,
   DISALLOW_COPY_AND_ASSIGN(SceneTreeView);
 };
 
-class SceneTreeWindow : public nelf::Window {
+class SceneTreeWindow : public Window {
  public:
-  SceneTreeWindow(nelf::Window* window, SceneNodePtr node);
+  SceneTreeWindow(const gfx::Rect& init_bounds,  nelf::Window* window);
   ~SceneTreeWindow() override;
+
+  void SetSceneNode(SceneNodePtr node);
  private:
   SceneTreeView* view_;
   DISALLOW_COPY_AND_ASSIGN(SceneTreeWindow);

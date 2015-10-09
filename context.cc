@@ -2,6 +2,7 @@
 
 #include "base/logging.h"
 #include "azer/render/render.h"
+#include "lordaeron/ui/nelf_context.h"
 
 namespace lord {
 Context* Context::instance_ = NULL;;
@@ -27,9 +28,10 @@ Context::~Context() {
 }
 
 bool Context::Init(int argc, char* argv[]) {
-  nelf_context_ = nelf::Context::CreateStandAloneContext(argc, argv);
-  if (!nelf_context_.get())
+  nelf_context_ = new NelfContext();
+  if (!nelf_context_->Init(argc, argv)) {
     return false;
+  }
 
   CHECK(LoadResourcePack(::base::FilePath(FILE_PATH_LITERAL(
       "out/dbg/lordaeron_resource.pak"))));
