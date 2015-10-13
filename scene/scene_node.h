@@ -14,7 +14,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
  public:
   enum Type {
     kEmptyNode,
-    kObjectNode,
+    kMeshNode,
     kLampNode,
     kCameraNode,
     kTerrainTileNode,
@@ -33,7 +33,9 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void RemoveChild(SceneNodePtr child);
   bool has_child() const { return !children_.empty();}
   int32 child_count() const { return children_.size();}
+  SceneNodePtr child_at(int32 index) { return children_.at(index);}
   bool HasAncestor(SceneNode* node) const;
+  SceneNodes* mutable_children() { return &children_;}
 
   // absolute path: //level1/level2/level3
   // relative path: level1/level2/level3

@@ -3,6 +3,7 @@
 #include "base/basictypes.h"
 #include "base/memory/ref_counted.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/render/light.h"
 
 namespace lord {
 class SceneNodeData : public ::base::RefCounted<SceneNodeData> {
@@ -11,8 +12,16 @@ class SceneNodeData : public ::base::RefCounted<SceneNodeData> {
   ~SceneNodeData();
 
   SceneNode::Type type() const { return type_;}
+
+  void reset();
+
+  void AttachMesh(azer::MeshPtr mesh);
+  azer::MeshPtr GetMesh();
  private:
   SceneNode::Type type_;
+
+  azer::MeshPtr mesh_;
+  LightPtr light_;
   DISALLOW_COPY_AND_ASSIGN(SceneNodeData);
 };
 

@@ -39,4 +39,6 @@ class Mesh : public ::base::RefCounted<Mesh> {
   std::vector<azer::EffectParamsAdapter*> adapter_;
   DISALLOW_COPY_AND_ASSIGN(Mesh);
 };
+
+typedef scoped_refptr<Mesh> MeshPtr;
 }  // namespace lord
