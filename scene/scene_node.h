@@ -67,6 +67,9 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void set_user_data(void* data) { user_data_ = data;}
   void* user_data() {return user_data_;}
   const void* user_data() const {return user_data_;}
+
+  azer::Matrix4* mutable_world() { return &world_;}
+  const azer::Matrix4& world() const { return world_;}
  protected:
   SceneNodePtr GetLocalChild(const std::string& name);
   void print_info(std::string* str, int depth, SceneNode* node);
@@ -77,6 +80,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   std::string name_;
   void* user_data_;
   SceneNodeDataPtr data_;
+  azer::Matrix4 world_;
   azer::TransformHolder holder_;
   DISALLOW_COPY_AND_ASSIGN(SceneNode);
 };

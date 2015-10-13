@@ -17,6 +17,9 @@ class SceneNodeData : public ::base::RefCounted<SceneNodeData> {
 
   void AttachMesh(azer::MeshPtr mesh);
   azer::MeshPtr GetMesh();
+
+  void AttachLight(LightPtr light);
+  LightPtr light() { return light_;}
  private:
   SceneNode::Type type_;
 

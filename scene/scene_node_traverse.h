@@ -13,7 +13,7 @@ class SceneNodeTraverseDelegate {
 
   virtual void OnTraverseBegin(SceneNode* root) = 0;
   virtual bool OnTraverseNodeEnter(SceneNode* node) = 0;
-  virtual bool OnTraverseNodeExit(SceneNode* node) = 0;
+  virtual void OnTraverseNodeExit(SceneNode* node) = 0;
   virtual void OnTraverseEnd() = 0;
  private:
   DISALLOW_COPY_AND_ASSIGN(SceneNodeTraverseDelegate);
