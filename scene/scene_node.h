@@ -4,11 +4,11 @@
 #include "azer/render/render.h"
 
 namespace lord {
+class SceneContext;
 class SceneNode;
 class SceneNodeData;
+typedef scoped_refptr<SceneContext> SceneContextPtr;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
-typedef scoped_refptr<SceneNodeData> SceneNodeDataPtr;
-
 
 class SceneNode: public ::base::RefCounted<SceneNode> {
  public:
@@ -21,6 +21,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   };
 
   SceneNode();
+  SceneNode(SceneContextPtr context);
   explicit SceneNode(const std::string& name);
   ~SceneNode();
 
@@ -59,10 +60,9 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   azer::TransformHolder* mutable_holder() { return &holder_;}
   std::string print_info();
 
-  void attach(SceneNodeDataPtr object) { data_ = object;}
   Type type() const;
-  const SceneNodeDataPtr& data() const { return data_;}
-  SceneNodeDataPtr mutable_data() { return data_.get();}
+  const SceneNodeData* data() const { return data_.get();}
+  SceneNodeData* mutable_data() { return data_.get();}
 
   void set_user_data(void* data) { user_data_ = data;}
   void* user_data() {return user_data_;}
@@ -70,6 +70,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
 
   azer::Matrix4* mutable_world() { return &world_;}
   const azer::Matrix4& world() const { return world_;}
+
+  SceneContextPtr context();
  protected:
   SceneNodePtr GetLocalChild(const std::string& name);
   void print_info(std::string* str, int depth, SceneNode* node);
@@ -79,9 +81,11 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   SceneNodes children_;
   std::string name_;
   void* user_data_;
-  SceneNodeDataPtr data_;
+  scoped_ptr<SceneNodeData> data_;
   azer::Matrix4 world_;
   azer::TransformHolder holder_;
+
+  SceneContextPtr context_;
   DISALLOW_COPY_AND_ASSIGN(SceneNode);
 };
 

@@ -6,6 +6,7 @@
 #include "base/strings/string_tokenizer.h"
 #include "azer/render/render.h"
 #include "azer/math/math.h"
+#include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
@@ -14,6 +15,15 @@ SceneNode::SceneNode()
     : visible_(false),
       parent_(NULL),
       user_data_(NULL) {
+  data_.reset(new SceneNodeData(this));
+}
+
+SceneNode::SceneNode(SceneContextPtr context)
+    : visible_(false),
+      parent_(NULL),
+      user_data_(NULL),
+      context_(context) {
+  data_.reset(new SceneNodeData(this));
 }
 
 SceneNode::SceneNode(const std::string& name)
@@ -21,6 +31,7 @@ SceneNode::SceneNode(const std::string& name)
       parent_(NULL),
       name_(name),
       user_data_(NULL) {
+  data_.reset(new SceneNodeData(this));
 }
 
 SceneNode::~SceneNode() {
@@ -159,4 +170,13 @@ void SceneNode::print_info(std::string* str, int depth, SceneNode* node) {
     (*iter)->print_info(str, depth + 1, iter->get());
   }
 }
+
+SceneContextPtr SceneNode::context() {
+  if (parent()) {
+    return parent()->context();
+  } else {
+    return context_;
+  }
+}
+
 }  // namespace lord

@@ -17,7 +17,24 @@
 using views::Widget;
 using lord::SceneNodePtr;
 using lord::SceneNode;
+using lord::SceneContext;
+using lord::SceneContextPtr;
 using namespace azer;
+
+MeshPtr CreateSphere() {
+  RenderSystem* rs = RenderSystem::Current();
+  ColoredDiffuseEffectPtr diffuse_effect = CreateColoredDiffuseEffect();
+  GeometryObjectPtr obj = new CylinderObject(diffuse_effect->GetVertexDesc());
+  MeshPtr mesh = new Mesh(&context_);
+
+  Mesh::Entity entity;
+  entity.effect = diffuse_effect;
+  entity.vb = obj->GetVertexBuffer();
+  entity.ib = obj->GetIndicesBuffer();
+  entity.provider = new MaterialEffectProvider();
+  entity.adapter = new MaterialEffectAdapter;
+  mesh->AddEntity(entity);
+}
 
 int main(int argc, char* argv[]) {
   CHECK(lord::Context::InitContext(argc, argv));
@@ -29,7 +46,9 @@ int main(int argc, char* argv[]) {
   window->set_window_icon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
   window->Show();
 
-  SceneNodePtr root(new SceneNode("root"));
+  SceneContextPtr scene_context(new SceneContext);
+  SceneNodePtr root(new SceneNode(scene_context));
+  root->set_name("root");
   SceneNodePtr obj1(new SceneNode("obj1"));
   SceneNodePtr obj2(new SceneNode("obj1"));
   SceneNodePtr obj3(new SceneNode("obj1"));

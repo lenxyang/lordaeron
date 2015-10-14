@@ -45,15 +45,17 @@ void NodeRendererTraverseDelegate::UpdateNodeWorld(SceneNode* node) {
   *node->mutable_world() = std::move(parent_world * local);
 }
 
-SceneRenderContext::SceneRenderContext() {
+SceneRender::SceneRender(SceneContext* context, SceneNode* root) 
+    : context_(context),
+      root_(root) {
 }
 
-SceneRenderContext::~SceneRenderContext() {
+SceneRender::~SceneRender() {
 }
 
-void SceneRenderContext::Update(const azer::FrameArgs& args) {
+void SceneRender::Update(const azer::FrameArgs& args) {
 }
 
-void SceneRenderContext::Draw(azer::Renderer* renderer) {
+void SceneRender::Draw(azer::Renderer* renderer) {
 }
 }  // namespace lord

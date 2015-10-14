@@ -14,6 +14,7 @@ class Context {
   bool LoadResourcePack(const base::FilePath& path);
   nelf::ResourceBundle* resource_bundle() { return resource_bundle_.get();}
 
+  azer::EffectAdapterContext* GetEffectAdapterContext() { return &context_;}
   const azer::DirLight& GetInternalLight() const { return internal_light_;}
   azer::BlendingPtr GetDefaultBlending() { return blending_;}
  private:
@@ -26,6 +27,7 @@ class Context {
   azer::BlendingPtr blending_;
   azer::DirLight internal_light_;
   nelf::ContextPtr nelf_context_;
+  azer::EffectAdapterContext context_;
   static Context* instance_;
   DISALLOW_COPY_AND_ASSIGN(Context);
 };

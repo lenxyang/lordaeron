@@ -1,11 +1,13 @@
 #pragma once
 
+#include "base/memory/scoped_ptr.h"
 #include "azer/render/render.h"
 #include "lordaeron/scene/scene_node_traverse.h"
 
 namespace lord {
+class SceneContext;
+class SceneNode;
 class SceneEnvironment;
-typedef scoped_refptr<SceneEnvironment> SceneEnvironmentPtr;
 
 class NodeRendererTraverseDelegate : public SceneNodeTraverseDelegate {
  public:
@@ -22,15 +24,16 @@ class NodeRendererTraverseDelegate : public SceneNodeTraverseDelegate {
   DISALLOW_COPY_AND_ASSIGN(NodeRendererTraverseDelegate);
 };
 
-class SceneRenderContext {
+class SceneRender {
  public:
-  SceneRenderContext();
-  ~SceneRenderContext();
+  SceneRender(SceneContext* context, SceneNode* root);
+  ~SceneRender();
 
   void Update(const azer::FrameArgs& args);
   void Draw(azer::Renderer* renderer);
  private:
-  SceneEnvironmentPtr environment_;
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderContext);
+  SceneContext* context_;
+  SceneNode* root_;
+  DISALLOW_COPY_AND_ASSIGN(SceneRender);
 };
 }  // namespace lord
