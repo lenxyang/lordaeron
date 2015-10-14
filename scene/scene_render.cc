@@ -20,7 +20,7 @@ bool NodeRendererTraverseDelegate::OnTraverseNodeEnter(SceneNode* node)  {
   UpdateNodeWorld(node);
 
   if (node->type() == SceneNode::kLampNode) {
-    environment_->PushLight(node->data()->light());
+    environment_->PushLight(node->mutable_data()->light());
   } else if (node->type() == SceneNode::kMeshNode) {
   } else {
   }

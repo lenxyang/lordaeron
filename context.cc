@@ -4,6 +4,8 @@
 #include "azer/render/render.h"
 #include "lordaeron/ui/nelf_context.h"
 
+#include "lordaeron/effect/adapter/diffuse_effect_adapter.h"
+
 namespace lord {
 Context* Context::instance_ = NULL;;
 
@@ -50,7 +52,15 @@ bool Context::Init(int argc, char* argv[]) {
   blending_ = rs->CreateBlending(blend_desc);
   CHECK(blending_.get());
 
+  InitAdapterContext();
   return true;
+}
+
+void Context::InitAdapterContext() {
+  azer::EffectAdapterContext* adapter_ctx = GetEffectAdapterContext();
+  adapter_ctx->RegisteAdapter(new ColorEffectAdapter);
+  adapter_ctx->RegisteAdapter(new SceneNodeColorEffectAdapter);
+  adapter_ctx->RegisteAdapter(new GlobalEnvColorEffectAdapter);
 }
 
 bool Context::LoadResourcePack(const base::FilePath& path) {

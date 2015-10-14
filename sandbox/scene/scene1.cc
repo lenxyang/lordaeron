@@ -10,8 +10,10 @@
 #include "lordaeron/ui/toolbar/object_control_toolbar.h"
 #include "lordaeron/ui/render_frame_window.h"
 #include "lordaeron/mainframe_render_delegate.h"
+#include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_node_data.h"
+#include "lordaeron/effect/diffuse_effect_provider.h"
 #include "azer/render/util.h"
 
 using views::Widget;
@@ -21,19 +23,20 @@ using lord::SceneContext;
 using lord::SceneContextPtr;
 using namespace azer;
 
-MeshPtr CreateSphere() {
+MeshPtr CreateSphere(azer::VertexDescPtr desc) {
+  using lord::DiffuseEffectProvider;
+  lord::Context* ctx = lord::Context::instance(); 
   RenderSystem* rs = RenderSystem::Current();
-  ColoredDiffuseEffectPtr diffuse_effect = CreateColoredDiffuseEffect();
-  GeometryObjectPtr obj = new CylinderObject(diffuse_effect->GetVertexDesc());
-  MeshPtr mesh = new Mesh(&context_);
+  GeometryObjectPtr obj = new azer::CylinderObject(desc);
+  MeshPtr mesh = new Mesh(ctx->GetEffectAdapterContext());
 
-  Mesh::Entity entity;
-  entity.effect = diffuse_effect;
-  entity.vb = obj->GetVertexBuffer();
-  entity.ib = obj->GetIndicesBuffer();
-  entity.provider = new MaterialEffectProvider();
-  entity.adapter = new MaterialEffectAdapter;
-  mesh->AddEntity(entity);
+  RenderClosurePtr  render_closure(new RenderClosure(ctx->GetEffectAdapterContext()));
+  render_closure->SetVertexBuffer(obj->GetVertexBuffer());
+  render_closure->SetIndicesBuffer(obj->GetIndicesBuffer());
+  DiffuseEffectProvider* provider = new DiffuseEffectProvider;
+  render_closure->AddProvider(EffectParamsProviderPtr(provider));
+  mesh->AddRenderClosure(render_closure);
+  return mesh;
 }
 
 int main(int argc, char* argv[]) {
@@ -46,7 +49,7 @@ int main(int argc, char* argv[]) {
   window->set_window_icon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
   window->Show();
 
-  SceneContextPtr scene_context(new SceneContext);
+  SceneContextPtr scene_context = new lord::SceneContext;
   SceneNodePtr root(new SceneNode(scene_context));
   root->set_name("root");
   SceneNodePtr obj1(new SceneNode("obj1"));
