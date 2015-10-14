@@ -1,0 +1,9 @@
+group("scene") {
+  deps = [":scene1"]
+}
+
+executable("scene1") {
+  output_name = "lordaeron_sandbox_scene1"
+  sources = ["scene1.cc",]
+  deps = ["//lordaeron"]
+}

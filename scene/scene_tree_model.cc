@@ -107,7 +107,7 @@ int SceneTreeModel::GetIconIndex(ui::TreeModelNode* n)  {
   SceneNodePtr rnode = node->scene_node();
   switch (rnode->type()) {
     case SceneNode::kEmptyNode: return 0;
-    case SceneNode::kObjectNode: return 1;
+    case SceneNode::kMeshNode: return 1;
     case SceneNode::kLampNode: return 2;
     case SceneNode::kCameraNode: return 3;
     default: return 0;

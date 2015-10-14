@@ -1,22 +1,44 @@
 
 static_library("lordaeron") {
   sources = [
+    "config/project_config.cc",
+    "config/project_config.h",
+    "config/xml_util.cc",
+    "config/xml_util.h",
     "context.cc",
     "context.h",
+    "effect/adapter/diffuse_effect_adapter.cc",
+    "effect/adapter/diffuse_effect_adapter.h",
+    "effect/global_environemnt_params.cc",
+    "effect/global_environemnt_params.h",
+    "effect/scene_node_params.cc",
+    "effect/scene_node_params.h",
     "mainframe_render_delegate.cc",
     "mainframe_render_delegate.h",
     "render/camera_overlay.cc",
     "render/camera_overlay.h",
     "render/rotate_controller_object.cc",
     "render/rotate_controller_object.h",
+    "scene/scene_context.cc",
+    "scene/scene_context.h",
+    "scene/scene_environment.cc",
+    "scene/scene_environment.h",
+    "scene/scene_mesh.cc",
+    "scene/scene_mesh.h",
     "scene/scene_node.cc",
     "scene/scene_node.h",
     "scene/scene_node_data.cc",
     "scene/scene_node_data.h",
+    "scene/scene_node_traverse.cc",
+    "scene/scene_node_traverse.h",
+    "scene/scene_render.cc",
+    "scene/scene_render.h",
     "scene/scene_tree_model.cc",
     "scene/scene_tree_model.h",
     "ui/camera_view.cc",
     "ui/camera_view.h",
+    "ui/models/repository_model.cc",
+    "ui/models/repository_model.h",
     "ui/render_frame_window.cc",
     "ui/render_frame_window.h",
     "ui/renderer_info_pane.cc",
@@ -44,6 +66,7 @@ static_library("lordaeron") {
     "//azer",
     "//azer/math",
     "//azer/render/util",
+    "//azer/util/xml",
     "//nelf",
     "res",
   ]
@@ -53,4 +76,8 @@ executable("mainframe") {
   output_name = "lordaeron_mainframe"
   sources = ["mainframe.cc",]
   deps = [":lordaeron"]
+}
+
+group("sandbox") {
+  deps = ["sandbox"]
 }
