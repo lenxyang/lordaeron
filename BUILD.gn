@@ -1,4 +1,17 @@
 
+source_set("model_loader") {
+  sources = [
+    "util/model_loader.cc",
+    "util/model_loader.h",
+  ]
+
+  deps = [
+    "//azer",
+    "//azer/third_party/assimp",
+  ]
+}
+
+
 static_library("lordaeron") {
   sources = [
     "config/project_config.cc",
@@ -61,6 +74,9 @@ static_library("lordaeron") {
     "ui/toolbar/object_control_toolbar.h",
     "ui/window.cc",
     "ui/window.h",
+  ]
+  deps = [
+    ":model_loader",
   ]
   public_deps = [
     "//skia",
