@@ -8,6 +8,9 @@ SceneNodeTraverse::SceneNodeTraverse(SceneNodeTraverseDelegate* delegate)
     : delegate_(delegate) {
 }
 
+SceneNodeTraverse::~SceneNodeTraverse() {
+}
+
 void SceneNodeTraverse::Traverse(SceneNode* root) {
   delegate_->OnTraverseBegin(root);
   TraverseNode(root);

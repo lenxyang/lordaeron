@@ -1,7 +1,8 @@
 #include "lordaeron/effect/global_environemnt_params.h"
 
 namespace lord {
-GlobalEnvironmentParams::GlobalEnvironmentParams() {
+GlobalEnvironmentParams::GlobalEnvironmentParams() 
+    : camera_(NULL) {
   projview_ = azer::Matrix4::kIdentity;
 }
 

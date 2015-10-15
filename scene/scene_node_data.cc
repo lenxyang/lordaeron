@@ -26,15 +26,18 @@ void SceneNodeData::reset() {
 }
 
 void SceneNodeData::AttachMesh(azer::MeshPtr mesh) {
-  DCHECK(type_ == SceneNode::kMeshNode || type_ == SceneNode::kEmptyNode);
+  DCHECK(type_ == SceneNode::kEmptyNode);
   mesh_ = mesh;
   SceneNodeParamsPtr params(new SceneNodeParams(node_));
   mesh_->AddProvider(params);
   mesh_->AddProvider(node_->context()->GetGlobalEnvironment());
-  if (mesh.get()) {
-    type_ = SceneNode::kMeshNode;
-  } else {
-    type_ = SceneNode::kEmptyNode;
-  }
+  type_ = SceneNode::kMeshNode;
+}
+
+void SceneNodeData::AttachLight(LightPtr light) {
+  DCHECK(light.get());
+  DCHECK(type_ == SceneNode::kEmptyNode);
+  light_ = light;
+  type_ = SceneNode::kLampNode;
 }
 }  // namespace loard

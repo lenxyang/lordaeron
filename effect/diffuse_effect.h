@@ -4,6 +4,7 @@
 #include "azer/math/math.h"
 #include "azer/render/render.h"
 #include "azer/render/util/light.h"
+#include "lordaeron/render/light.h"
 
 namespace lord {
 class DiffuseEffect : public azer::Effect {
@@ -30,7 +31,7 @@ class DiffuseEffect : public azer::Effect {
   void SetPV(const azer::Matrix4& value);
   void SetWorld(const azer::Matrix4& value);
   void SetColor(const azer::Vector4& value);
-  void SetDirLight(const azer::DirLight& value);
+  void SetDirLight(const DirLight& value);
  protected:
   void ApplyGpuConstantTable(azer::Renderer* renderer) override;
   void InitTechnique(const ShaderPrograms& source);
@@ -39,7 +40,7 @@ class DiffuseEffect : public azer::Effect {
   azer::Matrix4 pv_;
   azer::Matrix4 world_;
   azer::Vector4 color_;
-  azer::DirLight light_;
+  DirLight light_;
   DISALLOW_COPY_AND_ASSIGN(DiffuseEffect);
 };
 

@@ -48,7 +48,7 @@ void DiffuseEffect::InitGpuConstantTable() {
     GpuConstantsTable::Desc("color", GpuConstantsType::kVector4,
          offsetof(ps_cbuffer, color), 1),
     GpuConstantsTable::Desc("light", offsetof(ps_cbuffer, light),
-         sizeof(DirLight), 1),
+         sizeof(lord::DirLight), 1),
   };
   gpu_table_[kPixelStage] = render_system_->CreateGpuConstantsTable(
       arraysize(ps_table_desc), ps_table_desc);
@@ -66,7 +66,7 @@ void DiffuseEffect::SetWorld(const Matrix4& value) {
 void DiffuseEffect::SetColor(const Vector4& value) {
   color_ = value;
 }
-void DiffuseEffect::SetDirLight(const DirLight& value) {
+void DiffuseEffect::SetDirLight(const lord::DirLight& value) {
   light_ = value;
 }
 
@@ -82,7 +82,7 @@ void DiffuseEffect::ApplyGpuConstantTable(Renderer* renderer) {
     GpuConstantsTable* tb = gpu_table_[(int)kPixelStage].get();
     DCHECK(tb != NULL);
     tb->SetValue(0, &color_, sizeof(Vector4));
-    tb->SetValue(1, &light_, sizeof(DirLight));
+    tb->SetValue(1, &light_, sizeof(lord::DirLight));
   }
 }
 

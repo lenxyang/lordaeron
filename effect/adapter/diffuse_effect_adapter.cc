@@ -61,6 +61,7 @@ void GlobalEnvColorEffectAdapter::Apply(
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
 
   effect->SetPV(provider->GetProjView());
+  effect->SetDirLight(provider->light()->dir_light());
 }
 
 }  // namespace lord
