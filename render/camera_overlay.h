@@ -16,7 +16,7 @@ class CameraOverlay {
   azer::Matrix4 world_;
   azer::OverlayPtr overlay_;
   azer::RendererPtr renderer_;
-  azer::Renderer::Viewport viewport_;
+  azer::Viewport viewport_;
   scoped_ptr<azer::AxesFrames> object_;
   const azer::Camera* camera_;
   DISALLOW_COPY_AND_ASSIGN(CameraOverlay);

@@ -1,4 +1,17 @@
 
+source_set("model_loader") {
+  sources = [
+    "util/model_loader.cc",
+    "util/model_loader.h",
+  ]
+
+  deps = [
+    "//azer",
+    "//azer/third_party/assimp",
+  ]
+}
+
+
 static_library("lordaeron") {
   sources = [
     "config/project_config.cc",
@@ -9,6 +22,10 @@ static_library("lordaeron") {
     "context.h",
     "effect/adapter/diffuse_effect_adapter.cc",
     "effect/adapter/diffuse_effect_adapter.h",
+    "effect/diffuse_effect.cc",
+    "effect/diffuse_effect.h",
+    "effect/diffuse_effect_provider.cc",
+    "effect/diffuse_effect_provider.h",
     "effect/global_environemnt_params.cc",
     "effect/global_environemnt_params.h",
     "effect/scene_node_params.cc",
@@ -17,6 +34,8 @@ static_library("lordaeron") {
     "mainframe_render_delegate.h",
     "render/camera_overlay.cc",
     "render/camera_overlay.h",
+    "render/light.cc",
+    "render/light.h",
     "render/rotate_controller_object.cc",
     "render/rotate_controller_object.h",
     "scene/scene_context.cc",
@@ -55,6 +74,9 @@ static_library("lordaeron") {
     "ui/toolbar/object_control_toolbar.h",
     "ui/window.cc",
     "ui/window.h",
+  ]
+  deps = [
+    ":model_loader",
   ]
   public_deps = [
     "//skia",

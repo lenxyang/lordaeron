@@ -22,6 +22,7 @@ class Context {
   ~Context();
 
   bool Init(int argc, char* argv[]);
+  void InitAdapterContext();
 
   scoped_ptr<nelf::ResourceBundle> resource_bundle_;
   azer::BlendingPtr blending_;

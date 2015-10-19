@@ -1,6 +1,9 @@
 #include <memory>
 
 #include "base/strings/utf_string_conversions.h"
+#include "base/files/file_path.h"
+#include "azer/files/native_file_system.h"
+#include "azer/render/util.h"
 #include "nelf/nelf.h"
 #include "nelf/gfx_util.h"
 #include "nelf/res/grit/common.h"
@@ -18,13 +21,15 @@
 #include "lordaeron/ui/toolbar/object_control_toolbar.h"
 #include "lordaeron/ui/render_frame_window.h"
 #include "lordaeron/ui/renderer_info_pane.h"
-#include "azer/render/util.h"
+#include "lordaeron/util/model_loader.h"
 
 using views::Widget;
 using lord::SceneNodePtr;
 using lord::SceneNode;
 using lord::SceneContext;
 using lord::SceneContextPtr;
+using base::UTF8ToUTF16;
+using base::UTF16ToUTF8;
 using namespace azer;
 
 namespace lord {
@@ -51,6 +56,7 @@ class RenderDelegate : public nelf::RenderDelegate {
   scoped_ptr<CameraOverlay> camera_overlay_;
   scoped_ptr<azer::CoordinateGrid> gridline_;
   scoped_ptr<azer::FPSCameraController> camera_controller_;
+  scoped_ptr<FileSystem> fsystem_;
   DISALLOW_COPY_AND_ASSIGN(RenderDelegate);
 };
 }  // namespace lord
@@ -76,28 +82,15 @@ using namespace azer;
 const Vector4 kGridLineColor = Vector4(0.663f, 0.663f, 0.663f, 1.0f);
 const Vector4 kRenderBgColor = Vector4(0.427f, 0.427f, 0.427f, 1.0f);
 
-MeshPtr CreateMeshFromGeometry(GeometryObject* obj, azer::VertexDescPtr desc) {
-  using lord::DiffuseEffectProvider;
-  lord::Context* ctx = lord::Context::instance(); 
-  RenderSystem* rs = RenderSystem::Current();
-  MeshPtr mesh = new Mesh(ctx->GetEffectAdapterContext());
-
-  RenderClosurePtr  render_closure(new RenderClosure(
-      ctx->GetEffectAdapterContext()));
-  render_closure->SetVertexBuffer(obj->GetVertexBuffer());
-  render_closure->SetIndicesBuffer(obj->GetIndicesBuffer());
-  DiffuseEffectProvider* provider = new DiffuseEffectProvider;
-  render_closure->AddProvider(EffectParamsProviderPtr(provider));
-  mesh->AddRenderClosure(render_closure);
-  return mesh;
-}
-
 RenderDelegate::RenderDelegate()
     : renderer_pane_(NULL) {
 }
 
 
 void RenderDelegate::InitScene() {
+  lord::Context* ctx = lord::Context::instance(); 
+  fsystem_.reset(new azer::NativeFileSystem(
+      ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
   lord::DirLight dirlight;
   dirlight.dir = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
   dirlight.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
@@ -117,16 +110,32 @@ void RenderDelegate::InitScene() {
   scene1->AddChild(node2);
   scene1->AddChild(node3);
 
+  lord::ModelLoader loader(fsystem_.get());
+                 
   VertexDescPtr desc = effect_->GetVertexDesc();
-  GeometryObjectPtr obj1 = new azer::CylinderObject(desc);
-  GeometryObjectPtr obj2 = new azer::SphereObject(desc);
-  GeometryObjectPtr obj3 = new azer::SphereObject(desc);
-  node1->mutable_data()->AttachMesh(CreateMeshFromGeometry(obj1.get(), desc));
-  node2->mutable_data()->AttachMesh(CreateMeshFromGeometry(obj2.get(), desc));
-  node3->mutable_data()->AttachMesh(CreateMeshFromGeometry(obj3.get(), desc));
+  lord::DiffuseEffectProvider* p1(new lord::DiffuseEffectProvider);
+  lord::DiffuseEffectProvider* p2(new lord::DiffuseEffectProvider);
+  lord::DiffuseEffectProvider* p3(new lord::DiffuseEffectProvider);
+
+  p1->SetColor(azer::Vector4(0.3f, 0.3f, 0.3f, 1.0f));
+  p2->SetColor(azer::Vector4(0.6f, 0.6f, 0.6f, 1.0f));
+  p3->SetColor(azer::Vector4(0.8f, 0.8f, 0.8f, 1.0f));
+  azer::MeshPtr obj1 = loader.Load(ResPath(UTF8ToUTF16("//model/teapot.obj")), desc);
+  azer::MeshPtr obj2 = loader.Load(ResPath(UTF8ToUTF16("//model/trunk.obj")), desc);
+  azer::MeshPtr obj3 = loader.Load(ResPath(UTF8ToUTF16("//model/venusm.obj")), desc);
+  obj1->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
+  obj2->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
+  obj3->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
+  obj1->AddProvider(EffectParamsProviderPtr(p1));
+  obj2->AddProvider(EffectParamsProviderPtr(p2));
+  obj3->AddProvider(EffectParamsProviderPtr(p3));
+  node1->mutable_data()->AttachMesh(obj1);
+  node2->mutable_data()->AttachMesh(obj2);
+  node3->mutable_data()->AttachMesh(obj3);
   node1->mutable_holder()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
-  node2->mutable_holder()->SetPosition(Vector3(0.0f, 0.0f, -3.0f));
-  node3->mutable_holder()->SetPosition(Vector3(3.0f, 00.0f, 0.0f));
+  node2->mutable_holder()->SetPosition(Vector3(0.0f, 0.0f, -10.0f));
+  node3->mutable_holder()->SetPosition(Vector3(10.0f, 00.0f, 0.0f));
+  node3->mutable_holder()->SetScale(Vector3(0.002f, 0.002f, 0.002f));
   scene_renderer_.reset(new SceneRender(scene_context_.get(), root_.get()));
 }
 
