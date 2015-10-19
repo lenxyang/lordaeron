@@ -49,7 +49,7 @@ void CameraOverlay::Render(Renderer* renderer) {
   Context* context = Context::instance();
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
-  overlay_->SetTexture(renderer_->GetRenderTarget()->GetTexture());
+  overlay_->SetTexture(renderer_->GetRenderTarget(0)->GetTexture());
   overlay_->Render(renderer);
   renderer->ResetBlending();
 }

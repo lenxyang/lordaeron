@@ -13,14 +13,15 @@ namespace lord {
 
 namespace {
 using namespace azer;
-typedef std::pair<VertexDataPtr, IndicesDataPtr> MeshData;
+typedef std::pair<SlotVertexDataPtr, IndicesDataPtr> MeshData;
 MeshData LoadMeshData(const aiMesh* paiMesh, azer::VertexDescPtr desc) {
-  VertexDataPtr vdata(new VertexData(desc, paiMesh->mNumVertices));
+  SlotVertexDataPtr vdata(new SlotVertexData(desc, paiMesh->mNumVertices));
   IndicesDataPtr idata(new IndicesData(paiMesh->mNumFaces * 3));
   VertexPack vpack(vdata.get());
 
-  int32 kNormal0Idx = azer::GetSemanticIndex("normal", 0, desc.get());
-  int32 kTexcoord0Idx = azer::GetSemanticIndex("texcoord", 0, desc.get());
+  VertexPos npos, tpos;
+  azer::GetSemanticIndex("normal", 0, desc.get(), &npos);
+  azer::GetSemanticIndex("texcoord", 0, desc.get(), &tpos);
 
   const aiVector3D zero3d(0.0f, 0.0f, 0.0f);
   CHECK(vpack.first());
@@ -30,11 +31,9 @@ MeshData LoadMeshData(const aiMesh* paiMesh, azer::VertexDescPtr desc) {
     const aiVector3D& texcoord =
         paiMesh->HasTextureCoords(0) ? (paiMesh->mTextureCoords[0][i]) : zero3d;
 
-    vpack.WriteVector4(Vector4(pos.x, pos.y, pos.z, 1.0f), 0);
-    if (kTexcoord0Idx > 0)
-      vpack.WriteVector2(Vector2(texcoord.x, texcoord.y), kTexcoord0Idx);
-    if (kNormal0Idx > 0)
-      vpack.WriteVector4(Vector4(normal.x, normal.y, normal.z, 0.0), kNormal0Idx);
+    vpack.WriteVector4(Vector4(pos.x, pos.y, pos.z, 1.0f), VertexPos(0, 0));
+    vpack.WriteVector2(Vector2(texcoord.x, texcoord.y), tpos);
+    vpack.WriteVector4(Vector4(normal.x, normal.y, normal.z, 0.0), npos);
     vpack.next(1);
   }
 
