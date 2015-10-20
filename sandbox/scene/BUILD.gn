@@ -1,15 +1,15 @@
 group("scene") {
-  deps = [":scene1", ":model"]
-}
-
-executable("scene1") {
-  output_name = "lordaeron_sandbox_scene1"
-  sources = ["scene1.cc",]
-  deps = ["//lordaeron"]
+  deps = [":sceneui", ":model"]
 }
 
 executable("model") {
   output_name = "lordaeron_sandbox_scene_model"
   sources = ["model.cc",]
+  deps = ["//lordaeron"]
+}
+
+executable("sceneui") {
+  output_name = "lordaeron_sandbox_sceneui"
+  sources = ["sceneui.cc",]
   deps = ["//lordaeron"]
 }
