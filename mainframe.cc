@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
   root->AddChild(lord::SceneNodePtr(new lord::SceneNode("lamp2")));
   root->AddChild(lord::SceneNodePtr(new lord::SceneNode("lamp3")));
   lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(
-      gfx::Rect(300, 400), window);
+      gfx::Rect(400, 300), window);
   scene->SetSceneNode(root);
   scene->Init();
   scene->Show();
