@@ -37,6 +37,7 @@ class RendererInfoPane;
 class RenderDelegate : public nelf::RenderDelegate {
  public:
   RenderDelegate();
+  bool Init();
   virtual bool Initialize() override;
   virtual void OnUpdate(const azer::FrameArgs& args) override;
   virtual void OnRender(const azer::FrameArgs& args) override;
@@ -44,6 +45,8 @@ class RenderDelegate : public nelf::RenderDelegate {
   // attributes
   const azer::Camera& camera() const { return camera_;}
   void InitScene();
+
+  SceneNode* root() { return root_.get();}
  private:
   SceneNodePtr root_;
   SceneContextPtr scene_context_;
@@ -63,7 +66,9 @@ class RenderDelegate : public nelf::RenderDelegate {
 
 int main(int argc, char* argv[]) {
   CHECK(lord::Context::InitContext(argc, argv));
-  scoped_ptr<nelf::RenderDelegate> delegate(new lord::RenderDelegate);
+  scoped_ptr<lord::RenderDelegate> delegate(new lord::RenderDelegate);
+  lord::RenderDelegate* del = delegate.get();
+  delegate->Init();
   lord::RenderFrameWindow* window = new lord::RenderFrameWindow(
       gfx::Rect(0, 0, 800, 600), delegate.Pass());
   window->set_show_icon(true);
@@ -140,19 +145,6 @@ void RenderDelegate::InitScene() {
 }
 
 bool RenderDelegate::Initialize() { 
-  Vector3 camera_pos(0.0f, 1.0f, 5.0f);
-  Vector3 lookat(0.0f, 1.0f, 0.0f);
-  Vector3 up(0.0f, 1.0f, 0.0f);
-  camera_.reset(camera_pos, lookat, up);
-  camera_controller_.reset(new FPSCameraController(&camera_));
-  view()->AddEventListener(camera_controller_.get());
-
-  gridline_.reset(new CoordinateGrid(1.0f, 1.0f, 30));
-  gridline_->SetXCoordColor(kGridLineColor);
-  gridline_->SetZCoordColor(kGridLineColor);
-  effect_ = CreateDiffuseEffect();
-  InitScene();
-
   camera_overlay_.reset(new CameraOverlay(&camera_));
   this->window()->SetRenderUI(true);
 
@@ -160,6 +152,29 @@ bool RenderDelegate::Initialize() {
   renderer_pane_->SetBounds(10, 10, 180, 120);
   this->window()->AddChildView(renderer_pane_);
   // scene_renderer_->Update(args);
+
+  Vector3 camera_pos(0.0f, 1.0f, 5.0f);
+  Vector3 lookat(0.0f, 1.0f, 0.0f);
+  Vector3 up(0.0f, 1.0f, 0.0f);
+  camera_.reset(camera_pos, lookat, up);
+  camera_controller_.reset(new FPSCameraController(&camera_));
+  view()->AddEventListener(camera_controller_.get());
+
+  lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(
+      gfx::Rect(400, 300), this->window()->GetTopWindow());
+  scene->SetSceneNode(root_);
+  scene->Init();
+  scene->Show();
+  scene->SetTitle(base::UTF8ToUTF16("Scene"));
+  return true;
+}
+
+bool RenderDelegate::Init() { 
+  gridline_.reset(new CoordinateGrid(1.0f, 1.0f, 30));
+  gridline_->SetXCoordColor(kGridLineColor);
+  gridline_->SetZCoordColor(kGridLineColor);
+  effect_ = CreateDiffuseEffect();
+  InitScene();
   return true;
 }
 
