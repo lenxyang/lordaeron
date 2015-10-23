@@ -5,6 +5,7 @@
 #include "ui/views/layout/fill_layout.h"
 #include "lordaeron/context.h"
 #include "lordaeron/res/grit/common.h"
+#include "lordaeron/ui/iconset.h"
 #include "lordaeron/ui/scene_tree_view_lineitem.h"
 #include "lordaeron/scene/scene_tree_model.h"
 #include "lordaeron/scene/scene_node_data.h"
@@ -25,8 +26,11 @@ SceneTreeView::~SceneTreeView() {
 }
 
 void SceneTreeView::InitUI() {
+  Context* ctx = Context::instance();
   tree_view_ = new nelf::CollapsedBasedTreeView;
   tree_view_->SetNodeCreator(node_creator.Pointer());
+  tree_view_->set_closed_icon(ctx->GetIcon(Iconset::kIconCollapse));
+  tree_view_->set_open_icon(ctx->GetIcon(Iconset::kIconExpand));
   tree_view_->SetRootShown(false);
   tree_view_->SetController(this);
   AddChildView(tree_view_);

@@ -14,12 +14,12 @@
 namespace lord {
 
 using nelf::Theme;
-
 const int32 SceneTreeViewLineItemView::kTextVerticalPadding = 4;
 const int32 SceneTreeViewLineItemView::kImageMargin = 3;
 const int32 SceneTreeViewLineItemView::kIdent = 20;
 const char SceneTreeViewLineItemView::kViewClassName[] = 
     "nelf::SceneTreeViewLineItemView";
+
 SceneTreeViewLineItemView::SceneTreeViewLineItemView(
     nelf::CollapsedBasedTreeViewNode* node) 
     : node_(node) {
@@ -47,18 +47,37 @@ void SceneTreeViewLineItemView::OnNodeChanged()  {
 
 void SceneTreeViewLineItemView::UpdatePreferredSize() {
   views::Label* label = new views::Label(node_->model_node()->GetTitle());
+  nelf::TreeView* tree_view = node_->tree_view();
+  ui::TreeModel* model = tree_view->model();
   const gfx::FontList& fontlist = node_->tree_view()->GetFontList();
   label->SetFontList(fontlist);
-  int width = CalcLeftMargin();
-  if (icon_.width() > 0) {
-    width += icon_.width();
-    width += kImageMargin;
+  {
+    const gfx::ImageSkia closed_icon = tree_view->closed_icon();
+    int x = CalcLeftMargin();
+    int y = (GetContentsBounds().height() - closed_icon.width()) * 0.5;
+    expand_bounds_.set_origin(gfx::Point(x, y));
+    expand_bounds_.set_size(closed_icon.size());
+	if (model->GetChildCount(node_->model_node()) == 0)
+	  expand_bounds_.set_width(0);
   }
-  text_bounds_.set_origin(gfx::Point(width, kTextVerticalPadding));
+
+  if (icon_.width() > 0) {
+    int x = expand_bounds_.right();
+    if (expand_bounds_.width() > 0)
+      x += kImageMargin;
+    int y = (GetContentsBounds().height() - icon_.width()) * 0.5;
+    icon_bounds_.set_x(x);
+    icon_bounds_.set_y(y);
+    icon_bounds_.set_size(icon_.size());
+  }
+
+  int x = icon_bounds_.right();
+  if (icon_bounds_.width() > 0)
+    x += kImageMargin;
+  text_bounds_.set_origin(gfx::Point(x, kTextVerticalPadding));
   text_bounds_.set_size(label->GetPreferredSize());
-  width += text_bounds_.width();
   gfx::Size pref_size = preferred_size_;
-  preferred_size_ = gfx::Size(width, line_height_);
+  preferred_size_ = gfx::Size(text_bounds_.right(), line_height_);
   if (pref_size != preferred_size_) {
     PreferredSizeChanged();
     SchedulePaint();
@@ -76,22 +95,28 @@ void SceneTreeViewLineItemView::Layout() {
 
 void SceneTreeViewLineItemView::OnPaint(gfx::Canvas* canvas) {
   nelf::CollapsedBasedTreeView* tree = node_->tree_view();
-  SkColor text_color;
   Theme* theme = nelf::GetThemeFromNativeTheme(GetNativeTheme());
+  if (expand_bounds_.width() > 0) {
+    gfx::ImageSkia expand_icon;
+    if (node_->collapsed()) {
+      expand_icon = tree->open_icon();
+    } else {
+      expand_icon = tree->closed_icon();
+    }
+    canvas->DrawImageInt(expand_icon, expand_bounds_.x(), expand_bounds_.y());
+  }
+
+  if (icon_.width() > 0) {
+    canvas->DrawImageInt(icon_, icon_bounds_.x(), icon_bounds_.y());
+  }
+
+  SkColor text_color;
   bool selected = (tree->GetSelectedNode() == node_);
   if (selected) {
     text_color = theme->GetColor(Theme::kColorId_TreeViewTextHighlightColor);
   } else {
     text_color = theme->GetColor(Theme::kColorId_TreeViewTextColor);
   }
-
-  gfx::Rect bounds = GetContentsBounds();
-  if (icon_.width() > 0) {
-    int x = CalcLeftMargin();
-    int y = bounds.y() + (bounds.height() - icon_.height())/2;
-    canvas->DrawImageInt(icon_, x, y);
-  }
-
   const gfx::FontList& fontlist = node_->tree_view()->GetFontList();
   canvas->DrawStringRect(node_->model_node()->GetTitle(), fontlist,
                          text_color, text_bounds_);

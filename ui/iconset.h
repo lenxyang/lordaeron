@@ -10,13 +10,21 @@ class Context;
 class Iconset {
  public:
   enum {
-    kIconSceneNode      = 0x00000017,
-    kIconSceneCamera    = 0x00060014,
-    kIconSceneLamp      = 0x00050014,
-    kIconSceneObject    = 0x00030017,
-    kIconSceneWorld     = 0x00020017,
-    kIconSceneTemplate  = 0x00010017,
-    kIconSceneMtrl      = 0x00160016,
+    kIconSceneNode        = 0x00000017,
+    kIconSceneCamera      = 0x00060014,
+    kIconSceneLamp        = 0x00050014,
+    kIconSceneObject      = 0x00030017,
+    kIconSceneWorld       = 0x00020017,
+    kIconSceneTemplate    = 0x00010017,
+    kIconSceneMtrl        = 0x00160016,
+
+    kIconTriangleLeft     = 0x0006001C,
+    kIconTriangleRight    = 0x0004001C,
+    kIconTriangleUp       = 0x0007001C,
+    kIconTriangleDown     = 0x0005001C,
+    kIconTriangleLR       = 0x0008001C,
+    kIconExpand           = 0x000A001C,
+    kIconCollapse         = 0x000B001C,
   };
   Iconset(Context* context);
 

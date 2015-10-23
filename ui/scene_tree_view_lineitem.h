@@ -31,6 +31,8 @@ class SceneTreeViewLineItemView : public nelf::CollapsedBasedTreeView::LineItemV
   gfx::ImageSkia icon_;
   nelf::CollapsedBasedTreeViewNode* node_;
   gfx::Size preferred_size_;
+  gfx::Rect expand_bounds_;
+  gfx::Rect icon_bounds_;
   gfx::Rect text_bounds_;
   int32 line_height_;
   static const int32 kTextVerticalPadding;
