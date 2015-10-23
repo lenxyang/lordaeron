@@ -11,19 +11,19 @@ namespace lord {
 
 class SceneTreeModel;
 class SceneTreeView : public views::View,
-                      public views::TreeViewController {
+                      public nelf::TreeViewController {
  public:
   SceneTreeView(SceneNodePtr node);
   ~SceneTreeView();
 
   // override from views::TreeViewController
-  void OnTreeViewSelectionChanged(views::TreeView* tree_view) override;
-  bool CanEdit(views::TreeView* tree_view, ui::TreeModelNode* node) override;
+  void OnTreeViewSelectionChanged(nelf::TreeView* tree_view) override;
+  bool CanEdit(nelf::TreeView* tree_view, ui::TreeModelNode* node) override;
  private:
   void InitUI();
   void Init();
   scoped_ptr<SceneTreeModel> tree_model_;
-  views::TreeView* tree_view_;
+  nelf::CollapsedBasedTreeView* tree_view_;
   DISALLOW_COPY_AND_ASSIGN(SceneTreeView);
 };
 

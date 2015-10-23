@@ -17,8 +17,8 @@ Iconset::Iconset(Context* context) {
 }
 
 gfx::ImageSkia Iconset::GetIcon(int32 id) {
-  int32 x = id & 0x0000FFFF;
-  int32 y = (id & 0xFFFf0000) >> 16;
+  int32 x = (id & 0xFFFf0000) >> 16; 
+  int32 y = id & 0x0000FFFF;
   return package_->GetIcon(x, y);
 }
 }  // namespace lord

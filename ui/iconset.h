@@ -10,6 +10,13 @@ class Context;
 class Iconset {
  public:
   enum {
+    kIconSceneNode      = 0x00000017,
+    kIconSceneCamera    = 0x00060014,
+    kIconSceneLamp      = 0x00050014,
+    kIconSceneObject    = 0x00030017,
+    kIconSceneWorld     = 0x00020017,
+    kIconSceneTemplate  = 0x00010017,
+    kIconSceneMtrl      = 0x00160016,
   };
   Iconset(Context* context);
 
