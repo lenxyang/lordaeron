@@ -1,13 +1,20 @@
 #include "lordaeron/ui/scene_tree_view.h"
 
 #include "base/strings/utf_string_conversions.h"
+#include "base/lazy_instance.h"
 #include "ui/views/layout/fill_layout.h"
 #include "lordaeron/context.h"
 #include "lordaeron/res/grit/common.h"
+#include "lordaeron/ui/scene_tree_view_lineitem.h"
 #include "lordaeron/scene/scene_tree_model.h"
 #include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
+namespace {
+base::LazyInstance<SceneTreeViewLineItemViewCreator> node_creator
+= LAZY_INSTANCE_INITIALIZER;
+}  // namespace
+
 SceneTreeView::SceneTreeView(SceneNodePtr node) {
   InitUI();
   tree_model_.reset(new SceneTreeModel(node));
@@ -19,6 +26,7 @@ SceneTreeView::~SceneTreeView() {
 
 void SceneTreeView::InitUI() {
   tree_view_ = new nelf::CollapsedBasedTreeView;
+  tree_view_->SetNodeCreator(node_creator.Pointer());
   tree_view_->SetRootShown(false);
   tree_view_->SetController(this);
   AddChildView(tree_view_);
