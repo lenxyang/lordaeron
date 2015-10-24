@@ -7,7 +7,7 @@
 namespace lord {
 Iconset::Iconset(Context* context) {
   nelf::IconsetPackage::Options opt;
-  opt.margin = gfx::Insets(9, 4, 3, 51);
+  opt.margin = gfx::Insets(7, 4, 2, 51);
   opt.unit = 16;
   opt.border = 1;
   opt.padding = 2;

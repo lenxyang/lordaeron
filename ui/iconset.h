@@ -18,13 +18,13 @@ class Iconset {
     kIconSceneTemplate    = 0x00010017,
     kIconSceneMtrl        = 0x00160016,
 
-    kIconTriangleLeft     = 0x0006001C,
-    kIconTriangleRight    = 0x0004001C,
-    kIconTriangleUp       = 0x0007001C,
-    kIconTriangleDown     = 0x0005001C,
-    kIconTriangleLR       = 0x0008001C,
-    kIconExpand           = 0x000A001C,
-    kIconCollapse         = 0x000B001C,
+    kIconTriangleLeft     = 0x0006001D,
+    kIconTriangleRight    = 0x0004001D,
+    kIconTriangleUp       = 0x0007001D,
+    kIconTriangleDown     = 0x0005001D,
+    kIconTriangleLR       = 0x0008001D,
+    kIconExpand           = 0x000A001D,
+    kIconCollapse         = 0x000B001D,
   };
   Iconset(Context* context);
 
