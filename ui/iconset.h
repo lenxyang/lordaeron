@@ -23,8 +23,8 @@ class Iconset {
     kIconTriangleUp       = 0x0007001D,
     kIconTriangleDown     = 0x0005001D,
     kIconTriangleLR       = 0x0008001D,
-    kIconExpand           = 0x000A001D,
-    kIconCollapse         = 0x000B001D,
+    kIconCollapse         = 0x000A001D,
+    kIconExpand           = 0x000B001D,
   };
   Iconset(Context* context);
 

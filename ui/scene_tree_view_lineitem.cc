@@ -137,13 +137,19 @@ gfx::Size SceneTreeViewLineItemView::GetPreferredSize() const {
   return preferred_size_;
 }
 
+void SceneTreeViewLineItemView::ExpandOrCollapse() {
+  if (node_->collapsed()) {
+    node_->Expand();
+  } else {
+    node_->Collapse();
+  }
+}
+
 bool SceneTreeViewLineItemView::OnMousePressed(const ui::MouseEvent& event)  {
-  if (event.GetClickCount() == 2 && event.IsOnlyLeftMouseButton()) {
-    if (node_->collapsed()) {
-      node_->Expand();
-    } else {
-      node_->Collapse();
-    }
+  if (expand_bounds_.Contains(event.location())) {
+    ExpandOrCollapse();
+  } else if (event.GetClickCount() == 2 && event.IsOnlyLeftMouseButton()) {
+    ExpandOrCollapse();
   }
   node_->Select();
   return true;

@@ -26,6 +26,7 @@ class SceneTreeViewLineItemView : public nelf::CollapsedBasedTreeView::LineItemV
   void OnBoundsChanged(const gfx::Rect& previous_bounds) override;
  private:
   int32 CalcLeftMargin() const;
+  void ExpandOrCollapse();
   void UpdateNodeInfo();
   void UpdatePreferredSize();
   gfx::ImageSkia icon_;
