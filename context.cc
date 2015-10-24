@@ -3,7 +3,7 @@
 #include "base/logging.h"
 #include "azer/render/render.h"
 #include "lordaeron/ui/nelf_context.h"
-
+#include "lordaeron/ui/iconset.h"
 #include "lordaeron/effect/adapter/diffuse_effect_adapter.h"
 
 namespace lord {
@@ -53,7 +53,12 @@ bool Context::Init(int argc, char* argv[]) {
   CHECK(blending_.get());
 
   InitAdapterContext();
+  iconset_.reset(new Iconset(this));
   return true;
+}
+
+gfx::ImageSkia Context::GetIcon(int32 id) {
+  return iconset_->GetIcon(id);
 }
 
 void Context::InitAdapterContext() {

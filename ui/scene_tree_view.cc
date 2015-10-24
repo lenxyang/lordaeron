@@ -1,30 +1,24 @@
 #include "lordaeron/ui/scene_tree_view.h"
 
 #include "base/strings/utf_string_conversions.h"
+#include "base/lazy_instance.h"
 #include "ui/views/layout/fill_layout.h"
 #include "lordaeron/context.h"
 #include "lordaeron/res/grit/common.h"
+#include "lordaeron/ui/iconset.h"
+#include "lordaeron/ui/scene_tree_view_lineitem.h"
 #include "lordaeron/scene/scene_tree_model.h"
 #include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
+namespace {
+base::LazyInstance<SceneTreeViewLineItemViewCreator> node_creator
+= LAZY_INSTANCE_INITIALIZER;
+}  // namespace
+
 SceneTreeView::SceneTreeView(SceneNodePtr node) {
   InitUI();
-
-  Context* context = Context::instance();
-  std::vector<gfx::ImageSkia> icons;
-  int32 toolbar_id[] = {
-    IDR_ICON_SCENE_UNKNOWN,
-    IDR_ICON_SCENE_MESH,
-    IDR_ICON_SCENE_LAMP,
-    IDR_ICON_SCENE_SUN,
-  };
-  for (int i = 0; i < arraysize(toolbar_id); ++i) {
-    int32 id = toolbar_id[i];
-    icons.push_back(*(context->resource_bundle()->GetImageSkiaNamed(id)));
-  }
   tree_model_.reset(new SceneTreeModel(node));
-  tree_model_->SetImageVec(icons);
   tree_view_->SetModel(tree_model_.get());
 }
 
@@ -32,7 +26,11 @@ SceneTreeView::~SceneTreeView() {
 }
 
 void SceneTreeView::InitUI() {
-  tree_view_ = new views::TreeView;
+  Context* ctx = Context::instance();
+  tree_view_ = new nelf::CollapsedBasedTreeView;
+  tree_view_->SetNodeCreator(node_creator.Pointer());
+  tree_view_->set_closed_icon(ctx->GetIcon(Iconset::kIconCollapse));
+  tree_view_->set_open_icon(ctx->GetIcon(Iconset::kIconExpand));
   tree_view_->SetRootShown(false);
   tree_view_->SetController(this);
   AddChildView(tree_view_);
@@ -42,10 +40,10 @@ void SceneTreeView::InitUI() {
 void SceneTreeView::Init() {
 }
 
-void SceneTreeView::OnTreeViewSelectionChanged(views::TreeView* tree_view) {
+void SceneTreeView::OnTreeViewSelectionChanged(nelf::TreeView* tree_view) {
 }
 
-bool SceneTreeView::CanEdit(views::TreeView* tree_view, ui::TreeModelNode* node) {
+bool SceneTreeView::CanEdit(nelf::TreeView* tree_view, ui::TreeModelNode* node) {
   return false;
 }
 

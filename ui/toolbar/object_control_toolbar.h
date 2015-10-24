@@ -12,6 +12,7 @@ class ObjectControlToolbar : public nelf::ToolbarButtonListener {
   void OnToolbarButtonPressed(int id) override;
  private:
   nelf::Toolbar* toolbar_;
+  scoped_ptr<nelf::SimpleToolbarModel> model_;
   DISALLOW_COPY_AND_ASSIGN(ObjectControlToolbar);
 };
 }  // namespace lord

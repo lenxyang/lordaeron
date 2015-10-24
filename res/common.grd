@@ -49,6 +49,9 @@
       <structure type="chrome_scaled_image" 
                  name="IDR_ICON_CAPTION_TRIANGLE_CLEAR_RIGHT" 
                  file="caption/triangle-clear-right.png"/>
+      <structure type="chrome_scaled_image" 
+                 name="IDR_ICONSET_BLENDER" 
+                 file="blender_icons.png"/>
     </structures>
   </release>
 </grit>
