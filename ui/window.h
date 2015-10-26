@@ -8,7 +8,6 @@ class Window : public nelf::Window {
  public:
   Window(const gfx::Rect& init_bounds, nelf::Window* window);
  protected:
-  void OnAfterShow() override;
   // override from views::View
   void Layout() override;
   // override from Window

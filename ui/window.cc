@@ -18,9 +18,6 @@ Window::Window(const gfx::Rect& init_bounds, nelf::Window* window)
   set_show_icon(true);
 }
 
-void Window::OnAfterShow() {
-}
-
 void Window::Layout() {
   nelf::Window::Layout();
 }
