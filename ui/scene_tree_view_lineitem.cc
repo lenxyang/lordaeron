@@ -103,13 +103,13 @@ const char* SceneTreeViewLineItemView::GetClassName() const {
 
 void SceneTreeViewLineItemView::LayoutExtendIcons() {
   int32 x = text_bounds_.right();
+  x += kImageMargin;
   gfx::Rect contents_bounds = GetContentsBounds();
   extend_icons_bounds_.resize(extend_icons_.size());
   for (int32 i = 0; i < static_cast<int32>(extend_icons_.size()); ++i) {
     const gfx::ImageSkia& img = extend_icons_[i];
     int32 y = (contents_bounds.height() - img.height()) * 0.5f;
-    x += kImageMargin;
-    extend_icons_bounds_[i].set_y(x);
+    extend_icons_bounds_[i].set_x(x);
     extend_icons_bounds_[i].set_y(y);
     extend_icons_bounds_[i].set_size(img.size());
     x += img.width();

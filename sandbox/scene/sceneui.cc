@@ -108,9 +108,7 @@ int main(int argc, char* argv[]) {
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
-  window->set_show_icon(true);
   nelf::ResourceBundle* bundle = lord::Context::instance()->resource_bundle();
-  window->set_window_icon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
   window->Init();
   window->Show();
 

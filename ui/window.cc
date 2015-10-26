@@ -3,8 +3,10 @@
 #include "ui/views/layout/box_layout.h"
 #include "ui/views/controls/button/button.h"
 #include "ui/views/controls/button/image_button.h"
+#include "nelf/nelf.h"
 #include "lordaeron/context.h"
 #include "lordaeron/res/grit/common.h"
+#include "lordaeron/ui/iconset.h"
 
 namespace lord {
 Window::Window(const gfx::Rect& init_bounds, nelf::Window* window)
@@ -33,6 +35,13 @@ void Window::OnAfterWidgetInit() {
 }
 
 views::NonClientFrameView* Window::CreateNonClientFrameView(views::Widget* widget) {
-  return nelf::Window::CreateNonClientFrameView(widget);
+  Context* ctx = Context::instance();
+  views::NonClientFrameView* nonclient = nelf::Window::CreateNonClientFrameView(widget);
+  DCHECK(nonclient_);
+  using nelf::WindowSystemButtonPane;
+  WindowSystemButtonPane* system_pane = new WindowSystemButtonPane(nonclient_);
+  system_pane->SetCloseButtonImage(ctx->GetIcon(Iconset::kIconWindowClose));
+  nonclient_->SetSystemButtonPane(system_pane);
+  return nonclient;
 }
 }  // namespace lord

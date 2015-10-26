@@ -18,8 +18,8 @@ class Iconset {
     kIconSceneTemplate    = 0x00010017,
     kIconSceneMtrl        = 0x00160016,
 
-    kIconSceneLock        = 0x000F001F,
-    kIconSceneUnlock      = 0x000F001D,
+    kIconSceneLock        = 0x000F001C,
+    kIconSceneUnlock      = 0x000E001C,
     kIconSceneVisible     = 0x00130014,
     kIconSceneInvisible   = 0x00140014,
     kIconScenePickable    = 0x00150014,
@@ -35,6 +35,12 @@ class Iconset {
     kIconTriangleLR       = 0x0008001D,
     kIconCollapse         = 0x000A001D,
     kIconExpand           = 0x000B001D,
+
+    kIconWindowFloat      = 0x0010001C,
+    kIconWindowDock       = 0x0011001C,
+    kIconWindowCollapsed  = 0x0013001C,
+    kIconWindowExpanded   = 0x0014001C,
+    kIconWindowClose      = 0x0013001D,
   };
   Iconset(Context* context);
 
