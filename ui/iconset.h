@@ -18,6 +18,16 @@ class Iconset {
     kIconSceneTemplate    = 0x00010017,
     kIconSceneMtrl        = 0x00160016,
 
+    kIconSceneLock        = 0x000F001F,
+    kIconSceneUnlock      = 0x000F001D,
+    kIconSceneVisible     = 0x00130014,
+    kIconSceneInvisible   = 0x00140014,
+    kIconScenePickable    = 0x00150014,
+    kIconSceneUnpickable  = 0x00160014,
+    kIconSceneBounding    = 0x00000018,
+    kIconSceneNBounding   = 0x00000019,
+    
+
     kIconTriangleLeft     = 0x0006001D,
     kIconTriangleRight    = 0x0004001D,
     kIconTriangleUp       = 0x0007001D,

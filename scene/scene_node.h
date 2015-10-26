@@ -73,6 +73,10 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   const azer::Matrix4& world() const { return world_;}
 
   SceneContextPtr context();
+  const azer::Vector3& vmin() const { return vmin_;}
+  const azer::Vector3& vmax() const { return vmax_;}
+  azer::Vector3* mutable_vmin() { return &vmin_;}
+  azer::Vector3* mutable_vmax() { return &vmax_;}
   void UpdateBoundingHierarchy();
   void CalcChildrenBoundingVector();
  protected:
@@ -88,6 +92,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   scoped_ptr<BoundingVolumn> bounding_volumn_;
   azer::Matrix4 world_;
   azer::TransformHolder holder_;
+  azer::Vector3 vmin_;
+  azer::Vector3 vmax_;
 
   SceneContextPtr context_;
   DISALLOW_COPY_AND_ASSIGN(SceneNode);

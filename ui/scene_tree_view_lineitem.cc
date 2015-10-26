@@ -10,6 +10,8 @@
 #include "nelf/controls/tree/collapsebased_tree_view_node.h"
 #include "nelf/theme/native_theme.h"
 #include "nelf/theme/theme.h"
+#include "lordaeron/context.h"
+#include "lordaeron/ui/iconset.h"
 
 namespace lord {
 
@@ -25,6 +27,11 @@ SceneTreeViewLineItemView::SceneTreeViewLineItemView(
     : node_(node) {
   line_height_ = (node->tree_view()->GetFontList().GetHeight()
                   + kTextVerticalPadding * 2);
+  Context* ctx = Context::instance();
+  extend_icons_.push_back(ctx->GetIcon(Iconset::kIconSceneLock));
+  extend_icons_.push_back(ctx->GetIcon(Iconset::kIconSceneVisible));
+  extend_icons_.push_back(ctx->GetIcon(Iconset::kIconScenePickable));
+  extend_icons_.push_back(ctx->GetIcon(Iconset::kIconSceneBounding));
   UpdateNodeInfo();
 }
 
@@ -76,8 +83,14 @@ void SceneTreeViewLineItemView::UpdatePreferredSize() {
     x += kImageMargin;
   text_bounds_.set_origin(gfx::Point(x, kTextVerticalPadding));
   text_bounds_.set_size(label->GetPreferredSize());
+
+  int right_pos = text_bounds_.right();
+  LayoutExtendIcons();
+  if (!extend_icons_bounds_.empty()) 
+    right_pos = extend_icons_bounds_.back().right();
+
   gfx::Size pref_size = preferred_size_;
-  preferred_size_ = gfx::Size(text_bounds_.right(), line_height_);
+  preferred_size_ = gfx::Size(right_pos, line_height_);
   if (pref_size != preferred_size_) {
     PreferredSizeChanged();
     SchedulePaint();
@@ -86,6 +99,21 @@ void SceneTreeViewLineItemView::UpdatePreferredSize() {
 
 const char* SceneTreeViewLineItemView::GetClassName() const {
   return kViewClassName;
+}
+
+void SceneTreeViewLineItemView::LayoutExtendIcons() {
+  int32 x = text_bounds_.right();
+  gfx::Rect contents_bounds = GetContentsBounds();
+  extend_icons_bounds_.resize(extend_icons_.size());
+  for (int32 i = 0; i < static_cast<int32>(extend_icons_.size()); ++i) {
+    const gfx::ImageSkia& img = extend_icons_[i];
+    int32 y = (contents_bounds.height() - img.height()) * 0.5f;
+    x += kImageMargin;
+    extend_icons_bounds_[i].set_y(x);
+    extend_icons_bounds_[i].set_y(y);
+    extend_icons_bounds_[i].set_size(img.size());
+    x += img.width();
+  }
 }
 
 void SceneTreeViewLineItemView::Layout() {
@@ -120,6 +148,12 @@ void SceneTreeViewLineItemView::OnPaint(gfx::Canvas* canvas) {
   const gfx::FontList& fontlist = node_->tree_view()->GetFontList();
   canvas->DrawStringRect(node_->model_node()->GetTitle(), fontlist,
                          text_color, text_bounds_);
+
+  for (int32 i = 0; i < static_cast<int32>(extend_icons_.size()); ++i) {
+    const gfx::ImageSkia& img = extend_icons_[i];
+    const gfx::Rect& bounds = extend_icons_bounds_[i];
+    canvas->DrawImageInt(img, bounds.x(), bounds.y());
+  }
 }
 
 void SceneTreeViewLineItemView::PreferredSizeChanged() {

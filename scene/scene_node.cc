@@ -182,11 +182,11 @@ SceneContextPtr SceneNode::context() {
   }
 }
 
-void CalcChildrenBoundingVector() {
+void SceneNode::CalcChildrenBoundingVector() {
   for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
     SceneNode* child = (*iter).get();
-    UpdateVMinAndVMax(child->vmin(), &vmin_, vmax_);
-    UpdateVMinAndVMax(child->vmax(), &vmin_, vmax_);
+    UpdateVMinAndVMax(child->vmin(), &vmin_, &vmax_);
+    UpdateVMinAndVMax(child->vmax(), &vmin_, &vmax_);
   }
   bounding_volumn_.reset(new AxisAlignedBoundingBox(vmin_, vmax_));
 }
