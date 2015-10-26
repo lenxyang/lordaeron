@@ -8,17 +8,25 @@
 #include "assimp/anim.h"
 #include "azer/render/util.h"
 #include "azer/render/util/geometry/util.h"
+#include "lordaeron/render/bounding_volumn.h"
 
 namespace lord {
 
 namespace {
 using namespace azer;
-typedef std::pair<SlotVertexDataPtr, IndicesDataPtr> MeshData;
+struct MeshData {
+  SlotVertexDataPtr vdata;
+  IndicesDataPtr idata;
+  Vector3 vmin;
+  Vector3 vmax;
+};
+
 MeshData LoadMeshData(const aiMesh* paiMesh, azer::VertexDescPtr desc) {
   SlotVertexDataPtr vdata(new SlotVertexData(desc, paiMesh->mNumVertices));
   IndicesDataPtr idata(new IndicesData(paiMesh->mNumFaces * 3));
   VertexPack vpack(vdata.get());
-
+  Vector3 vmin  = Vector3(999999.9f, 999999.9f, 999999.9f);
+  Vector3 vmax = Vector3(-999999.9f, -999999.9f, -999999.9f);
   VertexPos npos, tpos;
   azer::GetSemanticIndex("normal", 0, desc.get(), &npos);
   azer::GetSemanticIndex("texcoord", 0, desc.get(), &tpos);
@@ -26,12 +34,14 @@ MeshData LoadMeshData(const aiMesh* paiMesh, azer::VertexDescPtr desc) {
   const aiVector3D zero3d(0.0f, 0.0f, 0.0f);
   CHECK(vpack.first());
   for (uint32 i = 0; i < paiMesh->mNumVertices; ++i) {
-    const aiVector3D& pos = paiMesh->mVertices[i];
+    const aiVector3D& aipos = paiMesh->mVertices[i];
     const aiVector3D& normal = paiMesh->mNormals[i];
     const aiVector3D& texcoord =
         paiMesh->HasTextureCoords(0) ? (paiMesh->mTextureCoords[0][i]) : zero3d;
 
-    vpack.WriteVector4(Vector4(pos.x, pos.y, pos.z, 1.0f), VertexPos(0, 0));
+    Vector3 pos(aipos.x, aipos.y, aipos.z);
+    UpdateVMinAndVMax(pos, &vmin, &vmax);
+    vpack.WriteVector4(Vector4(pos, 1.0f), VertexPos(0, 0));
     vpack.WriteVector2(Vector2(texcoord.x, texcoord.y), tpos);
     vpack.WriteVector4(Vector4(normal.x, normal.y, normal.z, 0.0), npos);
     vpack.next(1);
@@ -45,7 +55,12 @@ MeshData LoadMeshData(const aiMesh* paiMesh, azer::VertexDescPtr desc) {
     CHECK(ipack.WriteAndAdvance(face.mIndices[2]));
   }
 
-  return std::make_pair(vdata, idata);
+  MeshData data;
+  data.vdata = vdata;
+  data.idata = idata;
+  data.vmax = vmax;
+  data.vmin = vmin;
+  return data;
 }
 }  // namespace
   
@@ -73,18 +88,27 @@ azer::MeshPtr ModelLoader::Load(const azer::ResPath& path, azer::VertexDescPtr d
 
   azer::MeshPtr mesh(new Mesh);
   std::vector<int32> mtrl_index;
+  Vector3 vmin  = Vector3(999999.9f, 999999.9f, 999999.9f);
+  Vector3 vmax = Vector3(-999999.9f, -999999.9f, -999999.9f);
   for (uint32 i = 0; i < scene->mNumMeshes; ++i) {
     const aiMesh* paiMesh = scene->mMeshes[i];
     MeshData data = LoadMeshData(scene->mMeshes[i], desc);
     azer::RenderClosurePtr closure(new azer::RenderClosure());
     closure->SetVertexBuffer(rs->CreateVertexBuffer(
-        VertexBuffer::Options(), data.first));
+        VertexBuffer::Options(), data.vdata));
     closure->SetIndicesBuffer(rs->CreateIndicesBuffer(
-        IndicesBuffer::Options(), data.second));
+        IndicesBuffer::Options(), data.idata));
+    *closure->mutable_vmin() = data.vmin;
+    *closure->mutable_vmax() = data.vmax;
     mesh->AddRenderClosure(closure);
     mtrl_index.push_back(paiMesh->mMaterialIndex);
+
+    UpdateVMinAndVMax(data.vmin, &vmin, &vmax);
+    UpdateVMinAndVMax(data.vmax, &vmin, &vmax);
   }
 
+  *mesh->mutable_vmin() = vmin;
+  *mesh->mutable_vmax() = vmax;
   return mesh;
 }
 }  // namespace lord

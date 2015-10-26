@@ -8,6 +8,8 @@
 #include "azer/math/math.h"
 #include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_node_data.h"
+#include "lordaeron/render/bounding_volumn.h"
+#include "lordaeron/render/axis_aligned_bounding_box.h"
 
 namespace lord {
 using namespace azer;
@@ -16,6 +18,7 @@ SceneNode::SceneNode()
       parent_(NULL),
       user_data_(NULL) {
   data_.reset(new SceneNodeData(this));
+  bounding_volumn_.reset(new AxisAlignedBoundingBox());
 }
 
 SceneNode::SceneNode(SceneContextPtr context)
@@ -179,4 +182,20 @@ SceneContextPtr SceneNode::context() {
   }
 }
 
+void CalcChildrenBoundingVector() {
+  for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
+    SceneNode* child = (*iter).get();
+    UpdateVMinAndVMax(child->vmin(), &vmin_, vmax_);
+    UpdateVMinAndVMax(child->vmax(), &vmin_, vmax_);
+  }
+  bounding_volumn_.reset(new AxisAlignedBoundingBox(vmin_, vmax_));
+}
+
+void SceneNode::UpdateBoundingHierarchy() {
+  SceneNode* cur = this;
+  while (cur) {
+    cur->CalcChildrenBoundingVector();
+    cur = cur->parent();
+  }
+}
 }  // namespace lord

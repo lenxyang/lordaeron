@@ -7,6 +7,7 @@ namespace lord {
 class SceneContext;
 class SceneNode;
 class SceneNodeData;
+class BoundingVolumn;
 typedef scoped_refptr<SceneContext> SceneContextPtr;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
 
@@ -72,6 +73,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   const azer::Matrix4& world() const { return world_;}
 
   SceneContextPtr context();
+  void UpdateBoundingHierarchy();
+  void CalcChildrenBoundingVector();
  protected:
   SceneNodePtr GetLocalChild(const std::string& name);
   void print_info(std::string* str, int depth, SceneNode* node);
@@ -82,6 +85,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   std::string name_;
   void* user_data_;
   scoped_ptr<SceneNodeData> data_;
+  scoped_ptr<BoundingVolumn> bounding_volumn_;
   azer::Matrix4 world_;
   azer::TransformHolder holder_;
 
