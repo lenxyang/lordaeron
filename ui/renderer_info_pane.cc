@@ -34,10 +34,12 @@ RendererInfoPane::RendererInfoPane()
   SetBorder(border.Pass());
   set_background(views::Background::CreateSolidBackground(0x504A4B80));
   SetLayoutManager(new views::BoxLayout(views::BoxLayout::kVertical, 0, 0, 3));
-  fps_label_ = CreateLabel();
+  avg_fps_label_ = CreateLabel();
+  cur_fps_label_ = CreateLabel();
   cull_mode_ = CreateLabel();
   depth_mode_ = CreateLabel();
-  AddChildView(fps_label_);
+  AddChildView(avg_fps_label_);
+  AddChildView(cur_fps_label_);
   AddChildView(cull_mode_);
   AddChildView(depth_mode_);
   Layout();
@@ -48,8 +50,10 @@ void RendererInfoPane::Update(azer::Renderer* renderer,
   using base::StringPrintf;
   using base::UTF8ToUTF16;
   if (args.time() - last_update_time_ > 0.5) {
-    fps_label_->SetText(UTF8ToUTF16(StringPrintf(
-        "FPS: %f/s", args.total_average_fps())));
+    avg_fps_label_->SetText(UTF8ToUTF16(StringPrintf(
+        "Average FPS: %f/s", args.total_average_fps())));
+    cur_fps_label_->SetText(UTF8ToUTF16(StringPrintf(
+        "Recent FPS: %f/s", args.recent_average_fps())));
     cull_mode_->SetText(UTF8ToUTF16(StringPrintf(
         "Cull Mode: %s", CullModeName(renderer->GetCullingMode()))));
     depth_mode_->SetText(UTF8ToUTF16(StringPrintf(

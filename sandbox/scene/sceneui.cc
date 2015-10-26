@@ -4,6 +4,7 @@
 #include "base/files/file_path.h"
 #include "azer/files/native_file_system.h"
 #include "azer/render/util.h"
+#include "ui/views/widget/widget_observer.h"
 #include "nelf/nelf.h"
 #include "nelf/gfx_util.h"
 #include "nelf/res/grit/common.h"
@@ -34,7 +35,8 @@ using namespace azer;
 
 namespace lord {
 class RendererInfoPane;
-class RenderDelegate : public nelf::RenderDelegate {
+class RenderDelegate : public nelf::RenderDelegate,
+                       public views::WidgetObserver {
  public:
   RenderDelegate();
   bool Init();
@@ -47,6 +49,17 @@ class RenderDelegate : public nelf::RenderDelegate {
   void InitScene();
 
   SceneNode* root() { return root_.get();}
+
+  void OnWidgetBoundsChanged(views::Widget* widget, 
+                             const gfx::Rect& new_bounds) override {
+    gfx::Rect rect = view()->GetContentsBounds();
+    float aspect = (float)rect.width() / (float)rect.height();
+    camera_.frustrum().set_aspect(aspect);
+  }
+
+  void OnWidgetDestroying(views::Widget* widget) override {
+    widget->RemoveObserver(this);
+  }
  private:
   SceneNodePtr root_;
   SceneContextPtr scene_context_;
@@ -166,6 +179,8 @@ bool RenderDelegate::Initialize() {
   scene->Init();
   scene->Show();
   scene->SetTitle(base::UTF8ToUTF16("Scene"));
+
+  window()->GetWidget()->AddObserver(this);
   return true;
 }
 

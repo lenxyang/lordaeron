@@ -10,7 +10,8 @@ class RendererInfoPane : public views::View {
 
   void Update(azer::Renderer* renderer, const azer::FrameArgs& args);
  private:
-  views::Label* fps_label_;
+  views::Label* avg_fps_label_;
+  views::Label* cur_fps_label_;
   views::Label* cull_mode_;
   views::Label* depth_mode_;
   double last_update_time_;
