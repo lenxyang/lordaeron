@@ -2,7 +2,7 @@
 
 #include "base/files/file_util.h"
 #include "azer/util/xml/xml.h"
-#include "lordaeron/config/xml_util.h"
+#include "lordaeron/util/xml_util.h"
 
 namespace lord {
 ProjectConfig::ProjectConfig() {

@@ -1,4 +1,4 @@
-#include "lordaeron/config/xml_util.h"
+#include "lordaeron/util/xml_util.h"
 
 namespace lord {
 std::vector<util::xml::Element*> GetXPathElement(const std::string& path, 
@@ -26,4 +26,5 @@ std::vector<std::string> GetXPathElementText(const std::string& path,
   }
   return ret;
 }
+
 }  // namespace lord

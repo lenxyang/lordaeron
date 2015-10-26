@@ -16,8 +16,6 @@ static_library("lordaeron") {
   sources = [
     "config/project_config.cc",
     "config/project_config.h",
-    "config/xml_util.cc",
-    "config/xml_util.h",
     "context.cc",
     "context.h",
     "effect/adapter/diffuse_effect_adapter.cc",
@@ -42,6 +40,8 @@ static_library("lordaeron") {
     "scene/scene_context.h",
     "scene/scene_environment.cc",
     "scene/scene_environment.h",
+    "scene/scene_loader.cc",
+    "scene/scene_loader.h",
     "scene/scene_mesh.cc",
     "scene/scene_mesh.h",
     "scene/scene_node.cc",
@@ -78,6 +78,8 @@ static_library("lordaeron") {
     "ui/toolbar/object_control_toolbar.h",
     "ui/window.cc",
     "ui/window.h",
+    "util/xml_util.cc",
+    "util/xml_util.h",
   ]
   deps = [
     ":model_loader",

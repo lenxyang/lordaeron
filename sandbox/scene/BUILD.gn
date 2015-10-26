@@ -1,5 +1,9 @@
 group("scene") {
-  deps = [":sceneui", ":model"]
+  deps = [
+    ":sceneui", 
+    ":model",
+    ":scene_config",
+  ]
 }
 
 executable("model") {
@@ -11,5 +15,11 @@ executable("model") {
 executable("sceneui") {
   output_name = "lordaeron_sandbox_sceneui"
   sources = ["sceneui.cc",]
+  deps = ["//lordaeron"]
+}
+
+executable("scene_config") {
+  output_name = "lordaeron_sandbox_scene_config"
+  sources = ["scene_config.cc",]
   deps = ["//lordaeron"]
 }
