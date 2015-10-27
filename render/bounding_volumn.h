@@ -17,9 +17,6 @@ class BoundingVolumn {
   ~BoundingVolumn();
 
   int32 type() const { return type_;}
-  virtual void Update(const azer::Camera& camera, 
-                      const azer::TransformHolder& holder) = 0;
-  virtual void Render(azer::Renderer* renderer) = 0;
  private:
   const int32 type_;
   DISALLOW_COPY_AND_ASSIGN(BoundingVolumn);

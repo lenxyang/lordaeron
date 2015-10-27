@@ -4,6 +4,7 @@
 #include "azer/render/render.h"
 #include "lordaeron/ui/nelf_context.h"
 #include "lordaeron/ui/iconset.h"
+#include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/effect/adapter/diffuse_effect_adapter.h"
 
 namespace lord {
@@ -54,7 +55,21 @@ bool Context::Init(int argc, char* argv[]) {
 
   InitAdapterContext();
   iconset_.reset(new Iconset(this));
+
+  InitEffects();
   return true;
+}
+
+void Context::InitEffects() {
+  effects_.insert(std::make_pair(DiffuseEffect::kEffectName, CreateDiffuseEffect()));
+}
+
+azer::Effect* Context::GetEffect(const std::string& name) {
+  auto iter = effects_.find(name);
+  if (iter != effects_.end())
+    return iter->second.get();
+  else
+    return NULL;
 }
 
 gfx::ImageSkia Context::GetIcon(int32 id) {

@@ -28,8 +28,24 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
 
   typedef std::vector<SceneNodePtr> SceneNodes;
   
+  // attributes
   void set_visible(bool visible) { visible_ = visible;}
   bool is_visible() const { return visible_;}
+
+  void set_draw_bounding_volumn(bool b);
+  bool is_draw_bounding_volumn() const;
+  azer::Mesh* bounding_volumn();
+  
+  void set_pickable(bool pickable) { pickable_ = pickable;}
+  bool is_pickable() const { return pickable_;}
+
+  void set_shadow_caster(bool v) {shadow_caster_ = v;}
+  bool shadow_caster() const { return shadow_caster_;}
+
+  const azer::Vector3& vmin() const { return vmin_;}
+  const azer::Vector3& vmax() const { return vmax_;}
+  azer::Vector3* mutable_vmin() { return &vmin_;}
+  azer::Vector3* mutable_vmax() { return &vmax_;}
 
   void AddChild(SceneNodePtr child);
   void RemoveChild(SceneNodePtr child);
@@ -72,24 +88,26 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   azer::Matrix4* mutable_world() { return &world_;}
   const azer::Matrix4& world() const { return world_;}
 
-  SceneContextPtr context();
-  const azer::Vector3& vmin() const { return vmin_;}
-  const azer::Vector3& vmax() const { return vmax_;}
-  azer::Vector3* mutable_vmin() { return &vmin_;}
-  azer::Vector3* mutable_vmax() { return &vmax_;}
+  SceneContext* context();
+
+  // dont't call them
+  // show be called by SceneNodeData where attached or distach object.
   void UpdateBoundingHierarchy();
   void CalcChildrenBoundingVector();
  protected:
   SceneNodePtr GetLocalChild(const std::string& name);
   void print_info(std::string* str, int depth, SceneNode* node);
+  // attributes
   bool visible_;
+  bool pickable_;
+  bool shadow_caster_;
+  azer::MeshPtr bounding_volumn_;
 
   SceneNode* parent_;
   SceneNodes children_;
   std::string name_;
   void* user_data_;
   scoped_ptr<SceneNodeData> data_;
-  scoped_ptr<BoundingVolumn> bounding_volumn_;
   azer::Matrix4 world_;
   azer::TransformHolder holder_;
   azer::Vector3 vmin_;

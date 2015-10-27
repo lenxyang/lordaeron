@@ -3,7 +3,6 @@
 #include "base/memory/ref_counted.h"
 #include "azer/math/math.h"
 #include "azer/render/render.h"
-#include "azer/render/util/light.h"
 #include "lordaeron/render/light.h"
 
 namespace lord {
@@ -24,7 +23,7 @@ class DiffuseEffect : public azer::Effect {
 
   struct ps_cbuffer {
     azer::Vector4 color;
-    azer::DirLight light;
+    DirLight light;
   };
 #pragma pack(pop)
 

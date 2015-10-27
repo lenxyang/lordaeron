@@ -156,7 +156,7 @@ void MyRenderWindow::OnInitScene() {
   p3->SetColor(azer::Vector4(0.8f, 0.8f, 0.8f, 1.0f));
   azer::MeshPtr obj1 = loader.Load(ResPath(UTF8ToUTF16("//model/teapot.obj")), desc);
   azer::MeshPtr obj2 = loader.Load(ResPath(UTF8ToUTF16("//model/trunk.obj")), desc);
-  azer::MeshPtr obj3 = loader.Load(ResPath(UTF8ToUTF16("//model/venusm.obj")), desc);
+  azer::MeshPtr obj3 = loader.Load(ResPath(UTF8ToUTF16("//model/cow.obj")), desc);
   obj1->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
   obj2->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
   obj3->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
@@ -169,7 +169,7 @@ void MyRenderWindow::OnInitScene() {
   node1->mutable_holder()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
   node2->mutable_holder()->SetPosition(Vector3(0.0f, 0.0f, -10.0f));
   node3->mutable_holder()->SetPosition(Vector3(10.0f, 00.0f, 0.0f));
-  node3->mutable_holder()->SetScale(Vector3(0.002f, 0.002f, 0.002f));
+  node3->set_draw_bounding_volumn(true);
   scene_renderer_.reset(new SceneRender(scene_context_.get(), root_.get()));
 }
 
@@ -193,6 +193,6 @@ void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
-  scene_renderer_->Draw(renderer, effect_.get(), azer::kTriangleList);
+  scene_renderer_->Render(renderer, effect_.get());
 }
 }  // namespace lord

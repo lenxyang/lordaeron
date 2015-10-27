@@ -3,18 +3,19 @@
 #include "azer/render/render.h"
 #include "azer/render/util.h"
 
+#include "lordaeron/effect/diffuse_effect.h"
+
 namespace lord {
 
 class CircleCoordinateObject {
  public:
-  CircleCoordinateObject(azer::ColoredDiffuseEffectPtr effect);
+  CircleCoordinateObject(DiffuseEffectPtr effect);
   ~CircleCoordinateObject();
 
   float radius() const { return radius_;}
   void set_radius(float radius);
 
-  void Render(const azer::Matrix4& world, 
-              const azer::Matrix4& pvw, 
+  void Render(const azer::Matrix4& world, const azer::Matrix4& pv, 
               azer::Renderer* renderer);
   void xaxis_color(const azer::Vector4& c) { axis_color_[0] = c;}
   void yzxis_color(const azer::Vector4& c) { axis_color_[1] = c;}
@@ -29,7 +30,7 @@ class CircleCoordinateObject {
   azer::Vector4 axis_color_[3];
   azer::Matrix4 scale_;
   azer::GeometryObjectPtr circle_;
-  azer::ColoredDiffuseEffectPtr effect_;
+  DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(CircleCoordinateObject);
 };
 
@@ -40,8 +41,7 @@ class RotateControllerObject {
 
   void SetSelectedColor(const azer::Vector4& color);
 
-  void Render(const azer::Matrix4& world, 
-              const azer::Matrix4& pvw, 
+  void Render(const azer::Matrix4& world, const azer::Matrix4& pv, 
               azer::Renderer* renderer);
  private:
   azer::GeometryObjectPtr sphere_;
@@ -49,7 +49,7 @@ class RotateControllerObject {
   
   azer::Vector4 selected_color_;
   azer::Vector4 sphere_color_;
-  azer::ColoredDiffuseEffectPtr effect_;
+  DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(RotateControllerObject);
 };
 }  // namepsace lord

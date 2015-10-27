@@ -6,6 +6,7 @@
 #include "base/strings/string_tokenizer.h"
 #include "azer/render/render.h"
 #include "azer/math/math.h"
+#include "lordaeron/scene/scene_bounding_box.h"
 #include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/render/bounding_volumn.h"
@@ -14,15 +15,18 @@
 namespace lord {
 using namespace azer;
 SceneNode::SceneNode() 
-    : visible_(false),
+    : visible_(true),
+      pickable_(false),
+      shadow_caster_(false),
       parent_(NULL),
       user_data_(NULL) {
   data_.reset(new SceneNodeData(this));
-  bounding_volumn_.reset(new AxisAlignedBoundingBox());
 }
 
 SceneNode::SceneNode(SceneContextPtr context)
-    : visible_(false),
+    : visible_(true),
+      pickable_(false),
+      shadow_caster_(false),
       parent_(NULL),
       user_data_(NULL),
       context_(context) {
@@ -30,7 +34,9 @@ SceneNode::SceneNode(SceneContextPtr context)
 }
 
 SceneNode::SceneNode(const std::string& name)
-    : visible_(false),
+    : visible_(true),
+      pickable_(false),
+      shadow_caster_(false),
       parent_(NULL),
       name_(name),
       user_data_(NULL) {
@@ -155,6 +161,25 @@ SceneNode::Type SceneNode::type() const {
   }
 }
 
+void SceneNode::set_draw_bounding_volumn(bool b) {
+  if (b) {
+    if (!bounding_volumn_.get()) {
+      bounding_volumn_ = new SceneBoundingBox(this);
+    }
+  } else {
+    bounding_volumn_ = NULL;
+  }
+}
+
+bool SceneNode::is_draw_bounding_volumn() const {
+  return bounding_volumn_.get() != NULL;
+}
+
+azer::Mesh* SceneNode::bounding_volumn() {
+  return bounding_volumn_.get();
+}
+
+
 std::string SceneNode::print_info() {
   std::string str;
   print_info(&str, 0, this);
@@ -174,11 +199,11 @@ void SceneNode::print_info(std::string* str, int depth, SceneNode* node) {
   }
 }
 
-SceneContextPtr SceneNode::context() {
+SceneContext* SceneNode::context() {
   if (parent()) {
     return parent()->context();
   } else {
-    return context_;
+    return context_.get();
   }
 }
 
@@ -188,7 +213,6 @@ void SceneNode::CalcChildrenBoundingVector() {
     UpdateVMinAndVMax(child->vmin(), &vmin_, &vmax_);
     UpdateVMinAndVMax(child->vmax(), &vmin_, &vmax_);
   }
-  bounding_volumn_.reset(new AxisAlignedBoundingBox(vmin_, vmax_));
 }
 
 void SceneNode::UpdateBoundingHierarchy() {

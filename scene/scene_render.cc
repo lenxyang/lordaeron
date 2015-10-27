@@ -20,20 +20,29 @@ void SceneArgsUpdator::OnTraverseBegin(SceneNode* root)  {
 }
 
 bool SceneArgsUpdator::OnTraverseNodeEnter(SceneNode* node)  {
-  UpdateNodeWorld(node);
+  if (!node->is_visible()) {
+    return false;
+  }
 
+  UpdateNodeWorld(node);
   if (node->type() == SceneNode::kLampNode) {
     environment_->PushLight(node->mutable_data()->light());
   } else if (node->type() == SceneNode::kMeshNode) {
     azer::MeshPtr mesh = node->mutable_data()->GetMesh();
-    mesh->UpdateParams(*args_);
+    mesh->UpdateProviderParams(*args_);
     mesh_.push_back(mesh);
   } else {
   }
+
   return true;
 }
 
 void SceneArgsUpdator::OnTraverseNodeExit(SceneNode* node)  {
+  if (node->is_draw_bounding_volumn()) {
+    azer::Mesh* obj = node->bounding_volumn();
+    obj->UpdateProviderParams(*args_);
+    mesh_.push_back(azer::MeshPtr(obj));
+  }
 }
 
 void SceneArgsUpdator::OnTraverseEnd()  {
@@ -66,11 +75,10 @@ void SceneRender::Update(const azer::FrameArgs& args) {
   traverser.Traverse(root_);
 }
 
-void SceneRender::Draw(azer::Renderer* renderer, azer::Effect* effect, 
-                       azer::PrimitiveTopology primitive) {
+void SceneRender::Render(azer::Renderer* renderer, azer::Effect* effect) {
   for (auto iter = delegate_->mesh().begin(); 
        iter != delegate_->mesh().end();  ++iter) {
-    (*iter)->DrawIndex(renderer, effect, primitive);
+    (*iter)->Render(renderer, effect);
   }
 }
 }  // namespace lord

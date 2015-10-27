@@ -8,7 +8,7 @@
 namespace lord {
 using namespace azer;
 
-CircleCoordinateObject::CircleCoordinateObject(azer::ColoredDiffuseEffectPtr effect)
+CircleCoordinateObject::CircleCoordinateObject(DiffuseEffectPtr effect)
     : effect_(effect) {
   set_radius(1.0f);
   
@@ -35,7 +35,7 @@ void CircleCoordinateObject::set_radius(float radius) {
 }
 
 void CircleCoordinateObject::Render(const azer::Matrix4& world,
-                                    const azer::Matrix4& pvw, 
+                                    const azer::Matrix4& pv, 
                                     azer::Renderer* renderer) {
   Context* context = Context::instance();
   effect_->SetDirLight(context->GetInternalLight());
@@ -43,7 +43,7 @@ void CircleCoordinateObject::Render(const azer::Matrix4& world,
     Matrix4 w = std::move(axis_world_[i] * scale_);
     effect_->SetColor(axis_color_[i]);
     effect_->SetWorld(world * w);
-    effect_->SetPVW(pvw * w);
+    effect_->SetPV(pv);
     effect_->Use(renderer);
     circle_->Render(renderer);
   }
@@ -53,7 +53,7 @@ void CircleCoordinateObject::Render(const azer::Matrix4& world,
 RotateControllerObject::RotateControllerObject() 
     : selected_color_(Vector4(1.0f, 1.0f, 0.0f, 1.0)) {
   RenderSystem* rs = RenderSystem::Current();
-  effect_ = CreateColoredDiffuseEffect();
+  effect_ = CreateDiffuseEffect();
   sphere_color_ = Vector4(1.0f, 1.0f, 1.0f, 0.4f);
   sphere_ = new SphereObject(effect_->GetVertexDesc(), 24, 24);
 
@@ -68,16 +68,16 @@ void RotateControllerObject::SetSelectedColor(const azer::Vector4& color) {
 }
 
 void RotateControllerObject::Render(const azer::Matrix4& world, 
-                                    const azer::Matrix4& pvw, 
+                                    const azer::Matrix4& pv, 
                                     azer::Renderer* renderer) {
-  circles_->Render(world, pvw, renderer);
+  circles_->Render(world, pv, renderer);
   Context* context = Context::instance();
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
   effect_->SetDirLight(context->GetInternalLight());
   effect_->SetColor(sphere_color_);
   effect_->SetWorld(world);
-  effect_->SetPVW(pvw);
+  effect_->SetPV(pv);
   effect_->Use(renderer);
   sphere_->Render(renderer);
   renderer->ResetBlending();
