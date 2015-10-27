@@ -68,7 +68,8 @@ ModelLoader::ModelLoader(azer::FileSystem* fs)
     : fsystem_(fs) {
 }
 
-azer::MeshPtr ModelLoader::Load(const azer::ResPath& path, azer::VertexDescPtr desc) {
+azer::MeshPtr ModelLoader::Load(const azer::ResPath& path,
+                                azer::VertexDescPtr desc) {
   azer::RenderSystem* rs = azer::RenderSystem::Current();
   Assimp::Importer importer;
   uint32 flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals 
@@ -91,24 +92,22 @@ azer::MeshPtr ModelLoader::Load(const azer::ResPath& path, azer::VertexDescPtr d
   Vector3 vmin  = Vector3(999999.9f, 999999.9f, 999999.9f);
   Vector3 vmax = Vector3(-999999.9f, -999999.9f, -999999.9f);
   for (uint32 i = 0; i < scene->mNumMeshes; ++i) {
+    MeshPartPtr part = new MeshPart(NULL);
     const aiMesh* paiMesh = scene->mMeshes[i];
     MeshData data = LoadMeshData(scene->mMeshes[i], desc);
-    azer::RenderClosurePtr closure(new azer::RenderClosure());
-    closure->SetVertexBuffer(rs->CreateVertexBuffer(
+    azer::EntityPtr entity(new azer::Entity());
+    entity->SetVertexBuffer(rs->CreateVertexBuffer(
         VertexBuffer::Options(), data.vdata));
-    closure->SetIndicesBuffer(rs->CreateIndicesBuffer(
+    entity->SetIndicesBuffer(rs->CreateIndicesBuffer(
         IndicesBuffer::Options(), data.idata));
-    *closure->mutable_vmin() = data.vmin;
-    *closure->mutable_vmax() = data.vmax;
-    mesh->AddRenderClosure(closure);
+    *entity->mutable_vmin() = data.vmin;
+    *entity->mutable_vmax() = data.vmax;
+    mesh->AddMeshPart(part);
     mtrl_index.push_back(paiMesh->mMaterialIndex);
-
-    UpdateVMinAndVMax(data.vmin, &vmin, &vmax);
-    UpdateVMinAndVMax(data.vmax, &vmin, &vmax);
+    part->AddEntity(entity);
+    mesh->AddMeshPart(part);
   }
 
-  *mesh->mutable_vmin() = vmin;
-  *mesh->mutable_vmax() = vmax;
   return mesh;
 }
 }  // namespace lord

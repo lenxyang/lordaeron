@@ -21,7 +21,4 @@ class BoundingVolumn {
   const int32 type_;
   DISALLOW_COPY_AND_ASSIGN(BoundingVolumn);
 };
-
-void UpdateVMinAndVMax(const azer::Vector3 pos, azer::Vector3* vmin,
-                       azer::Vector3* vmax);
 }  // namespace lord

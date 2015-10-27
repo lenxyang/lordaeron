@@ -75,10 +75,10 @@ void SceneRender::Update(const azer::FrameArgs& args) {
   traverser.Traverse(root_);
 }
 
-void SceneRender::Render(azer::Renderer* renderer, azer::Effect* effect) {
+void SceneRender::Render(azer::Renderer* renderer) {
   for (auto iter = delegate_->mesh().begin(); 
        iter != delegate_->mesh().end();  ++iter) {
-    (*iter)->Render(renderer, effect);
+    (*iter)->Render(renderer);
   }
 }
 }  // namespace lord

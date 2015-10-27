@@ -34,7 +34,7 @@ class SceneRender {
   ~SceneRender();
 
   void Update(const azer::FrameArgs& args);
-  void Render(azer::Renderer* renderer, azer::Effect* effect);
+  void Render(azer::Renderer* renderer);
  private:
   SceneContext* context_;
   SceneNode* root_;

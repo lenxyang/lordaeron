@@ -88,7 +88,6 @@ class MyRenderWindow : public lord::SceneRenderWindow {
   void OnUpdateFrame(const azer::FrameArgs& args) override;
   void OnRenderFrame(const azer::FrameArgs& args, Renderer* renderer) override;
 
-
   SceneNode* root() { return root_.get();}
  private:
   SceneNodePtr root_;
@@ -192,7 +191,7 @@ void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
   scene_renderer_->Update(args);
 }
 
-void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
-  scene_renderer_->Render(renderer, effect_.get());
+void MyRenderWindow::OnRenderFrame(const azer::FrameArgs& args, Renderer* renderer) {
+  scene_renderer_->Render(renderer);
 }
 }  // namespace lord

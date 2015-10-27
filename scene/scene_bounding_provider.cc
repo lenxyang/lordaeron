@@ -17,34 +17,20 @@ namespace {
 ::base::LazyInstance<EffectAdapterContext> adapter_context_
 = LAZY_INSTANCE_INITIALIZER;
 }
-SceneBoundingBox::SceneBoundingBox(SceneNode* node)
+SceneVBProvider::SceneVBProvider(SceneNode* node)
     : node_(node),
       color_(Vector4(1.0f, 0.0f, 0.0f, 1.0f)) {
   scoped_ptr<ParamsAdapter> adapter(new ParamsAdapter);
   if (!adapter_context_.Pointer()->LookupAdapter(adapter->key())) {
     adapter_context_.Pointer()->RegisteAdapter(adapter.release());
   }
-
-  Context* ctx = Context::instance();
-  effect_ = ctx->GetEffect(DiffuseEffect::kEffectName);
-  BoxObject* objptr = new BoxObject(effect_->GetVertexDesc());
-  object_ = objptr->CreateObject(effect_.get());
-  object_->AddProvider(EffectParamsProviderPtr(this));
-
-  frame_ = objptr->CreateFrameObject(effect_.get());
-  frame_->AddProvider(EffectParamsProviderPtr(this));
 }
 
-SceneBoundingBox::~SceneBoundingBox() {
-  frame_ = NULL;
-  object_ = NULL;
+SceneVBProvider::~SceneVBProvider() {
 }
 
-void SceneBoundingBox::UpdateProviderParams(const azer::FrameArgs& args) {
-  UpdateParams(args);
-}
 
-void SceneBoundingBox::UpdateParams(const azer::FrameArgs& args) {
+void SceneVBProvider::UpdateParams(const azer::FrameArgs& args) {
   SceneContext* scene_ctx = node_->context();
   GlobalEnvironmentParams* gparams = scene_ctx->GetGlobalEnvironment();
   Vector3 vmin = node_->vmin();
@@ -60,15 +46,15 @@ void SceneBoundingBox::UpdateParams(const azer::FrameArgs& args) {
   world_ = std::move(azer::Translate(pos)) * world_;
 }
 
-azer::EffectAdapterKey SceneBoundingBox::ParamsAdapter::key() const {
+azer::EffectAdapterKey SceneVBProvider::ParamsAdapter::key() const {
   return std::make_pair(typeid(DiffuseEffect).name(),
-                        typeid(SceneBoundingBox).name());
+                        typeid(SceneVBProvider).name());
 }
 
-void SceneBoundingBox::ParamsAdapter::Apply(
+void SceneVBProvider::ParamsAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const {
   Context* ctx = Context::instance();
-  const SceneBoundingBox* box = dynamic_cast<const SceneBoundingBox*>(params);
+  const SceneVBProvider* box = dynamic_cast<const SceneVBProvider*>(params);
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   DCHECK(box && effect);
 
@@ -78,14 +64,4 @@ void SceneBoundingBox::ParamsAdapter::Apply(
   effect->SetDirLight(ctx->GetInternalLight());
 }
 
-void SceneBoundingBox::Render(Renderer* renderer) {
-  ApplyParams(effect_.get());
-
-  Context* ctx = Context::instance();
-  frame_->Render(renderer);
-  // BlendingPtr blending = ctx->GetDefaultBlending();
-  // renderer->UseBlending(blending.get(), 0);
-  object_->Render(renderer);
-  // renderer->ResetBlending();
-}
 }  // namespace lord

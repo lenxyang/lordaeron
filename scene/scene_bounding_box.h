@@ -17,7 +17,7 @@ class SceneBoundingBox : public azer::EffectParamsProvider,
 
   // override from azer::Mesh
   void UpdateProviderParams(const azer::FrameArgs& args) override;
-  void Render(azer::Renderer* renderer, azer::Effect* effect) override;
+  void Render(azer::Renderer* renderer) override;
  private:
   class ParamsAdapter : public azer::EffectParamsAdapter {
    public:
@@ -31,8 +31,8 @@ class SceneBoundingBox : public azer::EffectParamsProvider,
   azer::Matrix4 world_;
   azer::Matrix4 pv_;
   azer::EffectPtr effect_;
-  azer::RenderClosurePtr frame_;
-  azer::RenderClosurePtr object_;
+  azer::MeshPartPtr frame_;
+  azer::MeshPartPtr object_;
   DISALLOW_COPY_AND_ASSIGN(SceneBoundingBox);
 };
 }  // namespace lord
