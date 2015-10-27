@@ -108,7 +108,9 @@ int main(int argc, char* argv[]) {
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
+  window->set_show_icon(true);
   nelf::ResourceBundle* bundle = lord::Context::instance()->resource_bundle();
+  window->set_window_icon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
   window->Init();
   window->Show();
 
@@ -134,42 +136,17 @@ void MyRenderWindow::OnInitScene() {
   scene_context_->GetGlobalEnvironment()->SetCamera(mutable_camera());
   scene_context_->GetGlobalEnvironment()->SetLight(light);
   root_ = new SceneNode(scene_context_);
-  root_->set_name("root");
-  SceneNodePtr scene1(new SceneNode("scene1"));
-  SceneNodePtr node1(new SceneNode("obj1"));
-  SceneNodePtr node2(new SceneNode("obj1"));
-  SceneNodePtr node3(new SceneNode("obj1"));
-  root_->AddChild(scene1);
-  scene1->AddChild(node1);
-  scene1->AddChild(node2);
-  scene1->AddChild(node3);
 
-  lord::ModelLoader loader(fsystem_.get());
-                 
+  std::string contents;
+  base::ReadFileToString(base::FilePath(
+      FILE_PATH_LITERAL("lordaeron/sandbox/scene/scene.sce")), &contents);
+  ConfigNodePtr config_root = ConfigNode::InitFromXMLStr(contents);
+  CHECK(config_root.get());
+
   VertexDescPtr desc = effect_->GetVertexDesc();
-  lord::DiffuseEffectProvider* p1(new lord::DiffuseEffectProvider);
-  lord::DiffuseEffectProvider* p2(new lord::DiffuseEffectProvider);
-  lord::DiffuseEffectProvider* p3(new lord::DiffuseEffectProvider);
-
-  p1->SetColor(azer::Vector4(0.3f, 0.3f, 0.3f, 1.0f));
-  p2->SetColor(azer::Vector4(0.6f, 0.6f, 0.6f, 1.0f));
-  p3->SetColor(azer::Vector4(0.8f, 0.8f, 0.8f, 1.0f));
-  azer::MeshPtr obj1 = loader.Load(ResPath(UTF8ToUTF16("//model/teapot.obj")), desc);
-  azer::MeshPtr obj2 = loader.Load(ResPath(UTF8ToUTF16("//model/trunk.obj")), desc);
-  azer::MeshPtr obj3 = loader.Load(ResPath(UTF8ToUTF16("//model/venusm.obj")), desc);
-  obj1->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
-  obj2->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
-  obj3->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
-  obj1->AddProvider(EffectParamsProviderPtr(p1));
-  obj2->AddProvider(EffectParamsProviderPtr(p2));
-  obj3->AddProvider(EffectParamsProviderPtr(p3));
-  node1->mutable_data()->AttachMesh(obj1);
-  node2->mutable_data()->AttachMesh(obj2);
-  node3->mutable_data()->AttachMesh(obj3);
-  node1->mutable_holder()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
-  node2->mutable_holder()->SetPosition(Vector3(0.0f, 0.0f, -10.0f));
-  node3->mutable_holder()->SetPosition(Vector3(10.0f, 00.0f, 0.0f));
-  node3->mutable_holder()->SetScale(Vector3(0.002f, 0.002f, 0.002f));
+  MySceneLoaderDelegate delegate(fsystem_.get(), desc);
+  SceneLoader loader(&delegate);
+  CHECK(loader.Load(root_.get(), config_root));
   scene_renderer_.reset(new SceneRender(scene_context_.get(), root_.get()));
 }
 
