@@ -170,6 +170,6 @@ void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
-  scene_renderer_->Draw(renderer, effect_.get(), azer::kTriangleList);
+  scene_renderer_->Render(renderer);
 }
 }  // namespace lord

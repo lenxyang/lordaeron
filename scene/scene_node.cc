@@ -6,7 +6,7 @@
 #include "base/strings/string_tokenizer.h"
 #include "azer/render/render.h"
 #include "azer/math/math.h"
-#include "lordaeron/scene/scene_bounding_box.h"
+#include "lordaeron/scene/scene_bounding_volumn.h"
 #include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/render/bounding_volumn.h"
@@ -164,7 +164,7 @@ SceneNode::Type SceneNode::type() const {
 void SceneNode::set_draw_bounding_volumn(bool b) {
   if (b) {
     if (!bounding_volumn_.get()) {
-      bounding_volumn_ = new SceneBoundingBox(this);
+      bounding_volumn_ = CreateBoundingBoxForSceneNode(this);
     }
   } else {
     bounding_volumn_ = NULL;
