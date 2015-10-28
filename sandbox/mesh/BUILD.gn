@@ -1,0 +1,12 @@
+
+group("mesh") {
+  deps = [
+    ":baseline",
+  ]
+}
+
+executable("baseline") {
+  output_name = "lordaeron_sandbox_mesh_baseline"
+  sources = ["model.cc",]
+  deps = ["//lordaeron"]
+}
