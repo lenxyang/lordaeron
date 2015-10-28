@@ -10,3 +10,9 @@ executable("entity") {
   sources = ["entity.cc",]
   deps = ["//lordaeron"]
 }
+
+executable("meshpart") {
+  output_name = "lordaeron_sandbox_meshpart"
+  sources = ["meshpart.cc",]
+  deps = ["//lordaeron"]
+}
