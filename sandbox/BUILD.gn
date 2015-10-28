@@ -2,5 +2,6 @@
 group("sandbox") {
   deps = [
     "scene",
+    "mesh",
   ]
 }

@@ -1,12 +1,12 @@
 
 group("mesh") {
   deps = [
-    ":baseline",
+    ":entity",
   ]
 }
 
-executable("baseline") {
-  output_name = "lordaeron_sandbox_mesh_baseline"
-  sources = ["model.cc",]
+executable("entity") {
+  output_name = "lordaeron_sandbox_mesh_entity"
+  sources = ["entity.cc",]
   deps = ["//lordaeron"]
 }

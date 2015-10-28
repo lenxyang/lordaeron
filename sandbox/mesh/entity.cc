@@ -4,6 +4,8 @@
 #include "lordaeron/context.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/ui/scene_render_window.h"
+#include "lordaeron/ui/toolbar/object_control_toolbar.h"
+#include "lordaeron/res/grit/common.h"
 
 namespace lord {
 
@@ -15,32 +17,28 @@ class MyRenderWindow : public SceneRenderWindow {
   void OnInitUI() override;
   void OnUpdateFrame(const FrameArgs& args) override;
   void OnRenderFrame(const FrameArgs& args, Renderer* renderer) override;
-
-  SceneNode* root() { return root_.get();}
  private:
   DiffuseEffectPtr effect_;
   DirLight light_;
   Matrix4 pv_;
   Matrix4 world_;
+  Vector4 color_;
 
-  MeshPtr mesh_;
+  EntityPtr entity_;
   scoped_ptr<FPSCameraController> camera_controller_;
-  scoped_ptr<FileSystem> fsystem_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
 };
 
 void MyRenderWindow::OnInitScene() {
   effect_ = CreateDiffuseEffect();
   Context* ctx = Context::instance(); 
-  fsystem_.reset(new NativeFileSystem(
-      ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
   light_.dir = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
   light_.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
   light_.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
 
-  ModelLoader loader(fsystem_.get());
   VertexDescPtr desc = effect_->GetVertexDesc();
-  mesh_ = loader.Load(ResPath(UTF8ToUTF16("//model/teapot.obj")), desc);
+  GeometryObjectPtr objptr = new SphereObject(effect_->GetVertexDesc(), 32, 32);
+  entity_ = new Entity(objptr->GetVertexBuffer(), objptr->GetIndicesBuffer());
 }
 
 void MyRenderWindow::OnInitUI() { 
@@ -51,11 +49,32 @@ void MyRenderWindow::OnInitUI() {
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
   camera_controller_->Update(args);
   pv_ = camera().GetProjViewMatrix();
-  mesh_->UpdateProviderParams(args);
+  world_ = Matrix4::kIdentity;
+  color_ = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 }
 
-void MyRenderWindow::OnRenderFrame(const FrameArgs& args, 
-                                   Renderer* renderer) {
-  mesh_->Render(renderer);
+void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
+  effect_->SetWorld(world_);
+  effect_->SetWorld(pv_);
+  effect_->SetColor(color_);
+  effect_->SetDirLight(light_);
+  effect_->Use(renderer);
+  entity_->DrawIndex(renderer);
 }
 }  // namespace lord
+
+int main(int argc, char* argv[]) {
+  CHECK(lord::Context::InitContext(argc, argv));
+
+  gfx::Rect init_bounds(0, 0, 800, 600);
+  lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
+  window->set_show_icon(true);
+  nelf::ResourceBundle* bundle = lord::Context::instance()->resource_bundle();
+  window->set_window_icon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
+  window->Init();
+  window->Show();
+
+  lord::ObjectControlToolbar* toolbar = new lord::ObjectControlToolbar(window);
+  window->GetRenderLoop()->Run();
+  return 0;
+}
