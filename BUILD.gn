@@ -72,6 +72,8 @@ static_library("lordaeron") {
     "ui/renderer_info_pane.h",
     "ui/scene_render_window.cc",
     "ui/scene_render_window.h",
+    "ui/scene_node_control_panel.cc",
+    "ui/scene_node_control_panel.h",
     "ui/scene_tree_view.cc",
     "ui/scene_tree_view.h",
     "ui/scene_tree_view_lineitem.cc",

@@ -22,6 +22,7 @@
 #include "lordaeron/scene/scene_loader.h"
 #include "lordaeron/ui/scene_tree_view.h"
 #include "lordaeron/ui/toolbar/object_control_toolbar.h"
+#include "lordaeron/sandbox/scene/scene_loader_delegate.h"
 #include "lordaeron/ui/scene_render_window.h"
 #include "lordaeron/ui/renderer_info_pane.h"
 #include "lordaeron/util/model_loader.h"
@@ -34,49 +35,6 @@ using lord::SceneContextPtr;
 using base::UTF8ToUTF16;
 using base::UTF16ToUTF8;
 using namespace azer;
-
-class MySceneLoaderDelegate : public lord::SceneLoaderDelegate {
- public:
-  MySceneLoaderDelegate(FileSystem* fs, VertexDescPtr desc)
-      : fsystem_(fs), desc_(desc) {}
-  bool InitSceneNode(SceneNode* node, azer::ConfigNode* config) override {
-    lord::Context* ctx = lord::Context::instance(); 
-    const std::string& type =  config->GetAttr("type");
-    if (type == "mesh") {
-      DCHECK(config->HasNamedChild("mesh"));
-      ConfigNode* mesh_node = config->GetNamedChildren("mesh")[0];
-      DCHECK(mesh_node->HasNamedChild("provider"));
-      ConfigNode* provider_node = mesh_node->GetNamedChildren("provider")[0];
-      azer::MeshPtr mesh = LoadMesh(mesh_node);
-      mesh->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
-      mesh->AddProvider(LoadProvider(provider_node));
-      node->mutable_data()->AttachMesh(mesh);
-      return true;
-    } else {
-      return true;
-    }
-  }
-  
-  azer::MeshPtr LoadMesh(azer::ConfigNode* config) {
-    std::string pathstr;
-    if (!config->GetChildText("path", &pathstr)) {
-      return azer::MeshPtr();
-    }
-      
-    lord::ModelLoader loader(fsystem_);
-    azer::MeshPtr obj = loader.Load(ResPath(UTF8ToUTF16(pathstr)), desc_);
-    return obj;
-  }
-  
-  azer::EffectParamsProviderPtr LoadProvider(azer::ConfigNode* config) {
-    lord::DiffuseEffectProvider* p(new lord::DiffuseEffectProvider);
-    p->SetColor(azer::Vector4(0.3f, 0.3f, 0.3f, 1.0f));
-    return azer::EffectParamsProviderPtr(p);
-  }
- private:
-  FileSystem* fsystem_;
-  VertexDescPtr desc_;
-};
 
 namespace lord {
 class RendererInfoPane;
@@ -144,7 +102,7 @@ void MyRenderWindow::OnInitScene() {
   CHECK(config_root.get());
 
   VertexDescPtr desc = effect_->GetVertexDesc();
-  MySceneLoaderDelegate delegate(fsystem_.get(), desc);
+  SimpleSceneLoaderDelegate delegate(fsystem_.get(), effect_.get());
   SceneLoader loader(&delegate);
   CHECK(loader.Load(root_.get(), config_root));
   scene_renderer_.reset(new SceneRender(scene_context_.get(), root_.get()));

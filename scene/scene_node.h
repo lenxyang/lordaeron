@@ -30,14 +30,14 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   
   // attributes
   void set_visible(bool visible) { visible_ = visible;}
-  bool is_visible() const { return visible_;}
+  bool visible() const { return visible_;}
 
   void set_draw_bounding_volumn(bool b);
   bool is_draw_bounding_volumn() const;
   azer::Mesh* bounding_volumn();
   
   void set_pickable(bool pickable) { pickable_ = pickable;}
-  bool is_pickable() const { return pickable_;}
+  bool pickable() const { return pickable_;}
 
   void set_shadow_caster(bool v) {shadow_caster_ = v;}
   bool shadow_caster() const { return shadow_caster_;}

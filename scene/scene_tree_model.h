@@ -14,7 +14,7 @@ class SceneTreeModelNode : public ui::TreeModelNode {
   explicit SceneTreeModelNode(SceneNodePtr node);
   ~SceneTreeModelNode();
 
-  SceneNodePtr scene_node() { return node_;}
+  SceneNode* scene_node() { return node_.get();}
   void AddChild(SceneTreeModelNode* item) { children_.push_back(item);}
   SceneTreeModelNode* child_at(int index);
   int32 child_count() const { return static_cast<int32>(children_.size());}

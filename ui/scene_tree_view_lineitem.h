@@ -3,6 +3,7 @@
 #include "nelf/nelf.h"
 
 namespace lord {
+class SceneNodeControPanel;
 class SceneTreeViewLineItemView : public nelf::CollapsedBasedTreeView::LineItemView {
  public:
   static const char kViewClassName[];
@@ -24,20 +25,22 @@ class SceneTreeViewLineItemView : public nelf::CollapsedBasedTreeView::LineItemV
   void OnNativeThemeChanged(const ui::NativeTheme* nm)  override;
   void PreferredSizeChanged() override;
   void OnBoundsChanged(const gfx::Rect& previous_bounds) override;
+  void OnVisibleBoundsChanged() override;
+  void VisibilityChanged(View* starting_from, bool is_visible) override;
  private:
   int32 CalcLeftMargin() const;
   void ExpandOrCollapse();
   void UpdateNodeInfo();
-  void LayoutExtendIcons();
-  void UpdatePreferredSize();
+  
+  void CalcLayout();
   gfx::ImageSkia icon_;
   nelf::CollapsedBasedTreeViewNode* node_;
   gfx::Size preferred_size_;
   gfx::Rect expand_bounds_;
   gfx::Rect icon_bounds_;
   gfx::Rect text_bounds_;
-  std::vector<gfx::ImageSkia> extend_icons_;
-  std::vector<gfx::Rect> extend_icons_bounds_;
+  SceneNodeControPanel* control_panel_;
+  
   int32 line_height_;
   static const int32 kTextVerticalPadding;
   static const int32 kImageMargin;

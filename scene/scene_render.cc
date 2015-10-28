@@ -20,7 +20,7 @@ void SceneArgsUpdator::OnTraverseBegin(SceneNode* root)  {
 }
 
 bool SceneArgsUpdator::OnTraverseNodeEnter(SceneNode* node)  {
-  if (!node->is_visible()) {
+  if (!node->visible()) {
     return false;
   }
 

@@ -11,7 +11,9 @@
 #include "nelf/theme/native_theme.h"
 #include "nelf/theme/theme.h"
 #include "lordaeron/context.h"
+#include "lordaeron/scene/scene_tree_model.h"
 #include "lordaeron/ui/iconset.h"
+#include "lordaeron/ui/scene_node_control_panel.h"
 
 namespace lord {
 
@@ -28,10 +30,11 @@ SceneTreeViewLineItemView::SceneTreeViewLineItemView(
   line_height_ = (node->tree_view()->GetFontList().GetHeight()
                   + kTextVerticalPadding * 2);
   Context* ctx = Context::instance();
-  extend_icons_.push_back(ctx->GetIcon(Iconset::kIconSceneLock));
-  extend_icons_.push_back(ctx->GetIcon(Iconset::kIconSceneVisible));
-  extend_icons_.push_back(ctx->GetIcon(Iconset::kIconScenePickable));
-  extend_icons_.push_back(ctx->GetIcon(Iconset::kIconSceneBounding));
+  SceneTreeModelNode* model_node =
+      dynamic_cast<SceneTreeModelNode*>(node->model_node());
+
+  control_panel_ = new SceneNodeControPanel(model_node->scene_node());
+  AddChildView(control_panel_);
   UpdateNodeInfo();
 }
 
@@ -45,14 +48,13 @@ void SceneTreeViewLineItemView::UpdateNodeInfo() {
   int32 imgindex = model->GetIconIndex(node_->model_node());
   if (imgindex >= 0)
     icon_ = tree->GetIcon(imgindex);
-  UpdatePreferredSize();
+  CalcLayout();
 }
 
 void SceneTreeViewLineItemView::OnNodeChanged()  {
   UpdateNodeInfo();
 }
-
-void SceneTreeViewLineItemView::UpdatePreferredSize() {
+void SceneTreeViewLineItemView::CalcLayout() {
   views::Label* label = new views::Label(node_->model_node()->GetTitle());
   nelf::TreeView* tree_view = node_->tree_view();
   ui::TreeModel* model = tree_view->model();
@@ -64,8 +66,8 @@ void SceneTreeViewLineItemView::UpdatePreferredSize() {
     int y = (GetContentsBounds().height() - closed_icon.width()) * 0.5;
     expand_bounds_.set_origin(gfx::Point(x, y));
     expand_bounds_.set_size(closed_icon.size());
-	if (model->GetChildCount(node_->model_node()) == 0)
-	  expand_bounds_.set_width(0);
+    if (model->GetChildCount(node_->model_node()) == 0)
+      expand_bounds_.set_width(0);
   }
 
   if (icon_.width() > 0) {
@@ -85,9 +87,14 @@ void SceneTreeViewLineItemView::UpdatePreferredSize() {
   text_bounds_.set_size(label->GetPreferredSize());
 
   int right_pos = text_bounds_.right();
-  LayoutExtendIcons();
-  if (!extend_icons_bounds_.empty()) 
-    right_pos = extend_icons_bounds_.back().right();
+
+  {
+    gfx::Size panel_prefsize = control_panel_->GetPreferredSize();
+    int x = right_pos + 10;
+    int y = (height() - panel_prefsize.height()) * 0.5f;
+    control_panel_->SetPosition(gfx::Point(x, y));
+    control_panel_->SetSize(panel_prefsize);
+  }
 
   gfx::Size pref_size = preferred_size_;
   preferred_size_ = gfx::Size(right_pos, line_height_);
@@ -101,23 +108,9 @@ const char* SceneTreeViewLineItemView::GetClassName() const {
   return kViewClassName;
 }
 
-void SceneTreeViewLineItemView::LayoutExtendIcons() {
-  int32 x = text_bounds_.right();
-  x += kImageMargin;
-  gfx::Rect contents_bounds = GetContentsBounds();
-  extend_icons_bounds_.resize(extend_icons_.size());
-  for (int32 i = 0; i < static_cast<int32>(extend_icons_.size()); ++i) {
-    const gfx::ImageSkia& img = extend_icons_[i];
-    int32 y = (contents_bounds.height() - img.height()) * 0.5f;
-    extend_icons_bounds_[i].set_x(x);
-    extend_icons_bounds_[i].set_y(y);
-    extend_icons_bounds_[i].set_size(img.size());
-    x += img.width();
-  }
-}
-
 void SceneTreeViewLineItemView::Layout() {
-  UpdatePreferredSize();
+  CalcLayout();
+
   nelf::CollapsedBasedTreeView::LineItemView::Layout();
 }
 
@@ -148,12 +141,6 @@ void SceneTreeViewLineItemView::OnPaint(gfx::Canvas* canvas) {
   const gfx::FontList& fontlist = node_->tree_view()->GetFontList();
   canvas->DrawStringRect(node_->model_node()->GetTitle(), fontlist,
                          text_color, text_bounds_);
-
-  for (int32 i = 0; i < static_cast<int32>(extend_icons_.size()); ++i) {
-    const gfx::ImageSkia& img = extend_icons_[i];
-    const gfx::Rect& bounds = extend_icons_bounds_[i];
-    canvas->DrawImageInt(img, bounds.x(), bounds.y());
-  }
 }
 
 void SceneTreeViewLineItemView::PreferredSizeChanged() {
@@ -177,6 +164,16 @@ void SceneTreeViewLineItemView::ExpandOrCollapse() {
   } else {
     node_->Collapse();
   }
+}
+
+void SceneTreeViewLineItemView::OnVisibleBoundsChanged() {
+  Layout();
+}
+
+void SceneTreeViewLineItemView::VisibilityChanged(View* starting_from, 
+                                                  bool is_visible) {
+  if (is_visible)
+    Layout();
 }
 
 bool SceneTreeViewLineItemView::OnMousePressed(const ui::MouseEvent& event)  {
