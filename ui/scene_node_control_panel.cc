@@ -29,35 +29,47 @@ SceneNodeControPanel::SceneNodeControPanel(SceneNode* node)
 
   btn_locked_ = new views::ToggleImageButton(this);
   btn_locked_->SetToggledTooltipText(UTF8ToUTF16("locked"));
-  btn_locked_->SetImage(Button::STATE_NORMAL, &ico_unlock);
-  btn_locked_->SetImage(Button::STATE_HOVERED, &ico_unlock);
+  btn_locked_->SetImage(Button::STATE_NORMAL, &ico_lock);
+  btn_locked_->SetImage(Button::STATE_HOVERED, &ico_lock);
   btn_locked_->SetImage(Button::STATE_PRESSED, &ico_unlock);
   btn_locked_->SetImage(Button::STATE_DISABLED, &ico_lock);
-  btn_locked_->SetToggledImage(Button::STATE_NORMAL, &ico_lock);
-  btn_locked_->SetToggledImage(Button::STATE_HOVERED, &ico_lock);
+  btn_locked_->SetToggledImage(Button::STATE_NORMAL, &ico_unlock);
+  btn_locked_->SetToggledImage(Button::STATE_HOVERED, &ico_unlock);
   btn_locked_->SetToggledImage(Button::STATE_PRESSED, &ico_lock);
   btn_locked_->SetToggledImage(Button::STATE_DISABLED, &ico_unlock);
 
   btn_visible_ = new views::ToggleImageButton(this);
   btn_visible_->SetToggledTooltipText(UTF8ToUTF16("Visible"));
-  btn_visible_->SetImage(Button::STATE_NORMAL, &ico_visible);
-  btn_visible_->SetImage(Button::STATE_HOVERED, &ico_visible);
-  btn_visible_->SetImage(Button::STATE_PRESSED, &ico_invisible);
+  btn_visible_->SetImage(Button::STATE_NORMAL, &ico_invisible);
+  btn_visible_->SetImage(Button::STATE_HOVERED, &ico_invisible);
+  btn_visible_->SetImage(Button::STATE_PRESSED, &ico_visible);
   btn_visible_->SetImage(Button::STATE_DISABLED, &ico_invisible);
+  btn_visible_->SetToggledImage(Button::STATE_NORMAL, &ico_visible);
+  btn_visible_->SetToggledImage(Button::STATE_HOVERED, &ico_visible);
+  btn_visible_->SetToggledImage(Button::STATE_PRESSED, &ico_invisible);
+  btn_visible_->SetToggledImage(Button::STATE_DISABLED, &ico_visible);
 
   btn_pickable_ = new views::ToggleImageButton(this);
   btn_pickable_->SetToggledTooltipText(UTF8ToUTF16("Pickable"));
-  btn_pickable_->SetImage(Button::STATE_NORMAL, &ico_pickable);
-  btn_pickable_->SetImage(Button::STATE_HOVERED, &ico_pickable);
-  btn_pickable_->SetImage(Button::STATE_PRESSED, &ico_unpickable);
+  btn_pickable_->SetImage(Button::STATE_NORMAL, &ico_unpickable);
+  btn_pickable_->SetImage(Button::STATE_HOVERED, &ico_unpickable);
+  btn_pickable_->SetImage(Button::STATE_PRESSED, &ico_pickable);
   btn_pickable_->SetImage(Button::STATE_DISABLED, &ico_unpickable);
+  btn_pickable_->SetToggledImage(Button::STATE_NORMAL, &ico_pickable);
+  btn_pickable_->SetToggledImage(Button::STATE_HOVERED, &ico_pickable);
+  btn_pickable_->SetToggledImage(Button::STATE_PRESSED, &ico_unpickable);
+  btn_pickable_->SetToggledImage(Button::STATE_DISABLED, &ico_pickable);
 
   btn_draw_bv_ = new views::ToggleImageButton(this);
   btn_draw_bv_->SetToggledTooltipText(UTF8ToUTF16("Draw Bounding Volumn"));
-  btn_draw_bv_->SetImage(Button::STATE_NORMAL,  &ico_bv);
-  btn_draw_bv_->SetImage(Button::STATE_HOVERED,  &ico_bv);
-  btn_draw_bv_->SetImage(Button::STATE_PRESSED, &ico_nbv);
+  btn_draw_bv_->SetImage(Button::STATE_NORMAL,  &ico_nbv);
+  btn_draw_bv_->SetImage(Button::STATE_HOVERED,  &ico_nbv);
+  btn_draw_bv_->SetImage(Button::STATE_PRESSED, &ico_bv);
   btn_draw_bv_->SetImage(Button::STATE_DISABLED, &ico_nbv);
+  btn_draw_bv_->SetToggledImage(Button::STATE_NORMAL,  &ico_bv);
+  btn_draw_bv_->SetToggledImage(Button::STATE_HOVERED,  &ico_bv);
+  btn_draw_bv_->SetToggledImage(Button::STATE_PRESSED, &ico_nbv);
+  btn_draw_bv_->SetToggledImage(Button::STATE_DISABLED, &ico_bv);
   
   AddChildView(btn_locked_);
   AddChildView(btn_visible_);
@@ -71,8 +83,8 @@ SceneNodeControPanel::~SceneNodeControPanel() {
 }
 
 void SceneNodeControPanel::UpdateState(SceneNode* node) {
-  btn_visible_->SetToggled(!node->visible());
-  btn_pickable_->SetToggled(!node->pickable());
+  btn_visible_->SetToggled(node->visible());
+  btn_pickable_->SetToggled(node->pickable());
   btn_draw_bv_->SetToggled(node->is_draw_bounding_volumn());
 }
 

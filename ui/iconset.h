@@ -26,7 +26,6 @@ class Iconset {
     kIconSceneUnpickable  = 0x00160014,
     kIconSceneBounding    = 0x00000018,
     kIconSceneNBounding   = 0x00000019,
-    
 
     kIconTriangleLeft     = 0x0006001D,
     kIconTriangleRight    = 0x0004001D,
