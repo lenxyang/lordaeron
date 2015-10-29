@@ -38,16 +38,10 @@ void SceneBVProvider::UpdateParams(const azer::FrameArgs& args) {
   Vector3 vmin = node_->vmin();
   Vector3 vmax = node_->vmax();
   Vector3 center = (vmin + vmax) * 0.5f;
-  Vector3 scale1(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
-  Vector3 scale2 = node_->holder().scale();
-  Vector3 scale = Vector3(scale1.x * scale2.x, 
-                          scale1.y * scale2.y, 
-                          scale1.z * scale2.z);
-  Vector3 pos = node_->holder().position();
+  Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
   pv_ = gparams->camera()->GetProjViewMatrix();
-  pos += center;
   world_ = std::move(azer::Scale(scale));
-  world_ = std::move(azer::Translate(pos)) * world_;
+  world_ = std::move(azer::Translate(center)) * world_;
 }
 
 // class SceneBVParamsAdapter

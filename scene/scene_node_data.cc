@@ -23,10 +23,8 @@ azer::MeshPtr SceneNodeData::GetMesh() {
 void SceneNodeData::reset() {
   mesh_ = NULL;
   type_ = SceneNode::kEmptyNode;
-  *node_->mutable_vmin() = azer::Vector3();
-  *node_->mutable_vmax() = azer::Vector3();
-  if (node_->parent())
-    node_->parent()->UpdateBoundingHierarchy();
+  node_->SetMin(azer::Vector3(0.0f, 0.0f, 0.0f));
+  node_->SetMax(azer::Vector3(0.0f, 0.0f, 0.0f));
 }
 
 void SceneNodeData::AttachMesh(azer::MeshPtr mesh) {
@@ -36,10 +34,8 @@ void SceneNodeData::AttachMesh(azer::MeshPtr mesh) {
   mesh_->AddProvider(params);
   mesh_->AddProvider(node_->context()->GetGlobalEnvironment());
   type_ = SceneNode::kMeshNode;
-  *node_->mutable_vmin() = mesh->vmin();
-  *node_->mutable_vmax() = mesh->vmax();
-  if (node_->parent())
-    node_->parent()->UpdateBoundingHierarchy();
+  node_->SetMin(mesh->vmin());
+  node_->SetMax(mesh->vmax());
 }
 
 void SceneNodeData::AttachLight(LightPtr light) {

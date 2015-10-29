@@ -1,13 +1,14 @@
 #pragma once
 
 #include "base/memory/ref_counted.h"
+#include "base/observer_list.h"
 #include "azer/render/render.h"
 
 namespace lord {
 class SceneContext;
 class SceneNode;
 class SceneNodeData;
-class BoundingVolumn;
+class SceneNodeObserver;
 typedef scoped_refptr<SceneContext> SceneContextPtr;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
 
@@ -44,8 +45,10 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
 
   const azer::Vector3& vmin() const { return vmin_;}
   const azer::Vector3& vmax() const { return vmax_;}
-  azer::Vector3* mutable_vmin() { return &vmin_;}
-  azer::Vector3* mutable_vmax() { return &vmax_;}
+  // attention: put the value without transform
+  // SceneNode will apply the transfrom in node
+  void SetMin(const azer::Vector3& v);
+  void SetMax(const azer::Vector3& v);
 
   void AddChild(SceneNodePtr child);
   void RemoveChild(SceneNodePtr child);
@@ -74,7 +77,15 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   SceneNodes& children() { return children_;}
 
   const azer::TransformHolder& holder() const { return holder_;}
-  azer::TransformHolder* mutable_holder() { return &holder_;}
+  void SetPosition(const azer::Vector3& pos);
+  const azer::Vector3& position() const { return holder().position();}
+  
+  void SetScale(const azer::Vector3& v);
+  const azer::Vector3& scale() const { return holder().scale();}
+
+  void set_orientation(const azer::Quaternion& q);
+  const azer::Quaternion& orientation() const { return holder().orientation();}
+
   std::string print_info();
 
   Type type() const;
@@ -89,12 +100,14 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   const azer::Matrix4& world() const { return world_;}
 
   SceneContext* context();
-
-  // dont't call them
-  // show be called by SceneNodeData where attached or distach object.
+ protected:
+  void BoundingChanged(const azer::Vector3& orgmin, const azer::Vector3& orgmax);
+  azer::Vector3 RevertTranformOnPos(const azer::Vector3& vector);
+  azer::Vector3 ApplyTranformOnPos(const azer::Vector3& vector);
   void UpdateBoundingHierarchy();
   void CalcChildrenBoundingVector();
- protected:
+  azer::TransformHolder* mutable_holder() { return &holder_;}
+
   SceneNodePtr GetLocalChild(const std::string& name);
   void print_info(std::string* str, int depth, SceneNode* node);
   // attributes

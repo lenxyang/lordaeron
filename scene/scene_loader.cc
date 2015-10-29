@@ -70,7 +70,7 @@ bool SceneLoader::LoadSceneLocation(SceneNode* node, azer::ConfigNode* config) {
   Quaternion orient;
   if (location->HasNamedChild("position")) {
     if (location->GetChildTextAsVec3("position", &position)) {
-      node->mutable_holder()->SetPosition(position);
+      node->SetPosition(position);
     } else {
       LOG(ERROR) << "Node[" << node->path() << "] Invalid location: " 
                  << location->GetChildTextString("position");
@@ -80,7 +80,7 @@ bool SceneLoader::LoadSceneLocation(SceneNode* node, azer::ConfigNode* config) {
 
   if (location->HasNamedChild("scale")) {
     if (location->GetChildTextAsVec3("scale", &scale)) {
-      node->mutable_holder()->SetScale(scale);
+      node->SetScale(scale);
     } else {
       LOG(ERROR) << "Node[" << node->path() << "]Invalid location: " 
                  << location->GetChildTextString("scale");
@@ -90,7 +90,7 @@ bool SceneLoader::LoadSceneLocation(SceneNode* node, azer::ConfigNode* config) {
 
   if (location->HasNamedChild("orientation")) {
     if (location->GetChildTextAsQuaternion("orientation", &orient)) {
-      node->mutable_holder()->set_orientation(orient);
+      node->set_orientation(orient);
     } else {
       LOG(ERROR) << "Node[" << node->path() << "]Invalid location: " 
                  << location->GetChildTextString("orientation");
