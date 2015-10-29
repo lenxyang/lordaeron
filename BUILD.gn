@@ -28,6 +28,8 @@ static_library("lordaeron") {
     "effect/global_environemnt_params.h",
     "effect/scene_node_params.cc",
     "effect/scene_node_params.h",
+    "interactive/picking.cc",
+    "interactive/picking.h",
     "mainframe_render_delegate.cc",
     "mainframe_render_delegate.h",
     "render/axis_aligned_bounding_box.h",
