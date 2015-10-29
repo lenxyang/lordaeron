@@ -12,7 +12,7 @@ class DiffuseEffect : public azer::Effect {
   DiffuseEffect(azer::VertexDescPtr desc);
   ~DiffuseEffect();
 
-  const char* name() const override;
+  const char* GetEffectName() const override;
   bool Init(const ShaderPrograms& source) override;
 
 #pragma pack(push, 4)

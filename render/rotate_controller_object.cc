@@ -44,7 +44,7 @@ void CircleCoordinateObject::Render(const azer::Matrix4& world,
     effect_->SetColor(axis_color_[i]);
     effect_->SetWorld(world * w);
     effect_->SetPV(pv);
-    effect_->Use(renderer);
+    renderer->UseEffect(effect_.get());
     circle_->Render(renderer);
   }
 }
@@ -78,7 +78,7 @@ void RotateControllerObject::Render(const azer::Matrix4& world,
   effect_->SetColor(sphere_color_);
   effect_->SetWorld(world);
   effect_->SetPV(pv);
-  effect_->Use(renderer);
+  renderer->UseEffect(effect_.get());
   sphere_->Render(renderer);
   renderer->ResetBlending();
 }
