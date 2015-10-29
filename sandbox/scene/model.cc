@@ -129,7 +129,7 @@ void MyRenderWindow::OnInitScene() {
   node1->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
   node2->SetPosition(Vector3(0.0f, 0.0f, -10.0f));
   node3->SetPosition(Vector3(10.0f, 00.0f, 0.0f));
-  // node3->set_draw_bounding_volumn(true);
+  node3->set_draw_bounding_volumn(true);
   scene_renderer_.reset(new SceneRender(scene_context_.get(), root_.get()));
 }
 
