@@ -12,14 +12,17 @@ class PickingController : public InteractiveController {
   PickingController();
   ~PickingController() override;
 
-  void OnOperationStart(InteractiveContext* ctx) override;
-  bool OnKeyPressed(const ui::KeyEvent& event) override;
+  // override
+  void Update(const azer::FrameArgs& args) override;
+  void Render(azer::Renderer* renderer) override;
+  void OnLostFocus() override;
+  bool OnMousePressed(const ui::MouseEvent& event);
 
   void SetPickingNode(SceneNode* node) { picking_node_ = node;}
   SceneNode* GetPickingNode() { return picking_node_;}
  private:
-  InteractiveContext* context_;
   SceneNode* picking_node_;
+  azer::MeshPtr mesh_;
   DISALLOW_COPY_AND_ASSIGN(PickingController);
 };
 }

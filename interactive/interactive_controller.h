@@ -10,11 +10,13 @@ class InteractiveController {
   InteractiveController();
   virtual ~InteractiveController();
 
-  virtual void OnOperationStart(InteractiveContext* ctx) = 0;
-  virtual void OnOperationStop() {}
-  virtual void OnLostFocus() = 0;
+  void Start(InteractiveContext* ctx);
+  void Stop();
   virtual void Update(const azer::FrameArgs& args) {}
   virtual void Render(azer::Renderer* renderer) {}
+  virtual void OnOperationStart(InteractiveContext* ctx) {}
+  virtual void OnOperationStop() {}
+  virtual void OnLostFocus() = 0;
 
   // if return false, context will take over
   virtual bool OnKeyPressed(const ui::KeyEvent& event) { return false;}
@@ -22,7 +24,8 @@ class InteractiveController {
   virtual bool OnMousePressed(const ui::MouseEvent& event) { return false;}
   virtual bool OnMouseDragged(const ui::MouseEvent& event) { return false;}
   virtual bool OnMouseReleased(const ui::MouseEvent& event) { return false;}
- private:
+ protected:
+  InteractiveContext* context_;
   DISALLOW_COPY_AND_ASSIGN(InteractiveController);
 };
 }  // namespace lord

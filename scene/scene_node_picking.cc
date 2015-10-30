@@ -13,6 +13,10 @@ SceneNodePickHelper::SceneNodePickHelper(azer::Ray* ray)
 SceneNodePickHelper::~SceneNodePickHelper() {
 }
 
+SceneNode* SceneNodePickHelper::GetPickingNode() {
+  return picking_node_;
+}
+
 void SceneNodePickHelper::OnTraverseBegin(SceneNode* root) {
 }
 
@@ -23,21 +27,25 @@ bool SceneNodePickHelper::OnTraverseNodeEnter(SceneNode* node) {
   if (node->pickable())
     return false;
 
-  if (node->has_child())
-    return true;
-
   using namespace azer;
   Vector3 vmin = node->vmin();
   Vector3 vmax = node->vmax();
-  Vector3 other = min;
+  Vector3 other = vmin;
   other.x = vmax.x;
   other.y = vmax.y;
   Plane plane(vmin, vmax, other);
   Vector3 pt = plane.intersect(*ray_);
-  if (pt >= vmin && pt <= vmax) {
-    picking_node_ = node;
+  if (pt.x >= vmin.x && pt.y >= vmin.y && pt.z >= vmin.z
+      && pt.x <= vmax.x && pt.y <= vmax.y && pt.z <= vmax.z) {
+    if (node->has_child()) {
+      return true;
+    } else {
+      picking_node_ = node;
+      return false;
+    }
+  } else {
+    return false;
   }
-  return false;
 }
 
 void SceneNodePickHelper::OnTraverseNodeExit(SceneNode* node) {

@@ -9,8 +9,7 @@ namespace lord {
 using namespace azer;
 
 FPSCameraController::FPSCameraController() 
-    : context_(NULL),
-      camera_(NULL) {
+    : camera_(NULL) {
   orientation_dragging_ = false;
   ResetState();
 }
@@ -28,18 +27,11 @@ void FPSCameraController::ResetState() {
 }
 
 void FPSCameraController::OnOperationStart(InteractiveContext* ctx)  {
-  DCHECK(!context_);
-  context_ = ctx;
   camera_ = ctx->window()->mutable_camera();
 }
 
 void FPSCameraController::OnOperationStop() {
-  DCHECK(context_);
-  context_ = NULL;
   camera_ = NULL;
-}
-
-void OnLostFocus()  {
 }
 
 bool FPSCameraController::OnKeyPressed(const ui::KeyEvent& event) {

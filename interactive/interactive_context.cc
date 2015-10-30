@@ -10,8 +10,7 @@ InteractiveContext::InteractiveContext(SceneRenderWindow* window)
 }
 
 InteractiveContext::~InteractiveContext() {
-  if (controller_.get())
-    controller_->OnOperationStop();
+  ResetController();
 }
 
 SceneNode* InteractiveContext::root() {
@@ -30,7 +29,7 @@ void InteractiveContext::Render(azer::Renderer* renderer) {
 
 void InteractiveContext::ResetController() {
   if (controller_.get()) {
-    controller_->OnOperationStop();
+    controller_->Stop();
     controller_.reset();
   }
 }
@@ -38,7 +37,7 @@ void InteractiveContext::ResetController() {
 void InteractiveContext::SetController(scoped_ptr<InteractiveController> controller) {
   ResetController();
   controller_ = controller.Pass();
-  controller_->OnOperationStart(this);
+  controller_->Start(this);
 }
 
 void InteractiveContext::OnKeyPressed(const ui::KeyEvent& event) {

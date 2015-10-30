@@ -42,7 +42,17 @@ ObjectControlToolbar::~ObjectControlToolbar() {
 void ObjectControlToolbar::OnToolbarButtonPressed(views::Button* sender) {
   int32 id = sender->id();
   switch (id) {
-    case IDR_ICON_TOOLBAR_PICKING:
+    case IDR_ICON_TOOLBAR_PICKING: {
+      using nelf::ToggleToolbarButton;
+      ToggleToolbarButton* btn = dynamic_cast<ToggleToolbarButton*>(sender);
+      DCHECK(btn);
+      if (btn->pressed()) {
+        scoped_ptr<PickingController> controller(new PickingController());
+        interactive_->SetController(controller.Pass());
+      } else {
+        interactive_->ResetController();
+      }
+    }
       break;
     case IDR_ICON_TOOLBAR_MOVE:
       break;

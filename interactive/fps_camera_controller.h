@@ -26,7 +26,6 @@ class FPSCameraController : public InteractiveController {
   void ResetState();
   void RotateCamera(const gfx::Point& prev, const gfx::Point& cur);
 
-  InteractiveContext* context_;
   azer::Camera* camera_;
   azer::Quaternion origin_orient_;
   bool orientation_dragging_;
