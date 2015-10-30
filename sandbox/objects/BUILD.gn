@@ -1,0 +1,12 @@
+
+group("objects") {
+  deps = [
+    ":frustrum",
+  ]
+}
+
+executable("frustrum") {
+  output_name = "lordaeron_sandbox_objects_frustrum"
+  sources = ["frustrum.cc",]
+  deps = ["//lordaeron"]
+}

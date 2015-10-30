@@ -83,11 +83,11 @@ void SceneRenderWindow::OnRender(const azer::FrameArgs& args) {
   renderer->ClearDepthAndStencil();
   renderer->SetCullingMode(azer::kCullBack);
   renderer->EnableDepthTest(true);
+  gridline_->Render(renderer);
 
   OnRenderFrame(args, renderer);
 
   renderer->Use();
-  gridline_->Render(renderer);
   camera_overlay_->Render(renderer);
 }
 
