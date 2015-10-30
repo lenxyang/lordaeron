@@ -25,6 +25,7 @@
 #include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/scene/scene_loader.h"
 #include "lordaeron/ui/scene_tree_view.h"
+#include "lordaeron/ui/simple_render_window.h"
 #include "lordaeron/ui/toolbar/object_control_toolbar.h"
 #include "lordaeron/ui/scene_render_window.h"
 #include "lordaeron/ui/renderer_info_pane.h"

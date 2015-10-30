@@ -56,7 +56,10 @@ void PickingController::Update(const azer::FrameArgs& args) {
 
 void PickingController::Render(azer::Renderer* renderer) {
   if (mesh_.get()) {
+    bool enable_depth = renderer->IsDepthTestEnable();
+    renderer->EnableDepthTest(false);
     mesh_->Render(renderer);
+    renderer->EnableDepthTest(enable_depth);
   }
 }
 

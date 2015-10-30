@@ -11,9 +11,9 @@ using namespace azer;
 
 namespace lord {
 class RendererInfoPane;
-class MyRenderWindow : public lord::SimpleRenderWindow {
+class MyRenderWindow : public SimpleRenderWindow {
  public:
-  MyRenderWindow(const gfx::Rect& rect) : lord::SceneRenderWindow(rect) {}
+  MyRenderWindow(const gfx::Rect& rect) : SimpleRenderWindow(rect) {}
   void OnInitScene() override;
   void OnInitUI() override;
   void OnUpdateFrame(const azer::FrameArgs& args) override;
@@ -25,7 +25,7 @@ class MyRenderWindow : public lord::SimpleRenderWindow {
   SceneNodePtr root_;
   SceneContextPtr scene_context_;
   scoped_ptr<SceneRender> scene_renderer_;
-  lord::DiffuseEffectPtr effect_;
+  DiffuseEffectPtr effect_;
   azer::Matrix4 pv_;
 
   scoped_ptr<azer::FPSCameraController> camera_controller_;
@@ -45,8 +45,6 @@ int main(int argc, char* argv[]) {
   window->Init();
   window->Show();
 
-  lord::ObjectControlToolbar* toolbar = new lord::ObjectControlToolbar(window);
-  window->GetRenderLoop()->Run();
   return 0;
 }
 
@@ -55,15 +53,15 @@ using namespace azer;
 
 void MyRenderWindow::OnInitScene() {
   effect_ = CreateDiffuseEffect();
-  lord::Context* ctx = lord::Context::instance(); 
+  Context* ctx = Context::instance(); 
   fsystem_.reset(new azer::NativeFileSystem(
       ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
-  lord::DirLight dirlight;
+  DirLight dirlight;
   dirlight.dir = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
   dirlight.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
   dirlight.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
   LightPtr light(new Light(dirlight));
-  scene_context_ = new lord::SceneContext;
+  scene_context_ = new SceneContext;
   scene_context_->GetGlobalEnvironment()->SetCamera(mutable_camera());
   scene_context_->GetGlobalEnvironment()->SetLight(light);
   root_ = new SceneNode(scene_context_);
@@ -85,7 +83,7 @@ void MyRenderWindow::OnInitUI() {
   camera_controller_.reset(new FPSCameraController(mutable_camera()));
   view()->AddEventListener(camera_controller_.get());
 
-  lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(
+  SceneTreeWindow* scene = new SceneTreeWindow(
       gfx::Rect(400, 300), this->window()->GetTopWindow());
   scene->SetSceneNode(root_);
   scene->Init();
