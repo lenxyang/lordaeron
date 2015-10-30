@@ -29,7 +29,7 @@ class BoundingBoxEntity : public azer::Entity {
 
 SceneBVProvider::SceneBVProvider(SceneNode* node)
     : node_(node),
-      color_(Vector4(1.0f, 0.0f, 0.0f, 0.6f)) {
+      color_(Vector4(1.0f, 0.0f, 0.0f, 0.3f)) {
   if (!adapter_context_.Pointer()->LookupAdapter(
           SceneBVParamsAdapter::kAdapterKey)) {
     adapter_context_.Pointer()->RegisteAdapter(new SceneBVParamsAdapter);
