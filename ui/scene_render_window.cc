@@ -3,6 +3,8 @@
 #include "ui/views/layout/layout_manager.h"
 
 #include "lordaeron/context.h"
+#include "lordaeron/interactive/fps_camera_controller.h"
+#include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/render/camera_overlay.h"
 #include "lordaeron/ui/renderer_info_pane.h"
 
@@ -63,13 +65,16 @@ bool SceneRenderWindow::Initialize() {
   gridline_->SetXCoordColor(kGridLineColor);
   gridline_->SetZCoordColor(kGridLineColor);
 
-  OnInitScene();
+  interactive_.reset(new InteractiveContext(this));
+  view()->AddEventListener(GetInteractive());
+  root_ = OnInitScene();
   OnInitUI();
   return true;
 }
 
 void SceneRenderWindow::OnUpdate(const azer::FrameArgs& args) {
   azer::Renderer* renderer = window()->GetRenderer().get();
+  interactive_->Update(args);
   OnUpdateFrame(args);
   gridline_->Update(camera_);
   renderer_pane_->Update(renderer, args);
@@ -84,6 +89,7 @@ void SceneRenderWindow::OnRender(const azer::FrameArgs& args) {
   renderer->SetCullingMode(azer::kCullBack);
   renderer->EnableDepthTest(true);
   gridline_->Render(renderer);
+  interactive_->Render(renderer);
 
   OnRenderFrame(args, renderer);
 

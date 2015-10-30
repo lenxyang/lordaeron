@@ -11,7 +11,7 @@
 namespace lord {
 class SceneTreeModelNode : public ui::TreeModelNode {
  public:
-  explicit SceneTreeModelNode(SceneNodePtr node);
+  explicit SceneTreeModelNode(SceneNode* node);
   ~SceneTreeModelNode();
 
   SceneNode* scene_node() { return node_.get();}
@@ -31,7 +31,7 @@ class SceneTreeModelNode : public ui::TreeModelNode {
 
 class SceneTreeModel : public ui::TreeModel {
  public:
-  explicit SceneTreeModel(SceneNodePtr root);
+  explicit SceneTreeModel(SceneNode* root);
   ~SceneTreeModel();
 
   const ::base::string16 name() const { return name_;}
@@ -49,7 +49,7 @@ class SceneTreeModel : public ui::TreeModel {
   void AddObserver(ui::TreeModelObserver* observer) override;
   void RemoveObserver(ui::TreeModelObserver* observer) override;
  private:
-  SceneTreeModelNode* BuildTree(SceneNodePtr node);
+  SceneTreeModelNode* BuildTree(SceneNode* node);
   std::vector<gfx::ImageSkia> icons_;
   ObserverList<ui::TreeModelObserver> observers_;
   std::vector<SceneTreeModelNode*> nodes_;

@@ -8,7 +8,7 @@
 
 namespace lord {
 //
-SceneTreeModelNode::SceneTreeModelNode(SceneNodePtr node)
+SceneTreeModelNode::SceneTreeModelNode(SceneNode* node)
     : node_(node) {
   title_ = ::base::UTF8ToUTF16(node->name());
 }
@@ -36,7 +36,7 @@ int32 SceneTreeModelNode::GetIndexOf(SceneTreeModelNode* item) const {
 
 // class RepositoryModel
 
-SceneTreeModel::SceneTreeModel(SceneNodePtr root)
+SceneTreeModel::SceneTreeModel(SceneNode* root)
     : root_(root) {
   BuildTree(root_);
   name_ = ::base::UTF8ToUTF16(root_->name());
@@ -56,7 +56,7 @@ SceneTreeModel::~SceneTreeModel() {
   nodes_.clear();
 }
 
-SceneTreeModelNode* SceneTreeModel::BuildTree(SceneNodePtr node) {
+SceneTreeModelNode* SceneTreeModel::BuildTree(SceneNode* node) {
   SceneTreeModelNode* child = new SceneTreeModelNode(node);
   node->set_user_data(child);
   nodes_.push_back(child);
@@ -97,7 +97,7 @@ int SceneTreeModel::GetIndexOf(ui::TreeModelNode* p, ui::TreeModelNode* c) {
 
 ui::TreeModelNode* SceneTreeModel::GetParent(ui::TreeModelNode* n)  {
   SceneTreeModelNode* node = dynamic_cast<SceneTreeModelNode*>(n);
-  SceneNodePtr rnode = node->scene_node();
+  SceneNode* rnode = node->scene_node();
   SceneNode* parent = rnode->parent();
   if (parent) {
     DCHECK(parent->user_data());
@@ -113,7 +113,7 @@ void SceneTreeModel::GetIcons(std::vector<gfx::ImageSkia>* icons)  {
 
 int SceneTreeModel::GetIconIndex(ui::TreeModelNode* n)  {
   SceneTreeModelNode* node = dynamic_cast<SceneTreeModelNode*>(n);
-  SceneNodePtr rnode = node->scene_node();
+  SceneNode* rnode = node->scene_node();
   switch (rnode->type()) {
     case SceneNode::kEmptyNode: return 0;
     case SceneNode::kCameraNode: return 1;

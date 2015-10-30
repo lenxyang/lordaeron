@@ -13,7 +13,7 @@ class SceneTreeModel;
 class SceneTreeView : public views::View,
                       public nelf::TreeViewController {
  public:
-  SceneTreeView(SceneNodePtr node);
+  SceneTreeView(SceneNode* node);
   ~SceneTreeView();
 
   // override from views::TreeViewController

@@ -6,4 +6,5 @@ InteractiveController::InteractiveController() {
 
 InteractiveController::~InteractiveController() {
 }
+
 }  // namespace lord

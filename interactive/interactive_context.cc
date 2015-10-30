@@ -2,15 +2,20 @@
 
 #include "lordaeron/interactive/interactive_controller.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/ui/scene_render_window.h"
 
 namespace lord {
-InteractiveContext::InteractiveContext(SceneNode* root) 
-    : root_(root) {
+InteractiveContext::InteractiveContext(SceneRenderWindow* window) 
+    : window_(window) {
 }
 
 InteractiveContext::~InteractiveContext() {
   if (controller_.get())
     controller_->OnOperationStop();
+}
+
+SceneNode* InteractiveContext::root() {
+  return window_->root();
 }
 
 void InteractiveContext::Update(const azer::FrameArgs& args) {
@@ -23,8 +28,7 @@ void InteractiveContext::Render(azer::Renderer* renderer) {
     controller_->Render(renderer);
 }
 
-void InteractiveContext::SetInteractiveController(
-    scoped_ptr<InteractiveController> controller) {
+void InteractiveContext::SetController(scoped_ptr<InteractiveController> controller) {
   if (controller_.get())
     controller_->OnOperationStop();
 

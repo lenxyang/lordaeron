@@ -7,19 +7,21 @@
 namespace lord {
 
 class SceneNode;
+class SceneRenderWindow;
 class InteractiveController;
 
 class InteractiveContext : public nelf::EventListener {
  public:
-  InteractiveContext(SceneNode* root);
+  InteractiveContext(SceneRenderWindow* win);
   ~InteractiveContext();
   
-  void SetInteractiveController(scoped_ptr<InteractiveController> controller);
+  void SetController(scoped_ptr<InteractiveController> controller);
 
   void Update(const azer::FrameArgs& args);
   void Render(azer::Renderer* renderer);
 
-  SceneNode* root() { return root_;}
+  SceneNode* root();
+  SceneRenderWindow* window() { return window_;}
 
   // override from nelf::EventListener
   void OnKeyPressed(const ui::KeyEvent& event) override;
@@ -30,7 +32,7 @@ class InteractiveContext : public nelf::EventListener {
   void OnMouseCaptureLost() override;
   void OnLostFocus() override;
  private:
-  SceneNode* root_;
+  SceneRenderWindow* window_;
   scoped_ptr<InteractiveController> controller_;
   DISALLOW_COPY_AND_ASSIGN(InteractiveContext);
 };

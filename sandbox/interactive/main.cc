@@ -1,5 +1,7 @@
 #include <memory>
+
 #include "lordaeron/sandbox/sandbox.h"
+#include "lordaeron/interactive/fps_camera_controller.h"
 
 using views::Widget;
 using lord::SceneNodePtr;
@@ -13,21 +15,15 @@ class RendererInfoPane;
 class MyRenderWindow : public lord::SceneRenderWindow {
  public:
   MyRenderWindow(const gfx::Rect& rect) : lord::SceneRenderWindow(rect) {}
-  void OnInitScene() override;
+  SceneNodePtr OnInitScene() override;
   void OnInitUI() override;
   void OnUpdateFrame(const azer::FrameArgs& args) override;
   void OnRenderFrame(const azer::FrameArgs& args, Renderer* renderer) override;
-
-
-  SceneNode* root() { return root_.get();}
  private:
-  SceneNodePtr root_;
   SceneContextPtr scene_context_;
   scoped_ptr<SceneRender> scene_renderer_;
   lord::DiffuseEffectPtr effect_;
   azer::Matrix4 pv_;
-
-  scoped_ptr<azer::FPSCameraController> camera_controller_;
   scoped_ptr<FileSystem> fsystem_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
 };
@@ -52,7 +48,7 @@ int main(int argc, char* argv[]) {
 namespace lord {
 using namespace azer;
 
-void MyRenderWindow::OnInitScene() {
+SceneNodePtr MyRenderWindow::OnInitScene() {
   effect_ = CreateDiffuseEffect();
   lord::Context* ctx = lord::Context::instance(); 
   fsystem_.reset(new azer::NativeFileSystem(
@@ -65,7 +61,7 @@ void MyRenderWindow::OnInitScene() {
   scene_context_ = new lord::SceneContext;
   scene_context_->GetGlobalEnvironment()->SetCamera(mutable_camera());
   scene_context_->GetGlobalEnvironment()->SetLight(light);
-  root_ = new SceneNode(scene_context_);
+  SceneNodePtr root = new SceneNode(scene_context_);
 
   std::string contents;
   base::ReadFileToString(base::FilePath(
@@ -76,24 +72,24 @@ void MyRenderWindow::OnInitScene() {
   VertexDescPtr desc = effect_->GetVertexDesc();
   SimpleSceneLoaderDelegate delegate(fsystem_.get(), effect_.get());
   SceneLoader loader(&delegate);
-  CHECK(loader.Load(root_.get(), config_root));
-  scene_renderer_.reset(new SceneRender(scene_context_.get(), root_.get()));
+  CHECK(loader.Load(root.get(), config_root));
+  scene_renderer_.reset(new SceneRender(scene_context_.get(), root.get()));
+  return root;
 }
 
 void MyRenderWindow::OnInitUI() { 
-  camera_controller_.reset(new FPSCameraController(mutable_camera()));
-  view()->AddEventListener(camera_controller_.get());
-
+  DCHECK(root());
   lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(
       gfx::Rect(400, 300), this->window()->GetTopWindow());
-  scene->SetSceneNode(root_);
+  scene->SetSceneNode(root());
   scene->Init();
   scene->Show();
   scene->SetTitle(base::UTF8ToUTF16("Scene"));
+  scoped_ptr<FPSCameraController> controller(new FPSCameraController());
+  GetInteractive()->SetController(controller.Pass());
 }
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
-  camera_controller_->Update(args);
   pv_ = camera().GetProjViewMatrix();
   Renderer* renderer = window()->GetRenderer().get();
   scene_renderer_->Update(args);

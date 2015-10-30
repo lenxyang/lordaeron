@@ -3,6 +3,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "nelf/nelf.h"
 #include "lordaeron/context.h"
+#include "lordaeron/scene/scene_node.h"
 
 namespace azer {
 class Camera;
@@ -24,14 +25,19 @@ class SceneRenderWindow : public nelf::Mainframe,
                     nelf::RenderLoop* render_loop);
   ~SceneRenderWindow();
 
-  nelf::RenderLoop* GetRenderLoop() { return render_loop_.get();}
+  SceneNode* root() { return root_.get();}
+  InteractiveContext* GetInteractive() { return  interactive_.get();}
+  azer::Camera* mutable_camera() { return &camera_;}
+  const azer::Camera& camera() const { return camera_;}
 
-  virtual void OnInitScene() = 0;
+  nelf::RenderLoop* GetRenderLoop() { return render_loop_.get();}
+ protected:
+  virtual SceneNodePtr OnInitScene() = 0;
   virtual void OnInitUI() = 0;
   virtual void OnUpdateFrame(const azer::FrameArgs& args) = 0;
   virtual void OnRenderFrame(const azer::FrameArgs& args, 
                              azer::Renderer* renderer) = 0;
-
+ protected:
   // override from nelf::RenderDelegate
   bool Initialize() override;
   void OnUpdate(const azer::FrameArgs& args) override;
@@ -41,9 +47,6 @@ class SceneRenderWindow : public nelf::Mainframe,
   void OnWidgetBoundsChanged(views::Widget* widget, 
                              const gfx::Rect& new_bounds) override;
   void OnWidgetDestroying(views::Widget* widget) override;
-
-  azer::Camera* mutable_camera() { return &camera_;}
-  const azer::Camera& camera() const { return camera_;}
  private:
   void InitRenderView();
   virtual void OnAfterWidgetInit() override;

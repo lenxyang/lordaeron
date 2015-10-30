@@ -16,7 +16,7 @@ base::LazyInstance<SceneTreeViewLineItemViewCreator> node_creator
 = LAZY_INSTANCE_INITIALIZER;
 }  // namespace
 
-SceneTreeView::SceneTreeView(SceneNodePtr node) {
+SceneTreeView::SceneTreeView(SceneNode* node) {
   InitUI();
   tree_model_.reset(new SceneTreeModel(node));
   tree_view_->SetModel(tree_model_.get());

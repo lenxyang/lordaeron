@@ -28,6 +28,7 @@ class FPSCameraController : public InteractiveController {
 
   InteractiveContext* context_;
   azer::Camera* camera_;
+  azer::Quaternion origin_orient_;
   bool orientation_dragging_;
   bool posx_, posy_, posz_;
   bool negx_, negy_, negz_;

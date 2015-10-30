@@ -1,7 +1,9 @@
 #include "lordaeron/interactive/fps_camera_controller.h"
 
 #include "azer/render/render.h"
+#include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/ui/scene_render_window.h"
 
 namespace lord {
 using namespace azer;
@@ -28,6 +30,7 @@ void FPSCameraController::ResetState() {
 void FPSCameraController::OnOperationStart(InteractiveContext* ctx)  {
   DCHECK(!context_);
   context_ = ctx;
+  camera_ = ctx->window()->mutable_camera();
 }
 
 void FPSCameraController::OnOperationStop() {
@@ -90,6 +93,7 @@ bool FPSCameraController::OnKeyReleased(const ui::KeyEvent& event) {
 bool FPSCameraController::OnMousePressed(const ui::MouseEvent& event) {
   location_ = event.location();
   if (event.IsLeftMouseButton() && event.GetClickCount() == 1) {
+    origin_orient_ = camera_->holder().orientation();
     orientation_dragging_ = true;
     return true;
   } else {
@@ -116,9 +120,18 @@ bool FPSCameraController::OnMouseReleased(const ui::MouseEvent& event) {
   }
 }
 
+void FPSCameraController::OnLostFocus() {
+  if (orientation_dragging_) {
+    orientation_dragging_ = false;
+  }
+
+  ResetState();
+}
+
 void FPSCameraController::RotateCamera(const gfx::Point& prev, 
                                        const gfx::Point& cur) {
   TransformHolder* holder = camera_->mutable_holder();
+  holder->set_orientation(origin_orient_);
   Degree to_yaw = Degree(cur.x() - prev.x()) * 0.1;
   // holder->yaw(to_yaw);
   holder->rotate(azer::Vector3(0.0f, 1.0f, 0.0f), to_yaw);
@@ -134,5 +147,8 @@ void FPSCameraController::Update(const azer::FrameArgs& args) {
   holder->walk((posz_ - negz_) * unit);
   holder->fly((posy_ - negy_)* unit);
   camera_->Update();
+}
+
+void FPSCameraController::Render(azer::Renderer* renderer) {
 }
 }  // namespace lord
