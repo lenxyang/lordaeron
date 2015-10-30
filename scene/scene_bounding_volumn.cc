@@ -19,9 +19,17 @@ namespace {
 = LAZY_INSTANCE_INITIALIZER;
 }
 
+// namespace
+namespace {
+class BoundingBoxEntity : public azer::Entity {
+ public:
+ private:
+};
+}
+
 SceneBVProvider::SceneBVProvider(SceneNode* node)
     : node_(node),
-      color_(Vector4(1.0f, 0.0f, 0.0f, 1.0f)) {
+      color_(Vector4(1.0f, 0.0f, 0.0f, 0.6f)) {
   if (!adapter_context_.Pointer()->LookupAdapter(
           SceneBVParamsAdapter::kAdapterKey)) {
     adapter_context_.Pointer()->RegisteAdapter(new SceneBVParamsAdapter);
@@ -73,6 +81,8 @@ azer::MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
   BoxObject* objptr = new BoxObject(effect->GetVertexDesc());
   
   azer::MeshPartPtr objpart = objptr->CreateObject(effect.get());
+  BlendingPtr blending = ctx->GetDefaultBlending();
+  objpart->SetBlending(blending);
   azer::MeshPartPtr framepart = objptr->CreateFrameObject(effect.get());
   azer::MeshPtr mesh(new azer::Mesh(adapter_context_.Pointer()));
   mesh->AddMeshPart(objpart);

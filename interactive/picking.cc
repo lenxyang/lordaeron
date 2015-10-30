@@ -10,7 +10,7 @@ Vector4 CalcClickedWorldPos(const gfx::Point& pt, const gfx::Size& size,
   float x = 2 * (float)pt.x() / (float)size.width() - 1.0f;
   float y = -2 * (float)pt.y() / (float)size.height() + 1.0f;
   Vector4 pos(x, y, 1.0f, 1.0f);
-  Matrix4 ins = camera->GetViewMatrix().Inverse();
+  Matrix4 ins = camera->GetViewMatrix().InverseCopy();
   return ins * pos;
 }
 
