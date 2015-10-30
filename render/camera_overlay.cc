@@ -35,6 +35,7 @@ void CameraOverlay::Update() {
   Vector3 up(holder.up());
   Camera camera;
   camera.reset(position, lookat, up);
+  camera.frustrum().set_aspect(1.0f);
   world_ = Matrix4::kIdentity;
   pvw_ = camera.GetProjViewMatrix();
 

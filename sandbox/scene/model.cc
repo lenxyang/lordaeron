@@ -67,9 +67,6 @@ int main(int argc, char* argv[]) {
   nelf::ResourceBundle* bundle = lord::Context::instance()->resource_bundle();
   window->Init();
   window->Show();
-
-  lord::ObjectControlToolbar* toolbar = new lord::ObjectControlToolbar(window);
-  window->GetRenderLoop()->Run();
   return 0;
 }
 

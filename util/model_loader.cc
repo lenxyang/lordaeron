@@ -8,7 +8,7 @@
 #include "assimp/anim.h"
 #include "azer/render/util.h"
 #include "azer/render/util/geometry/util.h"
-#include "lordaeron/render/bounding_volumn.h"
+#include "lordaeron/util/bounding_volumn.h"
 
 namespace lord {
 

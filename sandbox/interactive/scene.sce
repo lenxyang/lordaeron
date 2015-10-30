@@ -2,7 +2,7 @@
   <node name="root">
    <node name="teaport" type="mesh">
      <location>
-       <position>0.0f, 0.0f, 0.0f</position>
+       <position>0.0f, 0.0f, -3.0f</position>
      </location>
      <mesh>
        <path>//model/teapot.obj</path>
@@ -14,7 +14,7 @@
    </node>
    <node name="tree" type="mesh">
      <location>
-       <position>0.0f, 0.0f, 0.0f</position>
+       <position>-10.0f, 0.0f, -7.0f</position>
      </location>
      <mesh>
        <path>//model/trunk.obj</path>
@@ -26,11 +26,11 @@
    </node>
    <node name="venusm" type="mesh">
      <location>
-       <scale>0.002, 0.002, 0.002</scale>
+       <!--<scale>0.002, 0.002, 0.002</scale>-->
        <position>10.0f, 0.0f, 0.0f</position>
      </location>
      <mesh>
-       <path>//model/venusm.obj</path>
+       <path>//model/cow.obj</path>
        <effect name="DiffuseEffect"/>
        <provider name="lord::DiffuseEffectProvider">
          <color>0.3f, 0.3f, 0.3f, 1.0f</color>

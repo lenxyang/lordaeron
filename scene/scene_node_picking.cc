@@ -1,8 +1,9 @@
 #include "lordaeron/scene/scene_node_picking.h"
 
-#include "lordaeron/scene/scene_node.h"
 #include "azer/math/math.h"
 #include "azer/render/render.h"
+#include "lordaeron/scene/scene_node.h"
+#include "lordaeron/util/axis_aligned_bounding_box.h"
 
 namespace lord {
 SceneNodePickHelper::SceneNodePickHelper(azer::Ray* ray)
@@ -30,13 +31,8 @@ bool SceneNodePickHelper::OnTraverseNodeEnter(SceneNode* node) {
   using namespace azer;
   Vector3 vmin = node->vmin();
   Vector3 vmax = node->vmax();
-  Vector3 other = vmin;
-  other.x = vmax.x;
-  other.y = vmax.y;
-  Plane plane(vmin, vmax, other);
-  Vector3 pt = plane.intersect(*ray_);
-  if (pt.x >= vmin.x && pt.y >= vmin.y && pt.z >= vmin.z
-      && pt.x <= vmax.x && pt.y <= vmax.y && pt.z <= vmax.z) {
+  AxisAlignedBoundingBox aabb(vmin, vmax);
+  if (aabb.IsIntersect(*ray_)) {
     if (node->has_child()) {
       return true;
     } else {

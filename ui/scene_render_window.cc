@@ -89,11 +89,10 @@ void SceneRenderWindow::OnRender(const azer::FrameArgs& args) {
   renderer->SetCullingMode(azer::kCullBack);
   renderer->EnableDepthTest(true);
   gridline_->Render(renderer);
-  interactive_->Render(renderer);
-
   OnRenderFrame(args, renderer);
 
   renderer->Use();
+  interactive_->Render(renderer);
   camera_overlay_->Render(renderer);
 }
 
@@ -103,6 +102,7 @@ void SceneRenderWindow::OnWidgetBoundsChanged(views::Widget* widget,
   gfx::Rect rect = view()->GetContentsBounds();
   float aspect = (float)rect.width() / (float)rect.height();
   camera_.frustrum().set_aspect(aspect);
+  camera_.Update();
 }
 
 void SceneRenderWindow::OnWidgetDestroying(views::Widget* widget) {

@@ -7,18 +7,11 @@ namespace lord {
 
 class BoundingVolumn {
  public:
-  enum {
-    kAxisAlignedBoundingBox,
-    kOrientationBoundingBox,
-    kBoundingSphere,
-  };
-
-  BoundingVolumn(int32 type);
+  BoundingVolumn();
   ~BoundingVolumn();
 
-  int32 type() const { return type_;}
+  virtual bool IsIntersect(const azer::Ray& ray) const = 0;
  private:
-  const int32 type_;
   DISALLOW_COPY_AND_ASSIGN(BoundingVolumn);
 };
 }  // namespace lord

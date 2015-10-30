@@ -17,9 +17,15 @@ Vector4 CalcClickedWorldPos(const gfx::Point& pt, const gfx::Size& size,
                             const Camera* camera) {
   float x = 2 * (float)pt.x() / (float)size.width() - 1.0f;
   float y = -2 * (float)pt.y() / (float)size.height() + 1.0f;
-  Vector4 pos(x, y, 1.0f, 1.0f);
-  Matrix4 ins = camera->GetViewMatrix().InverseCopy();
-  return ins * pos;
+  Vector4 pos(x, y, 0.0f, 1.0f);
+
+  const Matrix4& proj = camera->frustrum().projection();
+  const Matrix4& view = camera->GetViewMatrix();
+  Matrix4 mat = std::move(view.InverseCopy() * proj.InverseCopy());
+  
+  pos = mat * pos;
+  pos /= pos.w;
+  return pos;
 }
 
 Ray GetPickingRay(const gfx::Point& pt, const gfx::Size& size,

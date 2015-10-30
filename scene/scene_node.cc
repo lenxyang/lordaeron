@@ -9,8 +9,6 @@
 #include "lordaeron/scene/scene_bounding_volumn.h"
 #include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_node_data.h"
-#include "lordaeron/render/bounding_volumn.h"
-#include "lordaeron/render/axis_aligned_bounding_box.h"
 
 namespace lord {
 using namespace azer;
