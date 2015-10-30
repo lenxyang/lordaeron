@@ -15,6 +15,7 @@
 #include "lordaeron/effect/diffuse_effect_provider.h"
 #include "lordaeron/effect/global_environemnt_params.h"
 #include "lordaeron/mainframe_render_delegate.h"
+#include "lordaeron/sandbox/scene/scene_loader_delegate.h"
 #include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_render.h"
 #include "lordaeron/scene/scene_node.h"
@@ -22,8 +23,7 @@
 #include "lordaeron/scene/scene_loader.h"
 #include "lordaeron/ui/scene_tree_view.h"
 #include "lordaeron/ui/toolbar/object_control_toolbar.h"
-#include "lordaeron/sandbox/scene/scene_loader_delegate.h"
-#include "lordaeron/ui/scene_render_window.h"
+#include "lordaeron/ui/simple_render_window.h"
 #include "lordaeron/ui/renderer_info_pane.h"
 #include "lordaeron/util/model_loader.h"
 
@@ -38,7 +38,7 @@ using namespace azer;
 
 namespace lord {
 class RendererInfoPane;
-class MyRenderWindow : public lord::SceneRenderWindow {
+class MyRenderWindow : public lord::SimpleRenderWindow {
  public:
   MyRenderWindow(const gfx::Rect& rect) : lord::SceneRenderWindow(rect) {}
   void OnInitScene() override;

@@ -12,17 +12,16 @@ class Renderer;
 
 namespace lord {
 class CameraOverlay;
-class InteractiveContext;
 class RendererInfoPane;
 
-class SceneRenderWindow : public nelf::Mainframe,
+class SimpleRenderWindow : public nelf::Mainframe,
                           public nelf::RenderDelegate,
                           public views::WidgetObserver {
  public:
-  SceneRenderWindow(const gfx::Rect& init_bounds);
-  SceneRenderWindow(const gfx::Rect& init_bounds,
+  SimpleRenderWindow(const gfx::Rect& init_bounds);
+  SimpleRenderWindow(const gfx::Rect& init_bounds,
                     nelf::RenderLoop* render_loop);
-  ~SceneRenderWindow();
+  ~SimpleRenderWindow();
 
   nelf::RenderLoop* GetRenderLoop() { return render_loop_.get();}
 
@@ -52,10 +51,8 @@ class SceneRenderWindow : public nelf::Mainframe,
 
   azer::Camera camera_;
   RendererInfoPane* renderer_pane_;
-  SceneNodePtr root_;
   scoped_ptr<CameraOverlay> camera_overlay_;
   scoped_ptr<azer::CoordinateGrid> gridline_;
-  scoped_ptr<InteractiveContext> interactive_;
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderWindow);
+  DISALLOW_COPY_AND_ASSIGN(SimpleRenderWindow);
 };
 }  // namespace lord

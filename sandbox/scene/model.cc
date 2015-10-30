@@ -20,10 +20,10 @@
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/scene/scene_loader.h"
-#include "lordaeron/ui/scene_tree_view.h"
-#include "lordaeron/ui/toolbar/object_control_toolbar.h"
-#include "lordaeron/ui/scene_render_window.h"
 #include "lordaeron/ui/renderer_info_pane.h"
+#include "lordaeron/ui/scene_tree_view.h"
+#include "lordaeron/ui/simple_render_window.h"
+#include "lordaeron/ui/toolbar/object_control_toolbar.h"
 #include "lordaeron/sandbox/scene/scene_loader_delegate.h"
 
 using views::Widget;
@@ -37,9 +37,9 @@ using namespace azer;
 
 namespace lord {
 class RendererInfoPane;
-class MyRenderWindow : public lord::SceneRenderWindow {
+class MyRenderWindow : public lord::SimpleRenderWindow {
  public:
-  MyRenderWindow(const gfx::Rect& rect) : lord::SceneRenderWindow(rect) {}
+  MyRenderWindow(const gfx::Rect& rect) : lord::SimpleRenderWindow(rect) {}
   void OnInitScene() override;
   void OnInitUI() override;
   void OnUpdateFrame(const azer::FrameArgs& args) override;
