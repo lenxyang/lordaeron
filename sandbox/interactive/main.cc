@@ -40,7 +40,8 @@ int main(int argc, char* argv[]) {
   window->Init();
   window->Show();
 
-  lord::ObjectControlToolbar* toolbar = new lord::ObjectControlToolbar(window);
+  lord::ObjectControlToolbar* toolbar =
+      new lord::ObjectControlToolbar(window, window->GetInteractive());
   window->GetRenderLoop()->Run();
   return 0;
 }
@@ -85,8 +86,6 @@ void MyRenderWindow::OnInitUI() {
   scene->Init();
   scene->Show();
   scene->SetTitle(base::UTF8ToUTF16("Scene"));
-  scoped_ptr<FPSCameraController> controller(new FPSCameraController());
-  GetInteractive()->SetController(controller.Pass());
 }
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {

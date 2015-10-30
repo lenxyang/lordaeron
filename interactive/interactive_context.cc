@@ -28,10 +28,15 @@ void InteractiveContext::Render(azer::Renderer* renderer) {
     controller_->Render(renderer);
 }
 
-void InteractiveContext::SetController(scoped_ptr<InteractiveController> controller) {
-  if (controller_.get())
+void InteractiveContext::ResetController() {
+  if (controller_.get()) {
     controller_->OnOperationStop();
+    controller_.reset();
+  }
+}
 
+void InteractiveContext::SetController(scoped_ptr<InteractiveController> controller) {
+  ResetController();
   controller_ = controller.Pass();
   controller_->OnOperationStart(this);
 }

@@ -12,22 +12,18 @@
       <!-- KEEP THESE IN ALPHABETICAL ORDER!  DO NOT ADD TO RANDOM PLACES JUST
            BECAUSE YOUR RESOURCES ARE FUNCTIONALLY RELATED OR FALL UNDER THE
            SAME CONDITIONALS. -->
-      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_SELECT" 
-                 file="icon/toolbar/select.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_PICKING" 
+                 file="icon/toolbar/picking.png"/>
       <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_MOVE" 
                  file="icon/toolbar/move.png"/>
       <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_ROTATE" 
                  file="icon/toolbar/rotate.png"/>
       <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_SCALE" 
                  file="icon/toolbar/scale.png"/>
-      <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_LAMP" 
-                 file="icon/scene/lamp.png"/>
-      <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_MESH" 
-                 file="icon/scene/mesh.png"/>
-      <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_SUN" 
-                 file="icon/scene/sun.png"/>
-      <structure type="chrome_scaled_image" name="IDR_ICON_SCENE_UNKNOWN" 
-                 file="icon/scene/unknown.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_FPS_CAMERA" 
+                 file="icon/toolbar/fps-camera.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_LAMP" 
+                 file="icon/toolbar/lamp.png"/>
     </structures>
     <structures fallback_to_low_resolution="true" first_id="40000">
       <structure type="chrome_scaled_image" name="IDR_WINDOW_TOP" 

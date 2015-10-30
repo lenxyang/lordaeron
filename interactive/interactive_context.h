@@ -15,6 +15,7 @@ class InteractiveContext : public nelf::EventListener {
   InteractiveContext(SceneRenderWindow* win);
   ~InteractiveContext();
   
+  void ResetController();
   void SetController(scoped_ptr<InteractiveController> controller);
 
   void Update(const azer::FrameArgs& args);
