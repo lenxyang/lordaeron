@@ -6,7 +6,8 @@
 
 namespace lord {
 InteractiveContext::InteractiveContext(SceneRenderWindow* window) 
-    : window_(window) {
+    : window_(window),
+      picking_node_(NULL) {
 }
 
 InteractiveContext::~InteractiveContext() {

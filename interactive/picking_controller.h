@@ -17,11 +17,7 @@ class PickingController : public InteractiveController {
   void Render(azer::Renderer* renderer) override;
   void OnLostFocus() override;
   bool OnMousePressed(const ui::MouseEvent& event);
-
-  void SetPickingNode(SceneNode* node) { picking_node_ = node;}
-  SceneNode* GetPickingNode() { return picking_node_;}
  private:
-  SceneNode* picking_node_;
   azer::MeshPtr mesh_;
   DISALLOW_COPY_AND_ASSIGN(PickingController);
 };

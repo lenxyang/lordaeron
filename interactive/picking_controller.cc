@@ -41,8 +41,7 @@ Ray GetPickingRay(const gfx::Point& pt, const gfx::Size& size,
 // reference 3D Game engine design(2nd edition) 8.4, Object Picking
 }  // namespace azer
 
-PickingController::PickingController()
-    : picking_node_(NULL) {
+PickingController::PickingController() {
 }
 
 PickingController::~PickingController() {
@@ -56,10 +55,10 @@ void PickingController::Update(const azer::FrameArgs& args) {
 
 void PickingController::Render(azer::Renderer* renderer) {
   if (mesh_.get()) {
-    bool enable_depth = renderer->IsDepthTestEnable();
-    renderer->EnableDepthTest(false);
+    // bool enable_depth = renderer->IsDepthTestEnable();
+    // enderer->EnableDepthTest(false);
     mesh_->Render(renderer);
-    renderer->EnableDepthTest(enable_depth);
+    // renderer->EnableDepthTest(enable_depth);
   }
 }
 
@@ -73,11 +72,10 @@ bool PickingController::OnMousePressed(const ui::MouseEvent& event) {
   SceneNodePickHelper helper(&ray);
   SceneNodeTraverse traverser(&helper);
   traverser.Traverse(context_->root());
-  picking_node_ = helper.GetPickingNode();
-  if (picking_node_) {
-    mesh_ = CreateBoundingBoxForSceneNode(picking_node_);
-  } else {
-    mesh_ = NULL;
+  SceneNode* picking_node = helper.GetPickingNode();
+  context_->SetPickingNode(picking_node);
+  if (picking_node) {
+    mesh_ = CreateBoundingBoxForSceneNode(picking_node);
   }
   return false;
 }

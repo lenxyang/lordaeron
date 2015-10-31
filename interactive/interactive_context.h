@@ -24,6 +24,9 @@ class InteractiveContext : public nelf::EventListener {
   SceneNode* root();
   SceneRenderWindow* window() { return window_;}
 
+  void SetPickingNode(SceneNode* node) { picking_node_ = node;}
+  SceneNode* GetPickingNode() { return picking_node_;}
+
   // override from nelf::EventListener
   void OnKeyPressed(const ui::KeyEvent& event) override;
   void OnKeyReleased(const ui::KeyEvent& event) override;
@@ -34,6 +37,7 @@ class InteractiveContext : public nelf::EventListener {
   void OnLostFocus() override;
  private:
   SceneRenderWindow* window_;
+  SceneNode* picking_node_;
   scoped_ptr<InteractiveController> controller_;
   DISALLOW_COPY_AND_ASSIGN(InteractiveContext);
 };
