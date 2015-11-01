@@ -4,16 +4,15 @@
 
 namespace lord {
 class InteractiveContext;
-class ObjectControlToolbar : public nelf::ToolbarButtonListener {
+class ObjectControlToolbar : public views::ButtonListener {
  public:
   ObjectControlToolbar(nelf::Mainframe* mainframe, InteractiveContext* ctx);
   ~ObjectControlToolbar();
 
   // override from nelf::ToolbarDelegate
-  void OnToolbarButtonPressed(views::Button* sender) override;
+  void ButtonPressed(views::Button* sender, const ui::Event& event) override;
  private:
   nelf::Toolbar* toolbar_;
-  scoped_ptr<nelf::SimpleToolbarModel> model_;
   InteractiveContext* interactive_;
   DISALLOW_COPY_AND_ASSIGN(ObjectControlToolbar);
 };
