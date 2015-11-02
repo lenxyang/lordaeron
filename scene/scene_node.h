@@ -76,6 +76,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   const SceneNodes& children() const { return children_;}
   SceneNodes& children() { return children_;}
 
+  // tranform
   const azer::TransformHolder& holder() const { return holder_;}
   void SetPosition(const azer::Vector3& pos);
   const azer::Vector3& position() const { return holder().position();}
@@ -85,6 +86,12 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
 
   void set_orientation(const azer::Quaternion& q);
   const azer::Quaternion& orientation() const { return holder().orientation();}
+  void pitch(const azer::Radians angle);
+  void pitch(const azer::Degree angle);
+  void yaw(const azer::Radians angle);
+  void yaw(const azer::Degree angle);
+  void roll(const azer::Radians angle);
+  void roll(const azer::Degree angle);
 
   std::string print_info();
 

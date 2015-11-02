@@ -23,21 +23,17 @@ ObjectControlToolbar::ObjectControlToolbar(nelf::Mainframe* mainframe,
     IDR_ICON_TOOLBAR_LAMP,
   };
   
-  nelf::GroupButtonPane* contents = new nelf::GroupButtonPane;
+  nelf::ToggleButtonPane* contents = new nelf::ToggleButtonPane;
   for (uint32 i = 0; i < arraysize(toolbar_id1); ++i) {
     nelf::ResourceBundle* bundle = context->resource_bundle();
     int32 id = toolbar_id1[i];
     const gfx::ImageSkia* img = bundle->GetImageSkiaNamed(id);
-    nelf::GroupButton* btn = new nelf::GroupButton(*img);
+    nelf::ToggleButton* btn = new nelf::ToggleButton(*img);
+    btn->SetImageLabelSpacing(0);
     btn->set_listener(this);
     btn->set_tag(id);
-
-    btn->SetImageLabelSpacing(0);
-    scoped_ptr<views::LabelButtonBorder> border(
-        new views::LabelButtonBorder(views::Button::STYLE_TEXTBUTTON));
-    border->set_insets(gfx::Insets(0, 0, 0, 0));
-    btn->SetBorder(border.Pass());
-    contents->AddGroupButton(btn);
+    btn->SetMinSize(gfx::Size(32, 32));
+    contents->AddToggleButton(btn);
   }
   toolbar_ = new nelf::Toolbar(mainframe, contents);
   toolbar_->Float();
@@ -49,13 +45,13 @@ ObjectControlToolbar::~ObjectControlToolbar() {
 
 void ObjectControlToolbar::ButtonPressed(views::Button* sender,
                                          const ui::Event& event) {
-  using nelf::GroupButton;
+  using nelf::ToggleButton;
   int32 id = sender->tag();
-  GroupButton* btn = dynamic_cast<GroupButton*>(sender);
+  ToggleButton* btn = dynamic_cast<ToggleButton*>(sender);
   DCHECK(btn);
   switch (id) {
     case IDR_ICON_TOOLBAR_PICKING: {
-      if (btn->pressed()) {
+      if (btn->toggle()) {
         scoped_ptr<PickingController> controller(new PickingController());
         interactive_->SetController(controller.Pass());
       } else {
@@ -66,7 +62,7 @@ void ObjectControlToolbar::ButtonPressed(views::Button* sender,
     case IDR_ICON_TOOLBAR_MOVE:
       break;
     case IDR_ICON_TOOLBAR_ROTATE: {
-      if (btn->pressed()) {
+      if (btn->toggle()) {
         scoped_ptr<RotationController> controller(new RotationController());
         interactive_->SetController(controller.Pass());
       } else {
@@ -77,7 +73,7 @@ void ObjectControlToolbar::ButtonPressed(views::Button* sender,
     case IDR_ICON_TOOLBAR_SCALE:
       break;
     case IDR_ICON_TOOLBAR_FPS_CAMERA: {
-      if (btn->pressed()) {
+      if (btn->toggle()) {
         scoped_ptr<FPSCameraController> controller(new FPSCameraController());
         interactive_->SetController(controller.Pass());
       } else {
