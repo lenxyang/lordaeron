@@ -26,6 +26,9 @@ class InteractiveContext : public nelf::EventListener {
 
   void SetPickingNode(SceneNode* node) { picking_node_ = node;}
   SceneNode* GetPickingNode() { return picking_node_;}
+  SceneNode* GetObjectFromLocation(const gfx::Point& point);
+  azer::Ray GetPickingRay(const gfx::Point& pt);
+  azer::Vector4 CalcWorldPosFromScreen(const gfx::Point& pt);
 
   // override from nelf::EventListener
   void OnKeyPressed(const ui::KeyEvent& event) override;
@@ -33,6 +36,7 @@ class InteractiveContext : public nelf::EventListener {
   void OnMousePressed(const ui::MouseEvent& event) override;
   void OnMouseDragged(const ui::MouseEvent& event) override;
   void OnMouseReleased(const ui::MouseEvent& event) override;;
+  void OnMouseMoved(const ui::MouseEvent& event) override;
   void OnMouseCaptureLost() override;
   void OnLostFocus() override;
  private:

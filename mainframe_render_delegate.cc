@@ -27,7 +27,6 @@ bool MainframeRenderDelegate::Initialize() {
   gridline_->SetXCoordColor(kGridLineColor);
   gridline_->SetZCoordColor(kGridLineColor);
 
-  rotate_controller_object_.reset(new RotateControllerObject);
   camera_overlay_.reset(new CameraOverlay(&camera_));
   this->window()->SetRenderUI(true);
 
@@ -55,7 +54,6 @@ void MainframeRenderDelegate::OnRender(const FrameArgs& args) {
   renderer->EnableDepthTest(true);
   gridline_->Render(renderer);
 
-  rotate_controller_object_->Render(Matrix4::kIdentity, pv_, renderer);
   camera_overlay_->Render(renderer);
 }
 }  // namespace lord

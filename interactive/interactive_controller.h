@@ -24,6 +24,7 @@ class InteractiveController {
   virtual bool OnMousePressed(const ui::MouseEvent& event) { return false;}
   virtual bool OnMouseDragged(const ui::MouseEvent& event) { return false;}
   virtual bool OnMouseReleased(const ui::MouseEvent& event) { return false;}
+  virtual void OnMouseMoved(const ui::MouseEvent& event) {}
  protected:
   InteractiveContext* context_;
   DISALLOW_COPY_AND_ASSIGN(InteractiveController);

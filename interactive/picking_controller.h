@@ -21,4 +21,5 @@ class PickingController : public InteractiveController {
   azer::MeshPtr mesh_;
   DISALLOW_COPY_AND_ASSIGN(PickingController);
 };
+
 }

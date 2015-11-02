@@ -1,10 +1,16 @@
 #include "lordaeron/interactive/interactive_context.h"
 
+#include "azer/math/ray.h"
 #include "lordaeron/interactive/interactive_controller.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/scene/scene_node_picking.h"
 #include "lordaeron/ui/scene_render_window.h"
+#include "lordaeron/util/picking.h"
 
 namespace lord {
+
+using namespace azer;
+
 InteractiveContext::InteractiveContext(SceneRenderWindow* window) 
     : window_(window),
       picking_node_(NULL) {
@@ -71,6 +77,12 @@ void InteractiveContext::OnMouseReleased(const ui::MouseEvent& event) {
   }
 }
 
+void InteractiveContext::OnMouseMoved(const ui::MouseEvent& event) {
+  if (controller_.get()) {
+    controller_->OnMouseMoved(event);
+  }
+}
+
 void InteractiveContext::OnMouseCaptureLost() {
   if (controller_.get()) {
     controller_->OnLostFocus();
@@ -81,5 +93,25 @@ void InteractiveContext::OnLostFocus() {
   if (controller_.get()) {
     controller_->OnLostFocus();
   }
+}
+
+SceneNode* InteractiveContext::GetObjectFromLocation(const gfx::Point& point) {
+  azer::Ray ray = GetPickingRay(point);
+  SceneNodePickHelper helper(&ray);
+  SceneNodeTraverse traverser(&helper);
+  traverser.Traverse(root());
+  return helper.GetPickingNode();
+}
+
+Vector4 InteractiveContext::CalcWorldPosFromScreen(const gfx::Point& pt) {
+  const Camera& camera = window()->camera();
+  const gfx::Size size  = window()->GetContentsBounds().size();
+  return std::move(lord::CalcWorldPosFromScreen(pt, size, &camera));
+}
+
+Ray InteractiveContext::GetPickingRay(const gfx::Point& pt) {
+  const Camera& camera = window()->camera();
+  const gfx::Size size  = window()->GetContentsBounds().size();
+  return std::move(lord::GetPickingRay(pt, size, &camera));
 }
 }  // namespace lord
