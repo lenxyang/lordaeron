@@ -1,5 +1,6 @@
 #include "lordaeron/interactive/rotation_controller.h"
 
+#include "base/logging.h"
 #include "azer/render/render.h"
 #include "lordaeron/context.h"
 #include "lordaeron/effect/diffuse_effect.h"
@@ -9,8 +10,24 @@
 namespace lord {
 
 using namespace azer;
+
+namespace {
+bool PickingCircle(const azer::Vector3& pos, float radius,  const azer::Plane& p,
+                   const azer::Ray& ray) {
+  if (ray.directional() == p.normal())
+    return true;
+
+  Vector3 pt = p.intersect(ray);
+  if (std::abs(pt.distance(pos) - radius) < 0.1) {
+    return true;
+  }
+
+  return false;
+}
+}
+
 RotationController::RotationController() 
-    : rotating_(false) {
+    : rotating_axis_(kAxisNone) {
   object_.reset(new RotationControllerObject);
 }
 RotationController::~RotationController() {
@@ -32,7 +49,7 @@ void RotationController::OnOperationStart(InteractiveContext* ctx) {
 }
 
 void RotationController::OnOperationStop() {
-  rotating_ = false;
+  rotating_axis_ = kAxisNone;
 }
 
 void RotationController::OnLostFocus() {
@@ -40,7 +57,10 @@ void RotationController::OnLostFocus() {
 
 bool RotationController::OnMousePressed(const ui::MouseEvent& event) {
   SceneNode* node = NULL;
-  if (rotating_ && context_->GetPickingNode()) {
+  if (rotating_axis_ != kAxisNone) {
+    SceneNode* node = context_->GetPickingNode();
+    DCHECK(node);
+    int32 axis = GetSelectedAxis(event.location());
     return true;
   }
 
@@ -51,9 +71,6 @@ bool RotationController::OnMousePressed(const ui::MouseEvent& event) {
     Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
     object_->SetPosition(pos);
     object_->set_radius(radius);
-    rotating_ = true;
-  } else {
-    rotating_ = false;
   }
 
   return true;
@@ -68,11 +85,33 @@ bool RotationController::OnMouseReleased(const ui::MouseEvent& event) {
 }
 
 void RotationController::OnMouseMoved(const ui::MouseEvent& event) {
+  if (context_->GetPickingNode()) {
+    int32 axis = GetSelectedAxis(event.location());
+    object_->SetSelectedAxis(axis);
+    rotating_axis_ = axis;
+  } else {
+    rotating_axis_ = kAxisNone;
+  }
 }
 
 int32 RotationController::GetSelectedAxis(gfx::Point location) {
+  SceneNode* node = context_->GetPickingNode();
+  DCHECK(node);
+  Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
+  float radius = node->vmin().distance(node->vmax()) * 0.5f;
   Ray ray = context_->GetPickingRay(location);
-  return 0;
+  Plane px(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
+  Plane py(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
+  Plane pz(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
+  if (PickingCircle(pos, radius, px, ray)) {
+    return kAxisX;
+  } else if (PickingCircle(pos, radius, py, ray)) {
+    return kAxisY;
+  } else if (PickingCircle(pos, radius, pz, ray)) {
+    return kAxisZ;
+  } else {
+    return kAxisNone;
+  }
 }
 
 // class CircleCoordinateObject
@@ -144,7 +183,7 @@ RotationControllerObject::~RotationControllerObject() {
 
 void RotationControllerObject::set_radius(float r) {
   radius_ = r;
-  circles_->set_radius(r);
+  circles_->set_radius(r + 0.001);
 }
 
 void RotationControllerObject::SetPosition(azer::Vector3& position) {
@@ -174,8 +213,8 @@ void RotationControllerObject::SetSelectedAxis(int32 axis) {
 
 void RotationControllerObject::Render(const azer::Matrix4& pv, 
                                       azer::Renderer* renderer) {
-  Matrix4 world = std::move(Translate(position_) * Scale(radius_, radius_, radius_));
-  circles_->Render(world, pv, renderer);
+  Matrix4 world = Translate(position_);
+  Matrix4 lworld = std::move(world * Scale(radius_, radius_, radius_));
 
   renderer->SetPrimitiveTopology(kTriangleList);
   Context* context = Context::instance();
@@ -183,10 +222,12 @@ void RotationControllerObject::Render(const azer::Matrix4& pv,
   renderer->UseBlending(blending.get(), 0);
   effect_->SetDirLight(context->GetInternalLight());
   effect_->SetColor(sphere_color_);
-  effect_->SetWorld(world);
+  effect_->SetWorld(lworld);
   effect_->SetPV(pv);
   renderer->UseEffect(effect_.get());
   sphere_->Render(renderer);
   renderer->ResetBlending();
+
+  circles_->Render(world, pv, renderer);
 }
 }  // namespace lord

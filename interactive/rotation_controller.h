@@ -36,7 +36,7 @@ class RotationController : public InteractiveController {
  private:
   int32 GetSelectedAxis(gfx::Point location);
   scoped_ptr<RotationControllerObject> object_;
-  bool rotating_;
+  int32 rotating_axis_;
   DISALLOW_COPY_AND_ASSIGN(RotationController);
 };
 
