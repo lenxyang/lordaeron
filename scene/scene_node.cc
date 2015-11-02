@@ -304,6 +304,30 @@ void SceneNode::SetMax(const azer::Vector3& v) {
   }
 }
 
+void SceneNode::pitch(const Radians angle) {
+  mutable_holder()->pitch(angle);
+}
+
+void SceneNode::yaw(const Radians angle) {
+  mutable_holder()->yaw(angle);
+}
+
+void SceneNode::roll(const Radians angle) {
+  mutable_holder()->roll(angle);
+}
+
+void SceneNode::pitch(const Degree angle) {
+  mutable_holder()->pitch(angle);
+}
+
+void SceneNode::yaw(const Degree angle) {
+  mutable_holder()->yaw(angle);
+}
+
+void SceneNode::roll(const Degree angle) {
+  mutable_holder()->roll(angle);
+}
+
 void SceneNode::set_orientation(const azer::Quaternion& q) {
   mutable_holder()->set_orientation(q);
 }

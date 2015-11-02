@@ -35,8 +35,12 @@ class RotationController : public InteractiveController {
   void OnMouseMoved(const ui::MouseEvent& event) override;
  private:
   int32 GetSelectedAxis(gfx::Point location);
+  void InitControllerObject(SceneNode* node);
   scoped_ptr<RotationControllerObject> object_;
   int32 rotating_axis_;
+  bool dragging_;
+  gfx::Point location_;
+  azer::Quaternion origin_orient_;
   DISALLOW_COPY_AND_ASSIGN(RotationController);
 };
 

@@ -1,6 +1,7 @@
 #include "lordaeron/interactive/rotation_controller.h"
 
 #include "base/logging.h"
+#include "azer/math/math.h"
 #include "azer/render/render.h"
 #include "lordaeron/context.h"
 #include "lordaeron/effect/diffuse_effect.h"
@@ -14,11 +15,12 @@ using namespace azer;
 namespace {
 bool PickingCircle(const azer::Vector3& pos, float radius,  const azer::Plane& p,
                    const azer::Ray& ray) {
-  if (ray.directional() == p.normal())
+  if (std::abs(ray.directional().dot(p.normal()) - 1.0) < 0.002) { 
     return true;
+  }
 
   Vector3 pt = p.intersect(ray);
-  if (std::abs(pt.distance(pos) - radius) < 0.1) {
+  if (std::abs(pt.distance(pos) - radius) < 0.2) {
     return true;
   }
 
@@ -46,6 +48,10 @@ void RotationController::Render(azer::Renderer* renderer) {
 }
 
 void RotationController::OnOperationStart(InteractiveContext* ctx) {
+  SceneNode* node = context_->GetPickingNode();
+  if (node) {
+    InitControllerObject(node);
+  }
 }
 
 void RotationController::OnOperationStop() {
@@ -53,6 +59,7 @@ void RotationController::OnOperationStop() {
 }
 
 void RotationController::OnLostFocus() {
+  dragging_ = false;
 }
 
 bool RotationController::OnMousePressed(const ui::MouseEvent& event) {
@@ -61,26 +68,61 @@ bool RotationController::OnMousePressed(const ui::MouseEvent& event) {
     SceneNode* node = context_->GetPickingNode();
     DCHECK(node);
     int32 axis = GetSelectedAxis(event.location());
+    if (axis != kAxisNone) {
+      dragging_ = true;
+      location_ = event.location();
+      origin_orient_ = node->orientation();
+    }
+
     return true;
   }
 
   node = context_->GetObjectFromLocation(event.location());
   context_->SetPickingNode(node);
   if (node) {
-    float radius = node->vmin().distance(node->vmax()) * 0.5f;
-    Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
-    object_->SetPosition(pos);
-    object_->set_radius(radius);
+    InitControllerObject(node);
   }
 
   return true;
 }
 
 bool RotationController::OnMouseDragged(const ui::MouseEvent& event) {
-  return false;
+  if (dragging_) {
+    SceneNode* node = context_->GetPickingNode();
+    DCHECK(node);
+    float width = context_->window()->GetContentsBounds().width();
+    float height = context_->window()->GetContentsBounds().height();
+    Quaternion quaternion(origin_orient_);
+    node->set_orientation(origin_orient_);
+    switch (rotating_axis_) {
+      case kAxisX: {
+        float offset = (float)(event.location().y() - location_.y()) / height;
+        Radians rad(kPI * 4.0f * offset);
+        node->pitch(rad);
+        break;
+      }
+      case kAxisY: {
+        float offset = (float)(event.location().x() - location_.x()) / width;
+        Radians rad(kPI * 4.0f * offset);
+        node->yaw(rad);
+        break;
+      }
+      case kAxisZ: {
+        float offset = (float)(event.location().x() - location_.x()) / width;
+        Radians rad(kPI * 4.0f * offset);
+        node->roll(-rad);
+        break;
+      }
+      default:
+        dragging_ = false;
+        break;
+    }
+  }
+  return true;
 }
 
 bool RotationController::OnMouseReleased(const ui::MouseEvent& event) {
+  dragging_ = false;
   return false;
 }
 
@@ -92,6 +134,13 @@ void RotationController::OnMouseMoved(const ui::MouseEvent& event) {
   } else {
     rotating_axis_ = kAxisNone;
   }
+}
+
+void RotationController::InitControllerObject(SceneNode* node) {
+  float radius = node->vmin().distance(node->vmax()) * 0.5f;
+  Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
+  object_->SetPosition(pos);
+  object_->set_radius(radius);
 }
 
 int32 RotationController::GetSelectedAxis(gfx::Point location) {

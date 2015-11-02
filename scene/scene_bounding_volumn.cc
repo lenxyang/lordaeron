@@ -49,6 +49,7 @@ void SceneBVProvider::UpdateParams(const azer::FrameArgs& args) {
   Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
   pv_ = gparams->camera()->GetProjViewMatrix();
   world_ = std::move(azer::Scale(scale));
+  world_ = std::move(node_->orientation().ToMatrix()) * world_;
   world_ = std::move(azer::Translate(center)) * world_;
 }
 
