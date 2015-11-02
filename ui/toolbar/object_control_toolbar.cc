@@ -7,6 +7,7 @@
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/interactive/fps_camera_controller.h"
 #include "lordaeron/interactive/picking_controller.h"
+#include "lordaeron/interactive/rotation_controller.h"
 
 namespace lord {
 ObjectControlToolbar::ObjectControlToolbar(nelf::Mainframe* mainframe,
@@ -48,12 +49,12 @@ ObjectControlToolbar::~ObjectControlToolbar() {
 
 void ObjectControlToolbar::ButtonPressed(views::Button* sender,
                                          const ui::Event& event) {
+  using nelf::GroupButton;
   int32 id = sender->tag();
+  GroupButton* btn = dynamic_cast<GroupButton*>(sender);
+  DCHECK(btn);
   switch (id) {
     case IDR_ICON_TOOLBAR_PICKING: {
-      using nelf::GroupButton;
-      GroupButton* btn = dynamic_cast<GroupButton*>(sender);
-      DCHECK(btn);
       if (btn->pressed()) {
         scoped_ptr<PickingController> controller(new PickingController());
         interactive_->SetController(controller.Pass());
@@ -64,14 +65,18 @@ void ObjectControlToolbar::ButtonPressed(views::Button* sender,
       break;
     case IDR_ICON_TOOLBAR_MOVE:
       break;
-    case IDR_ICON_TOOLBAR_ROTATE:
+    case IDR_ICON_TOOLBAR_ROTATE: {
+      if (btn->pressed()) {
+        scoped_ptr<RotationController> controller(new RotationController());
+        interactive_->SetController(controller.Pass());
+      } else {
+        interactive_->ResetController();
+      }
       break;
+    }
     case IDR_ICON_TOOLBAR_SCALE:
       break;
     case IDR_ICON_TOOLBAR_FPS_CAMERA: {
-      using nelf::GroupButton;
-      GroupButton* btn = dynamic_cast<GroupButton*>(sender);
-      DCHECK(btn);
       if (btn->pressed()) {
         scoped_ptr<FPSCameraController> controller(new FPSCameraController());
         interactive_->SetController(controller.Pass());

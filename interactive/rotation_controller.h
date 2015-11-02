@@ -25,6 +25,9 @@ class RotationController : public InteractiveController {
   // override
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
+
+  void OnOperationStart(InteractiveContext* ctx) override;
+  void OnOperationStop() override;
   void OnLostFocus() override;
   bool OnMousePressed(const ui::MouseEvent& event) override;
   bool OnMouseDragged(const ui::MouseEvent& event) override;
@@ -33,6 +36,7 @@ class RotationController : public InteractiveController {
  private:
   int32 GetSelectedAxis(gfx::Point location);
   scoped_ptr<RotationControllerObject> object_;
+  bool rotating_;
   DISALLOW_COPY_AND_ASSIGN(RotationController);
 };
 
@@ -56,6 +60,7 @@ class CircleCoordinateObject {
  private:
   float radius_;
   azer::Matrix4 axis_world_[3];
+  azer::Matrix4 world_[3];
   azer::Vector4 axis_color_[3];
   azer::Matrix4 scale_;
   azer::GeometryObjectPtr circle_;
