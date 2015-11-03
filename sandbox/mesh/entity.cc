@@ -19,7 +19,7 @@ class MyRenderWindow : public SimpleRenderWindow {
   Matrix4 world_;
   Vector4 color_;
 
-  EntityPtr entity_;
+  EntityVecPtr entity_;
   scoped_ptr<FPSCameraController> camera_controller_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
 };
@@ -31,9 +31,13 @@ void MyRenderWindow::OnInitScene() {
   light_.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
   light_.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
 
-  VertexDescPtr desc = effect_->GetVertexDesc();
-  GeometryObjectPtr objptr = new SphereObject(effect_->GetVertexDesc(), 32, 32);
-  entity_ = new Entity(objptr->GetVertexBuffer(), objptr->GetIndicesBuffer());
+  scoped_ptr<FileSystem> fsystem;
+  fsystem.reset(new azer::NativeFileSystem(
+      ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
+  ModelLoader loader(fsystem.get());
+  std::string pathstr = "//model/cow.obj";
+  entity_ = loader.LoadVertexData(ResPath(::base::UTF8ToUTF16(pathstr)), 
+                                  effect_->GetVertexDesc());
 }
 
 void MyRenderWindow::OnInitUI() { 
@@ -54,7 +58,9 @@ void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
   effect_->SetColor(color_);
   effect_->SetDirLight(light_);
   renderer->UseEffect(effect_.get());
-  entity_->DrawIndex(renderer);
+  for (int32 i = 0; i < entity_->entity_count(); ++i) {
+    entity_->entity_at(i)->Render(renderer);
+  }
 }
 }  // namespace lord
 

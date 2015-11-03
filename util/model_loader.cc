@@ -20,15 +20,15 @@ struct MeshData {
   Vector3 vmax;
 };
 
-MeshData LoadMeshData(const aiMesh* paiMesh, azer::VertexDescPtr desc) {
+MeshData LoadMeshData(const aiMesh* paiMesh, VertexDescPtr desc) {
   SlotVertexDataPtr vdata(new SlotVertexData(desc, paiMesh->mNumVertices));
   IndicesDataPtr idata(new IndicesData(paiMesh->mNumFaces * 3));
   VertexPack vpack(vdata.get());
   Vector3 vmin  = Vector3(999999.9f, 999999.9f, 999999.9f);
   Vector3 vmax = Vector3(-999999.9f, -999999.9f, -999999.9f);
   VertexPos npos, tpos;
-  azer::GetSemanticIndex("normal", 0, desc.get(), &npos);
-  azer::GetSemanticIndex("texcoord", 0, desc.get(), &tpos);
+  GetSemanticIndex("normal", 0, desc.get(), &npos);
+  GetSemanticIndex("texcoord", 0, desc.get(), &tpos);
 
   const aiVector3D zero3d(0.0f, 0.0f, 0.0f);
   CHECK(vpack.first());
@@ -63,30 +63,67 @@ MeshData LoadMeshData(const aiMesh* paiMesh, azer::VertexDescPtr desc) {
 }
 }  // namespace
   
-ModelLoader::ModelLoader(azer::FileSystem* fs)
+ModelLoader::ModelLoader(FileSystem* fs)
     : fsystem_(fs) {
 }
 
-azer::MeshPtr ModelLoader::Load(const azer::ResPath& path,
-                                azer::VertexDescPtr desc) {
-  azer::RenderSystem* rs = azer::RenderSystem::Current();
-  Assimp::Importer importer;
-  uint32 flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals 
-      | aiProcess_FlipUVs;
+const aiScene* ModelLoader::LoadScene(const azer::ResPath& path, 
+                                      Assimp::Importer* importer, 
+                                      uint32 flags) {
   std::vector<uint8> contents;
   if (!fsystem_->ReadFile(path, &contents)) {
-    return azer::MeshPtr();
+    return NULL;
   }
 
-  const aiScene* scene = importer.ReadFileFromMemory(
+  const aiScene* scene = importer->ReadFileFromMemory(
       (const void*)&contents[0], contents.size(), flags, 
       ::base::UTF16ToUTF8(path.filename().as_string()).c_str());
+  return scene;
+}
+
+EntityVecPtr ModelLoader::LoadVertexData(const ResPath& path, VertexDesc* desc) {
+  RenderSystem* rs = RenderSystem::Current();
+  uint32 flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals 
+      | aiProcess_FlipUVs;
+  Assimp::Importer importer;
+  const aiScene* scene = LoadScene(path, &importer, flags);
   if (scene == NULL) {
     LOG(ERROR) << "Failed to load file: " << path.fullpath();
-    return azer::MeshPtr();
+    return EntityVecPtr();
   } 
 
-  azer::MeshPtr mesh(new Mesh);
+  EntityVecPtr vecptr(new EntityVec);
+  std::vector<int32> mtrl_index;
+  Vector3 vmin  = Vector3(999999.9f, 999999.9f, 999999.9f);
+  Vector3 vmax = Vector3(-999999.9f, -999999.9f, -999999.9f);
+  for (uint32 i = 0; i < scene->mNumMeshes; ++i) {
+    const aiMesh* paiMesh = scene->mMeshes[i];
+    MeshData data = LoadMeshData(scene->mMeshes[i], desc);
+    EntityPtr entity(new Entity());
+    entity->SetVertexBuffer(rs->CreateVertexBuffer(
+        VertexBuffer::Options(), data.vdata));
+    entity->SetIndicesBuffer(rs->CreateIndicesBuffer(
+        IndicesBuffer::Options(), data.idata));
+    *entity->mutable_vmin() = data.vmin;
+    *entity->mutable_vmax() = data.vmax;
+    vecptr->AddEntity(entity);
+  }
+
+  return vecptr;
+}
+
+MeshPtr ModelLoader::Load(const ResPath& path, VertexDesc* desc) {
+  RenderSystem* rs = RenderSystem::Current();
+  uint32 flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals 
+      | aiProcess_FlipUVs;
+  Assimp::Importer importer;
+  const aiScene* scene = LoadScene(path, &importer, flags);
+  if (scene == NULL) {
+    LOG(ERROR) << "Failed to load file: " << path.fullpath();
+    return NULL;
+  } 
+
+  MeshPtr mesh(new Mesh);
   std::vector<int32> mtrl_index;
   Vector3 vmin  = Vector3(999999.9f, 999999.9f, 999999.9f);
   Vector3 vmax = Vector3(-999999.9f, -999999.9f, -999999.9f);
@@ -94,7 +131,7 @@ azer::MeshPtr ModelLoader::Load(const azer::ResPath& path,
     MeshPartPtr part = new MeshPart(NULL);
     const aiMesh* paiMesh = scene->mMeshes[i];
     MeshData data = LoadMeshData(scene->mMeshes[i], desc);
-    azer::EntityPtr entity(new azer::Entity());
+    EntityPtr entity(new Entity());
     entity->SetVertexBuffer(rs->CreateVertexBuffer(
         VertexBuffer::Options(), data.vdata));
     entity->SetIndicesBuffer(rs->CreateIndicesBuffer(
