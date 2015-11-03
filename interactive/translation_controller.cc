@@ -62,7 +62,7 @@ void TranslationController::UpdateControllerObjectState(
   Ray ray = context_->GetPickingRay(location);
   Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
   Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
-  Plane pzx(Vector3(0.0f, 1.0f, 1.0f), -pos.y);
+  Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
   
   bool parallel;
   Vector3 pt;
