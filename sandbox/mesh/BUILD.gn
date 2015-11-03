@@ -2,6 +2,7 @@
 group("mesh") {
   deps = [
     ":entity",
+    ":meshdemo",
   ]
 }
 
@@ -11,8 +12,8 @@ executable("entity") {
   deps = ["//lordaeron"]
 }
 
-executable("meshpart") {
-  output_name = "lordaeron_sandbox_meshpart"
-  sources = ["meshpart.cc",]
+executable("meshdemo") {
+  output_name = "lordaeron_sandbox_mesh"
+  sources = ["mesh.cc",]
   deps = ["//lordaeron"]
 }
