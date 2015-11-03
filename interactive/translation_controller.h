@@ -17,12 +17,15 @@ class TranslationController : public InteractiveController {
   // override
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
+  void OnOperationStart(InteractiveContext* ctx) override;
+  void OnOperationStop() override;
   void OnLostFocus() override;
   bool OnMousePressed(const ui::MouseEvent& event) override;
   bool OnMouseDragged(const ui::MouseEvent& event) override;
   bool OnMouseReleased(const ui::MouseEvent& event) override;
   void OnMouseMoved(const ui::MouseEvent& event) override;
 
+  void UpdateControllerObjectPos();
   void UpdateControllerObjectState(const gfx::Point& pt);
  private:
   scoped_ptr<TranslationControllerObject> object_;
@@ -31,24 +34,27 @@ class TranslationController : public InteractiveController {
   DISALLOW_COPY_AND_ASSIGN(TranslationController);
 };
 
-class AxisTransformObject {
+class TransformAxisObject {
  public:
-  AxisTransformObject(azer::VertexDesc* desc);
-  ~AxisTransformObject();
+  TransformAxisObject(azer::VertexDesc* desc);
+  ~TransformAxisObject();
   
   void set_length(float length);
   float length() const { return length_;}
-  void Render(azer::Renderer* renderer);
+  void RenderAxis(azer::Renderer* renderer);
+  void RenderPlane(azer::Renderer* renderer);
  private:
   void CreateCone(azer::VertexDesc* desc);
   void CreateLine(azer::VertexDesc* desc);
   void CreatePlane(azer::VertexDesc* desc);
+  void CreatePlaneFrame(azer::VertexDesc* desc);
   float length_;
   azer::EntityPtr cone_;
   azer::EntityPtr line_;
+  azer::EntityPtr plane_frame_;
   azer::EntityPtr plane_;
   azer::VertexDescPtr desc_;
-  DISALLOW_COPY_AND_ASSIGN(AxisTransformObject);
+  DISALLOW_COPY_AND_ASSIGN(TransformAxisObject);
 };
 
 class TranslationControllerObject {
@@ -56,12 +62,14 @@ class TranslationControllerObject {
   TranslationControllerObject();
   ~TranslationControllerObject();
 
-  void set_scale(float scale);
+  float length() { return axis_->length();}
+  void set_length(float length);
   void SetPosition(const azer::Vector3& position);
   void SetSelectedColor(const azer::Vector4& color) { selected_color_ = color;}
   void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
 
-  void set_selected(int32 axis);
+  void set_selected_axis(int32 axis);
+  void set_selected_plane(int32 axis);
   void reset_selected();
   bool has_axis_selected() const {
     return is_xaxis_selected() || is_yaxis_selected() || is_zaxis_selected();
@@ -71,8 +79,9 @@ class TranslationControllerObject {
   bool is_zaxis_selected() const { return selected_axis_[2];}
  private:
   void SetSelectedAxis(int32 axis);
-  scoped_ptr<AxisTransformObject> object_;
+  scoped_ptr<TransformAxisObject> axis_;
   bool selected_axis_[3];
+  bool selected_plane_[3];
   azer::Vector4 selected_color_;
   azer::Vector4 color_[3];
   azer::Matrix4 world_;

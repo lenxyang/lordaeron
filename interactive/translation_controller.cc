@@ -12,18 +12,19 @@
 
 namespace lord {
 
-// class AxisTransformObject
+// class TransformAxisObject
 namespace {
-const float kConeHeight = 0.1f;
-const float kConeRadius = 0.03f;
+const float kConeHeight = 0.15f;
+const float kConeRadius = 0.08f;
 const float kPlaneLength = 0.20f;
+const float kAxisLengthMultiply = 1.15f;
 }
 
 using namespace azer;
 TranslationController::TranslationController() 
     : dragging_(false) {
   object_.reset(new TranslationControllerObject);
-  object_->set_scale(3.0f);
+  object_->set_length(3.0f);
 }
 
 TranslationController::~TranslationController() {
@@ -41,42 +42,114 @@ void TranslationController::Render(Renderer* renderer) {
   }
 }
 
-void TranslationController::UpdateControllerObjectState(const gfx::Point& location) {
+void TranslationController::OnOperationStart(InteractiveContext* ctx) {
+  SceneNode* node = context_->GetPickingNode();
+  if (node) {
+    UpdateControllerObjectPos();
+  }
+}
+
+void TranslationController::OnOperationStop() {
+}
+
+void TranslationController::UpdateControllerObjectState(
+    const gfx::Point& location) {
   SceneNode* node = context_->GetPickingNode();
   DCHECK(node);
   object_->reset_selected();
   Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
   float radius = node->vmin().distance(node->vmax()) * 0.5f;
   Ray ray = context_->GetPickingRay(location);
-  Plane px(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
-  Plane py(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
-  Plane pz(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
+  Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
+  Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
+  Plane pzx(Vector3(0.0f, 1.0f, 1.0f), -pos.y);
   
   bool parallel;
   Vector3 pt;
-  float length = kPlaneLength * radius + 0.01f;
+  float kMargin = 0.05f;
+  float axis_length = object_->length();
+  float square_length = axis_length * kPlaneLength;
   {
-    // xplane
-    PickingPlane(ray, px, &pt, &parallel);
+    // xyplane
+    PickingPlane(ray, pxy, &pt, &parallel);
     if (parallel) {
       const Camera& camera = context_->window()->camera();
       pt = camera.holder().position();
-      if (pt.z - pos.z <= length && pt.y - pos.y < length) {
-        object_->set_selected(1);
-        object_->set_selected(2);
-      } else if (pt.y - pos.y <= radius) {
-        object_->set_selected(1);
-      } else if (pt.z - pos.z <= radius) {
-        object_->set_selected(2);
+      if (pt.y - pos.y < axis_length && pt.y - pos.y > 0.0f) {
+        object_->set_selected_axis(2);
       }
+      return;
     } else {
-      if (pt.z - pos.z <= length && pt.y - pos.y < length) {
-        object_->set_selected(1);
-        object_->set_selected(2);
-      } else if (pt.y - pos.y <= radius) {
-        object_->set_selected(1);
-      } else if (pt.z - pos.z <= radius) {
-        object_->set_selected(2);
+      if (pt.x - pos.x <= square_length && pt.x - pos.x > 0.0f
+          && pt.y - pos.y < square_length && pt.y - pos.y > 0.0f) {
+        object_->set_selected_axis(0);
+        object_->set_selected_axis(1);
+        object_->set_selected_plane(2);
+        return;
+      } else if (pt.x - pos.x <= axis_length && pt.x - pos.x > 0.0 &&
+                 std::abs(pt.y - pos.y) < 0.01 && std::abs(pt.y - pos.y) < kMargin) {
+        object_->set_selected_axis(0);
+        return;
+      } else if (pt.y - pos.y <= axis_length && pt.y - pos.y > 0.0f &&
+                 std::abs(pt.x - pos.x) < 0.01 && std::abs(pt.x - pos.x) < kMargin) {
+        object_->set_selected_axis(1);
+        return;
+      } else {
+        // find next plane
+      }
+    }
+  }
+  
+  {
+    // yzplane
+    PickingPlane(ray, pyz, &pt, &parallel);
+    if (parallel) {
+      const Camera& camera = context_->window()->camera();
+      pt = camera.holder().position();
+      if (pt.y - pos.y < axis_length && pt.y - pos.y > 0.0f) {
+        object_->set_selected_axis(2);
+      }
+      return;
+    } else {
+      if (pt.y - pos.y <= square_length && pt.y - pos.y > 0.0f
+          && pt.z - pos.z < square_length && pt.z - pos.z > kMargin) {
+        object_->set_selected_axis(1);
+        object_->set_selected_axis(2);
+        object_->set_selected_plane(0);
+        return;
+      } else if (pt.y - pos.y <= axis_length && pt.y - pos.y > 0.0 &&
+                 std::abs(pt.z - pos.z) < 0.01 && std::abs(pt.z - pos.z) < kMargin) {
+        object_->set_selected_axis(1);
+        return;
+      } else if (pt.z - pos.z <= axis_length && pt.z - pos.z > 0.0f &&
+                 std::abs(pt.y - pos.y) < 0.01 && std::abs(pt.y - pos.y) < kMargin) {
+        object_->set_selected_axis(2);
+        return;
+      } else {
+      }
+    }
+  }
+
+  {
+    // zxplane
+    PickingPlane(ray, pzx, &pt, &parallel);
+    if (parallel) {
+    } else {
+      if (pt.z - pos.z <= square_length && pt.z - pos.z > 0.0f
+          && pt.x - pos.x < square_length && pt.x - pos.x > kMargin) {
+        object_->set_selected_axis(2);
+        object_->set_selected_axis(0);
+        object_->set_selected_plane(1);
+        return;
+      } else if (pt.z - pos.z <= axis_length && pt.z - pos.z > 0.0 &&
+                 std::abs(pt.x - pos.x) < 0.01 && std::abs(pt.x - pos.x) < kMargin) {
+        object_->set_selected_axis(2);
+        return;
+      } else if (pt.x - pos.x <= axis_length && pt.x - pos.x > 0.0f &&
+                 std::abs(pt.z - pos.z) < 0.01 && std::abs(pt.z - pos.z) < kMargin) {
+        object_->set_selected_axis(0);
+        return;
+      } else {
       }
     }
   }
@@ -89,12 +162,11 @@ void TranslationController::OnLostFocus() {
 bool TranslationController::OnMousePressed(const ui::MouseEvent& event) {
   SceneNode* node = NULL;
   if (object_->has_axis_selected()) {
+    return true;
   } else {
     node = context_->GetObjectFromLocation(event.location());
     context_->SetPickingNode(node);
-    Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
-    float radius = node->vmin().distance(node->vmax()) * 0.5f;
-    object_->set_scale(radius * 1.3f);
+    UpdateControllerObjectPos();
   }
   return true;
 }
@@ -116,18 +188,29 @@ void TranslationController::OnMouseMoved(const ui::MouseEvent& event) {
   }
 }
 
-AxisTransformObject::AxisTransformObject(azer::VertexDesc* desc) 
+void TranslationController::UpdateControllerObjectPos() {
+  SceneNode* node = context_->GetPickingNode();
+  DCHECK(node);
+  Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
+  float radius = node->vmin().distance(node->vmax()) * 0.5f;
+  object_->set_length(radius * kAxisLengthMultiply);
+  object_->reset_selected();
+  object_->SetPosition(pos);
+}
+
+TransformAxisObject::TransformAxisObject(azer::VertexDesc* desc) 
     : length_(1.0f),
       desc_(desc) {
   CreateCone(desc);
   CreateLine(desc);
   CreatePlane(desc);
+  CreatePlaneFrame(desc);
 }
 
-AxisTransformObject::~AxisTransformObject() {
+TransformAxisObject::~TransformAxisObject() {
 }
 
-void AxisTransformObject::CreateCone(azer::VertexDesc* desc) {
+void TransformAxisObject::CreateCone(azer::VertexDesc* desc) {
   SlotVertexDataPtr vdata = InitConeVertexData(32, VertexDescPtr(desc));
   VertexPack vpack(vdata.get());
   vpack.first();
@@ -137,7 +220,7 @@ void AxisTransformObject::CreateCone(azer::VertexDesc* desc) {
     vpack.ReadVector4(&pos, posidx);
     pos = Vector4(pos.x * kConeRadius, pos.y * kConeHeight, pos.z * kConeRadius,
                   1.0f);
-    pos.y = pos.y + 0.9f * length();
+    pos.y = pos.y + (1.0f - kConeHeight) * length();
     vpack.WriteVector4(pos, posidx);
     vpack.next(1);
   }
@@ -149,7 +232,7 @@ void AxisTransformObject::CreateCone(azer::VertexDesc* desc) {
   cone_ = new Entity(vb, ib);
 }
 
-void AxisTransformObject::CreatePlane(azer::VertexDesc* desc) {
+void TransformAxisObject::CreatePlane(azer::VertexDesc* desc) {
   VertexPos normal_pos;
   bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normal_pos);
   SlotVertexDataPtr vdata = new SlotVertexData(desc, 6);
@@ -179,15 +262,11 @@ void AxisTransformObject::CreatePlane(azer::VertexDesc* desc) {
   plane_->SetVertexBuffer(vb);
 }
 
-void AxisTransformObject::CreateLine(azer::VertexDesc* desc) {
+void TransformAxisObject::CreateLine(azer::VertexDesc* desc) {
   float v = kPlaneLength * length();
   Vector4 pos[] = {
     Vector4(0.0f, 0.0f, 0.0f, 1.0f),
     Vector4(0.0f, 0.9f * length(), 0.0f, 1.0f),
-    Vector4(0.0f, 0.0f, v,    1.0f),
-    Vector4(   v, 0.0f, v,    1.0f),
-    Vector4(   v, 0.0f, v,    1.0f),
-    Vector4(   v, 0.0f, 0.0f, 1.0f),
   };
   Vector4 normal(1.0f, 1.0f, 1.0f, 0.0f);
 
@@ -210,26 +289,64 @@ void AxisTransformObject::CreateLine(azer::VertexDesc* desc) {
   line_->SetVertexBuffer(vb);
 }
 
-void AxisTransformObject::set_length(float length) {
+void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
+  float v = kPlaneLength * length();
+  Vector4 pos[] = {
+    Vector4(0.0f, 0.0f, v,    1.0f),
+    Vector4(   v, 0.0f, v,    1.0f),
+    Vector4(   v, 0.0f, v,    1.0f),
+    Vector4(   v, 0.0f, 0.0f, 1.0f),
+  };
+  Vector4 normal(1.0f, 1.0f, 1.0f, 0.0f);
+
+  VertexPos normal_pos;
+  bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normal_pos);
+  SlotVertexDataPtr vdata = new SlotVertexData(desc, arraysize(pos));
+  VertexPack vpack(vdata.get());
+  vpack.first();
+  for (int32 i = 0; i < arraysize(pos); ++i) {
+    vpack.WriteVector4(pos[i], VertexPos(0, 0));
+    if (kHasNormal0Idx)
+      vpack.WriteVector4(normal, normal_pos);
+    vpack.next(1);
+  }
+
+  RenderSystem* rs = RenderSystem::Current();
+  VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
+  plane_frame_ = new Entity;
+  plane_frame_->set_topology(kLineList);
+  plane_frame_->SetVertexBuffer(vb);
+}
+
+void TransformAxisObject::set_length(float length) {
   length_ = length;
   CreateCone(desc_.get());
   CreateLine(desc_.get());
   CreatePlane(desc_.get());
 }
 
-void AxisTransformObject::Render(azer::Renderer* renderer) {
+void TransformAxisObject::RenderAxis(azer::Renderer* renderer) {
   cone_->DrawIndex(renderer);
 
   bool depth_enable = renderer->IsDepthTestEnable();
-  CullingMode culling = renderer->GetCullingMode();
   renderer->EnableDepthTest(false);
-  renderer->SetCullingMode(kCullNone);
   line_->Draw(renderer);
+  renderer->EnableDepthTest(depth_enable);
+}
 
+void TransformAxisObject::RenderPlane(azer::Renderer* renderer) {
   Context* context = Context::instance();
+  bool depth_enable = renderer->IsDepthTestEnable();
+  CullingMode culling = renderer->GetCullingMode();
+
+  plane_frame_->Draw(renderer);
+
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
+  renderer->EnableDepthTest(false);
+  renderer->SetCullingMode(kCullNone);
   plane_->Draw(renderer);
+
   renderer->ResetBlending();
   renderer->EnableDepthTest(depth_enable);
   renderer->SetCullingMode(culling);
@@ -239,7 +356,7 @@ void AxisTransformObject::Render(azer::Renderer* renderer) {
 TranslationControllerObject::TranslationControllerObject() {
   selected_color_ = Vector4(1.0f, 1.0f, 0.0f, 1.0f);
   effect_ = CreateDiffuseEffect();
-  object_.reset(new AxisTransformObject(effect_->GetVertexDesc()));
+  axis_.reset(new TransformAxisObject(effect_->GetVertexDesc()));
   color_[0] = Vector4(1.0f, 0.0f, 0.0f, 0.3f);
   color_[1] = Vector4(0.0f, 1.0f, 0.0f, 0.3f);
   color_[2] = Vector4(0.0f, 0.0f, 1.0f, 0.3f);
@@ -258,31 +375,42 @@ TranslationControllerObject::~TranslationControllerObject() {
 
 void TranslationControllerObject::reset_selected() {
   memset(selected_axis_, 0, sizeof(selected_axis_));
+  memset(selected_plane_, 0, sizeof(selected_plane_));
 }
 
-void TranslationControllerObject::set_selected(int32 axis) {
+void TranslationControllerObject::set_selected_axis(int32 axis) {
   DCHECK(axis < static_cast<int32>(arraysize(selected_axis_)));
   selected_axis_[axis] = 1;
+}
+
+void TranslationControllerObject::set_selected_plane(int32 plane) {
+  DCHECK(plane < static_cast<int32>(arraysize(selected_plane_)));
+  selected_plane_[plane] = 1;
 }
 
 void TranslationControllerObject::SetPosition(const Vector3& position) {
   world_ = Translate(position);
 }
 
-void TranslationControllerObject::set_scale(float scale) {
-  object_->set_length(scale);
+void TranslationControllerObject::set_length(float scale) {
+  axis_->set_length(scale);
 }
 
 void TranslationControllerObject::Render(const Matrix4& pv, Renderer* renderer) {
   Context* context = Context::instance();
-  for (int32 i = 0; i < arraysize(rotation_); ++i) {
+  int32 count = static_cast<int32>(arraysize(rotation_));
+  for (int32 i = 0; i < count; ++i) {
     Matrix4 world = std::move(world_ * rotation_[i]);
     effect_->SetDirLight(context->GetInternalLight());
     effect_->SetColor(selected_axis_[i] ? selected_color_ : color_[i]);
     effect_->SetPV(pv);
     effect_->SetWorld(world);
     renderer->UseEffect(effect_.get());
-    object_->Render(renderer);
+    axis_->RenderAxis(renderer);
+
+    effect_->SetColor(selected_plane_[i] ? selected_color_ : color_[i]);
+    renderer->UseEffect(effect_.get());
+    axis_->RenderPlane(renderer);
   }
 }
 }  // namespace lord

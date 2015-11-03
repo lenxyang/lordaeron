@@ -97,6 +97,6 @@ void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
-  // scene_renderer_->Render(renderer);
+  scene_renderer_->Render(renderer);
 }
 }  // namespace lord

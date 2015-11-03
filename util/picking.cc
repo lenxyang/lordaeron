@@ -34,9 +34,9 @@ Ray GetPickingRay(const gfx::Point& pt, const gfx::Size& size,
 void PickingPlane(const azer::Ray& ray, const azer::Plane& plane, 
                   azer::Vector3* pt, bool *p) {
   bool parallel = false;
-  if (std::abs(ray.directional().dot(plane.normal()) - 1.0f) < 0.001) {
-    if (parallel) 
-      parallel = true;
+  float dot = ray.directional().dot(plane.normal());
+  if (std::abs(dot) < 0.001) {
+    parallel = true;
   }
     
   *pt = plane.intersect(ray);
