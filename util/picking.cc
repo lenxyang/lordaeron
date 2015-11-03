@@ -30,4 +30,17 @@ Ray GetPickingRay(const gfx::Point& pt, const gfx::Size& size,
   nd.Normalize(); 
   return Ray(Vector3(pos.x, pos.y, pos.z), nd);
 }
+
+void PickingPlane(const azer::Ray& ray, const azer::Plane& plane, 
+                  azer::Vector3* pt, bool *p) {
+  bool parallel = false;
+  if (std::abs(ray.directional().dot(plane.normal()) - 1.0f) < 0.001) {
+    if (parallel) 
+      parallel = true;
+  }
+    
+  *pt = plane.intersect(ray);
+  if (p)
+    *p = parallel;
+}
 }  // namespace lord

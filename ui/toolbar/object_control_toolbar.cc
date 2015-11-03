@@ -8,6 +8,7 @@
 #include "lordaeron/interactive/fps_camera_controller.h"
 #include "lordaeron/interactive/picking_controller.h"
 #include "lordaeron/interactive/rotation_controller.h"
+#include "lordaeron/interactive/translation_controller.h"
 
 namespace lord {
 ObjectControlToolbar::ObjectControlToolbar(nelf::Mainframe* mainframe,
@@ -59,8 +60,15 @@ void ObjectControlToolbar::ButtonPressed(views::Button* sender,
       }
     }
       break;
-    case IDR_ICON_TOOLBAR_MOVE:
+    case IDR_ICON_TOOLBAR_MOVE: {
+      if (btn->toggle()) {
+        scoped_ptr<TranslationController> controller(new TranslationController());
+        interactive_->SetController(controller.Pass());
+      } else {
+        interactive_->ResetController();
+      }
       break;
+    }
     case IDR_ICON_TOOLBAR_ROTATE: {
       if (btn->toggle()) {
         scoped_ptr<RotationController> controller(new RotationController());

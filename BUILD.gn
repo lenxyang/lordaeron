@@ -38,6 +38,8 @@ static_library("lordaeron") {
     "interactive/picking_controller.h",
     "interactive/rotation_controller.cc",
     "interactive/rotation_controller.h",
+    "interactive/translation_controller.cc",
+    "interactive/translation_controller.h",
     "mainframe_render_delegate.cc",
     "mainframe_render_delegate.h",
     "render/camera_overlay.cc",
