@@ -81,14 +81,12 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
 void MyRenderWindow::OnInitUI() { 
   DCHECK(root());
 
-  /*
   lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(
       gfx::Rect(400, 300), this->window()->GetTopWindow());
   scene->SetSceneNode(root());
   scene->Init();
   scene->Show();
   scene->SetTitle(base::UTF8ToUTF16("Scene"));
-  */
 }
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {

@@ -34,13 +34,25 @@ void Window::OnBeforeWidgetInit(views::Widget::InitParams* params,
 void Window::OnAfterWidgetInit() {
 }
 
+void Window::ButtonPressed(views::Button* sender, const ui::Event& event) {
+  if (sender == close_button_) {
+    GetWidget()->Close();
+  }
+}
+
 views::NonClientFrameView* Window::CreateNonClientFrameView(views::Widget* widget) {
   Context* ctx = Context::instance();
   views::NonClientFrameView* nonclient = nelf::Window::CreateNonClientFrameView(widget);
   DCHECK(nonclient_);
   using nelf::WindowSystemButtonPane;
   WindowSystemButtonPane* system_pane = new WindowSystemButtonPane(nonclient_);
-  system_pane->SetCloseButtonImage(ctx->GetIcon(Iconset::kIconWindowClose));
+  nelf::ToggleButton* btn = new nelf::ToggleButton(
+      ctx->GetIcon(Iconset::kIconWindowClose));
+  btn->SetMinSize(gfx::Size(20, 20));
+  btn->SetMaxSize(gfx::Size(20, 20));
+  btn->set_listener(this);
+  system_pane->AddChildView(btn);
+  system_pane->SizeToPreferredSize();
   nonclient_->SetSystemButtonPane(system_pane);
   return nonclient;
 }

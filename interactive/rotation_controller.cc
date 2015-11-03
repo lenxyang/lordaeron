@@ -169,7 +169,7 @@ CircleCoordinateObject::CircleCoordinateObject(DiffuseEffect* effect)
      effect_(effect) {
   set_radius(1.0f);
   
-  circle_ = new CircleObject(effect_->GetVertexDesc(), 64);
+  circle_ = new CircleObject(effect_->GetVertexDesc(), 128);
   reset_color();
 
   axis_world_[0] = std::move(RotateY(Degree(-90.0f)));
