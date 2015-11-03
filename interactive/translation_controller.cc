@@ -399,17 +399,16 @@ void TranslationControllerObject::set_length(float scale) {
 void TranslationControllerObject::Render(const Matrix4& pv, Renderer* renderer) {
   Context* context = Context::instance();
   int32 count = static_cast<int32>(arraysize(rotation_));
+  renderer->UseEffect(effect_.get());
   for (int32 i = 0; i < count; ++i) {
     Matrix4 world = std::move(world_ * rotation_[i]);
     effect_->SetDirLight(context->GetInternalLight());
     effect_->SetColor(selected_axis_[i] ? selected_color_ : color_[i]);
     effect_->SetPV(pv);
     effect_->SetWorld(world);
-    renderer->UseEffect(effect_.get());
     axis_->RenderAxis(renderer);
 
     effect_->SetColor(selected_plane_[i] ? selected_color_ : color_[i]);
-    renderer->UseEffect(effect_.get());
     axis_->RenderPlane(renderer);
   }
 }

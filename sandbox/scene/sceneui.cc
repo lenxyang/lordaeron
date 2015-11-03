@@ -45,6 +45,7 @@ int main(int argc, char* argv[]) {
   window->Init();
   window->Show();
 
+  window->GetRenderLoop()->Run();
   return 0;
 }
 

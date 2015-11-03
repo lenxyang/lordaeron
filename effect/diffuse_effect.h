@@ -38,6 +38,7 @@ class DiffuseEffect : public azer::Effect {
 
   azer::Matrix4 pv_;
   azer::Matrix4 world_;
+  azer::Matrix4 pvw_;
   azer::Vector4 color_;
   DirLight light_;
   DISALLOW_COPY_AND_ASSIGN(DiffuseEffect);

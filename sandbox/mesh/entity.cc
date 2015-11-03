@@ -1,18 +1,13 @@
 #pragma once
 
-#include "azer/render/render.h"
-#include "lordaeron/context.h"
-#include "lordaeron/effect/diffuse_effect.h"
-#include "lordaeron/ui/scene_render_window.h"
-#include "lordaeron/ui/toolbar/object_control_toolbar.h"
-#include "lordaeron/res/grit/common.h"
+#include "lordaeron/sandbox/sandbox.h"
 
 namespace lord {
 
 using namespace azer;
-class MyRenderWindow : public SceneRenderWindow {
+class MyRenderWindow : public SimpleRenderWindow {
  public:
-  MyRenderWindow(const gfx::Rect& rect) : SceneRenderWindow(rect) {}
+  MyRenderWindow(const gfx::Rect& rect) : SimpleRenderWindow(rect) {}
   void OnInitScene() override;
   void OnInitUI() override;
   void OnUpdateFrame(const FrameArgs& args) override;
@@ -58,7 +53,7 @@ void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
   effect_->SetPV(pv_);
   effect_->SetColor(color_);
   effect_->SetDirLight(light_);
-  effect_->Use(renderer);
+  renderer->UseEffect(effect_.get());
   entity_->DrawIndex(renderer);
 }
 }  // namespace lord
@@ -74,7 +69,6 @@ int main(int argc, char* argv[]) {
   window->Init();
   window->Show();
 
-  lord::ObjectControlToolbar* toolbar = new lord::ObjectControlToolbar(window);
   window->GetRenderLoop()->Run();
   return 0;
 }
