@@ -59,38 +59,31 @@ void DiffuseEffect::InitTechnique(const ShaderPrograms& sources) {
 
 void DiffuseEffect::SetPV(const Matrix4& value) {
   pv_ = value;
-  pvw_ = std::move(pv_ * world_);
-
-  GpuConstantsTable* tb = gpu_table_[(int)kVertexStage].get();
-  DCHECK(tb != NULL);
-  tb->SetValue(0, &pvw_, sizeof(Matrix4));
-  tb->SetValue(1, &world_, sizeof(Matrix4));
 }
 void DiffuseEffect::SetWorld(const Matrix4& value) {
   world_ = value;
-  pvw_ = std::move(pv_ * world_);
-
-  GpuConstantsTable* tb = gpu_table_[(int)kVertexStage].get();
-  DCHECK(tb != NULL);
-  tb->SetValue(0, &pvw_, sizeof(Matrix4));
-  tb->SetValue(1, &world_, sizeof(Matrix4));
 }
 void DiffuseEffect::SetColor(const Vector4& value) {
   color_ = value;
-
-  GpuConstantsTable* tb = gpu_table_[(int)kPixelStage].get();
-  DCHECK(tb != NULL);
-  tb->SetValue(0, &color_, sizeof(Vector4));
 }
 void DiffuseEffect::SetDirLight(const lord::DirLight& value) {
   light_ = value;
-
-  GpuConstantsTable* tb = gpu_table_[(int)kPixelStage].get();
-  DCHECK(tb != NULL);
-  tb->SetValue(1, &light_, sizeof(lord::DirLight));
 }
 
 void DiffuseEffect::ApplyGpuConstantTable(Renderer* renderer) {
+  {
+    Matrix4 pvw = std::move(pv_ * world_);
+    GpuConstantsTable* tb = gpu_table_[(int)kVertexStage].get();
+    DCHECK(tb != NULL);
+    tb->SetValue(0, &pvw, sizeof(Matrix4));
+    tb->SetValue(1, &world_, sizeof(Matrix4));
+  }
+  {
+    GpuConstantsTable* tb = gpu_table_[(int)kPixelStage].get();
+    DCHECK(tb != NULL);
+    tb->SetValue(0, &color_, sizeof(Vector4));
+    tb->SetValue(1, &light_, sizeof(lord::DirLight));
+  }
 }
 
 DiffuseEffectPtr CreateDiffuseEffect() {
