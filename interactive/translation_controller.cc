@@ -7,6 +7,7 @@
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/interactive/axis_object.h"
+#include "lordaeron/interactive/controller_object.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/ui/scene_render_window.h"
 #include "lordaeron/util/picking.h"
@@ -186,7 +187,6 @@ TransformAxisObject::TransformAxisObject(azer::VertexDesc* desc)
     : length_(1.0f),
       desc_(desc) {
   axis_.reset(new ::lord::AxisObject(desc));
-  CreatePlane(desc);
   CreatePlaneFrame(desc);
 }
 
@@ -194,33 +194,14 @@ TransformAxisObject::~TransformAxisObject() {
 }
 
 void TransformAxisObject::CreatePlane(azer::VertexDesc* desc) {
-  VertexPos normal_pos;
-  bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normal_pos);
-  SlotVertexDataPtr vdata = new SlotVertexData(desc, 6);
-  VertexPack vpack(vdata.get());
-  
-  vpack.first();
   const float v = kPlaneLength * length();
   const Vector4 pos[] = {
     Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+    Vector4(   v, 0.0f, 0.0f, 1.0f),
     Vector4(0.0f, 0.0f,    v, 1.0f),
     Vector4(   v, 0.0f,    v, 1.0f),
-
-    Vector4(0.0f, 0.0f, 0.0f, 1.0f),
-    Vector4(   v, 0.0f,    v, 1.0f),
-    Vector4(   v, 0.0f, 0.0f, 1.0f),
   };
-  for (uint32 i = 0; i < arraysize(pos); ++i) {
-    vpack.WriteVector4(pos[i], VertexPos(0, 0));
-    if (kHasNormal0Idx)
-      vpack.WriteVector4(Vector4(0.0f, 1.0f, 0.0f, 0.0f), normal_pos);
-    vpack.next(1);
-  }
-
-  RenderSystem* rs = RenderSystem::Current();
-  VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-  plane_ = new Entity;
-  plane_->SetVertexBuffer(vb);
+  plane_ = lord::CreatePlane(pos, desc);
 }
 
 void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
@@ -231,25 +212,7 @@ void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
     Vector4(   v, 0.0f, v,    1.0f),
     Vector4(   v, 0.0f, 0.0f, 1.0f),
   };
-  Vector4 normal(1.0f, 1.0f, 1.0f, 0.0f);
-
-  VertexPos normal_pos;
-  bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normal_pos);
-  SlotVertexDataPtr vdata = new SlotVertexData(desc, arraysize(pos));
-  VertexPack vpack(vdata.get());
-  vpack.first();
-  for (int32 i = 0; i < arraysize(pos); ++i) {
-    vpack.WriteVector4(pos[i], VertexPos(0, 0));
-    if (kHasNormal0Idx)
-      vpack.WriteVector4(normal, normal_pos);
-    vpack.next(1);
-  }
-
-  RenderSystem* rs = RenderSystem::Current();
-  VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-  plane_frame_ = new Entity;
-  plane_frame_->set_topology(kLineList);
-  plane_frame_->SetVertexBuffer(vb);
+  plane_frame_ = CreateLineList(pos, (int32)arraysize(pos), desc);
 }
 
 void TransformAxisObject::set_length(float length) {

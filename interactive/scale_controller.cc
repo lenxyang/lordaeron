@@ -38,4 +38,13 @@ bool ScaleController::OnMouseReleased(const ui::MouseEvent& event) {
 void ScaleController::OnMouseMoved(const ui::MouseEvent& event) {
 }
 
+// class ScaleAxisPlaneObject
+ScaleAxisPlaneObject::ScaleAxisPlaneObject() {
+}
+
+ScaleAxisPlaneObject::~ScaleAxisPlaneObject() {
+}
+
+void ScaleAxisPlaneObject::InitPlane() {
+}
 }  // namespace lord

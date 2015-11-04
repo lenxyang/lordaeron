@@ -30,6 +30,8 @@ static_library("lordaeron") {
     "effect/scene_node_params.h",
     "interactive/axis_object.cc",
     "interactive/axis_object.h",
+    "interactive/controller_object.cc",
+    "interactive/controller_object.h",
     "interactive/fps_camera_controller.cc",
     "interactive/fps_camera_controller.h",
     "interactive/interactive_context.cc",

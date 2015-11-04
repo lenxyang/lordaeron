@@ -2,6 +2,7 @@
 
 #include "azer/render/render.h"
 #include "lordaeron/context.h"
+#include "lordaeron/interactive/controller_object.h"
 
 namespace lord {
 using namespace azer;
@@ -60,25 +61,7 @@ void AxisObject::CreateLine(VertexDesc* desc) {
     Vector4(0.0f, 0.0f, 0.0f, 1.0f),
     Vector4(0.0f, length() - cone_height_, 0.0f, 1.0f),
   };
-  Vector4 normal(1.0f, 1.0f, 1.0f, 0.0f);
-
-  VertexPos normal_pos;
-  bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normal_pos);
-  SlotVertexDataPtr vdata = new SlotVertexData(desc, arraysize(pos));
-  VertexPack vpack(vdata.get());
-  vpack.first();
-  for (int32 i = 0; i < arraysize(pos); ++i) {
-    vpack.WriteVector4(pos[i], VertexPos(0, 0));
-    if (kHasNormal0Idx)
-      vpack.WriteVector4(normal, normal_pos);
-    vpack.next(1);
-  }
-
-  RenderSystem* rs = RenderSystem::Current();
-  VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-  line_ = new Entity;
-  line_->set_topology(kLineList);
-  line_->SetVertexBuffer(vb);
+  line_ = CreateLineList(pos, (int32)arraysize(pos), desc);
 }
 
 // class XYZAxisObject
