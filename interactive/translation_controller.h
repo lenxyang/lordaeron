@@ -4,7 +4,7 @@
 #include "lordaeron/interactive/interactive_controller.h"
 
 namespace lord {
-
+class AxisObject;
 class InteractiveContext;
 class SceneNode;
 class TranslationControllerObject;
@@ -44,15 +44,12 @@ class TransformAxisObject {
   void RenderAxis(azer::Renderer* renderer);
   void RenderPlane(azer::Renderer* renderer);
  private:
-  void CreateCone(azer::VertexDesc* desc);
-  void CreateLine(azer::VertexDesc* desc);
   void CreatePlane(azer::VertexDesc* desc);
   void CreatePlaneFrame(azer::VertexDesc* desc);
   float length_;
-  azer::EntityPtr cone_;
-  azer::EntityPtr line_;
   azer::EntityPtr plane_frame_;
   azer::EntityPtr plane_;
+  scoped_ptr<AxisObject> axis_;
   azer::VertexDescPtr desc_;
   DISALLOW_COPY_AND_ASSIGN(TransformAxisObject);
 };

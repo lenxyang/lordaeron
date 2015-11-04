@@ -6,6 +6,7 @@
 #include "lordaeron/context.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/interactive/interactive_context.h"
+#include "lordaeron/interactive/axis_object.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/ui/scene_render_window.h"
 #include "lordaeron/util/picking.h"
@@ -14,8 +15,6 @@ namespace lord {
 
 // class TransformAxisObject
 namespace {
-const float kConeHeight = 0.15f;
-const float kConeRadius = 0.08f;
 const float kPlaneLength = 0.20f;
 const float kAxisLengthMultiply = 1.15f;
 }
@@ -72,14 +71,7 @@ void TranslationController::UpdateControllerObjectState(
   {
     // xyplane
     PickingPlane(ray, pxy, &pt, &parallel);
-    if (parallel) {
-      const Camera& camera = context_->window()->camera();
-      pt = camera.holder().position();
-      if (pt.y - pos.y < axis_length && pt.y - pos.y > 0.0f) {
-        object_->set_selected_axis(2);
-      }
-      return;
-    } else {
+    if (!parallel) {
       if (pt.x - pos.x <= square_length && pt.x - pos.x > 0.0f
           && pt.y - pos.y < square_length && pt.y - pos.y > 0.0f) {
         object_->set_selected_axis(0);
@@ -103,14 +95,7 @@ void TranslationController::UpdateControllerObjectState(
   {
     // yzplane
     PickingPlane(ray, pyz, &pt, &parallel);
-    if (parallel) {
-      const Camera& camera = context_->window()->camera();
-      pt = camera.holder().position();
-      if (pt.y - pos.y < axis_length && pt.y - pos.y > 0.0f) {
-        object_->set_selected_axis(2);
-      }
-      return;
-    } else {
+    if (!parallel) {
       if (pt.y - pos.y <= square_length && pt.y - pos.y > 0.0f
           && pt.z - pos.z < square_length && pt.z - pos.z > kMargin) {
         object_->set_selected_axis(1);
@@ -133,8 +118,7 @@ void TranslationController::UpdateControllerObjectState(
   {
     // zxplane
     PickingPlane(ray, pzx, &pt, &parallel);
-    if (parallel) {
-    } else {
+    if (!parallel) {
       if (pt.z - pos.z <= square_length && pt.z - pos.z > 0.0f
           && pt.x - pos.x < square_length && pt.x - pos.x > kMargin) {
         object_->set_selected_axis(2);
@@ -201,35 +185,12 @@ void TranslationController::UpdateControllerObjectPos() {
 TransformAxisObject::TransformAxisObject(azer::VertexDesc* desc) 
     : length_(1.0f),
       desc_(desc) {
-  CreateCone(desc);
-  CreateLine(desc);
+  axis_.reset(new ::lord::AxisObject(desc));
   CreatePlane(desc);
   CreatePlaneFrame(desc);
 }
 
 TransformAxisObject::~TransformAxisObject() {
-}
-
-void TransformAxisObject::CreateCone(azer::VertexDesc* desc) {
-  SlotVertexDataPtr vdata = InitConeVertexData(32, VertexDescPtr(desc));
-  VertexPack vpack(vdata.get());
-  vpack.first();
-  Vector4 pos;
-  VertexPos posidx(0, 0);
-  while (!vpack.end()) {
-    vpack.ReadVector4(&pos, posidx);
-    pos = Vector4(pos.x * kConeRadius, pos.y * kConeHeight, pos.z * kConeRadius,
-                  1.0f);
-    pos.y = pos.y + (1.0f - kConeHeight) * length();
-    vpack.WriteVector4(pos, posidx);
-    vpack.next(1);
-  }
-
-  IndicesDataPtr idata = InitConeIndicesData(32);
-  RenderSystem* rs = RenderSystem::Current();
-  VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-  IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-  cone_ = new Entity(vb, ib);
 }
 
 void TransformAxisObject::CreatePlane(azer::VertexDesc* desc) {
@@ -260,33 +221,6 @@ void TransformAxisObject::CreatePlane(azer::VertexDesc* desc) {
   VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
   plane_ = new Entity;
   plane_->SetVertexBuffer(vb);
-}
-
-void TransformAxisObject::CreateLine(azer::VertexDesc* desc) {
-  float v = kPlaneLength * length();
-  Vector4 pos[] = {
-    Vector4(0.0f, 0.0f, 0.0f, 1.0f),
-    Vector4(0.0f, 0.9f * length(), 0.0f, 1.0f),
-  };
-  Vector4 normal(1.0f, 1.0f, 1.0f, 0.0f);
-
-  VertexPos normal_pos;
-  bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normal_pos);
-  SlotVertexDataPtr vdata = new SlotVertexData(desc, arraysize(pos));
-  VertexPack vpack(vdata.get());
-  vpack.first();
-  for (int32 i = 0; i < arraysize(pos); ++i) {
-    vpack.WriteVector4(pos[i], VertexPos(0, 0));
-    if (kHasNormal0Idx)
-      vpack.WriteVector4(normal, normal_pos);
-    vpack.next(1);
-  }
-
-  RenderSystem* rs = RenderSystem::Current();
-  VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-  line_ = new Entity;
-  line_->set_topology(kLineList);
-  line_->SetVertexBuffer(vb);
 }
 
 void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
@@ -320,18 +254,12 @@ void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
 
 void TransformAxisObject::set_length(float length) {
   length_ = length;
-  CreateCone(desc_.get());
-  CreateLine(desc_.get());
+  axis_->set_length(length);
   CreatePlane(desc_.get());
 }
 
 void TransformAxisObject::RenderAxis(azer::Renderer* renderer) {
-  cone_->DrawIndex(renderer);
-
-  bool depth_enable = renderer->IsDepthTestEnable();
-  renderer->EnableDepthTest(false);
-  line_->Draw(renderer);
-  renderer->EnableDepthTest(depth_enable);
+  axis_->Render(renderer);
 }
 
 void TransformAxisObject::RenderPlane(azer::Renderer* renderer) {
