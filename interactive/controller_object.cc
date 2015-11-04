@@ -1,6 +1,7 @@
 #include "lordaeron/interactive/controller_object.h"
 
 #include "azer/render/render.h"
+#include "lordaeron/context.h"
 
 namespace lord {
 using namespace azer;
@@ -45,5 +46,17 @@ EntityPtr CreateLineList(const Vector4* pos, int32 count, VertexDesc* desc) {
   entity->set_topology(kLineList);
   entity->SetVertexBuffer(vb);
   return entity;
+}
+
+// class ControllerObject
+ControllerObject::ControllerObject(DiffuseEffect* effect)
+    : effect_(effect) {
+}
+
+ControllerObject::~ControllerObject() {
+}
+
+void ControllerObject::SetPosition(const azer::Vector3& pos) {
+  world_ = Translate(pos);
 }
 }  // namespace lord

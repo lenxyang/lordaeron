@@ -198,8 +198,8 @@ void TransformAxisObject::CreatePlane(azer::VertexDesc* desc) {
   const Vector4 pos[] = {
     Vector4(0.0f, 0.0f, 0.0f, 1.0f),
     Vector4(   v, 0.0f, 0.0f, 1.0f),
-    Vector4(0.0f, 0.0f,    v, 1.0f),
     Vector4(   v, 0.0f,    v, 1.0f),
+    Vector4(0.0f, 0.0f,    v, 1.0f),
   };
   plane_ = lord::CreatePlane(pos, desc);
 }
