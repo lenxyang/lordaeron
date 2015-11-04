@@ -35,9 +35,10 @@ class ScaleController : public InteractiveController {
 
 class ScaleAxisPlaneObject {
  public:
-  ScaleAxisPlaneObject(DiffuseEffectPtr *effect);
+  ScaleAxisPlaneObject(DiffuseEffect *effect);
   ~ScaleAxisPlaneObject();
 
+  void set_length(float v);
   void set_outer(float v) { outer_ = v;}
   void set_inner(float v) { inner_ = v;}
 
@@ -47,6 +48,7 @@ class ScaleAxisPlaneObject {
  private:
   void InitPlane();
   void InitPlaneFrame();
+  float axis_length_;
   float inner_;
   float outer_;
   azer::Vector4 color_[3];
