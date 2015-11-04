@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/interactive/interactive_controller.h"
 
 namespace lord {
@@ -42,9 +43,8 @@ class ScaleAxisPlaneObject {
   void set_outer(float v) { outer_ = v;}
   void set_inner(float v) { inner_ = v;}
 
-  void SetPosition(const Vector3& pos);
-  void SetPV(const azer::Matrix4& pv);
-  void Render(azer::Renderer* renderer);
+  void SetPosition(const azer::Vector3& pos);
+  void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
  private:
   void InitPlane();
   void InitPlaneFrame();
@@ -53,8 +53,8 @@ class ScaleAxisPlaneObject {
   float outer_;
   azer::Vector4 color_[3];
   azer::Matrix4 rotation_[3];
-  zer::EntityPtr plane_;
-  zer::EntityPtr plane_frame;
+  azer::EntityPtr plane_;
+  azer::EntityPtr plane_frame_;
   DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(ScaleAxisPlaneObject);
 };
@@ -67,9 +67,16 @@ class ScaleControllerObject {
   void SetPV(const azer::Matrix4& pv);
   void SetPosition(const azer::Vector3& pos);
   void Render(azer::Renderer* renderer);
+
+  void reset_selected();
+  void set_selected_axis(int32 axis);
+  void set_selected_plane(int32 axis);
  private:
+  bool selected_axis_[3];
+  bool selected_plane_[3];
   DiffuseEffectPtr effect_;
   scoped_ptr<XYZAxisObject> axis_;
+  scoped_ptr<ScaleAxisPlaneObject> plane_;
   DISALLOW_COPY_AND_ASSIGN(ScaleControllerObject);
 };
 }  // namespace lord

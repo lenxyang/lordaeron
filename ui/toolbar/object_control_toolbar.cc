@@ -79,7 +79,15 @@ void ObjectControlToolbar::ButtonPressed(views::Button* sender,
       break;
     }
     case IDR_ICON_TOOLBAR_SCALE:
+       {
+      if (btn->toggle()) {
+        scoped_ptr<ScaleController> controller(new ScaleController());
+        interactive_->SetController(controller.Pass());
+      } else {
+        interactive_->ResetController();
+      }
       break;
+    }
     case IDR_ICON_TOOLBAR_FPS_CAMERA: {
       if (btn->toggle()) {
         scoped_ptr<FPSCameraController> controller(new FPSCameraController());

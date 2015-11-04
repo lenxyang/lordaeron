@@ -68,12 +68,20 @@ class TranslationControllerObject {
   void set_selected_axis(int32 axis);
   void set_selected_plane(int32 axis);
   void reset_selected();
-  bool has_axis_selected() const {
-    return is_xaxis_selected() || is_yaxis_selected() || is_zaxis_selected();
+  bool has_selected() const {
+    return is_xaxis_selected()
+        || is_yaxis_selected()
+        || is_zaxis_selected()
+        || is_xyplane_selected()
+        || is_yzplane_selected()
+        || is_zxplane_selected();
   }
   bool is_xaxis_selected() const { return selected_axis_[0];}
   bool is_yaxis_selected() const { return selected_axis_[1];}
   bool is_zaxis_selected() const { return selected_axis_[2];}
+  bool is_xyplane_selected() const { return selected_plane_[0];}
+  bool is_yzplane_selected() const { return selected_plane_[1];}
+  bool is_zxplane_selected() const { return selected_plane_[2];}
  private:
   void SetSelectedAxis(int32 axis);
   scoped_ptr<TransformAxisObject> axis_;

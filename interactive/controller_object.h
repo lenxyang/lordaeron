@@ -10,8 +10,8 @@ class ControllerObject {
   ControllerObject(DiffuseEffect* effect);
   ~ControllerObject();
 
-  void SetPosition(const azer::Vector4& pos);
-  void SetPV(const azer::Matrix4& mat) { pv_ = pv;}
+  void SetPosition(const azer::Vector3& pos);
+  void SetPV(const azer::Matrix4& pv) { pv_ = pv;}
   virtual void Render(azer::Renderer* renderer) = 0;
  private:
   azer::Matrix4 pv_;
