@@ -46,8 +46,7 @@ class ScaleAxisPlaneObject {
   void reset_color();
   void set_color(const azer::Vector4& color, int32 index);
   void SetPosition(const azer::Vector3& pos);
-  void SetPV(const azer::Matrix4& pv);
-  void Render(azer::Renderer* renderer);
+  void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
  private:
   void InitPlane();
   void InitPlaneFrame();
@@ -56,7 +55,6 @@ class ScaleAxisPlaneObject {
   float outer_;
   azer::Vector4 color_[3];
   azer::Matrix4 world_;
-  azer::Matrix4 pv_;
   azer::Matrix4 rotation_[3];
   azer::EntityPtr plane_;
   azer::EntityPtr plane_frame_;
@@ -78,6 +76,7 @@ class ScaleControllerObject {
   void set_selected_axis(int32 axis);
   void set_selected_plane(int32 axis);
  private:
+  azer::Matrix4 pv_;
   bool selected_axis_[3];
   bool selected_plane_[3];
   DiffuseEffectPtr effect_;

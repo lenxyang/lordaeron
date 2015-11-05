@@ -183,13 +183,31 @@ void TranslationController::UpdateControllerObjectPos() {
   object_->SetPosition(pos);
 }
 
-TransformAxisObject::TransformAxisObject(azer::VertexDesc* desc) 
+TransformAxisObject::TransformAxisObject(DiffuseEffect* effect) 
     : length_(1.0f),
-      desc_(desc) {
-  CreatePlaneFrame(desc);
+      effect_(effect) {
+  Plane xzplane = Plane(Vector3(0.0f, 1.0f, 0.0f), 0.0f);
+  rotation_[0] = std::move(MirrorTrans(xzplane)) * 
+      std::move(RotateZ(Degree(90.0f)));
+  rotation_[1] = Matrix4::kIdentity;
+  rotation_[2] = std::move(MirrorTrans(xzplane)) * 
+      std::move(RotateX(Degree(-90.0f)));
+  reset_color();
+  CreatePlane(effect_->GetVertexDesc());
+  CreatePlaneFrame(effect_->GetVertexDesc());
 }
 
 TransformAxisObject::~TransformAxisObject() {
+}
+
+void TransformAxisObject::reset_color() {
+  color_[0] = Vector4(1.0f, 0.0f, 0.0f, 0.3f);
+  color_[1] = Vector4(0.0f, 1.0f, 0.0f, 0.3f);
+  color_[2] = Vector4(0.0f, 0.0f, 1.0f, 0.3f);
+}
+
+void TransformAxisObject::set_color(const Vector4& color, int32 axis) {
+  color_[axis] = color;
 }
 
 void TransformAxisObject::CreatePlane(azer::VertexDesc* desc) {
@@ -216,21 +234,40 @@ void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
 
 void TransformAxisObject::set_length(float length) {
   length_ = length;
-  CreatePlane(desc_.get());
+  CreatePlane(effect_->GetVertexDesc());
 }
 
-void TransformAxisObject::RenderPlane(azer::Renderer* renderer) {
+void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
   Context* context = Context::instance();
   bool depth_enable = renderer->IsDepthTestEnable();
   CullingMode culling = renderer->GetCullingMode();
+  Matrix4 world = Translate(position_);
 
-  plane_frame_->Draw(renderer);
+  int32 count = static_cast<int32>(arraysize(rotation_));
+  for (int32 i = 0; i < count; ++i) {
+    Matrix4 lworld = std::move(world * rotation_[i]);
+    effect_->SetDirLight(context->GetInternalLight());
+    effect_->SetPV(pv);
+    effect_->SetWorld(lworld);
+    effect_->SetColor(color_[i]);
+    renderer->UseEffect(effect_.get());
+    plane_frame_->Draw(renderer);
+  }
+
 
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
   renderer->EnableDepthTest(false);
   renderer->SetCullingMode(kCullNone);
-  plane_->Draw(renderer);
+  for (int32 i = 0; i < count; ++i) {
+    Matrix4 lworld = std::move(world * rotation_[i]);
+    effect_->SetDirLight(context->GetInternalLight());
+    effect_->SetPV(pv);
+    effect_->SetWorld(lworld);
+    effect_->SetColor(color_[i]);
+    renderer->UseEffect(effect_.get());
+    plane_->Draw(renderer);
+  }
 
   renderer->ResetBlending();
   renderer->EnableDepthTest(depth_enable);
@@ -240,18 +277,9 @@ void TransformAxisObject::RenderPlane(azer::Renderer* renderer) {
 // class TranslationControllerObject
 TranslationControllerObject::TranslationControllerObject() {
   selected_color_ = Vector4(1.0f, 1.0f, 0.0f, 1.0f);
-  effect_ = CreateDiffuseEffect();
-  plane_.reset(new TransformAxisObject(effect_->GetVertexDesc()));
-  color_[0] = Vector4(1.0f, 0.0f, 0.0f, 0.3f);
-  color_[1] = Vector4(0.0f, 1.0f, 0.0f, 0.3f);
-  color_[2] = Vector4(0.0f, 0.0f, 1.0f, 0.3f);
-  Plane xzplane = Plane(Vector3(0.0f, 1.0f, 0.0f), 0.0f);
-  rotation_[0] = std::move(MirrorTrans(xzplane)) * 
-      std::move(RotateZ(Degree(90.0f)));
-  rotation_[1] = Matrix4::kIdentity;
-  rotation_[2] = std::move(MirrorTrans(xzplane)) * 
-      std::move(RotateX(Degree(-90.0f)));
-  axis_.reset(new XYZAxisObject(effect_.get()));
+  DiffuseEffectPtr effect = CreateDiffuseEffect();
+  plane_.reset(new TransformAxisObject(effect.get()));
+  axis_.reset(new XYZAxisObject(effect.get()));
   SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 }
 
@@ -261,6 +289,7 @@ TranslationControllerObject::~TranslationControllerObject() {
 void TranslationControllerObject::reset_selected() {
   memset(selected_axis_, 0, sizeof(selected_axis_));
   memset(selected_plane_, 0, sizeof(selected_plane_));
+  plane_->reset_color();
   axis_->reset_color();
 }
 
@@ -273,11 +302,12 @@ void TranslationControllerObject::set_selected_axis(int32 axis) {
 void TranslationControllerObject::set_selected_plane(int32 plane) {
   DCHECK(plane < static_cast<int32>(arraysize(selected_plane_)));
   selected_plane_[plane] = 1;
+  plane_->set_color(selected_color_, plane);
 }
 
 void TranslationControllerObject::SetPosition(const Vector3& position) {
-  world_ = Translate(position);
   axis_->SetPosition(position);
+  plane_->SetPosition(position);
 }
 
 void TranslationControllerObject::set_length(float scale) {
@@ -287,18 +317,7 @@ void TranslationControllerObject::set_length(float scale) {
 
 void TranslationControllerObject::Render(const Matrix4& pv, Renderer* renderer) {
   Context* context = Context::instance();
-  axis_->SetPV(pv);
-  axis_->Render(renderer);
-
-  int32 count = static_cast<int32>(arraysize(rotation_));
-  for (int32 i = 0; i < count; ++i) {
-    Matrix4 world = std::move(world_ * rotation_[i]);
-    effect_->SetDirLight(context->GetInternalLight());
-    effect_->SetPV(pv);
-    effect_->SetWorld(world);
-    effect_->SetColor(selected_plane_[i] ? selected_color_ : color_[i]);
-    renderer->UseEffect(effect_.get());
-    plane_->RenderPlane(renderer);
-  }
+  axis_->Render(pv, renderer);
+  plane_->Render(pv, renderer);
 }
 }  // namespace lord

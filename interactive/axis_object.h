@@ -20,6 +20,8 @@ class AxisObject {
   float cone_height_;
   azer::EntityPtr cone_;
   azer::EntityPtr line_;
+  azer::Matrix4 rotation_[3];
+  azer::Vector3 position_;
   azer::VertexDescPtr desc_;
   DISALLOW_COPY_AND_ASSIGN(AxisObject);
 };
@@ -30,8 +32,7 @@ class XYZAxisObject {
   void set_length(float length);
   
   void SetPosition(const azer::Vector3& pos);
-  void SetPV(const azer::Matrix4& pv);
-  void Render(azer::Renderer* renderer);
+  void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
 
   void set_color(const azer::Vector4& col, int32 index);
   void reset_color();
@@ -40,8 +41,6 @@ class XYZAxisObject {
  private:
   azer::Vector4 color_[3];
   azer::Matrix4 rotation_[3];
-  azer::Matrix4 world_;
-  azer::Matrix4 pv_;
   azer::Vector3 position_;
   DiffuseEffectPtr effect_;
   scoped_ptr<AxisObject> object_;

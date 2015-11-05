@@ -94,18 +94,14 @@ void XYZAxisObject::SetPosition(const azer::Vector3& pos) {
   position_ = pos;
 }
 
-void XYZAxisObject::SetPV(const azer::Matrix4& pv) {
-  pv_ = pv;
-}
-
-void XYZAxisObject::Render(azer::Renderer* renderer) {
+void XYZAxisObject::Render(const Matrix4& pv, Renderer* renderer) {
   Context* context = Context::instance();
   Matrix4 world = std::move(Translate(position_));
   for (int32 i = 0; i < 3; ++i) {
     Matrix4 lworld = std::move(world * rotation_[i]);
     effect_->SetDirLight(context->GetInternalLight());
     effect_->SetColor(color_[i]);
-    effect_->SetPV(pv_);
+    effect_->SetPV(pv);
     effect_->SetWorld(lworld);
     renderer->UseEffect(effect_.get());
     object_->Render(renderer);

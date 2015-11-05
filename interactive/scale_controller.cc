@@ -100,10 +100,6 @@ void ScaleAxisPlaneObject::set_length(float length) {
   InitPlaneFrame();
 }
 
-void ScaleAxisPlaneObject::SetPV(const Matrix4& pv) {
-  pv_ = pv;
-}
-
 void ScaleAxisPlaneObject::SetPosition(const Vector3& pos) {
   world_ = Translate(pos);
 }
@@ -128,7 +124,7 @@ void ScaleAxisPlaneObject::InitPlaneFrame() {
   plane_frame_ = CreateLineList(pos, (int32)arraysize(pos), effect_->GetVertexDesc());
 }
 
-void ScaleAxisPlaneObject::Render(Renderer* renderer) {
+void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
   Context* context = Context::instance();
   bool depth_enable = renderer->IsDepthTestEnable();
   CullingMode culling = renderer->GetCullingMode();
@@ -142,7 +138,7 @@ void ScaleAxisPlaneObject::Render(Renderer* renderer) {
     renderer->UseEffect(effect_.get());
     effect_->SetDirLight(context->GetInternalLight());
     effect_->SetColor(color_[i]);
-    effect_->SetPV(pv_);
+    effect_->SetPV(pv);
     effect_->SetWorld(lworld);
     plane_->Render(renderer);
   }
@@ -153,7 +149,7 @@ void ScaleAxisPlaneObject::Render(Renderer* renderer) {
     renderer->UseEffect(effect_.get());
     effect_->SetDirLight(context->GetInternalLight());
     effect_->SetColor(color_[i]);
-    effect_->SetPV(pv_);
+    effect_->SetPV(pv);
     effect_->SetWorld(lworld);
     plane_frame_->Render(renderer);
   }
@@ -194,8 +190,7 @@ DCHECK(plane < arraysize(selected_plane_));
 }
 
 void ScaleControllerObject::SetPV(const Matrix4& pv) {
-  axis_->SetPV(pv);
-  plane_->SetPV(pv);
+  pv_ = pv;
 }
 
 void ScaleControllerObject::SetPosition(const Vector3& pos) {
@@ -204,7 +199,7 @@ void ScaleControllerObject::SetPosition(const Vector3& pos) {
 }
 
 void ScaleControllerObject::Render(Renderer* renderer) {
-  axis_->Render(renderer);
-  plane_->Render(renderer);
+  axis_->Render(pv_, renderer);
+  plane_->Render(pv_, renderer);
 }
 }  // namespace lord

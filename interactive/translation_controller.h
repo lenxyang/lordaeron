@@ -36,19 +36,26 @@ class TranslationController : public InteractiveController {
 
 class TransformAxisObject {
  public:
-  TransformAxisObject(azer::VertexDesc* desc);
+  TransformAxisObject(DiffuseEffect* effect);
   ~TransformAxisObject();
-  
+
   void set_length(float length);
   float length() const { return length_;}
-  void RenderPlane(azer::Renderer* renderer);
+  void reset_color();
+  void set_color(const azer::Vector4& color, int32 axis);
+  void SetPosition(const azer::Vector3& position) { position_ = position;}
+
+  void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
  private:
   void CreatePlane(azer::VertexDesc* desc);
   void CreatePlaneFrame(azer::VertexDesc* desc);
   float length_;
   azer::EntityPtr plane_frame_;
   azer::EntityPtr plane_;
-  azer::VertexDescPtr desc_;
+  azer::Vector3 position_;
+  azer::Matrix4 rotation_[3];
+  azer::Vector4 color_[3];
+  DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(TransformAxisObject);
 };
 
@@ -87,10 +94,6 @@ class TranslationControllerObject {
   bool selected_axis_[3];
   bool selected_plane_[3];
   azer::Vector4 selected_color_;
-  azer::Vector4 color_[3];
-  azer::Matrix4 world_;
-  azer::Matrix4 rotation_[3];
-  DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(TranslationControllerObject);
 };
 }
