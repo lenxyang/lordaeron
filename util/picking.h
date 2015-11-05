@@ -27,14 +27,14 @@ class PlanePickingHelper {
 
   void SetShowPicking(bool show_picking);
   void SetPickingPos(const azer::Vector3& pos);
-  void set_plane_color(const Vector4& c) { plane_color_ = c;}
-  void set_point_color(const Vector4& c) { point_color_ = c;}
-  void Render(const azer::Matrix4& pv, azer::Render* renderer);
+  void set_plane_color(const azer::Vector4& c) { plane_color_ = c;}
+  void set_point_color(const azer::Vector4& c) { point_color_ = c;}
+  void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
  private:
   void CreatePlane();
   bool show_picking_;
-  Vector4 point_color_;
-  Vector4 plane_color_;
+  azer::Vector4 point_color_;
+  azer::Vector4 plane_color_;
   azer::Vector3 position_;
   azer::EntityPtr plane_object_;
   azer::EntityPtr sphere_;

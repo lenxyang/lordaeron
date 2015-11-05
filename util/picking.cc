@@ -69,7 +69,13 @@ void PlanePickingHelper::CreatePlane() {
       pos[i].x = -plane_.d();
     }
   } else if (std::abs(plane_.normal().y - 1.0f) < 0.001) {
+    for (int i = 0; i < 4; ++i) {
+      pos[i].y = -plane_.d();
+    }
   } else if (std::abs(plane_.normal().z - 1.0f) < 0.001) {
+    for (int i = 0; i < 4; ++i) {
+      pos[i].z = -plane_.d();
+    }
   } else {
   }
 }
@@ -82,6 +88,6 @@ void PlanePickingHelper::SetShowPicking(bool show_picking) {
   show_picking_ = show_picking;
 }
 
-void PlanePickingHelper::Render(const azer::Matrix4& pv, azer::Render* renderer) {
+void PlanePickingHelper::Render(const azer::Matrix4& pv, azer::Renderer* renderer) {
 }
 }  // namespace lord
