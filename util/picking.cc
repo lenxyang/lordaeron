@@ -1,6 +1,8 @@
 #include "lordaeron/util/picking.h"
 
 #include "azer/render/render.h"
+#include "azer/render/util.h"
+#include "lordaeron/context.h"
 
 namespace lord {
 using namespace azer;
@@ -42,5 +44,44 @@ void PickingPlane(const azer::Ray& ray, const azer::Plane& plane,
   *pt = plane.intersect(ray);
   if (p)
     *p = parallel;
+}
+
+// class PlanePickingHelper
+PlanePickingHelper::PlanePickingHelper(const azer::Plane& plane)
+    : show_picking_(false),
+      plane_(plane) {
+  effect_ = CreateDiffuseEffect();
+  GeometryObjectPtr ptr = new SphereObject(effect_->GetVertexDesc(), 32, 32);
+  sphere_ = new Entity(ptr->GetVertexBuffer(), ptr->GetIndicesBuffer());
+  CreatePlane();
+}
+
+void PlanePickingHelper::CreatePlane() {
+  float d = 100.0f;
+  Vector4 pos[4] = {
+    Vector4(-d,  d,  d, 1.0f),
+    Vector4( d,  d, -d, 1.0f),
+    Vector4( d, -d, -d, 1.0f),
+    Vector4(-d, -d,  d, 1.0f),
+  };
+  if (std::abs(plane_.normal().x - 1.0f) < 0.001) {
+    for (int i = 0; i < 4; ++i) {
+      pos[i].x = -plane_.d();
+    }
+  } else if (std::abs(plane_.normal().y - 1.0f) < 0.001) {
+  } else if (std::abs(plane_.normal().z - 1.0f) < 0.001) {
+  } else {
+  }
+}
+
+void PlanePickingHelper::SetPickingPos(const azer::Vector3& pos) {
+  position_ = pos;
+}
+
+void PlanePickingHelper::SetShowPicking(bool show_picking) {
+  show_picking_ = show_picking;
+}
+
+void PlanePickingHelper::Render(const azer::Matrix4& pv, azer::Render* renderer) {
 }
 }  // namespace lord

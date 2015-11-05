@@ -13,6 +13,8 @@ struct DirLight {
 
 enum LightType {
   kDirectionalLight,
+  kPointLight,
+  kSpotLight,
 };
 
 class Light : public ::base::RefCounted<Light> {
