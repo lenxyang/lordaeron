@@ -33,10 +33,8 @@ class XYZAxisObject {
   void SetPV(const azer::Matrix4& pv);
   void Render(azer::Renderer* renderer);
 
-  void SetXAxisColor(const azer::Vector4& col) { color_[0] = col;}
-  void SetYAxisColor(const azer::Vector4& col) { color_[1] = col;}
-  void SetZAxisColor(const azer::Vector4& col) { color_[2] = col;}
-  void ResetAxisColor();
+  void set_color(const azer::Vector4& col, int32 index);
+  void reset_color();
 
   int32 Picking(const azer::Ray& ray);
  private:

@@ -73,10 +73,14 @@ XYZAxisObject::XYZAxisObject(DiffuseEffect* effect)
   rotation_[0] = std::move(RotateZ(Degree(90.0f)));
   rotation_[1] = Matrix4::kIdentity;
   rotation_[2] = std::move(RotateX(Degree(-90.0f)));
-  ResetAxisColor();
+  reset_color();
 }
 
-void XYZAxisObject::ResetAxisColor() {
+void XYZAxisObject::set_color(const azer::Vector4& col, int32 index) {
+  color_[index] = col;
+}
+
+void XYZAxisObject::reset_color() {
   color_[0] = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
   color_[1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
   color_[2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
@@ -96,12 +100,13 @@ void XYZAxisObject::SetPV(const azer::Matrix4& pv) {
 
 void XYZAxisObject::Render(azer::Renderer* renderer) {
   Context* context = Context::instance();
-  world_ = std::move(Translate(position_));
+  Matrix4 world = std::move(Translate(position_));
   for (int32 i = 0; i < 3; ++i) {
+    Matrix4 lworld = std::move(world * rotation_[i]);
     effect_->SetDirLight(context->GetInternalLight());
     effect_->SetColor(color_[i]);
     effect_->SetPV(pv_);
-    effect_->SetWorld(world_);
+    effect_->SetWorld(lworld);
     renderer->UseEffect(effect_.get());
     object_->Render(renderer);
   }

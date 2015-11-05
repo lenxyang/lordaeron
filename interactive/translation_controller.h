@@ -4,10 +4,10 @@
 #include "lordaeron/interactive/interactive_controller.h"
 
 namespace lord {
-class AxisObject;
 class InteractiveContext;
 class SceneNode;
 class TranslationControllerObject;
+class XYZAxisObject;
 
 class TranslationController : public InteractiveController {
  public:
@@ -41,7 +41,6 @@ class TransformAxisObject {
   
   void set_length(float length);
   float length() const { return length_;}
-  void RenderAxis(azer::Renderer* renderer);
   void RenderPlane(azer::Renderer* renderer);
  private:
   void CreatePlane(azer::VertexDesc* desc);
@@ -49,7 +48,6 @@ class TransformAxisObject {
   float length_;
   azer::EntityPtr plane_frame_;
   azer::EntityPtr plane_;
-  scoped_ptr<AxisObject> axis_;
   azer::VertexDescPtr desc_;
   DISALLOW_COPY_AND_ASSIGN(TransformAxisObject);
 };
@@ -59,7 +57,7 @@ class TranslationControllerObject {
   TranslationControllerObject();
   ~TranslationControllerObject();
 
-  float length() { return axis_->length();}
+  float length() { return plane_->length();}
   void set_length(float length);
   void SetPosition(const azer::Vector3& position);
   void SetSelectedColor(const azer::Vector4& color) { selected_color_ = color;}
@@ -84,7 +82,8 @@ class TranslationControllerObject {
   bool is_zxplane_selected() const { return selected_plane_[2];}
  private:
   void SetSelectedAxis(int32 axis);
-  scoped_ptr<TransformAxisObject> axis_;
+  scoped_ptr<TransformAxisObject> plane_;
+  scoped_ptr<XYZAxisObject> axis_;
   bool selected_axis_[3];
   bool selected_plane_[3];
   azer::Vector4 selected_color_;
