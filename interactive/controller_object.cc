@@ -16,6 +16,8 @@ EntityPtr CreatePlane(const Vector4 pos[4], VertexDesc* desc) {
   for (uint32 i = 0; i < arraysize(indices); ++i) {
     int32 idx = indices[i];
     vpack.WriteVector4(pos[idx], VertexPos(0, 0));
+    if (kHasNormal0Idx)
+      vpack.WriteVector4(Vector4(1.0f, 1.0f, 1.0f, 0.0f), normal_pos);
     vpack.next(1);
   }
 
