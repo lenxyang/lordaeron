@@ -8,6 +8,7 @@
 #include "lordaeron/interactive/fps_camera_controller.h"
 #include "lordaeron/interactive/picking_controller.h"
 #include "lordaeron/interactive/rotation_controller.h"
+#include "lordaeron/interactive/scale_controller.h"
 #include "lordaeron/interactive/translation_controller.h"
 
 namespace lord {

@@ -2,9 +2,10 @@
 
 #include "base/logging.h"
 #include "lordaeron/context.h"
+#include "lordaeron/interactive/axis_object.h"
 #include "lordaeron/interactive/controller_object.h"
-#include "lordaeron/interactive/scale_controller.h"
 #include "lordaeron/interactive/interactive_context.h"
+#include "lordaeron/interactive/scale_controller.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/ui/scene_render_window.h"
 #include "lordaeron/util/picking.h"
@@ -19,10 +20,10 @@ ScaleController::~ScaleController() {
 }
 
   // override
-void ScaleController::Update(const azer::FrameArgs& args) {
+void ScaleController::Update(const FrameArgs& args) {
 }
 
-void ScaleController::Render(azer::Renderer* renderer) {
+void ScaleController::Render(Renderer* renderer) {
   SceneNode* node = context_->GetPickingNode();
   if (node) {
     UpdateControllerObjectPos();
@@ -55,6 +56,7 @@ void ScaleController::OnMouseMoved(const ui::MouseEvent& event) {
 }
 
 void ScaleController::UpdateControllerObjectPos() {
+  const float kAxisLengthMultiply = 1.1f;
   SceneNode* node = context_->GetPickingNode();
   DCHECK(node);
   Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
@@ -70,10 +72,23 @@ ScaleAxisPlaneObject::ScaleAxisPlaneObject(DiffuseEffect* effect)
       axis_length_(1.0f),
       inner_(0.35f),
       outer_(0.55f) {
+  Plane xzplane = Plane(Vector3(0.0f, 1.0f, 0.0f), 0.0f);
+  rotation_[0] = std::move(MirrorTrans(xzplane)) * 
+      std::move(RotateZ(Degree(90.0f)));
+  rotation_[1] = Matrix4::kIdentity;
+  rotation_[2] = std::move(MirrorTrans(xzplane)) * 
+      std::move(RotateX(Degree(-90.0f)));
+}
 
+void ScaleAxisPlaneObject::reset_color() {
   color_[0] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);  // xy
   color_[1] = Vector4(1.0f, 0.0f, 0.0f, 1.0f);  // yz
   color_[2] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);  // zy
+}
+
+void ScaleAxisPlaneObject::set_color(const Vector4& color, int32 index) {
+  DCHECK(index < arraysize(color_));
+  color_[index] = color;
 }
 
 ScaleAxisPlaneObject::~ScaleAxisPlaneObject() {
@@ -85,6 +100,13 @@ void ScaleAxisPlaneObject::set_length(float length) {
   InitPlaneFrame();
 }
 
+void ScaleAxisPlaneObject::SetPV(const Matrix4& pv) {
+  pv_ = pv;
+}
+
+void ScaleAxisPlaneObject::SetPosition(const Vector3& pos) {
+  world_ = Translate(pos);
+}
 
 void ScaleAxisPlaneObject::InitPlane() {
   Vector4 pos[4] = {
@@ -106,14 +128,54 @@ void ScaleAxisPlaneObject::InitPlaneFrame() {
   plane_frame_ = CreateLineList(pos, (int32)arraysize(pos), effect_->GetVertexDesc());
 }
 
+void ScaleAxisPlaneObject::Render(Renderer* renderer) {
+  Context* context = Context::instance();
+  bool depth_enable = renderer->IsDepthTestEnable();
+  CullingMode culling = renderer->GetCullingMode();
+
+  BlendingPtr blending = context->GetDefaultBlending();
+  renderer->UseBlending(blending.get(), 0);
+  renderer->EnableDepthTest(false);
+  renderer->SetCullingMode(kCullNone);
+  for (int32 i = 0; i < 3; ++i) {
+    Matrix4 lworld = std::move(world_ * rotation_[i]);
+    renderer->UseEffect(effect_.get());
+    effect_->SetDirLight(context->GetInternalLight());
+    effect_->SetColor(color_[i]);
+    effect_->SetPV(pv_);
+    effect_->SetWorld(lworld);
+    plane_->Render(renderer);
+  }
+  renderer->ResetBlending();
+
+  for (int32 i = 0; i < 3; ++i) {
+    Matrix4 lworld = std::move(world_ * rotation_[i]);
+    renderer->UseEffect(effect_.get());
+    effect_->SetDirLight(context->GetInternalLight());
+    effect_->SetColor(color_[i]);
+    effect_->SetPV(pv_);
+    effect_->SetWorld(lworld);
+    plane_frame_->Render(renderer);
+  }
+
+  renderer->EnableDepthTest(depth_enable);
+  renderer->SetCullingMode(culling);
+}
+
 
 // class ScaleControllerObject
 ScaleControllerObject::ScaleControllerObject() {
-  axis_.reset(new XYZAxisObject);
-  plane_.reset(new ScaleAxisPlaneObject);
+  effect_ = CreateDiffuseEffect();
+  axis_.reset(new XYZAxisObject(effect_.get()));
+  plane_.reset(new ScaleAxisPlaneObject(effect_.get()));
 }
 
 ScaleControllerObject::~ScaleControllerObject() {
+}
+
+void ScaleControllerObject::set_length(float length) {
+  axis_->set_length(length);
+  plane_->set_length(length);
 }
 
 void ScaleControllerObject::reset_selected() {
@@ -122,26 +184,26 @@ void ScaleControllerObject::reset_selected() {
 }
 
 void ScaleControllerObject::set_selected_axis(int32 axis) {
-  DCHECK(axis < 3);
+  DCHECK(axis < arraysize(selected_axis_));
   selected_axis_[axis] = 1;
 }
 
 void ScaleControllerObject::set_selected_plane(int32 plane) {
-  DCHECK(plane < 3);
-  selected_plane_[axis] = 1;
+DCHECK(plane < arraysize(selected_plane_));
+  selected_plane_[plane] = 1;
 }
 
-void ScaleControllerObject::SetPV(const azer::Matrix4& pv) {
+void ScaleControllerObject::SetPV(const Matrix4& pv) {
   axis_->SetPV(pv);
-  plane_->SetPosition(pos);
+  plane_->SetPV(pv);
 }
 
-void ScaleControllerObject::SetPosition(const azer::Vector3& pos) {
+void ScaleControllerObject::SetPosition(const Vector3& pos) {
   axis_->SetPosition(pos);
   plane_->SetPosition(pos);
 }
 
-void ScaleControllerObject::Render(azer::Renderer* renderer) {
+void ScaleControllerObject::Render(Renderer* renderer) {
   axis_->Render(renderer);
   plane_->Render(renderer);
 }

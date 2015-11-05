@@ -37,11 +37,14 @@ class XYZAxisObject {
   void SetYAxisColor(const azer::Vector4& col) { color_[1] = col;}
   void SetZAxisColor(const azer::Vector4& col) { color_[2] = col;}
   void ResetAxisColor();
+
+  int32 Picking(const azer::Ray& ray);
  private:
   azer::Vector4 color_[3];
   azer::Matrix4 rotation_[3];
   azer::Matrix4 world_;
   azer::Matrix4 pv_;
+  azer::Vector3 position_;
   DiffuseEffectPtr effect_;
   scoped_ptr<AxisObject> object_;
   DISALLOW_COPY_AND_ASSIGN(XYZAxisObject);

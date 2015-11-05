@@ -146,7 +146,7 @@ void TranslationController::OnLostFocus() {
 
 bool TranslationController::OnMousePressed(const ui::MouseEvent& event) {
   SceneNode* node = NULL;
-  if (object_->has_axis_selected()) {
+  if (object_->has_selected()) {
     return true;
   } else {
     node = context_->GetObjectFromLocation(event.location());

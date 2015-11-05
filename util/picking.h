@@ -4,6 +4,16 @@
 
 namespace lord {
 
+enum {
+  kPickNone,
+  kPickXAxis,
+  kPickYAxis,
+  kPickZAxis,
+  kPickXYPlane,
+  kPickYZPlane,
+  kPickZXPlane,
+};
+
 azer::Vector4 CalcWorldPosFromScreen(const gfx::Point& pt, const gfx::Size& size, 
                                      const azer::Camera* camera);
 

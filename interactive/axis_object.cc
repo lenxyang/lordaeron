@@ -3,6 +3,7 @@
 #include "azer/render/render.h"
 #include "lordaeron/context.h"
 #include "lordaeron/interactive/controller_object.h"
+#include "lordaeron/util/picking.h"
 
 namespace lord {
 using namespace azer;
@@ -86,7 +87,7 @@ void XYZAxisObject::set_length(float length) {
 }
 
 void XYZAxisObject::SetPosition(const azer::Vector3& pos) {
-  world_ = Translate(pos);
+  position_ = pos;
 }
 
 void XYZAxisObject::SetPV(const azer::Matrix4& pv) {
@@ -95,6 +96,7 @@ void XYZAxisObject::SetPV(const azer::Matrix4& pv) {
 
 void XYZAxisObject::Render(azer::Renderer* renderer) {
   Context* context = Context::instance();
+  world_ = std::move(Translate(position_));
   for (int32 i = 0; i < 3; ++i) {
     effect_->SetDirLight(context->GetInternalLight());
     effect_->SetColor(color_[i]);
@@ -103,5 +105,58 @@ void XYZAxisObject::Render(azer::Renderer* renderer) {
     renderer->UseEffect(effect_.get());
     object_->Render(renderer);
   }
+}
+
+int32 XYZAxisObject::Picking(const azer::Ray& ray) {
+  const Vector3& pos = position_;
+  Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
+  Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
+  Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
+
+  const float kMargin = 0.05f;
+  bool parallel;
+  float length = object_->length();
+  Vector3 pt;
+  {
+    PickingPlane(ray, pxy, &pt, &parallel);
+    if (!parallel) {
+      if (pt.x - pos.x <= length && pt.x - pos.x > 0.0 &&
+          std::abs(pt.y - pos.y) < 0.01 && std::abs(pt.y - pos.y) < kMargin) {
+        return kPickXAxis;
+      } else if (pt.y - pos.y <= length && pt.y - pos.y > 0.0f &&
+                 std::abs(pt.x - pos.x) < 0.01 && std::abs(pt.x - pos.x) < kMargin) {
+        return kPickYAxis;
+      }
+    }
+  }
+
+  {
+    // yzplane
+    PickingPlane(ray, pyz, &pt, &parallel);
+    if (!parallel) {
+      if (pt.y - pos.y <= length && pt.y - pos.y > 0.0 &&
+                 std::abs(pt.z - pos.z) < 0.01 && std::abs(pt.z - pos.z) < kMargin) {
+        return kPickYAxis;
+      } else if (pt.z - pos.z <= length && pt.z - pos.z > 0.0f &&
+                 std::abs(pt.y - pos.y) < 0.01 && std::abs(pt.y - pos.y) < kMargin) {
+        return kPickZAxis;
+      }
+    }
+  }
+
+  {
+    // zxplane
+    PickingPlane(ray, pzx, &pt, &parallel);
+    if (!parallel) {
+      if (pt.z - pos.z <= length && pt.z - pos.z > 0.0 &&
+                 std::abs(pt.x - pos.x) < 0.01 && std::abs(pt.x - pos.x) < kMargin) {
+        return kPickZAxis;
+      } else if (pt.x - pos.x <= length && pt.x - pos.x > 0.0f &&
+                 std::abs(pt.z - pos.z) < 0.01 && std::abs(pt.z - pos.z) < kMargin) {
+        return kPickXAxis;
+      }
+    }
+  }
+  return kPickNone;
 }
 }  // namespace lord
