@@ -30,7 +30,8 @@ class XYZAxisObject {
  public:
   XYZAxisObject(DiffuseEffect* effect);
   void set_length(float length);
-  
+
+  const azer::Vector3& position() const { return position_;}
   void SetPosition(const azer::Vector3& pos);
   void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
 

@@ -56,88 +56,8 @@ void TranslationController::UpdateControllerObjectState(
     const gfx::Point& location) {
   SceneNode* node = context_->GetPickingNode();
   DCHECK(node);
-  object_->reset_selected();
-  Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
-  float radius = node->vmin().distance(node->vmax()) * 0.5f;
   Ray ray = context_->GetPickingRay(location);
-  Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
-  Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
-  Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
-  
-  bool parallel;
-  Vector3 pt;
-  float kMargin = 0.05f;
-  float axis_length = object_->length();
-  float square_length = axis_length * kPlaneLength;
-  {
-    // xyplane
-    PickingPlane(ray, pxy, &pt, &parallel);
-    if (!parallel) {
-      if (pt.x - pos.x <= square_length && pt.x - pos.x > 0.0f
-          && pt.y - pos.y < square_length && pt.y - pos.y > 0.0f) {
-        object_->set_selected_axis(0);
-        object_->set_selected_axis(1);
-        object_->set_selected_plane(2);
-        return;
-      } else if (pt.x - pos.x <= axis_length && pt.x - pos.x > 0.0 &&
-                 std::abs(pt.y - pos.y) < 0.01 && std::abs(pt.y - pos.y) < kMargin) {
-        object_->set_selected_axis(0);
-        return;
-      } else if (pt.y - pos.y <= axis_length && pt.y - pos.y > 0.0f &&
-                 std::abs(pt.x - pos.x) < 0.01 && std::abs(pt.x - pos.x) < kMargin) {
-        object_->set_selected_axis(1);
-        return;
-      } else {
-        // find next plane
-      }
-    }
-  }
-  
-  {
-    // yzplane
-    PickingPlane(ray, pyz, &pt, &parallel);
-    if (!parallel) {
-      if (pt.y - pos.y <= square_length && pt.y - pos.y > 0.0f
-          && pt.z - pos.z < square_length && pt.z - pos.z > kMargin) {
-        object_->set_selected_axis(1);
-        object_->set_selected_axis(2);
-        object_->set_selected_plane(0);
-        return;
-      } else if (pt.y - pos.y <= axis_length && pt.y - pos.y > 0.0 &&
-                 std::abs(pt.z - pos.z) < 0.01 && std::abs(pt.z - pos.z) < kMargin) {
-        object_->set_selected_axis(1);
-        return;
-      } else if (pt.z - pos.z <= axis_length && pt.z - pos.z > 0.0f &&
-                 std::abs(pt.y - pos.y) < 0.01 && std::abs(pt.y - pos.y) < kMargin) {
-        object_->set_selected_axis(2);
-        return;
-      } else {
-      }
-    }
-  }
-
-  {
-    // zxplane
-    PickingPlane(ray, pzx, &pt, &parallel);
-    if (!parallel) {
-      if (pt.z - pos.z <= square_length && pt.z - pos.z > 0.0f
-          && pt.x - pos.x < square_length && pt.x - pos.x > kMargin) {
-        object_->set_selected_axis(2);
-        object_->set_selected_axis(0);
-        object_->set_selected_plane(1);
-        return;
-      } else if (pt.z - pos.z <= axis_length && pt.z - pos.z > 0.0 &&
-                 std::abs(pt.x - pos.x) < 0.01 && std::abs(pt.x - pos.x) < kMargin) {
-        object_->set_selected_axis(2);
-        return;
-      } else if (pt.x - pos.x <= axis_length && pt.x - pos.x > 0.0f &&
-                 std::abs(pt.z - pos.z) < 0.01 && std::abs(pt.z - pos.z) < kMargin) {
-        object_->set_selected_axis(0);
-        return;
-      } else {
-      }
-    }
-  }
+  object_->UpdatePicking(ray);
 }
 
 void TranslationController::OnLostFocus() {
@@ -274,6 +194,52 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
   renderer->SetCullingMode(culling);
 }
 
+int32 TransformAxisObject::Picking(const azer::Ray& ray) const {
+  const Vector3& pos = position_;
+  Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
+  Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
+  Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
+  
+  bool parallel;
+  Vector3 pt;
+  float kMargin = 0.05f;
+  float length = kPlaneLength * length_;
+  {
+    // xyplane
+    PickingPlane(ray, pxy, &pt, &parallel);
+    if (!parallel) {
+      if (pt.x - pos.x <= length && pt.x - pos.x > 0.0f
+          && pt.y - pos.y < length && pt.y - pos.y > 0.0f) {
+        return kPickXYPlane;
+      }
+    }
+  }
+  
+  {
+    // yzplane
+    PickingPlane(ray, pyz, &pt, &parallel);
+    if (!parallel) {
+      if (pt.y - pos.y <= length && pt.y - pos.y > 0.0f
+          && pt.z - pos.z < length && pt.z - pos.z > kMargin) {
+        return kPickYZPlane;
+      }
+    }
+  }
+
+  {
+    // zxplane
+    PickingPlane(ray, pzx, &pt, &parallel);
+    if (!parallel) {
+      if (pt.z - pos.z <= length && pt.z - pos.z > 0.0f
+          && pt.x - pos.x < length && pt.x - pos.x > kMargin) {
+        return kPickZXPlane;
+      }
+    }
+  }
+
+  return kPickNone;
+}
+
 // class TranslationControllerObject
 TranslationControllerObject::TranslationControllerObject() {
   selected_color_ = Vector4(1.0f, 1.0f, 0.0f, 1.0f);
@@ -319,5 +285,43 @@ void TranslationControllerObject::Render(const Matrix4& pv, Renderer* renderer) 
   Context* context = Context::instance();
   axis_->Render(pv, renderer);
   plane_->Render(pv, renderer);
+}
+
+int32 TranslationControllerObject::Picking(const azer::Ray& ray) const {
+  int ret = plane_->Picking(ray);
+  if (ret != kPickNone)
+    return ret;
+  
+  return axis_->Picking(ray);
+}
+
+void TranslationControllerObject::UpdatePicking(const azer::Ray& ray) {
+  reset_selected();
+  int32 target = Picking(ray);
+  switch (target) {
+    case kPickXYPlane:
+      set_selected_axis(0);
+      set_selected_axis(1);
+      set_selected_plane(2);
+      break;
+    case kPickYZPlane:
+      set_selected_axis(1);
+      set_selected_axis(2);
+      set_selected_plane(0);
+      break;
+    case kPickZXPlane:
+      set_selected_axis(2);
+      set_selected_axis(0);
+      set_selected_plane(1);
+    case kPickXAxis:
+      set_selected_axis(0);
+      break;
+    case kPickYAxis:
+      set_selected_axis(1);
+      break;
+    case kPickZAxis:
+      set_selected_axis(2);
+      break;
+  }
 }
 }  // namespace lord
