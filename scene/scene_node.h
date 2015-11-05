@@ -92,6 +92,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void yaw(const azer::Degree angle);
   void roll(const azer::Radians angle);
   void roll(const azer::Degree angle);
+  void rotate(const azer::Vector3& axis, const azer::Degree angle);
+  void rotate(const azer::Vector3& axis, const azer::Radians angle);
 
   std::string print_info();
 

@@ -28,8 +28,10 @@ class TranslationController : public InteractiveController {
   void UpdateControllerObjectPos();
   void UpdateControllerObjectState(const gfx::Point& pt);
  private:
+  void GetPickingPosOffset(const azer::Ray& r, azer::Vector3* pos);
   scoped_ptr<TranslationControllerObject> object_;
-  azer::Vector3 origin_position_;
+  azer::Vector3 pos_offset_;
+  int32 picking_object_;
   bool dragging_;
   DISALLOW_COPY_AND_ASSIGN(TranslationController);
 };
@@ -67,6 +69,7 @@ class TranslationControllerObject {
 
   float length() { return plane_->length();}
   void set_length(float length);
+  const azer::Vector3& position() const;
   void SetPosition(const azer::Vector3& position);
   void SetSelectedColor(const azer::Vector4& color) { selected_color_ = color;}
   void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
@@ -90,7 +93,7 @@ class TranslationControllerObject {
   bool is_zxplane_selected() const { return selected_plane_[2];}
 
   int32 Picking(const azer::Ray& ray) const;
-  void UpdatePicking(const azer::Ray& ray);
+  int32 UpdatePicking(const azer::Ray& ray);
  private:
   void SetSelectedAxis(int32 axis);
   scoped_ptr<TransformAxisObject> plane_;

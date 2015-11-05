@@ -22,7 +22,8 @@ const float kAxisLengthMultiply = 1.15f;
 
 using namespace azer;
 TranslationController::TranslationController() 
-    : dragging_(false) {
+    : picking_object_(kPickNone),
+      dragging_(false) {
   object_.reset(new TranslationControllerObject);
   object_->set_length(3.0f);
 }
@@ -57,7 +58,7 @@ void TranslationController::UpdateControllerObjectState(
   SceneNode* node = context_->GetPickingNode();
   DCHECK(node);
   Ray ray = context_->GetPickingRay(location);
-  object_->UpdatePicking(ray);
+  picking_object_ = object_->UpdatePicking(ray);
 }
 
 void TranslationController::OnLostFocus() {
@@ -65,19 +66,128 @@ void TranslationController::OnLostFocus() {
 }
 
 bool TranslationController::OnMousePressed(const ui::MouseEvent& event) {
-  SceneNode* node = NULL;
+  if (!event.IsOnlyLeftMouseButton()) 
+    return false;
+
   if (object_->has_selected()) {
-    return true;
+    dragging_ = true;
+    Ray ray = context_->GetPickingRay(event.location());
+    GetPickingPosOffset(ray, &pos_offset_);
   } else {
-    node = context_->GetObjectFromLocation(event.location());
+    SceneNode* node = context_->GetObjectFromLocation(event.location());
     context_->SetPickingNode(node);
-    UpdateControllerObjectPos();
+    if (node) {
+      UpdateControllerObjectPos();
+    }
   }
   return true;
 }
 
+void TranslationController::GetPickingPosOffset(const Ray& ray, Vector3* pt) {
+  SceneNode* node = context_->GetPickingNode();
+  DCHECK(node);
+  Vector3 pos = node->position();
+  bool parallel;
+  switch (picking_object_) {
+    case kPickXAxis: {
+      Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
+      PickingPlane(ray, pxy, pt, &parallel);
+      break;
+    }
+    case kPickYAxis: {
+      Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
+      PickingPlane(ray, pyz, pt, &parallel);
+      break;
+    }
+    case kPickZAxis: {
+      Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
+      PickingPlane(ray, pzx, pt, &parallel);
+      break;
+    }
+    case kPickXYPlane: {
+      Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
+      PickingPlane(ray, pxy, pt, &parallel);
+      break;
+    }
+    case kPickYZPlane: {
+      Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
+      PickingPlane(ray, pyz, pt, &parallel);
+      break;
+    }
+    case kPickZXPlane: {
+      Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
+      PickingPlane(ray, pzx, pt, &parallel);
+      break;
+    }
+    default:
+      CHECK(false);
+      break;
+  }
+  pt->x = pt->x - pos.x;
+  pt->y = pt->y - pos.y;
+  pt->z = pt->z - pos.z;
+}
+
 bool TranslationController::OnMouseDragged(const ui::MouseEvent& event) {
-  return false;
+  if (dragging_) {
+    SceneNode* node = context_->GetPickingNode();
+    DCHECK(node);
+    Ray ray = context_->GetPickingRay(event.location());
+    bool parallel;
+    Vector3 pt;
+    float kMargin = 0.05f;
+    DCHECK(picking_object_ != kPickNone);
+    Vector3 pos = node->position();
+    switch (picking_object_) {
+      case kPickXAxis: {
+        Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
+        PickingPlane(ray, pxy, &pt, &parallel);
+        pos.x = pt.x - pos_offset_.x;
+        break;
+      }
+      case kPickYAxis: {
+        Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
+        PickingPlane(ray, pyz, &pt, &parallel);
+        pos.y = pt.y - pos_offset_.y;
+        break;
+      }
+      case kPickZAxis: {
+        Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
+        PickingPlane(ray, pzx, &pt, &parallel);
+        pos.z = pt.z - pos_offset_.z;
+        break;
+      }
+      case kPickXYPlane: {
+        Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
+        PickingPlane(ray, pxy, &pt, &parallel);
+        pos.x = pt.x - pos_offset_.x;
+        pos.y = pt.y - pos_offset_.y;
+        break;
+      }
+      case kPickYZPlane: {
+        Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
+        PickingPlane(ray, pyz, &pt, &parallel);
+        pos.y = pt.y - pos_offset_.y;
+        pos.z = pt.z - pos_offset_.z;
+        break;
+      }
+      case kPickZXPlane: {
+        Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
+        PickingPlane(ray, pzx, &pt, &parallel);
+        pos.x = pt.x - pos_offset_.x;
+        pos.z = pt.z - pos_offset_.z;
+        break;
+      }
+      default:
+        CHECK(false);
+        break;
+    }
+
+    object_->SetPosition(pos);
+    node->SetPosition(pos);
+  }
+  
+  return true;
 }
 
 bool TranslationController::OnMouseReleased(const ui::MouseEvent& event) {
@@ -96,11 +206,10 @@ void TranslationController::OnMouseMoved(const ui::MouseEvent& event) {
 void TranslationController::UpdateControllerObjectPos() {
   SceneNode* node = context_->GetPickingNode();
   DCHECK(node);
-  Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
   float radius = node->vmin().distance(node->vmax()) * 0.5f;
   object_->set_length(radius * kAxisLengthMultiply);
   object_->reset_selected();
-  object_->SetPosition(pos);
+  object_->SetPosition(node->position());
 }
 
 TransformAxisObject::TransformAxisObject(DiffuseEffect* effect) 
@@ -271,6 +380,10 @@ void TranslationControllerObject::set_selected_plane(int32 plane) {
   plane_->set_color(selected_color_, plane);
 }
 
+const azer::Vector3& TranslationControllerObject::position() const {
+  return axis_->position();
+}
+
 void TranslationControllerObject::SetPosition(const Vector3& position) {
   axis_->SetPosition(position);
   plane_->SetPosition(position);
@@ -295,7 +408,7 @@ int32 TranslationControllerObject::Picking(const azer::Ray& ray) const {
   return axis_->Picking(ray);
 }
 
-void TranslationControllerObject::UpdatePicking(const azer::Ray& ray) {
+int32 TranslationControllerObject::UpdatePicking(const azer::Ray& ray) {
   reset_selected();
   int32 target = Picking(ray);
   switch (target) {
@@ -323,5 +436,6 @@ void TranslationControllerObject::UpdatePicking(const azer::Ray& ray) {
       set_selected_axis(2);
       break;
   }
+  return target;
 }
 }  // namespace lord

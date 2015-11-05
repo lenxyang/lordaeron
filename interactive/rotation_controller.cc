@@ -98,19 +98,21 @@ bool RotationController::OnMouseDragged(const ui::MouseEvent& event) {
       case kAxisX: {
         float offset = (float)(event.location().y() - location_.y()) / height;
         Radians rad(kPI * 4.0f * offset);
-        node->pitch(rad);
+        node->rotate(Vector3(1.0f, 0.0f, 1.0f), rad);
         break;
       }
       case kAxisY: {
         float offset = (float)(event.location().x() - location_.x()) / width;
         Radians rad(kPI * 4.0f * offset);
-        node->yaw(rad);
+        node->rotate(Vector3(0.0f, 1.0f, 0.0f), rad);
+        // node->yaw(rad);
         break;
       }
       case kAxisZ: {
         float offset = (float)(event.location().x() - location_.x()) / width;
         Radians rad(kPI * 4.0f * offset);
-        node->roll(-rad);
+        node->rotate(Vector3(0.0f, 0.0f, 1.0f), rad);
+        // node->roll(-rad);
         break;
       }
       default:

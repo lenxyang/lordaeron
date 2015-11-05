@@ -258,7 +258,7 @@ void SceneNode::SetPosition(const azer::Vector3& pos) {
   azer::Vector3 org_vmin = vmin_;
   azer::Vector3 org_vmax = vmax_;
   vmin_ = RevertTranformOnPos(vmin_);
-  vmax_ = RevertTranformOnPos(vmin_);
+  vmax_ = RevertTranformOnPos(vmax_);
   mutable_holder()->SetPosition(pos);
   vmin_ = ApplyTranformOnPos(vmin_);
   vmax_ = ApplyTranformOnPos(vmax_);
@@ -273,7 +273,7 @@ void SceneNode::SetScale(const azer::Vector3& v) {
   azer::Vector3 org_vmin = vmin_;
   azer::Vector3 org_vmax = vmax_;
   vmin_ = RevertTranformOnPos(vmin_);
-  vmax_ = RevertTranformOnPos(vmin_);
+  vmax_ = RevertTranformOnPos(vmax_);
   mutable_holder()->SetScale(v);
   vmin_ = ApplyTranformOnPos(vmin_);
   vmax_ = ApplyTranformOnPos(vmax_);
@@ -326,6 +326,13 @@ void SceneNode::yaw(const Degree angle) {
 
 void SceneNode::roll(const Degree angle) {
   mutable_holder()->roll(angle);
+}
+
+void SceneNode::rotate(const Vector3& axis, const Degree angle) {
+  mutable_holder()->rotate(axis, angle);
+}
+void SceneNode::rotate(const Vector3& axis, const Radians angle) {
+  mutable_holder()->rotate(axis, angle);
 }
 
 void SceneNode::set_orientation(const azer::Quaternion& q) {

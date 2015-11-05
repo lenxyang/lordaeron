@@ -26,11 +26,18 @@ void ScaleController::Update(const FrameArgs& args) {
 void ScaleController::Render(Renderer* renderer) {
   SceneNode* node = context_->GetPickingNode();
   if (node) {
-    UpdateControllerObjectPos();
+    const Camera& camera = context_->window()->camera();
+    const Matrix4& pv = camera.GetProjViewMatrix();
+    object_->SetPV(pv);
+    object_->Render(renderer);
   }
 }
 
 void ScaleController::OnOperationStart(InteractiveContext* ctx) {
+  SceneNode* node = context_->GetPickingNode();
+  if (node) {
+    UpdateControllerObjectPos();
+  }
 }
 
 void ScaleController::OnOperationStop() {
