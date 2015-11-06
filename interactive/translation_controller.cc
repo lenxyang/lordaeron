@@ -5,9 +5,10 @@
 #include "azer/render/util.h"
 #include "lordaeron/context.h"
 #include "lordaeron/effect/diffuse_effect.h"
-#include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/interactive/axis_object.h"
+#include "lordaeron/interactive/constants.h"
 #include "lordaeron/interactive/controller_object.h"
+#include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/ui/scene_render_window.h"
 #include "lordaeron/util/picking.h"
@@ -262,7 +263,7 @@ void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
 }
 
 void TransformAxisObject::set_length(float length) {
-  length_ = length;
+  length_ = std::max(length, kControllerMinScale);
   CreatePlane(effect_->GetVertexDesc());
   CreatePlaneFrame(effect_->GetVertexDesc());
 }

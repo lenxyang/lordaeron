@@ -3,6 +3,7 @@
 #include "base/logging.h"
 #include "lordaeron/context.h"
 #include "lordaeron/interactive/axis_object.h"
+#include "lordaeron/interactive/constants.h"
 #include "lordaeron/interactive/controller_object.h"
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/interactive/scale_controller.h"
@@ -123,6 +124,7 @@ void ScaleAxisPlaneObject::set_color(const Vector4& color, int32 index) {
 }
 
 void ScaleAxisPlaneObject::set_length(float length) {
+  length_ = std::max(length, kControllerMinScale);
   axis_length_ = length;
   InitPlane();
   InitPlaneFrame();
