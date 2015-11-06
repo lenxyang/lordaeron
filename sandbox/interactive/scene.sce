@@ -1,5 +1,17 @@
 <scene name="sandbox_scene_config">
   <node name="root">
+   <node name="point" type="light">
+     <location>
+       <position>0.0f, 10.0f, 0.0f</position>
+     </location>
+     
+     <light type="point_light">
+       <ambient>0.1, 0.1, 0.1, 1.0</ambient>
+       <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
+       <specular>0.8, 0.8, 0.8, 1.0</specular>
+       <range>100.0</range>
+     </light>
+   </node>
    <node name="teaport" type="mesh">
      <location>
        <position>0.0f, 0.0f, -3.0f</position>

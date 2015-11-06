@@ -51,6 +51,11 @@ namespace lord {
 using namespace azer;
 
 SceneNodePtr MyRenderWindow::OnInitScene() {
+  Vector3 camera_pos(0.0f, 10.0f, 10.0f);
+  Vector3 lookat(0.0f, 0.0f, 0.0f);
+  Vector3 up(0.0f, 1.0f, 0.0f);
+  mutable_camera()->reset(camera_pos, lookat, up);
+
   effect_ = CreateDiffuseEffect();
   lord::Context* ctx = lord::Context::instance(); 
   fsystem_.reset(new azer::NativeFileSystem(
@@ -72,10 +77,12 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   CHECK(config_root.get());
 
   VertexDescPtr desc = effect_->GetVertexDesc();
+  scoped_ptr<LightNodeLoader> light_loader(new LightNodeLoader());
   scoped_ptr<SimpleSceneNodeLoader> node_loader(new SimpleSceneNodeLoader(
       fsystem_.get(), effect_.get()));
   SceneLoader loader;
   loader.RegisterSceneNodeLoader(node_loader.Pass());
+  loader.RegisterSceneNodeLoader(light_loader.Pass());
   CHECK(loader.Load(root.get(), config_root));
   scene_renderer_.reset(new SceneRender(scene_context_.get(), root.get()));
   return root;

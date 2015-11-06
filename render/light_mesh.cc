@@ -9,11 +9,13 @@ namespace lord {
 using namespace azer;
 
 MeshPtr CreatePointLightMesh() {
+  Context* context = Context::instance();
   MeshPtr mesh = new Mesh;
   DiffuseEffectPtr effect = CreateDiffuseEffect();
   GeometryObjectPtr obj = new SphereObject(effect->GetVertexDesc());
   MeshPartPtr part = obj->CreateObject(effect.get());
   mesh->AddMeshPart(part.get());
+  mesh->SetEffectAdapterContext(context->GetEffectAdapterContext());
   return mesh;
 }
 

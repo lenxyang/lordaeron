@@ -28,12 +28,15 @@ bool SceneArgsUpdator::OnTraverseNodeEnter(SceneNode* node)  {
 
   UpdateNodeWorld(node);
   if (node->type() == SceneNode::kLampNode) {
-    environment_->PushLight(node->mutable_data()->light());
+    Light* light = node->mutable_data()->light();
+    environment_->PushLight(light);
+    azer::Mesh* mesh = light->GetLightMesh();
+    mesh->UpdateProviderParams(*args_);
+    mesh_.push_back(mesh);
   } else if (node->type() == SceneNode::kMeshNode) {
     azer::MeshPtr mesh = node->mutable_data()->GetMesh();
     mesh->UpdateProviderParams(*args_);
     mesh_.push_back(mesh);
-  } else {
   }
 
   return true;
