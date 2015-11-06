@@ -52,6 +52,8 @@ static_library("lordaeron") {
     "render/camera_overlay.h",
     "render/light.cc",
     "render/light.h",
+    "render/light_mesh.cc",
+    "render/light_mesh.h",
     "scene/scene_context.cc",
     "scene/scene_context.h",
     "scene/scene_bounding_volumn.cc",

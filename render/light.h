@@ -34,7 +34,7 @@ class Light : public ::base::RefCounted<Light> {
   const DirLight& dir_light() const;
   DirLight* mutable_dir_light();
 
-  PointLight& point_light() const;
+  const PointLight& point_light() const;
   PointLight* mutable_point_light();
  private:
   LightType type_;

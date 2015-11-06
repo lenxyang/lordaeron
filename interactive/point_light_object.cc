@@ -14,6 +14,7 @@ PointLightObject::PointLightObject() {
   range_color_ = Vector4(1.0f, 1.0f, 1.0f, 0.1f);
   color_ = Vector4(2.0f, 2.0f, 2.0f, 1.0f);
   effect_ = CreateDiffuseEffect();
+  sphere_ = 
 }
 
 PointLightObject::~PointLightObject() {
