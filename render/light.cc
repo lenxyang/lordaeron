@@ -8,6 +8,7 @@ using namespace azer;
 Light::Light(const DirLight& light)
     : type_(kDirectionalLight),
       dir_light_(light) {
+  mesh_ = CreateDirectionalLightMesh();
 }
 
 Light::Light(const PointLight& light) 

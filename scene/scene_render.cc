@@ -34,9 +34,11 @@ bool SceneArgsUpdator::OnTraverseNodeEnter(SceneNode* node)  {
     mesh->UpdateProviderParams(*args_);
     mesh_.push_back(mesh);
   } else if (node->type() == SceneNode::kMeshNode) {
+    /*
     azer::MeshPtr mesh = node->mutable_data()->GetMesh();
     mesh->UpdateProviderParams(*args_);
     mesh_.push_back(mesh);
+    */
   }
 
   return true;

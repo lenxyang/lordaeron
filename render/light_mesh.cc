@@ -8,6 +8,33 @@
 namespace lord {
 using namespace azer;
 
+namespace {
+void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
+                     Vector3* vmin, Vector3* vmax) {
+  VertexDesc* desc = vdata->desc();
+  VertexPos posidx(0, 0);
+  VertexPos normalidx;
+  bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normalidx);
+  Vector4 pos, normal;
+  VertexPack vpack(vdata);
+  vpack.first();
+  while (!vpack.end()) {
+    vpack.ReadVector4(&pos, posidx);
+    pos = trans * pos;
+    vpack.WriteVector4(pos, posidx);
+    UpdateVMinAndVMax(Vector3(pos.x, pos.y, pos.z), vmin, vmax);
+    if (kHasNormal0Idx) {
+      vpack.ReadVector4(&normal, normalidx);
+      normal = trans * normal;
+      normal.Normalize();
+      vpack.WriteVector4(normal, normalidx);
+    }
+
+    vpack.next(1);
+  }
+}
+}  // namespace
+
 MeshPtr CreatePointLightMesh() {
   Context* context = Context::instance();
   MeshPtr mesh = new Mesh;
@@ -24,7 +51,61 @@ MeshPtr CreateSpotLightMesh() {
 }
 
 MeshPtr CreateDirectionalLightMesh() {
-  return MeshPtr();
+  const float kConeHeight = 0.3f;
+  const float kConeRadius = 0.2f;
+  const float kConeY = 0.8f;
+  const float kCylinderRadius = 0.08f;
+  Context* context = Context::instance();
+  RenderSystem* rs = RenderSystem::Current();
+  MeshPtr mesh = new Mesh;
+  DiffuseEffectPtr effect = CreateDiffuseEffect();
+
+  Matrix4 rotation = std::move(RotateX(Degree(-90.0f)));
+  {
+    // create VertexData
+    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
+    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
+    SlotVertexDataPtr vdata = InitConeVertexData(32, effect->GetVertexDesc());
+    IndicesDataPtr idata = InitConeIndicesData(32);
+    VertexPack vpack(vdata.get());
+    Matrix4 trans = std::move(RotateX(Degree(-90.0f)))
+        * std::move(Translate(0.0f, kConeY, 0.0f)) 
+        * std::move(Scale(kConeRadius, kConeHeight, kConeRadius));
+    TransformVertex(trans, vdata.get(), &vmin, &vmax);
+    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
+    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
+    MeshPartPtr part = new MeshPart(effect.get());
+    EntityPtr entity(new Entity(vb, ib));
+    *entity->mutable_vmin() = vmin;
+    *entity->mutable_vmax() = vmax;
+    part->AddEntity(entity);
+    mesh->AddMeshPart(part);
+  }
+
+  {
+    // create VertexData
+    const int32 kStack = 10, kSlice = 32;
+    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
+    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
+    SlotVertexDataPtr vdata = InitCylinderVertexData(1.0f, 1.0f, kStack, kSlice, 
+                                                     effect->GetVertexDesc());
+    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
+    VertexPack vpack(vdata.get());
+    Matrix4 trans = std::move(RotateX(Degree(-90.0f)))
+        * std::move(Scale(kCylinderRadius, kConeY, kCylinderRadius));
+    TransformVertex(trans, vdata.get(), &vmin, &vmax);
+    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
+    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
+    MeshPartPtr part = new MeshPart(effect.get());
+    EntityPtr entity(new Entity(vb, ib));
+    *entity->mutable_vmin() = vmin;
+    *entity->mutable_vmax() = vmax;
+    part->AddEntity(entity);
+    mesh->AddMeshPart(part);
+  }
+
+  mesh->SetEffectAdapterContext(context->GetEffectAdapterContext());
+  return mesh;
 }
 
 LightColorProvider::LightColorProvider(Light* light) 
@@ -56,6 +137,6 @@ void LightColorDiffuseEffectAdapter::Apply(
   DCHECK(effect);
   const LightColorProvider* provider = dynamic_cast<const LightColorProvider*>(params);
   DCHECK(provider);
-  effect->SetColor(provider->color());
+  effect->SetColor(provider->color() * 3);
 }
 }  // namespace lord

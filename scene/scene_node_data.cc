@@ -53,5 +53,8 @@ void SceneNodeData::AttachLight(LightPtr light) {
   SceneNodeParamsPtr params(new SceneNodeParams(node_));
   light_mesh->AddProvider(params);
   light_mesh->AddProvider(node_->context()->GetGlobalEnvironment());
+  
+  node_->SetMin(light_mesh->vmin());
+  node_->SetMax(light_mesh->vmax());
 }
 }  // namespace loard

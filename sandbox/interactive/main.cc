@@ -51,7 +51,7 @@ namespace lord {
 using namespace azer;
 
 SceneNodePtr MyRenderWindow::OnInitScene() {
-  Vector3 camera_pos(0.0f, 10.0f, 10.0f);
+  Vector3 camera_pos(10.0f, 10.0f, 10.0f);
   Vector3 lookat(0.0f, 0.0f, 0.0f);
   Vector3 up(0.0f, 1.0f, 0.0f);
   mutable_camera()->reset(camera_pos, lookat, up);
@@ -72,7 +72,7 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
 
   std::string contents;
   base::ReadFileToString(base::FilePath(
-      FILE_PATH_LITERAL("lordaeron/sandbox/interactive/scene.sce")), &contents);
+      FILE_PATH_LITERAL("lordaeron/sandbox/interactive/scene.xml")), &contents);
   ConfigNodePtr config_root = ConfigNode::InitFromXMLStr(contents);
   CHECK(config_root.get());
 
