@@ -6,6 +6,31 @@
 #include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
+namespace {
+using namespace azer;
+void CalcSceneOrientForZDirection(const Vector3& dir, Quaternion* orient) {
+  Vector3 axis;
+  if (dir.x > 0 && dir.z > 0) 
+    axis = Vector3(1.0f, 0.0f, 0.0f);
+  else if (dir.x > 0 && dir.z < 0)
+    axis = Vector3(0.0f, 0.0f, -1.0f);
+  else if (dir.x < 0 && dir.z < 0)
+    axis = Vector3(-1.0f, 0.0f, 0.0f);
+  else if (dir.x < 0 && dir.z > 0)
+    axis = Vector3(0.0f, 0.0f, 1.0f);
+  else
+    axis = Vector3(1.0f, 0.0f, 0.0f);
+
+  axis.Normalize();
+  Vector3 v = dir.cross(axis);
+  Vector3 v2 = v.cross(dir);
+  Vector3 x_axis = v2.NormalizeCopy();
+  Vector3 y_axis = v.NormalizeCopy();
+  Vector3 z_axis = dir.NormalizeCopy();
+  *orient = Quaternion::FromAxis(x_axis, y_axis, z_axis);
+}
+}
+
 LightNodeLoader::LightNodeLoader() {
 }
 
@@ -61,6 +86,9 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
     CHECK(light_node->GetChildTextAsVec4("directional", &light.dir))
         << "light node has directional";
     LightPtr ptr(new Light(light));
+    Quaternion orient;
+    CalcSceneOrientForZDirection(light.dir, &orient);
+    node->set_orientation(orient);
     node->mutable_data()->AttachLight(ptr);
     return true;
   } else {

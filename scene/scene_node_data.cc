@@ -12,9 +12,12 @@ using namespace azer;
 SceneNodeData::SceneNodeData(SceneNode* node)
     : type_(SceneNode::kEmptyNode),
       node_(node) {
+  node->AddObserver(this);
 }
 
 SceneNodeData::~SceneNodeData() {
+  // neednot to Remove observer, because it will be release by SceneNode
+  // node_->RemoveObserver(this);
 }
 
 MeshPtr SceneNodeData::GetMesh() {
@@ -56,5 +59,15 @@ void SceneNodeData::AttachLight(LightPtr light) {
   
   node_->SetMin(light_mesh->vmin());
   node_->SetMax(light_mesh->vmax());
+}
+
+
+void SceneNodeData::OnSceneNodeOrientationChanged(
+    SceneNode* node, const azer::Quaternion& prev_orient) {
+  if (node_->type() == SceneNode::kLampNode && light_->type() == kDirectionalLight) {
+    Matrix4 rotation = std::move(node->orientation().ToMatrix());
+    Vector4 newdir = rotation * Vector4(0.0f, 0.0f, 1.0f, 0.0f);
+    light_->mutable_dir_light()->dir = newdir;
+  }
 }
 }  // namespace loard

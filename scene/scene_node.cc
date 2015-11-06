@@ -9,6 +9,7 @@
 #include "lordaeron/scene/scene_bounding_volumn.h"
 #include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_node_data.h"
+#include "lordaeron/scene/scene_node_observer.h"
 
 namespace lord {
 using namespace azer;
@@ -173,7 +174,7 @@ bool SceneNode::is_draw_bounding_volumn() const {
   return bounding_volumn_.get() != NULL;
 }
 
-azer::Mesh* SceneNode::bounding_volumn() {
+Mesh* SceneNode::bounding_volumn() {
   return bounding_volumn_.get();
 }
 
@@ -206,8 +207,8 @@ SceneContext* SceneNode::context() {
 }
 
 void SceneNode::CalcChildrenBoundingVector() {
-  azer::Vector3 vmin = azer::Vector3(99999.0f, 99999.0f, 99999.0f);
-  azer::Vector3 vmax = azer::Vector3(-99999.0f, -99999.0f, -99999.0f);
+  Vector3 vmin = Vector3(99999.0f, 99999.0f, 99999.0f);
+  Vector3 vmax = Vector3(-99999.0f, -99999.0f, -99999.0f);
   for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
     SceneNode* child = (*iter).get();
     UpdateVMinAndVMax(child->vmin(), &vmin, &vmax);
@@ -226,16 +227,9 @@ void SceneNode::UpdateBoundingHierarchy() {
   }
 }
 
-void SceneNode::BoundingChanged(const azer::Vector3& orgmin, 
-                                const azer::Vector3& orgmax) {
-  if (parent()) {
-    parent()->CalcChildrenBoundingVector();
-  }
-}
-
-azer::Vector3 SceneNode::RevertTranformOnPos(const azer::Vector3& v) {
-  azer::Vector3 inverse_scale = scale().InverseCopy();
-  azer::Vector3 ret = v;
+Vector3 SceneNode::RevertTranformOnPos(const Vector3& v) {
+  Vector3 inverse_scale = scale().InverseCopy();
+  Vector3 ret = v;
   ret -= holder().position();
   ret.x = inverse_scale.x * ret.x;
   ret.y = inverse_scale.y * ret.y;
@@ -243,9 +237,9 @@ azer::Vector3 SceneNode::RevertTranformOnPos(const azer::Vector3& v) {
   return ret;
 }
 
-azer::Vector3  SceneNode::ApplyTranformOnPos(const azer::Vector3 &v) {
-  azer::Vector3 s = scale();
-  azer::Vector3 ret = v;
+Vector3  SceneNode::ApplyTranformOnPos(const Vector3 &v) {
+  Vector3 s = scale();
+  Vector3 ret = v;
   ret.x = s.x * ret.x;
   ret.y = s.y * ret.y;
   ret.z = s.z * ret.z;
@@ -254,9 +248,9 @@ azer::Vector3  SceneNode::ApplyTranformOnPos(const azer::Vector3 &v) {
   return ret;
 }
 
-void SceneNode::SetPosition(const azer::Vector3& pos) {
-  azer::Vector3 org_vmin = vmin_;
-  azer::Vector3 org_vmax = vmax_;
+void SceneNode::SetPosition(const Vector3& pos) {
+  Vector3 org_vmin = vmin_;
+  Vector3 org_vmax = vmax_;
   vmin_ = RevertTranformOnPos(vmin_);
   vmax_ = RevertTranformOnPos(vmax_);
   mutable_holder()->SetPosition(pos);
@@ -264,43 +258,43 @@ void SceneNode::SetPosition(const azer::Vector3& pos) {
   vmax_ = ApplyTranformOnPos(vmax_);
 
   if (vmin_ != org_vmin || vmax_ != org_vmax) {
-    BoundingChanged(org_vmin, org_vmax);
+    BoundsChanged(org_vmin, org_vmax);
   }
 }
 
-void SceneNode::SetScale(const azer::Vector3& v) {
+void SceneNode::SetScale(const Vector3& v) {
   using namespace azer;
-  azer::Vector3 org_vmin = vmin_;
-  azer::Vector3 org_vmax = vmax_;
+  Vector3 org_vmin = vmin_;
+  Vector3 org_vmax = vmax_;
   vmin_ = RevertTranformOnPos(vmin_);
   vmax_ = RevertTranformOnPos(vmax_);
   mutable_holder()->SetScale(v);
   vmin_ = ApplyTranformOnPos(vmin_);
   vmax_ = ApplyTranformOnPos(vmax_);
   if (vmin_ != org_vmin || vmax_ != org_vmax) {
-    BoundingChanged(org_vmin, org_vmax);
+    BoundsChanged(org_vmin, org_vmax);
   }
 }
 
-void SceneNode::SetMin(const azer::Vector3& v) {
-  azer::Vector3 s = holder().scale();
-  azer::Vector3 pos = holder().position();
+void SceneNode::SetMin(const Vector3& v) {
+  Vector3 s = holder().scale();
+  Vector3 pos = holder().position();
 
-  azer::Vector3 org_vmin = vmin_;
+  Vector3 org_vmin = vmin_;
   vmin_ = ApplyTranformOnPos(v);
 
   if (vmin_ != org_vmin) {
-    BoundingChanged(org_vmin, vmax_);
+    BoundsChanged(org_vmin, vmax_);
   }
 }
 
-void SceneNode::SetMax(const azer::Vector3& v) {
-  azer::Vector3 s = holder().scale();
-  azer::Vector3 pos = holder().position();
-  azer::Vector3 org_vmax = vmax_;
+void SceneNode::SetMax(const Vector3& v) {
+  Vector3 s = holder().scale();
+  Vector3 pos = holder().position();
+  Vector3 org_vmax = vmax_;
   vmax_ = ApplyTranformOnPos(v);
   if (vmax_ != org_vmax) {
-    BoundingChanged(vmin_, org_vmax);
+    BoundsChanged(vmin_, org_vmax);
   }
 }
 
@@ -335,7 +329,42 @@ void SceneNode::rotate(const Vector3& axis, const Radians angle) {
   mutable_holder()->rotate(axis, angle);
 }
 
-void SceneNode::set_orientation(const azer::Quaternion& q) {
+void SceneNode::set_orientation(const Quaternion& q) {
   mutable_holder()->set_orientation(q);
+}
+
+// observers
+void SceneNode::LocationChanged(const Vector3& orgpos) {
+  FOR_EACH_OBSERVER(SceneNodeObserver, 
+                    observers_, 
+                    OnSceneNodeLocationChanged(this, orgpos));
+}
+
+void SceneNode::OrientationChanged(const Quaternion& origin_orient) {
+  FOR_EACH_OBSERVER(SceneNodeObserver, 
+                    observers_, 
+                    OnSceneNodeOrientationChanged(this, origin_orient));
+}
+
+void SceneNode::BoundsChanged(const Vector3& orgmin, const Vector3& orgmax) {
+  if (parent()) {
+    parent()->CalcChildrenBoundingVector();
+  }
+
+  FOR_EACH_OBSERVER(SceneNodeObserver, 
+                    observers_, 
+                    OnSceneNodeBoundsChanged(this, orgmin, orgmax));
+}
+
+void SceneNode::AddObserver(SceneNodeObserver* observer) {
+  observers_.AddObserver(observer);
+}
+
+void SceneNode::RemoveObserver(SceneNodeObserver* observer) {
+  observers_.RemoveObserver(observer);
+}
+
+bool SceneNode::HasObserver(SceneNodeObserver* observer) {
+  return observers_.HasObserver(observer);
 }
 }  // namespace lord

@@ -21,7 +21,7 @@
         <ambient>0.1, 0.1, 0.1, 1.0</ambient>
         <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
         <specular>0.8, 0.8, 0.8, 1.0</specular>
-        <directional>0.0, 0.0, 1.0, 1.0</directional>
+        <directional>1.0, 0.0, 1.0, 1.0</directional>
       </light>
     </node>
     <node name="teaport" type="mesh">

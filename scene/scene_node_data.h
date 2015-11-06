@@ -3,10 +3,11 @@
 #include "base/basictypes.h"
 #include "base/memory/ref_counted.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/scene/scene_node_observer.h"
 #include "lordaeron/render/light.h"
 
 namespace lord {
-class SceneNodeData {
+class SceneNodeData : public SceneNodeObserver {
  public:
   SceneNodeData(SceneNode* node);
   ~SceneNodeData();
@@ -23,8 +24,11 @@ class SceneNodeData {
 
   void SetSceneNode(SceneNode* node);
  private:
-  SceneNode::Type type_;
+  // override SceneNodeObserver
+  void OnSceneNodeOrientationChanged(SceneNode* node, 
+                                     const azer::Quaternion& prev_orient) override;
 
+  SceneNode::Type type_;
   azer::MeshPtr mesh_;
   LightPtr light_;
   SceneNode* node_;

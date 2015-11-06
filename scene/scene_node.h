@@ -108,9 +108,15 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   azer::Matrix4* mutable_world() { return &world_;}
   const azer::Matrix4& world() const { return world_;}
 
+  void AddObserver(SceneNodeObserver* observer); 
+  void RemoveObserver(SceneNodeObserver* observer);
+  bool HasObserver(SceneNodeObserver* observer);
+
   SceneContext* context();
  protected:
-  void BoundingChanged(const azer::Vector3& orgmin, const azer::Vector3& orgmax);
+  void BoundsChanged(const azer::Vector3& orgmin, const azer::Vector3& orgmax);
+  void LocationChanged(const azer::Vector3& orgpos);
+  void OrientationChanged(const azer::Quaternion& origin_orient);
   azer::Vector3 RevertTranformOnPos(const azer::Vector3& vector);
   azer::Vector3 ApplyTranformOnPos(const azer::Vector3& vector);
   void UpdateBoundingHierarchy();
@@ -136,6 +142,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   azer::Vector3 vmax_;
 
   SceneContextPtr context_;
+  ObserverList<SceneNodeObserver> observers_;
   DISALLOW_COPY_AND_ASSIGN(SceneNode);
 };
 
