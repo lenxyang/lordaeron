@@ -11,7 +11,16 @@
 #include "lordaeron/util/picking.h"
 
 namespace lord {
+
+// class TransformAxisObject
+namespace {
+const float kPlaneLength = 0.20f;
+const float kAxisLengthMultiply = 1.15f;
+}
+
 using namespace azer;
+
+
 ScaleController::ScaleController() {
   object_.reset(new ScaleControllerObject);
 }
@@ -48,6 +57,16 @@ void ScaleController::OnLostFocus() {
 }
 
 bool ScaleController::OnMousePressed(const ui::MouseEvent& event) {
+  if (!event.IsOnlyLeftMouseButton()) 
+    return false;
+
+  SceneNode* node = context_->GetObjectFromLocation(event.location());
+  context_->SetPickingNode(node);
+  if (node) {
+    float radius = node->vmin().distance(node->vmax()) * 0.5f;
+    object_->set_length(radius * kAxisLengthMultiply);
+    object_->SetPosition(node->position());
+  }
   return true;
 }
 
@@ -66,11 +85,10 @@ void ScaleController::UpdateControllerObjectPos() {
   const float kAxisLengthMultiply = 1.1f;
   SceneNode* node = context_->GetPickingNode();
   DCHECK(node);
-  Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
   float radius = node->vmin().distance(node->vmax()) * 0.5f;
   object_->set_length(radius * kAxisLengthMultiply);
   object_->reset_selected();
-  object_->SetPosition(pos);
+  object_->SetPosition(node->position());
 }
 
 // class ScaleAxisPlaneObject
@@ -85,12 +103,18 @@ ScaleAxisPlaneObject::ScaleAxisPlaneObject(DiffuseEffect* effect)
   rotation_[1] = Matrix4::kIdentity;
   rotation_[2] = std::move(MirrorTrans(xzplane)) * 
       std::move(RotateX(Degree(-90.0f)));
+  reset_color();
+  set_length(1.0f);
+}
+
+ScaleAxisPlaneObject::~ScaleAxisPlaneObject() {
 }
 
 void ScaleAxisPlaneObject::reset_color() {
-  color_[0] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);  // xy
-  color_[1] = Vector4(1.0f, 0.0f, 0.0f, 1.0f);  // yz
-  color_[2] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);  // zy
+  color_[0] = Vector4(0.0f, 0.0f, 1.0f, 0.3f);  // xy
+  color_[1] = Vector4(0.0f, 1.0f, 0.0f, 0.3f);  // yz
+  color_[2] = Vector4(1.0f, 0.0f, 0.0f, 0.3f);  // zy
+  color_[3] = Vector4(1.0f, 1.0f, 1.0f, 0.3f);  // zy
 }
 
 void ScaleAxisPlaneObject::set_color(const Vector4& color, int32 index) {
@@ -98,13 +122,11 @@ void ScaleAxisPlaneObject::set_color(const Vector4& color, int32 index) {
   color_[index] = color;
 }
 
-ScaleAxisPlaneObject::~ScaleAxisPlaneObject() {
-}
-
 void ScaleAxisPlaneObject::set_length(float length) {
   axis_length_ = length;
   InitPlane();
   InitPlaneFrame();
+  InitCenterPlane();
 }
 
 void ScaleAxisPlaneObject::SetPosition(const Vector3& pos) {
@@ -113,20 +135,29 @@ void ScaleAxisPlaneObject::SetPosition(const Vector3& pos) {
 
 void ScaleAxisPlaneObject::InitPlane() {
   Vector4 pos[4] = {
-    Vector4(0.0f, outer_ * axis_length_, 0.0f, 1.0f),
     Vector4(outer_ * axis_length_, 0.0f, 0.0f, 1.0f),
+    Vector4(0.0f, 0.0f, outer_ * axis_length_, 1.0f),
+    Vector4(0.0f, 0.0f, inner_ * axis_length_, 1.0f),
     Vector4(inner_ * axis_length_, 0.0f, 0.0f, 1.0f),
-    Vector4(0.0f, inner_ * axis_length_, 0.0f, 1.0f),
   };
   plane_ = lord::CreatePlane(pos, effect_->GetVertexDesc());
 }
 
+void ScaleAxisPlaneObject::InitCenterPlane() {
+  Vector4 pos[4] = {
+    Vector4(0.0f, 0.0f, inner_ * axis_length_, 1.0f),
+    Vector4(0.0f, inner_ * axis_length_, 0.0f, 1.0f),
+    Vector4(inner_ * axis_length_, 0.0f, 0.0f, 1.0f),
+  };
+  center_plane_ = lord::CreatePlane(pos, effect_->GetVertexDesc());
+}
+
 void ScaleAxisPlaneObject::InitPlaneFrame() {
   Vector4 pos[4] = {
-    Vector4(0.0f, outer_ * axis_length_, 0.0f, 1.0f),
     Vector4(outer_ * axis_length_, 0.0f, 0.0f, 1.0f),
+    Vector4(0.0f, 0.0f, outer_ * axis_length_, 1.0f),
+    Vector4(0.0f, 0.0f, inner_ * axis_length_, 1.0f),
     Vector4(inner_ * axis_length_, 0.0f, 0.0f, 1.0f),
-    Vector4(0.0f, inner_ * axis_length_, 0.0f, 1.0f),
   };
   plane_frame_ = CreateLineList(pos, (int32)arraysize(pos), effect_->GetVertexDesc());
 }
@@ -142,22 +173,29 @@ void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
   renderer->SetCullingMode(kCullNone);
   for (int32 i = 0; i < 3; ++i) {
     Matrix4 lworld = std::move(world_ * rotation_[i]);
-    renderer->UseEffect(effect_.get());
     effect_->SetDirLight(context->GetInternalLight());
     effect_->SetColor(color_[i]);
     effect_->SetPV(pv);
     effect_->SetWorld(lworld);
+    renderer->UseEffect(effect_.get());
     plane_->Render(renderer);
   }
+
+  effect_->SetDirLight(context->GetInternalLight());
+  effect_->SetColor(color_[3]);
+  effect_->SetPV(pv);
+  effect_->SetWorld(world_);
+  renderer->UseEffect(effect_.get());
+  center_plane_->Render(renderer);
   renderer->ResetBlending();
 
   for (int32 i = 0; i < 3; ++i) {
     Matrix4 lworld = std::move(world_ * rotation_[i]);
-    renderer->UseEffect(effect_.get());
     effect_->SetDirLight(context->GetInternalLight());
     effect_->SetColor(color_[i]);
     effect_->SetPV(pv);
     effect_->SetWorld(lworld);
+    renderer->UseEffect(effect_.get());
     plane_frame_->Render(renderer);
   }
 

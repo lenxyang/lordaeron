@@ -264,6 +264,7 @@ void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
 void TransformAxisObject::set_length(float length) {
   length_ = length;
   CreatePlane(effect_->GetVertexDesc());
+  CreatePlaneFrame(effect_->GetVertexDesc());
 }
 
 void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
@@ -273,17 +274,6 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
   Matrix4 world = Translate(position_);
 
   int32 count = static_cast<int32>(arraysize(rotation_));
-  for (int32 i = 0; i < count; ++i) {
-    Matrix4 lworld = std::move(world * rotation_[i]);
-    effect_->SetDirLight(context->GetInternalLight());
-    effect_->SetPV(pv);
-    effect_->SetWorld(lworld);
-    effect_->SetColor(color_[i]);
-    renderer->UseEffect(effect_.get());
-    plane_frame_->Draw(renderer);
-  }
-
-
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
   renderer->EnableDepthTest(false);
@@ -299,6 +289,17 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
   }
 
   renderer->ResetBlending();
+
+  for (int32 i = 0; i < count; ++i) {
+    Matrix4 lworld = std::move(world * rotation_[i]);
+    effect_->SetDirLight(context->GetInternalLight());
+    effect_->SetPV(pv);
+    effect_->SetWorld(lworld);
+    effect_->SetColor(color_[i]);
+    renderer->UseEffect(effect_.get());
+    plane_frame_->Draw(renderer);
+  }
+
   renderer->EnableDepthTest(depth_enable);
   renderer->SetCullingMode(culling);
 }

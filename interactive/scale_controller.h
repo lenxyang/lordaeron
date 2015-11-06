@@ -50,13 +50,15 @@ class ScaleAxisPlaneObject {
  private:
   void InitPlane();
   void InitPlaneFrame();
+  void InitCenterPlane();
   float axis_length_;
   float inner_;
   float outer_;
-  azer::Vector4 color_[3];
+  azer::Vector4 color_[4];
   azer::Matrix4 world_;
   azer::Matrix4 rotation_[3];
   azer::EntityPtr plane_;
+  azer::EntityPtr center_plane_;
   azer::EntityPtr plane_frame_;
   DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(ScaleAxisPlaneObject);
