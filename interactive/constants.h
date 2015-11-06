@@ -1,5 +1,5 @@
 #pragma once
 
 namespace lord {
-const float kControllerMinScale = 1.0f;
+const float kControllerMinScale = 3.0f;
 }

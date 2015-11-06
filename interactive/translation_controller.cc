@@ -263,7 +263,7 @@ void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
 }
 
 void TransformAxisObject::set_length(float length) {
-  length_ = std::max(length, kControllerMinScale);
+  length_ = length;
   CreatePlane(effect_->GetVertexDesc());
   CreatePlaneFrame(effect_->GetVertexDesc());
 }
@@ -391,7 +391,8 @@ void TranslationControllerObject::SetPosition(const Vector3& position) {
   plane_->SetPosition(position);
 }
 
-void TranslationControllerObject::set_length(float scale) {
+void TranslationControllerObject::set_length(float s) {
+  float scale = std::max(s, kControllerMinScale);
   plane_->set_length(scale);
   axis_->set_length(scale);
 }

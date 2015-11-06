@@ -69,7 +69,7 @@ MeshPtr CreateDirectionalLightMesh() {
     IndicesDataPtr idata = InitConeIndicesData(32);
     VertexPack vpack(vdata.get());
     Matrix4 trans = std::move(RotateX(Degree(-90.0f)))
-        * std::move(Translate(0.0f, kConeY, 0.0f)) 
+        * std::move(Translate(0.0f, kConeY - 0.5f, 0.0f)) 
         * std::move(Scale(kConeRadius, kConeHeight, kConeRadius));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
@@ -92,6 +92,7 @@ MeshPtr CreateDirectionalLightMesh() {
     IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
     VertexPack vpack(vdata.get());
     Matrix4 trans = std::move(RotateX(Degree(-90.0f)))
+        * std::move(Translate(0.0f, -0.5, 0.0f)) 
         * std::move(Scale(kCylinderRadius, kConeY, kCylinderRadius));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);

@@ -123,8 +123,8 @@ void ScaleAxisPlaneObject::set_color(const Vector4& color, int32 index) {
   color_[index] = color;
 }
 
-void ScaleAxisPlaneObject::set_length(float length) {
-  length_ = std::max(length, kControllerMinScale);
+void ScaleAxisPlaneObject::set_length(float l) {
+  float length = std::max(l, kControllerMinScale);
   axis_length_ = length;
   InitPlane();
   InitPlaneFrame();
@@ -150,6 +150,7 @@ void ScaleAxisPlaneObject::InitCenterPlane() {
     Vector4(0.0f, 0.0f, inner_ * axis_length_, 1.0f),
     Vector4(0.0f, inner_ * axis_length_, 0.0f, 1.0f),
     Vector4(inner_ * axis_length_, 0.0f, 0.0f, 1.0f),
+    Vector4(0.0f, 0.0f, inner_ * axis_length_, 1.0f),
   };
   center_plane_ = lord::CreatePlane(pos, effect_->GetVertexDesc());
 }
