@@ -19,14 +19,6 @@ namespace {
 = LAZY_INSTANCE_INITIALIZER;
 }
 
-// namespace
-namespace {
-class BoundingBoxEntity : public azer::Entity {
- public:
- private:
-};
-}
-
 SceneBVProvider::SceneBVProvider(SceneNode* node)
     : node_(node),
       color_(Vector4(1.0f, 0.0f, 0.0f, 0.3f)) {

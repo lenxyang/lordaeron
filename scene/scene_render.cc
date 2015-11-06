@@ -1,5 +1,7 @@
 #include "lordaeron/scene/scene_render.h"
 
+#include "lordaeron/render/light.h"
+#include "lordaeron/render/light_mesh.h"
 #include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_environment.h"
 #include "lordaeron/scene/scene_node.h"

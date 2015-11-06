@@ -62,8 +62,6 @@ static_library("lordaeron") {
     "scene/scene_environment.h",
     "scene/scene_loader.cc",
     "scene/scene_loader.h",
-    "scene/scene_mesh.cc",
-    "scene/scene_mesh.h",
     "scene/scene_node.cc",
     "scene/scene_node.h",
     "scene/scene_node_data.cc",
