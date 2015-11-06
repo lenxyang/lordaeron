@@ -16,27 +16,25 @@ void InitMeshEffect(azer::Effect* effect, azer::Mesh* mesh) {
   }
 }
 
-class SimpleSceneLoaderDelegate : public SceneLoaderDelegate {
+class SimpleSceneNodeLoader : public SceneNodeLoader {
  public:
-  SimpleSceneLoaderDelegate(azer::FileSystem* fs, azer::Effect* effect)
+  SimpleSceneNodeLoader(azer::FileSystem* fs, azer::Effect* effect)
       : fsystem_(fs), effect_(effect) {}
-  bool InitSceneNode(SceneNode* node, azer::ConfigNode* config) override {
+  virtual const char* node_type_name() const { return "mesh";}
+  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config) override {
     using azer::ConfigNode;
     Context* ctx = Context::instance(); 
     const std::string& type =  config->GetAttr("type");
-    if (type == "mesh") {
-      DCHECK(config->HasNamedChild("mesh"));
-      ConfigNode* mesh_node = config->GetNamedChildren("mesh")[0];
-      DCHECK(mesh_node->HasNamedChild("provider"));
-      ConfigNode* provider_node = mesh_node->GetNamedChildren("provider")[0];
-      azer::MeshPtr mesh = LoadMesh(mesh_node);
-      mesh->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
-      mesh->AddProvider(LoadProvider(provider_node));
-      node->mutable_data()->AttachMesh(mesh);
-      return true;
-    } else {
-      return true;
-    }
+    DCHECK(type == "mesh");
+    DCHECK(config->HasNamedChild("mesh"));
+    ConfigNode* mesh_node = config->GetNamedChildren("mesh")[0];
+    DCHECK(mesh_node->HasNamedChild("provider"));
+    ConfigNode* provider_node = mesh_node->GetNamedChildren("provider")[0];
+    azer::MeshPtr mesh = LoadMesh(mesh_node);
+    mesh->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
+    mesh->AddProvider(LoadProvider(provider_node));
+    node->mutable_data()->AttachMesh(mesh);
+    return true;
   }
   
   azer::MeshPtr LoadMesh(azer::ConfigNode* config) {

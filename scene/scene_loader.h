@@ -41,15 +41,19 @@ namespace lord {
 class SceneNode;
 class SceneNodeData;
 
-class SceneLoaderDelegate {
+class SceneNodeLoader {
  public:
-  virtual bool InitSceneNode(SceneNode* node, azer::ConfigNode* config) = 0;
+  virtual const char* node_type_name() const = 0;
+  virtual bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config) = 0;
 };
 
 class SceneLoader {
  public:
-  explicit SceneLoader(SceneLoaderDelegate* delegate);
+  explicit SceneLoader();
   ~SceneLoader();
+
+  SceneNodeLoader* GetLoader(const std::string& name);
+  void RegisterSceneNodeLoader(scoped_ptr<SceneNodeLoader> loader);
 
   // Load Scene
   bool Load(SceneNode* root, azer::ConfigNode* config_root);
@@ -59,7 +63,7 @@ class SceneLoader {
   bool LoadChildrenNode(SceneNode* node, azer::ConfigNode* config);
   bool LoadSceneLocation(SceneNode* node, azer::ConfigNode* config);
 
-  SceneLoaderDelegate* delegate_;
+  std::map<std::string, scoped_ptr<SceneNodeLoader> >loader_map_;
   DISALLOW_COPY_AND_ASSIGN(SceneLoader);
 };
 }

@@ -6,24 +6,25 @@
 
 namespace lord {
 struct DirLight {
-  azer::Vector4 dir;
   azer::Vector4 diffuse;
   azer::Vector4 ambient;
   azer::Vector4 specular;
+  azer::Vector4 dir;
 };
 
 struct PointLight {
-  azer::Vector3 position;
-  float range;
   azer::Vector4 diffuse;
   azer::Vector4 ambient;
   azer::Vector4 specular;
+  azer::Vector3 position;
+  float range;
 };
 
 struct SpotLight {
   azer::Vector4 diffuse;
   azer::Vector4 ambient;
   azer::Vector4 specular;
+  azer::Vector3 position;
 };
 
 enum LightType {
@@ -36,6 +37,7 @@ class Light : public ::base::RefCounted<Light> {
  public:
   explicit Light(const DirLight& light);
   explicit Light(const PointLight& light);
+  explicit Light(const SpotLight& light);
   LightType type() const { return type_;}
 
   const azer::Vector4& diffuse() const;

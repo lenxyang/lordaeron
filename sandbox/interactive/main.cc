@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "lordaeron/sandbox/sandbox.h"
+#include "lordaeron/sandbox/interactive/scene_node_loader.h"
 #include "lordaeron/interactive/fps_camera_controller.h"
 
 using views::Widget;
@@ -71,8 +72,10 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   CHECK(config_root.get());
 
   VertexDescPtr desc = effect_->GetVertexDesc();
-  SimpleSceneLoaderDelegate delegate(fsystem_.get(), effect_.get());
-  SceneLoader loader(&delegate);
+  scoped_ptr<SimpleSceneNodeLoader> node_loader(new SimpleSceneNodeLoader(
+      fsystem_.get(), effect_.get()));
+  SceneLoader loader;
+  loader.RegisterSceneNodeLoader(node_loader.Pass());
   CHECK(loader.Load(root.get(), config_root));
   scene_renderer_.reset(new SceneRender(scene_context_.get(), root.get()));
   return root;

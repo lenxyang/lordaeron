@@ -16,6 +16,12 @@ Light::Light(const PointLight& light)
   mesh_ = CreatePointLightMesh();
 }
 
+Light::Light(const SpotLight& light)
+    : type_(kSpotLight),
+      spot_light_(light) {
+  mesh_ = CreateSpotLightMesh();
+}
+
 const DirLight& Light::dir_light() const {
   CHECK(type() == kDirectionalLight);
   return dir_light_;

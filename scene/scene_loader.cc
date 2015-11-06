@@ -8,11 +8,24 @@ namespace lord {
 using azer::ConfigNode;
 using azer::ConfigNodePtr;
 
-SceneLoader::SceneLoader(SceneLoaderDelegate* delegate)
-    : delegate_(delegate) {
+SceneLoader::SceneLoader() {
 }
 
 SceneLoader::~SceneLoader() {
+}
+
+SceneNodeLoader* SceneLoader::GetLoader(const std::string& name) {
+  auto iter = loader_map_.find(name);
+  if (loader_map_.end() != iter) {
+    return iter->second.get();
+  } else {
+    return NULL;
+  }
+}
+
+void SceneLoader::RegisterSceneNodeLoader(scoped_ptr<SceneNodeLoader> loader) {
+  DCHECK(NULL == GetLoader(loader->node_type_name()));
+  loader_map_.insert(std::make_pair(loader->node_type_name(), loader.Pass()));
 }
 
 bool SceneLoader::Load(SceneNode* root, ConfigNode* croot) {
@@ -41,7 +54,6 @@ bool SceneLoader::LoadChildrenNode(SceneNode* node, azer::ConfigNode* config) {
 
 bool SceneLoader::InitSceneNodeRecusive(SceneNode* node, ConfigNode* config_node) {
   if (!InitSceneNode(node, config_node)) {
-    LOG(INFO) << "Failed to init childnode, parent[" << node->path() << "]";
     return false;
   }
 
@@ -103,9 +115,19 @@ bool SceneLoader::LoadSceneLocation(SceneNode* node, azer::ConfigNode* config) {
 
 bool SceneLoader::InitSceneNode(SceneNode* node, ConfigNode* config) {
   if (!LoadSceneLocation(node, config)) {
+    LOG(ERROR) << "Failed to load node location information.";
     return false;
   }
 
-  return delegate_->InitSceneNode(node, config);
+  const std::string& type_name = config->GetAttr("type");
+  if (!type_name.empty()) {
+    SceneNodeLoader* loader = GetLoader(type_name);
+    DCHECK(loader) << "no loader for type: " << type_name;
+    if (!loader->LoadSceneNode(node, config)) {
+      LOG(INFO) << "Failed to init childnode, parent[" << node->path() << "]";
+      return false;
+    }
+  }
+  return true;
 }
 }  // namespace lord
