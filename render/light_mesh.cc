@@ -47,7 +47,65 @@ MeshPtr CreatePointLightMesh() {
 }
 
 MeshPtr CreateSpotLightMesh() {
-  return MeshPtr();
+  float kSpotHeight = 0.7f;
+  float kSpotRadius = 0.3f;
+  float kBaseRaidus = 0.1f;
+  float kBaseHeight = 0.3f;
+
+  Context* context = Context::instance();
+  RenderSystem* rs = RenderSystem::Current();
+  MeshPtr mesh = new Mesh;
+  DiffuseEffectPtr effect = CreateDiffuseEffect();
+  Matrix4 rotation = std::move(RotateX(Degree(-90.0f)));
+  // spot cylinder
+  {
+    // create VertexData
+    const int32 kStack = 10, kSlice = 32;
+    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
+    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
+    SlotVertexDataPtr vdata = InitCylinderVertexData(
+        kSpotRadius, kBaseRadius, kStack, kSlice, effect->GetVertexDesc());
+    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
+    VertexPack vpack(vdata.get());
+    Matrix4 trans = std::move(RotateX(Degree(-90.0f)))
+        * std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f)) 
+        * std::move(Scale(1.0f, kSpotHeight, 1.0f));
+    TransformVertex(trans, vdata.get(), &vmin, &vmax);
+    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
+    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
+    MeshPartPtr part = new MeshPart(effect.get());
+    EntityPtr entity(new Entity(vb, ib));
+    *entity->mutable_vmin() = vmin;
+    *entity->mutable_vmax() = vmax;
+    part->AddEntity(entity);
+    mesh->AddMeshPart(part);
+  }
+
+  {
+    // create VertexData
+    const int32 kStack = 10, kSlice = 32;
+    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
+    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
+    SlotVertexDataPtr vdata = InitCylinderVertexData(
+        kSpotRadius, kBaseRadius, kStack, kSlice, effect->GetVertexDesc());
+    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
+    VertexPack vpack(vdata.get());
+    Matrix4 trans = std::move(RotateX(Degree(-90.0f)))
+        * std::move(Translate(0.0f, -0.5f., 0.0f)) 
+        * std::move(Scale(1.0f, kBaseHeight, 1.0f));
+    TransformVertex(trans, vdata.get(), &vmin, &vmax);
+    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
+    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
+    MeshPartPtr part = new MeshPart(effect.get());
+    EntityPtr entity(new Entity(vb, ib));
+    *entity->mutable_vmin() = vmin;
+    *entity->mutable_vmax() = vmax;
+    part->AddEntity(entity);
+    mesh->AddMeshPart(part);
+  }
+
+  mesh->SetEffectAdapterContext(context->GetEffectAdapterContext());
+  return mesh;
 }
 
 MeshPtr CreateDirectionalLightMesh() {

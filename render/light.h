@@ -18,6 +18,8 @@ struct PointLight {
   azer::Vector4 specular;
   azer::Vector3 position;
   float range;
+  azer::Vector3 attenuation;
+  float pad;
 };
 
 struct SpotLight {
@@ -25,6 +27,11 @@ struct SpotLight {
   azer::Vector4 ambient;
   azer::Vector4 specular;
   azer::Vector3 position;
+  float range;
+  azer::Vector3 direction;
+  float spot;
+  azer::Vector3 attenuation;
+  float pad;
 };
 
 enum LightType {
