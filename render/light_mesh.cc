@@ -49,8 +49,9 @@ MeshPtr CreatePointLightMesh() {
 MeshPtr CreateSpotLightMesh() {
   float kSpotHeight = 0.7f;
   float kSpotRadius = 0.3f;
-  float kBaseRaidus = 0.1f;
   float kBaseHeight = 0.3f;
+  float kBaseRadius = 0.1f;
+  
 
   Context* context = Context::instance();
   RenderSystem* rs = RenderSystem::Current();
@@ -87,11 +88,11 @@ MeshPtr CreateSpotLightMesh() {
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
     Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
     SlotVertexDataPtr vdata = InitCylinderVertexData(
-        kSpotRadius, kBaseRadius, kStack, kSlice, effect->GetVertexDesc());
+        kBaseRadius, kBaseRadius, kStack, kSlice, effect->GetVertexDesc());
     IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
     VertexPack vpack(vdata.get());
     Matrix4 trans = std::move(RotateX(Degree(-90.0f)))
-        * std::move(Translate(0.0f, -0.5f., 0.0f)) 
+        * std::move(Translate(0.0f, -0.5f, 0.0f)) 
         * std::move(Scale(1.0f, kBaseHeight, 1.0f));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);

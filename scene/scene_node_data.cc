@@ -67,7 +67,7 @@ void SceneNodeData::OnSceneNodeOrientationChanged(
   if (node_->type() == SceneNode::kLampNode && light_->type() == kDirectionalLight) {
     Matrix4 rotation = std::move(node->orientation().ToMatrix());
     Vector4 newdir = rotation * Vector4(0.0f, 0.0f, 1.0f, 0.0f);
-    light_->mutable_dir_light()->dir = newdir;
+    light_->mutable_dir_light()->direction = Vector3(newdir.x, newdir.y, newdir.z);;
   }
 }
 }  // namespace loard

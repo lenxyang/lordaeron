@@ -9,7 +9,8 @@ struct DirLight {
   azer::Vector4 diffuse;
   azer::Vector4 ambient;
   azer::Vector4 specular;
-  azer::Vector4 dir;
+  azer::Vector3 direction;
+  float pad;
 };
 
 struct PointLight {

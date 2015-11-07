@@ -10,7 +10,8 @@ struct DirLight {
   float4 diffuse;
   float4 ambient;
   float4 specular;
-  float4 dir;
+  float3 dir;
+  float  pad;
 };
 
 cbuffer c_buffer {
@@ -20,7 +21,7 @@ cbuffer c_buffer {
 
 float4 ps_main(VsOutput o):SV_TARGET {
   float diffuse_factor = clamp(dot(normalize(o.normal.xyz),	
-                                  -light.dir.xyz), 0.0f, 1.0f);	
+                               -light.dir), 0.0f, 1.0f);	
   float3 light_factor = light.ambient.xyz + (light.diffuse.xyz * diffuse_factor);
   return float4(light_factor * color.xyz, color.a);
 }

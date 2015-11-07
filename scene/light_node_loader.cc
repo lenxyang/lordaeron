@@ -65,7 +65,7 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
     light.ambient = ambient;
     light.specular = specular;
     light.position = node->position();
-    DCHECK(light_node->GetChildTextAsFloat("range", &light.range));
+    CHECK(light_node->GetChildTextAsFloat("range", &light.range));
     LightPtr ptr(new Light(light));
     node->mutable_data()->AttachLight(ptr);
     return true;
@@ -75,7 +75,16 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
     light.ambient = ambient;
     light.specular = specular;
     light.position = node->position();
+    CHECK(light_node->GetChildTextAsFloat("range", &light.range));
+    CHECK(light_node->GetChildTextAsVec3("directional", &light.direction))
+        << "light node has directional";
+    CHECK(light_node->GetChildTextAsFloat("spot", &light.spot));
+    CHECK(light_node->GetChildTextAsVec3("attenuation", &light.attenuation))
+        << "light node has directional";
     LightPtr ptr(new Light(light));
+    Quaternion orient;
+    CalcSceneOrientForZDirection(light.direction, &orient);
+    node->set_orientation(orient);
     node->mutable_data()->AttachLight(ptr);
     return true;
   } else if (light_type == "directional_light") {
@@ -83,11 +92,11 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
     light.diffuse = diffuse;
     light.ambient = ambient;
     light.specular = specular;
-    CHECK(light_node->GetChildTextAsVec4("directional", &light.dir))
+    CHECK(light_node->GetChildTextAsVec3("directional", &light.direction))
         << "light node has directional";
     LightPtr ptr(new Light(light));
     Quaternion orient;
-    CalcSceneOrientForZDirection(light.dir, &orient);
+    CalcSceneOrientForZDirection(light.direction, &orient);
     node->set_orientation(orient);
     node->mutable_data()->AttachLight(ptr);
     return true;
