@@ -14,9 +14,9 @@ namespace lord {
 class CameraOverlay;
 class RendererInfoPane;
 
-class SimpleRenderWindow : public nelf::Mainframe,
-                          public nelf::RenderDelegate,
-                          public views::WidgetObserver {
+class SimpleRenderWindow : public nelf::MainFrame,
+                           public nelf::RenderDelegate,
+                           public views::WidgetObserver {
  public:
   SimpleRenderWindow(const gfx::Rect& init_bounds);
   SimpleRenderWindow(const gfx::Rect& init_bounds,

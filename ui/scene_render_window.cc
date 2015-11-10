@@ -16,13 +16,13 @@ const Vector4 kGridLineColor = Vector4(0.663f, 0.663f, 0.663f, 1.0f);
 const Vector4 kRenderBgColor = Vector4(0.427f, 0.427f, 0.427f, 1.0f);
 }
 SceneRenderWindow::SceneRenderWindow(const gfx::Rect& init_bounds)
-    : nelf::Mainframe(init_bounds, Context::instance()->GetNelfContext()),
+    : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
       render_view_(NULL) {
 }
 
 SceneRenderWindow::SceneRenderWindow(const gfx::Rect& init_bounds, 
                                      nelf::RenderLoop* render_loop)
-    : nelf::Mainframe(init_bounds, Context::instance()->GetNelfContext()),
+    : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
       render_view_(NULL),
       render_loop_(render_loop) {
 }
@@ -42,7 +42,7 @@ void SceneRenderWindow::InitRenderView() {
 }
 
 void SceneRenderWindow::OnAfterWidgetInit() {
-  nelf::Mainframe::OnAfterWidgetInit();
+  nelf::MainFrame::OnAfterWidgetInit();
   InitRenderView();
 }
 

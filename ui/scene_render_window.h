@@ -16,7 +16,7 @@ class CameraOverlay;
 class InteractiveContext;
 class RendererInfoPane;
 
-class SceneRenderWindow : public nelf::Mainframe,
+class SceneRenderWindow : public nelf::MainFrame,
                           public nelf::RenderDelegate,
                           public views::WidgetObserver {
  public:

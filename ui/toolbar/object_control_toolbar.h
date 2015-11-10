@@ -6,7 +6,7 @@ namespace lord {
 class InteractiveContext;
 class ObjectControlToolbar : public views::ButtonListener {
  public:
-  ObjectControlToolbar(nelf::Mainframe* mainframe, InteractiveContext* ctx);
+  ObjectControlToolbar(nelf::MainFrame* mainframe, InteractiveContext* ctx);
   ~ObjectControlToolbar();
 
   // override from nelf::ToolbarDelegate

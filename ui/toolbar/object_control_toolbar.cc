@@ -12,7 +12,7 @@
 #include "lordaeron/interactive/translation_controller.h"
 
 namespace lord {
-ObjectControlToolbar::ObjectControlToolbar(nelf::Mainframe* mainframe,
+ObjectControlToolbar::ObjectControlToolbar(nelf::MainFrame* mainframe,
                                            InteractiveContext* ctx) 
     : interactive_(ctx) {
   Context* context = Context::instance();

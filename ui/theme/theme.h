@@ -2,6 +2,7 @@
 
 #include "nelf/nelf.h"
 #include "nelf/theme/fallback_theme.h"
+#include "nelf/theme/fallback/window_theme.h"
 
 namespace lord {
 class Theme : public nelf::FallbackTheme {
@@ -9,7 +10,7 @@ class Theme : public nelf::FallbackTheme {
   Theme(nelf::Context* context);
   ~Theme();
 
-  nelf::NonClientFrameThemePtr CreateWindowTheme(nelf::Window* window) override;
+  scoped_ptr<nelf::WindowTheme> CreateWindowTheme(nelf::Window* window) override;
  private:
   DISALLOW_COPY_AND_ASSIGN(Theme);
 };

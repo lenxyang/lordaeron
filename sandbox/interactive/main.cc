@@ -90,9 +90,19 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
 
 void MyRenderWindow::OnInitUI() { 
   DCHECK(root());
+  SceneTreeView* view = new SceneTreeView(root());
+  nelf::Pane* pane = new nelf::Pane();
+  pane->AddChildView(view);
+  pane->SetLayoutManager(new views::FillLayout);
+  pane->set_title(::base::UTF8ToUTF16("scene"));
+  nelf::TabbedWindow* window = new nelf::TabbedWindow(
+      gfx::Rect(400, 300), (nelf::MainFrame*)this);
+  window->Init();
+  window->AddPane(pane);
+  window->Show();
   /*
   lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(
-      gfx::Rect(400, 300), this->window()->GetTopWindow());
+  gfx::Rect(400, 300), this->window()->GetTopWindow());
   scene->SetSceneNode(root());
   scene->Init();
   scene->Show();

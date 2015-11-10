@@ -5,7 +5,7 @@
 #include "lordaeron/context.h"
 
 namespace lord {
-class RenderFrameWindow : public nelf::Mainframe {
+class RenderFrameWindow : public nelf::MainFrame {
  public:
   RenderFrameWindow(const gfx::Rect& init_bounds,
                     scoped_ptr<nelf::RenderDelegate> delegate);

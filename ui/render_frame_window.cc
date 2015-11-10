@@ -6,7 +6,7 @@
 namespace lord {
 RenderFrameWindow::RenderFrameWindow(const gfx::Rect& init_bounds,
                                      scoped_ptr<nelf::RenderDelegate> delegate) 
-    : nelf::Mainframe(init_bounds, Context::instance()->GetNelfContext()),
+    : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
       delegate_(delegate.Pass()),
       render_view_(NULL) {
   InitRenderView();
@@ -15,7 +15,7 @@ RenderFrameWindow::RenderFrameWindow(const gfx::Rect& init_bounds,
 RenderFrameWindow::RenderFrameWindow(const gfx::Rect& init_bounds, 
                                      scoped_ptr<nelf::RenderDelegate> delegate,
                                      nelf::RenderLoop* render_loop)
-    : nelf::Mainframe(init_bounds, Context::instance()->GetNelfContext()),
+    : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
       delegate_(delegate.Pass()),
       render_view_(NULL),
       render_loop_(render_loop) {
