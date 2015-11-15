@@ -13,9 +13,11 @@ class SceneTreeModel;
 class SceneTreeView : public views::View,
                       public nelf::TreeViewController {
  public:
+  static const char kViewClassName[];
   SceneTreeView(SceneNode* node);
   ~SceneTreeView();
 
+  const char* GetClassName() const override;
   // override from views::TreeViewController
   void OnTreeViewSelectionChanged(nelf::TreeView* tree_view) override;
   bool CanEdit(nelf::TreeView* tree_view, ui::TreeModelNode* node) override;

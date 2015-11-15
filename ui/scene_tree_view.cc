@@ -16,6 +16,8 @@ base::LazyInstance<SceneTreeViewLineItemViewCreator> node_creator
 = LAZY_INSTANCE_INITIALIZER;
 }  // namespace
 
+const char SceneTreeView::kViewClassName[] = "nelf::SceneTreeView";
+
 SceneTreeView::SceneTreeView(SceneNode* node) {
   InitUI();
   tree_model_.reset(new SceneTreeModel(node));
@@ -23,6 +25,10 @@ SceneTreeView::SceneTreeView(SceneNode* node) {
 }
 
 SceneTreeView::~SceneTreeView() {
+}
+
+const char* SceneTreeView::GetClassName() const {
+  return kViewClassName;
 }
 
 void SceneTreeView::InitUI() {

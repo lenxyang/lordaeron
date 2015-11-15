@@ -78,7 +78,8 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
     CHECK(light_node->GetChildTextAsFloat("range", &light.range));
     CHECK(light_node->GetChildTextAsVec3("directional", &light.direction))
         << "light node has directional";
-    CHECK(light_node->GetChildTextAsFloat("spot", &light.spot));
+    CHECK(light_node->GetChildTextAsFloat("phi", &light.phi));
+    CHECK(light_node->GetChildTextAsFloat("theta", &light.theta));
     CHECK(light_node->GetChildTextAsVec3("attenuation", &light.attenuation))
         << "light node has directional";
     LightPtr ptr(new Light(light));

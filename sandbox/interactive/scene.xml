@@ -34,7 +34,8 @@
         <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
         <specular>0.8, 0.8, 0.8, 1.0</specular>
         <directional>0.0, 0.0, 1.0</directional>
-	<spot>0.4</spot>
+	<phi>0.4</phi>
+	<theta>0.2</theta>
 	<range>100</range>
 	<attenuation>1.0, 3.0, 4.0</attenuation>
       </light>
