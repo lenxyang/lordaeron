@@ -100,6 +100,21 @@ void MyRenderWindow::OnInitUI() {
   window->Init();
   window->AddPane(pane);
   window->Dock(nelf::kDockLeft);
+
+  {
+    Light* light = scene_context_->GetGlobalEnvironment()->light();
+    DirectionalLightPane* view = new DirectionalLightPane();
+    view->SetControlLight(light);
+    nelf::Pane* pane = new nelf::Pane();
+    pane->AddChildView(view);
+    pane->SetLayoutManager(new views::FillLayout);
+    pane->set_title(::base::UTF8ToUTF16("Directional Light"));
+    gfx::Rect bounds(400, 300);
+    nelf::TabbedWindow* window = new nelf::TabbedWindow(bounds, this);
+    window->Init();
+    window->AddPane(pane);
+    window->Show();
+  }
 }
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
