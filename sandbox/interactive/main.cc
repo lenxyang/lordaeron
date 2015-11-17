@@ -95,19 +95,11 @@ void MyRenderWindow::OnInitUI() {
   pane->AddChildView(view);
   pane->SetLayoutManager(new views::FillLayout);
   pane->set_title(::base::UTF8ToUTF16("scene"));
-  nelf::TabbedWindow* window = new nelf::TabbedWindow(
-      gfx::Rect(400, 300), (nelf::MainFrame*)this);
+  gfx::Rect bounds(400, 300);
+  nelf::TabbedWindow* window = new nelf::TabbedWindow(bounds, this);
   window->Init();
   window->AddPane(pane);
-  window->Show();
-  /*
-  lord::SceneTreeWindow* scene = new lord::SceneTreeWindow(
-  gfx::Rect(400, 300), this->window()->GetTopWindow());
-  scene->SetSceneNode(root());
-  scene->Init();
-  scene->Show();
-  scene->SetTitle(base::UTF8ToUTF16("Scene"));
-  */
+  window->Dock(nelf::kDockLeft);
 }
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
@@ -117,6 +109,6 @@ void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
-  scene_renderer_->Render(renderer);
+  // scene_renderer_->Render(renderer);
 }
 }  // namespace lord
