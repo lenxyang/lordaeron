@@ -4,7 +4,7 @@
 #include "ui/views/controls/label.h"
 #include "ui/views/controls/separator.h"
 #include "ui/views/controls/textfield/textfield.h"
-#include "nelf/controls/editing_helper.h"
+#include "nelf/controls/editing_label.h"
 
 namespace azer {
 class Vector3;
@@ -14,7 +14,7 @@ class Quaternion;
 
 namespace lord {
 class Vector3Control : public views::View,
-                       public nelf::EditingHelperDelegate {
+                       public views::TextfieldController {
  public:
   static const char kViewClassName[];
   Vector3Control();
@@ -27,20 +27,17 @@ class Vector3Control : public views::View,
   const char* GetClassName() const override;
   gfx::Size GetPreferredSize() const override;
   void Layout() override;
-  bool CanProcessEventsWithinSubtree() const override;
-  bool OnMousePressed(const ui::MouseEvent& event) override;
 
-  // override from EditingHelperDelegate
-  void LayoutEditor(views::Textfield* editor) override;
-  void OnEditBegin(views::Textfield* editor) override;
-  void OnEditEnd(views::Textfield* editor, bool commited) override;
+ protected:
+  void ContentsChanged(views::Textfield* sender,
+                       const base::string16& new_contents) override;
+  bool HandleKeyEvent(views::Textfield* sender,
+                      const ui::KeyEvent& key_event) override;
  private:
   void UpdateControlValue();
   gfx::Size unit_size_;
   azer::Vector3* vector_;
-  views::Label* xlabel_, *ylabel_, *zlabel_;
-  views::Label* editing_;
-  scoped_ptr<nelf::EditingHelper> editing_helper_;
+  nelf::EditingLabel* xlabel_, *ylabel_, *zlabel_;
   DISALLOW_COPY_AND_ASSIGN(Vector3Control);
 };
 }  // namespace lord
