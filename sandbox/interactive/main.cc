@@ -109,7 +109,7 @@ void MyRenderWindow::OnInitUI() {
     pane->AddChildView(view);
     pane->SetLayoutManager(new views::FillLayout);
     pane->set_title(::base::UTF8ToUTF16("Directional Light"));
-    gfx::Rect bounds(400, 300);
+    gfx::Rect bounds(350, 210);
     nelf::TabbedWindow* window = new nelf::TabbedWindow(bounds, this);
     window->Init();
     window->AddPane(pane);

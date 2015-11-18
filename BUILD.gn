@@ -78,6 +78,8 @@ static_library("lordaeron") {
     "scene/scene_tree_model.h",
     "ui/camera_view.cc",
     "ui/camera_view.h",
+    "ui/controls/color_controls.cc",
+    "ui/controls/color_controls.h",
     "ui/controls/vector_controls.cc",
     "ui/controls/vector_controls.h",
     "ui/directional_light_pane.cc",
