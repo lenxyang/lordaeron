@@ -101,6 +101,7 @@ void MyRenderWindow::OnInitUI() {
   window->AddPane(pane);
   window->Dock(nelf::kDockLeft);
 
+  /*
   {
     Light* light = scene_context_->GetGlobalEnvironment()->light();
     DirectionalLightPane* view = new DirectionalLightPane();
@@ -115,6 +116,7 @@ void MyRenderWindow::OnInitUI() {
     window->AddPane(pane);
     window->Show();
   }
+  */
 }
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
@@ -124,6 +126,6 @@ void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
-  // scene_renderer_->Render(renderer);
+  scene_renderer_->Render(renderer);
 }
 }  // namespace lord

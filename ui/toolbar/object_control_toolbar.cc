@@ -25,14 +25,15 @@ ObjectControlToolbar::ObjectControlToolbar(nelf::MainFrame* mainframe,
     IDR_ICON_TOOLBAR_LAMP,
   };
   
-  nelf::ToggleButtonPane* contents = new nelf::ToggleButtonPane;
+  nelf::GroupButtonPane* contents = new nelf::GroupButtonPane;
+  contents->set_delegate(this);
   for (uint32 i = 0; i < arraysize(toolbar_id1); ++i) {
     nelf::ResourceBundle* bundle = context->resource_bundle();
     int32 id = toolbar_id1[i];
     const gfx::ImageSkia* img = bundle->GetImageSkiaNamed(id);
     nelf::ToggleButton* btn = new nelf::ToggleButton(*img);
+    btn->SetInsets(gfx::Insets(1, 1, 1, 1));
     btn->SetImageLabelSpacing(0);
-    btn->set_listener(this);
     btn->set_tag(id);
     btn->SetMinSize(gfx::Size(32, 32));
     contents->AddToggleButton(btn);
@@ -45,11 +46,12 @@ ObjectControlToolbar::ObjectControlToolbar(nelf::MainFrame* mainframe,
 ObjectControlToolbar::~ObjectControlToolbar() {
 }
 
-void ObjectControlToolbar::ButtonPressed(views::Button* sender,
-                                         const ui::Event& event) {
+void ObjectControlToolbar::OnToggleButtonStateChanged(nelf::ToggleButton* btn) {
+  if (!btn->toggle())
+    return;
+
   using nelf::ToggleButton;
-  int32 id = sender->tag();
-  ToggleButton* btn = dynamic_cast<ToggleButton*>(sender);
+  int32 id = btn->tag();
   DCHECK(btn);
   switch (id) {
     case IDR_ICON_TOOLBAR_PICKING: {

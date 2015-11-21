@@ -4,13 +4,13 @@
 
 namespace lord {
 class InteractiveContext;
-class ObjectControlToolbar : public views::ButtonListener {
+class ObjectControlToolbar : public nelf::GroupButtonPaneDelegate {
  public:
   ObjectControlToolbar(nelf::MainFrame* mainframe, InteractiveContext* ctx);
   ~ObjectControlToolbar();
 
   // override from nelf::ToolbarDelegate
-  void ButtonPressed(views::Button* sender, const ui::Event& event) override;
+  void OnToggleButtonStateChanged(nelf::ToggleButton* btn) override;
  private:
   nelf::Toolbar* toolbar_;
   InteractiveContext* interactive_;
