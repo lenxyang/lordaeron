@@ -8,6 +8,7 @@ class RendererInfoPane : public views::View {
  public:
   RendererInfoPane();
 
+  gfx::Insets GetInsets() const override;
   void Update(azer::Renderer* renderer, const azer::FrameArgs& args);
  private:
   views::Label* avg_fps_label_;

@@ -36,6 +36,7 @@ ObjectControlToolbar::ObjectControlToolbar(nelf::MainFrame* mainframe,
     btn->SetImageLabelSpacing(0);
     btn->set_tag(id);
     btn->SetMinSize(gfx::Size(32, 32));
+    btn->SetTooltipText(::base::UTF8ToUTF16("This is tooltip"));
     contents->AddToggleButton(btn);
   }
   toolbar_ = new nelf::Toolbar(mainframe, contents);
