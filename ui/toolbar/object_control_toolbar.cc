@@ -48,7 +48,7 @@ ObjectControlToolbar::~ObjectControlToolbar() {
 }
 
 void ObjectControlToolbar::OnToggleButtonStateChanged(nelf::ToggleButton* btn) {
-  if (!btn->toggle())
+  if (!btn->toggled())
     return;
 
   using nelf::ToggleButton;
@@ -56,7 +56,7 @@ void ObjectControlToolbar::OnToggleButtonStateChanged(nelf::ToggleButton* btn) {
   DCHECK(btn);
   switch (id) {
     case IDR_ICON_TOOLBAR_PICKING: {
-      if (btn->toggle()) {
+      if (btn->toggled()) {
         scoped_ptr<PickingController> controller(new PickingController());
         interactive_->SetController(controller.Pass());
       } else {
@@ -65,7 +65,7 @@ void ObjectControlToolbar::OnToggleButtonStateChanged(nelf::ToggleButton* btn) {
     }
       break;
     case IDR_ICON_TOOLBAR_MOVE: {
-      if (btn->toggle()) {
+      if (btn->toggled()) {
         scoped_ptr<TranslationController> controller(new TranslationController());
         interactive_->SetController(controller.Pass());
       } else {
@@ -74,7 +74,7 @@ void ObjectControlToolbar::OnToggleButtonStateChanged(nelf::ToggleButton* btn) {
       break;
     }
     case IDR_ICON_TOOLBAR_ROTATE: {
-      if (btn->toggle()) {
+      if (btn->toggled()) {
         scoped_ptr<RotationController> controller(new RotationController());
         interactive_->SetController(controller.Pass());
       } else {
@@ -84,7 +84,7 @@ void ObjectControlToolbar::OnToggleButtonStateChanged(nelf::ToggleButton* btn) {
     }
     case IDR_ICON_TOOLBAR_SCALE:
        {
-      if (btn->toggle()) {
+      if (btn->toggled()) {
         scoped_ptr<ScaleController> controller(new ScaleController());
         interactive_->SetController(controller.Pass());
       } else {
@@ -93,7 +93,7 @@ void ObjectControlToolbar::OnToggleButtonStateChanged(nelf::ToggleButton* btn) {
       break;
     }
     case IDR_ICON_TOOLBAR_FPS_CAMERA: {
-      if (btn->toggle()) {
+      if (btn->toggled()) {
         scoped_ptr<FPSCameraController> controller(new FPSCameraController());
         interactive_->SetController(controller.Pass());
       } else {
