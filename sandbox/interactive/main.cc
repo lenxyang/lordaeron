@@ -99,7 +99,9 @@ void MyRenderWindow::OnInitUI() {
   nelf::TabbedWindow* window = new nelf::TabbedWindow(bounds, this);
   window->Init();
   window->AddPane(pane);
-  window->Dock(nelf::kDockLeft);
+  window->GetFootBar()->AddChildView(new nelf::FootResizeBar);
+  window->Show();
+  // window->Dock(nelf::kDockLeft);
 
   /*
   {
