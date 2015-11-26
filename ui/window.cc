@@ -16,8 +16,8 @@ Window::Window(const gfx::Rect& init_bounds, nelf::Window* window)
   Context* ctx = Context::instance();
   nelf::ResourceBundle* bundle = ctx->resource_bundle();
   const gfx::ImageSkia* img = bundle->GetImageSkiaNamed(id);
-  set_window_icon(*img);
-  set_show_icon(true);
+  SetWindowIcon(*img);
+  SetShowIcon(true);
 }
 
 void Window::Layout() {

@@ -60,8 +60,8 @@ SceneTreeWindow::SceneTreeWindow(const gfx::Rect& init_bounds, nelf::Window* win
   SetLayoutManager(new views::FillLayout);
   SetTitle(base::UTF8ToUTF16("Scene"));
   Context* ctx = Context::instance();
-  set_show_icon(true);
-  set_window_icon(ctx->GetIcon(Iconset::kIconWindowExpanded));
+  SetShowIcon(true);
+  SetWindowIcon(ctx->GetIcon(Iconset::kIconWindowExpanded));
 }
 
 SceneTreeWindow::~SceneTreeWindow() {
