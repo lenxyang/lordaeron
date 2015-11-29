@@ -1,0 +1,6 @@
+executable("lighting") {
+  output_name = "lordaeron_sandbox_lighting"
+  sources = ["main.cc",]
+  deps = ["//lordaeron"]
+}
+
