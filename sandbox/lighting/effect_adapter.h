@@ -1,0 +1,38 @@
+#pragma once
+
+#include "azer/render/render.h"
+#include "azer/render/util.h"
+
+namespace lord {
+namespace sandbox {
+class ColorEffectAdapter : public azer::EffectParamsAdapter {
+ public:
+  ColorEffectAdapter();
+
+  azer::EffectAdapterKey key() const override;
+  void Apply(azer::Effect* e, const azer::EffectParamsProvider* params) const override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(ColorEffectAdapter);
+};
+
+class SceneNodeColorEffectAdapter : public azer::EffectParamsAdapter {
+ public:
+  SceneNodeColorEffectAdapter();
+
+  azer::EffectAdapterKey key() const override;
+  void Apply(azer::Effect* e, const azer::EffectParamsProvider* params) const override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SceneNodeColorEffectAdapter);
+};
+
+class GlobalEnvColorEffectAdapter : public azer::EffectParamsAdapter {
+ public:
+  GlobalEnvColorEffectAdapter();
+
+  azer::EffectAdapterKey key() const override;
+  void Apply(azer::Effect* e, const azer::EffectParamsProvider* params) const override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(GlobalEnvColorEffectAdapter);
+};
+}  // namespace sandbox
+}  // namespace lord

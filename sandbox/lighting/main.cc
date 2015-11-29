@@ -2,6 +2,8 @@
 
 #include "lordaeron/sandbox/sandbox.h"
 #include "lordaeron/sandbox/scene/scene_loader_delegate.h"
+#include "lordaeron/sandbox/lighting/effect.h"
+#include "lordaeron/sandbox/lighting/effect_adapter.h"
 
 using views::Widget;
 using lord::SceneNodePtr;
@@ -24,7 +26,7 @@ class MyRenderWindow : public SimpleRenderWindow {
   SceneNodePtr root_;
   SceneContextPtr scene_context_;
   scoped_ptr<SceneRender> scene_renderer_;
-  DiffuseEffectPtr effect_;
+  sandbox::MyEffectPtr effect_;
   azer::Matrix4 pv_;
 
   scoped_ptr<azer::FPSCameraController> camera_controller_;
@@ -35,6 +37,12 @@ class MyRenderWindow : public SimpleRenderWindow {
 
 int main(int argc, char* argv[]) {
   CHECK(lord::Context::InitContext(argc, argv));
+
+  lord::Context* ctx = lord::Context::instance();
+  azer::EffectAdapterContext* adapterctx = ctx->GetEffectAdapterContext();
+  adapterctx->RegisteAdapter(new lord::sandbox::ColorEffectAdapter);
+  adapterctx->RegisteAdapter(new lord::sandbox::SceneNodeColorEffectAdapter);
+  adapterctx->RegisteAdapter(new lord::sandbox::GlobalEnvColorEffectAdapter);
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
@@ -52,7 +60,7 @@ namespace lord {
 using namespace azer;
 
 void MyRenderWindow::OnInitScene() {
-  effect_ = CreateDiffuseEffect();
+  effect_ = sandbox::CreateMyEffect();
   Context* ctx = Context::instance(); 
   fsystem_.reset(new azer::NativeFileSystem(
       ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
