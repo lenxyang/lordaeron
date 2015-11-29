@@ -108,56 +108,55 @@ void XYZAxisObject::Render(const Matrix4& pv, Renderer* renderer) {
   }
 }
 
-int32 XYZAxisObject::Picking(const azer::Ray& ray) {
+int32 XYZAxisObject::Picking(const azer::Ray& ray, const azer::Camera& camera) {
   const Vector3& pos = position_;
   Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
   Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
   Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
 
   const float kMargin = 0.05f;
-  bool parallel;
+  
   float length = object_->length();
-  Vector3 pt;
-  {
-    PickingPlane(ray, pxy, &pt, &parallel);
-    if (!parallel) {
-      if (pt.x - pos.x <= length && pt.x - pos.x > 0.0 &&
-          std::abs(pt.y - pos.y) < 0.01 && std::abs(pt.y - pos.y) < kMargin) {
-        return kPickXAxis;
-      } else if (pt.y - pos.y <= length && pt.y - pos.y > 0.0f &&
-                 std::abs(pt.x - pos.x) < 0.01 && std::abs(pt.x - pos.x) < kMargin) {
-        return kPickYAxis;
-      }
+  float depth1, depth2, depth3;
+  bool parallel1, parallel2, parallel3;
+  Vector3 pt1, pt2, pt3;
+  PickingPlane(ray, pxy, &pt1, camera, &depth1, &parallel1);
+  PickingPlane(ray, pyz, &pt2, camera, &depth2, &parallel2);
+  PickingPlane(ray, pzx, &pt3, camera, &depth3, &parallel3);
+  if (depth1 >= 0.0f && depth1 < depth2 && depth1 < depth3) {
+    if (pt1.x - pos.x <= length && pt1.x - pos.x > 0.0 &&
+        std::abs(pt1.y - pos.y) < kMargin && std::abs(pt1.y - pos.y) < kMargin) {
+      return kPickXAxis;
+    } else if (pt1.y - pos.y <= length && pt1.y - pos.y > 0.0f &&
+               std::abs(pt1.x - pos.x) < kMargin
+               && std::abs(pt1.x - pos.x) < kMargin) {
+      return kPickYAxis;
     }
   }
 
-  {
-    // yzplane
-    PickingPlane(ray, pyz, &pt, &parallel);
-    if (!parallel) {
-      if (pt.y - pos.y <= length && pt.y - pos.y > 0.0 &&
-                 std::abs(pt.z - pos.z) < 0.01 && std::abs(pt.z - pos.z) < kMargin) {
-        return kPickYAxis;
-      } else if (pt.z - pos.z <= length && pt.z - pos.z > 0.0f &&
-                 std::abs(pt.y - pos.y) < 0.01 && std::abs(pt.y - pos.y) < kMargin) {
-        return kPickZAxis;
-      }
+  // yzplane
+  if (depth2 >= 0.0f && depth2 < depth1 && depth2 < depth3) {
+    if (pt2.y - pos.y <= length && pt2.y - pos.y > 0.0 &&
+        std::abs(pt2.z - pos.z) < kMargin && std::abs(pt2.z - pos.z) < kMargin) {
+      return kPickYAxis;
+    } else if (pt2.z - pos.z <= length && pt2.z - pos.z > 0.0f &&
+               std::abs(pt2.y - pos.y) < kMargin 
+               && std::abs(pt2.y - pos.y) < kMargin) {
+      return kPickZAxis;
     }
   }
 
-  {
-    // zxplane
-    PickingPlane(ray, pzx, &pt, &parallel);
-    if (!parallel) {
-      if (pt.z - pos.z <= length && pt.z - pos.z > 0.0 &&
-                 std::abs(pt.x - pos.x) < 0.01 && std::abs(pt.x - pos.x) < kMargin) {
-        return kPickZAxis;
-      } else if (pt.x - pos.x <= length && pt.x - pos.x > 0.0f &&
-                 std::abs(pt.z - pos.z) < 0.01 && std::abs(pt.z - pos.z) < kMargin) {
-        return kPickXAxis;
-      }
+  if (depth3 >= 0.0f && depth3 < depth1 && depth3 < depth2) {
+    if (pt3.z - pos.z <= length && pt3.z - pos.z > 0.0 &&
+        std::abs(pt3.x - pos.x) < kMargin && std::abs(pt3.x - pos.x) < kMargin) {
+      return kPickZAxis;
+    } else if (pt3.x - pos.x <= length && pt3.x - pos.x > 0.0f &&
+               std::abs(pt3.z - pos.z) < kMargin 
+               && std::abs(pt3.z - pos.z) < kMargin) {
+      return kPickXAxis;
     }
   }
+
   return kPickNone;
 }
 }  // namespace lord

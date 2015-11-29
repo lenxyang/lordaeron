@@ -38,7 +38,7 @@ class XYZAxisObject {
   void set_color(const azer::Vector4& col, int32 index);
   void reset_color();
 
-  int32 Picking(const azer::Ray& ray);
+  int32 Picking(const azer::Ray& ray, const azer::Camera& camera);
  private:
   azer::Vector4 color_[3];
   azer::Matrix4 rotation_[3];

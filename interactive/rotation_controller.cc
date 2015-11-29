@@ -14,17 +14,20 @@ using namespace azer;
 
 namespace {
 bool PickingCircle(const azer::Vector3& pos, float radius,  const azer::Plane& p,
-                   const azer::Ray& ray) {
+                   const azer::Ray& ray, const Camera& camera, float* depth) {
   if (std::abs(ray.directional().dot(p.normal()) - 1.0) < 0.002) { 
     return true;
   }
 
   Vector3 pt = p.intersect(ray);
   if (std::abs(pt.distance(pos) - radius) < 0.2) {
+    Vector4 v = camera.GetProjViewMatrix() * Vector4(pt, 1.0f);
+    *depth = v.z / v.w;
     return true;
+  } else {
+    *depth = 100.0f;
+    return false;
   }
-
-  return false;
 }
 }
 
@@ -145,6 +148,7 @@ void RotationController::InitControllerObject(SceneNode* node) {
 
 int32 RotationController::GetSelectedAxis(gfx::Point location) {
   SceneNode* node = context_->GetPickingNode();
+  const Camera& camera = context_->window()->camera();
   DCHECK(node);
   Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
   float radius = node->vmin().distance(node->vmax()) * 0.5f;
@@ -152,11 +156,16 @@ int32 RotationController::GetSelectedAxis(gfx::Point location) {
   Plane px(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
   Plane py(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
   Plane pz(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
-  if (PickingCircle(pos, radius, px, ray)) {
+
+  float depth1, depth2, depth3;
+  bool pick1 = PickingCircle(pos, radius, px, ray, camera, &depth1);
+  bool pick2 = PickingCircle(pos, radius, py, ray, camera, &depth2);
+  bool pick3 = PickingCircle(pos, radius, pz, ray, camera, &depth3);
+  if (depth1 < depth2 && depth1 < depth3 && pick1) {
     return kAxisX;
-  } else if (PickingCircle(pos, radius, py, ray)) {
+  } else if (depth2 < depth3 && depth2 < depth1 && pick2) {
     return kAxisY;
-  } else if (PickingCircle(pos, radius, pz, ray)) {
+  } else if (depth3 < depth1 && depth3 < depth2 && pick3) {
     return kAxisZ;
   } else {
     return kAxisNone;

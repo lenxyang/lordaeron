@@ -44,5 +44,6 @@ class PlanePickingHelper {
 };
 
 void PickingPlane(const azer::Ray& ray, const azer::Plane& plane, 
-                  azer::Vector3* pt, bool* parallel);
+                  azer::Vector3* pt, const azer::Camera& camera, float* depth, 
+                  bool* parallel);
 }  // namespace lord

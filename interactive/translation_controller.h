@@ -46,7 +46,7 @@ class TransformAxisObject {
   void reset_color();
   void set_color(const azer::Vector4& color, int32 axis);
   void SetPosition(const azer::Vector3& position) { position_ = position;}
-  int32 Picking(const azer::Ray& ray) const;
+  int32 Picking(const azer::Ray& ray, const azer::Camera& camera) const;
 
   void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
  private:
@@ -92,8 +92,8 @@ class TranslationControllerObject {
   bool is_yzplane_selected() const { return selected_plane_[1];}
   bool is_zxplane_selected() const { return selected_plane_[2];}
 
-  int32 Picking(const azer::Ray& ray) const;
-  int32 UpdatePicking(const azer::Ray& ray);
+  int32 Picking(const azer::Ray& ray, const azer::Camera& camera) const;
+  int32 UpdatePicking(const azer::Ray& ray, const azer::Camera& camera);
  private:
   void SetSelectedAxis(int32 axis);
   scoped_ptr<TransformAxisObject> plane_;

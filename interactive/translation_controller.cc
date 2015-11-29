@@ -57,9 +57,10 @@ void TranslationController::OnOperationStop() {
 void TranslationController::UpdateControllerObjectState(
     const gfx::Point& location) {
   SceneNode* node = context_->GetPickingNode();
+  const Camera& camera = context_->window()->camera();
   DCHECK(node);
   Ray ray = context_->GetPickingRay(location);
-  picking_object_ = object_->UpdatePicking(ray);
+  picking_object_ = object_->UpdatePicking(ray, camera);
 }
 
 void TranslationController::OnLostFocus() {
@@ -88,36 +89,38 @@ void TranslationController::GetPickingPosOffset(const Ray& ray, Vector3* pt) {
   SceneNode* node = context_->GetPickingNode();
   DCHECK(node);
   Vector3 pos = node->position();
+  const Camera& camera = context_->window()->camera();
   bool parallel;
+  float depth;
   switch (picking_object_) {
     case kPickXAxis: {
       Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
-      PickingPlane(ray, pxy, pt, &parallel);
+      PickingPlane(ray, pxy, pt, camera, &depth, &parallel);
       break;
     }
     case kPickYAxis: {
       Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
-      PickingPlane(ray, pyz, pt, &parallel);
+      PickingPlane(ray, pyz, pt, camera, &depth, &parallel);
       break;
     }
     case kPickZAxis: {
       Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
-      PickingPlane(ray, pzx, pt, &parallel);
+      PickingPlane(ray, pzx, pt, camera, &depth, &parallel);
       break;
     }
     case kPickXYPlane: {
       Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
-      PickingPlane(ray, pxy, pt, &parallel);
+      PickingPlane(ray, pxy, pt, camera, &depth, &parallel);
       break;
     }
     case kPickYZPlane: {
       Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
-      PickingPlane(ray, pyz, pt, &parallel);
+      PickingPlane(ray, pyz, pt, camera, &depth, &parallel);
       break;
     }
     case kPickZXPlane: {
       Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
-      PickingPlane(ray, pzx, pt, &parallel);
+      PickingPlane(ray, pzx, pt, camera, &depth, &parallel);
       break;
     }
     default:
@@ -134,7 +137,9 @@ bool TranslationController::OnMouseDragged(const ui::MouseEvent& event) {
     SceneNode* node = context_->GetPickingNode();
     DCHECK(node);
     Ray ray = context_->GetPickingRay(event.location());
+    const Camera& camera = context_->window()->camera();
     bool parallel;
+    float depth;
     Vector3 pt;
     float kMargin = 0.05f;
     DCHECK(picking_object_ != kPickNone);
@@ -142,39 +147,39 @@ bool TranslationController::OnMouseDragged(const ui::MouseEvent& event) {
     switch (picking_object_) {
       case kPickXAxis: {
         Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
-        PickingPlane(ray, pxy, &pt, &parallel);
+        PickingPlane(ray, pxy, &pt, camera, &depth, &parallel);
         pos.x = pt.x - pos_offset_.x;
         break;
       }
       case kPickYAxis: {
         Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
-        PickingPlane(ray, pyz, &pt, &parallel);
+        PickingPlane(ray, pyz, &pt, camera, &depth, &parallel);
         pos.y = pt.y - pos_offset_.y;
         break;
       }
       case kPickZAxis: {
         Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
-        PickingPlane(ray, pzx, &pt, &parallel);
+        PickingPlane(ray, pzx, &pt, camera, &depth, &parallel);
         pos.z = pt.z - pos_offset_.z;
         break;
       }
       case kPickXYPlane: {
         Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
-        PickingPlane(ray, pxy, &pt, &parallel);
+        PickingPlane(ray, pxy, &pt, camera, &depth, &parallel);
         pos.x = pt.x - pos_offset_.x;
         pos.y = pt.y - pos_offset_.y;
         break;
       }
       case kPickYZPlane: {
         Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
-        PickingPlane(ray, pyz, &pt, &parallel);
+        PickingPlane(ray, pyz, &pt, camera, &depth, &parallel);
         pos.y = pt.y - pos_offset_.y;
         pos.z = pt.z - pos_offset_.z;
         break;
       }
       case kPickZXPlane: {
         Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
-        PickingPlane(ray, pzx, &pt, &parallel);
+        PickingPlane(ray, pzx, &pt, camera, &depth, &parallel);
         pos.x = pt.x - pos_offset_.x;
         pos.z = pt.z - pos_offset_.z;
         break;
@@ -305,46 +310,39 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
   renderer->SetCullingMode(culling);
 }
 
-int32 TransformAxisObject::Picking(const azer::Ray& ray) const {
+int32 TransformAxisObject::Picking(const azer::Ray& ray, const Camera& camera) const {
   const Vector3& pos = position_;
   Plane pxy(Vector3(0.0f, 0.0f, 1.0f), -pos.z);
   Plane pyz(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
   Plane pzx(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
+
   
-  bool parallel;
-  Vector3 pt;
+  Vector3 pt1, pt2, pt3;
   float kMargin = 0.05f;
+  bool parallel1, parallel2, parallel3;
+  float depth1, depth2, depth3;;
   float length = kPlaneLength * length_;
   {
     // xyplane
-    PickingPlane(ray, pxy, &pt, &parallel);
-    if (!parallel) {
-      if (pt.x - pos.x <= length && pt.x - pos.x > 0.0f
-          && pt.y - pos.y < length && pt.y - pos.y > 0.0f) {
-        return kPickXYPlane;
-      }
+    PickingPlane(ray, pxy, &pt1, camera, &depth1, &parallel1);
+    PickingPlane(ray, pyz, &pt2, camera, &depth2, &parallel2);
+    PickingPlane(ray, pzx, &pt3, camera, &depth3, &parallel3);
+    if (depth1 >= 0.0f && depth1 < depth2 && depth1 < depth3
+        && (pt1.x - pos.x <= length && pt1.x - pos.x > 0.0f
+            && pt1.y - pos.y < length && pt1.y - pos.y > 0.0f)) {
+      return kPickXYPlane;
     }
-  }
-  
-  {
-    // yzplane
-    PickingPlane(ray, pyz, &pt, &parallel);
-    if (!parallel) {
-      if (pt.y - pos.y <= length && pt.y - pos.y > 0.0f
-          && pt.z - pos.z < length && pt.z - pos.z > kMargin) {
-        return kPickYZPlane;
-      }
-    }
-  }
 
-  {
-    // zxplane
-    PickingPlane(ray, pzx, &pt, &parallel);
-    if (!parallel) {
-      if (pt.z - pos.z <= length && pt.z - pos.z > 0.0f
-          && pt.x - pos.x < length && pt.x - pos.x > kMargin) {
-        return kPickZXPlane;
-      }
+    if (depth2 >= 0.0f && depth2 < depth1 && depth2 < depth3
+        && (pt2.y - pos.y <= length && pt2.y - pos.y > 0.0f
+            && pt2.z - pos.z < length && pt2.z - pos.z > kMargin)) {
+      return kPickYZPlane;
+    }
+
+    if (depth3 >= 0.0f && depth3 < depth1 && depth3 < depth2
+        && (pt3.z - pos.z <= length && pt3.z - pos.z > 0.0f
+            && pt3.x - pos.x < length && pt3.x - pos.x > kMargin)) {
+      return kPickZXPlane;
     }
   }
 
@@ -403,17 +401,19 @@ void TranslationControllerObject::Render(const Matrix4& pv, Renderer* renderer) 
   plane_->Render(pv, renderer);
 }
 
-int32 TranslationControllerObject::Picking(const azer::Ray& ray) const {
-  int ret = plane_->Picking(ray);
+int32 TranslationControllerObject::Picking(const azer::Ray& ray,
+                                           const Camera& camera) const {
+  int ret = plane_->Picking(ray, camera);
   if (ret != kPickNone)
     return ret;
   
-  return axis_->Picking(ray);
+  return axis_->Picking(ray, camera);
 }
 
-int32 TranslationControllerObject::UpdatePicking(const azer::Ray& ray) {
+int32 TranslationControllerObject::UpdatePicking(const azer::Ray& ray,
+                                                 const azer::Camera& camera) {
   reset_selected();
-  int32 target = Picking(ray);
+  int32 target = Picking(ray, camera);
   switch (target) {
     case kPickXYPlane:
       set_selected_axis(0);

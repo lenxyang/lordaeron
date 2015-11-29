@@ -34,7 +34,8 @@ Ray GetPickingRay(const gfx::Point& pt, const gfx::Size& size,
 }
 
 void PickingPlane(const azer::Ray& ray, const azer::Plane& plane, 
-                  azer::Vector3* pt, bool *p) {
+                  azer::Vector3* pt, const azer::Camera& camera, float* depth, 
+                  bool *p) {
   bool parallel = false;
   float dot = ray.directional().dot(plane.normal());
   if (std::abs(dot) < 0.001) {
@@ -42,8 +43,11 @@ void PickingPlane(const azer::Ray& ray, const azer::Plane& plane,
   }
     
   *pt = plane.intersect(ray);
-  if (p)
+  Vector4 v = camera.GetProjViewMatrix() * Vector4(*pt, 1.0f);
+  *depth = v.z / v.w;
+  if (p) {
     *p = parallel;
+  }
 }
 
 // class PlanePickingHelper

@@ -1,6 +1,12 @@
 executable("lighting") {
   output_name = "lordaeron_sandbox_lighting"
-  sources = ["main.cc",]
+  sources = [
+    "main.cc",
+    "effects/diffuse_effect.h",
+    "effects/diffuse_effect.cc",
+    "effects/diffuse_effect_provider.cc",
+    "effects/diffuse_effect_provider.h",
+  ]
   deps = ["//lordaeron"]
 }
 
