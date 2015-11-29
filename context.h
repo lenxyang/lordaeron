@@ -18,7 +18,7 @@ class Context {
   nelf::ResourceBundle* resource_bundle() { return resource_bundle_.get();}
   gfx::ImageSkia GetIcon(int32 id);
 
-  azer::EffectAdapterContext* GetEffectAdapterContext() { return &context_;}
+  azer::EffectAdapterContext* GetEffectAdapterContext() { return &effect_context_;}
   const DirLight& GetInternalLight() const { return internal_light_;}
   azer::BlendingPtr GetDefaultBlending() { return blending_;}
 
@@ -36,7 +36,7 @@ class Context {
   azer::BlendingPtr blending_;
   DirLight internal_light_;
   nelf::ContextPtr nelf_context_;
-  azer::EffectAdapterContext context_;
+  azer::EffectAdapterContext effect_context_;
   std::map<std::string, azer::EffectPtr> effects_;
   static Context* instance_;
   DISALLOW_COPY_AND_ASSIGN(Context);

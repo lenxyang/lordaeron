@@ -78,11 +78,10 @@ gfx::ImageSkia Context::GetIcon(int32 id) {
 }
 
 void Context::InitAdapterContext() {
-  azer::EffectAdapterContext* adapter_ctx = GetEffectAdapterContext();
-  adapter_ctx->RegisteAdapter(new ColorEffectAdapter);
-  adapter_ctx->RegisteAdapter(new SceneNodeColorEffectAdapter);
-  adapter_ctx->RegisteAdapter(new GlobalEnvColorEffectAdapter);
-  adapter_ctx->RegisteAdapter(new LightColorDiffuseEffectAdapter);
+  effect_context_.RegisteAdapter(new ColorEffectAdapter);
+  effect_context_.RegisteAdapter(new SceneNodeColorEffectAdapter);
+  effect_context_.RegisteAdapter(new GlobalEnvColorEffectAdapter);
+  effect_context_.RegisteAdapter(new LightColorDiffuseEffectAdapter);
 }
 
 bool Context::LoadResourcePack(const base::FilePath& path) {
