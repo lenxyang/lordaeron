@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "lordaeron/sandbox/sandbox.h"
+#include "lordaeron/sandbox/scene/scene_loader_delegate.h"
 
 using views::Widget;
 using lord::SceneNodePtr;
@@ -39,9 +40,9 @@ int main(int argc, char* argv[]) {
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
-  window->set_show_icon(true);
   nelf::ResourceBundle* bundle = lord::Context::instance()->resource_bundle();
-  window->set_window_icon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
+  window->SetWindowIcon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
+  window->SetShowIcon(true);
   window->Init();
   window->Show();
 
@@ -58,7 +59,7 @@ void MyRenderWindow::OnInitScene() {
   fsystem_.reset(new azer::NativeFileSystem(
       ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
   DirLight dirlight;
-  dirlight.dir = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
+  dirlight.direction = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
   dirlight.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
   dirlight.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
   LightPtr light(new Light(dirlight));
@@ -74,8 +75,10 @@ void MyRenderWindow::OnInitScene() {
   CHECK(config_root.get());
 
   VertexDescPtr desc = effect_->GetVertexDesc();
-  SimpleSceneLoaderDelegate delegate(fsystem_.get(), effect_.get());
-  SceneLoader loader(&delegate);
+  scoped_ptr<SimpleSceneLoaderDelegate> delegate(
+      new SimpleSceneLoaderDelegate(fsystem_.get(), effect_.get()));
+  SceneLoader loader;
+  loader.RegisterSceneNodeLoader(delegate.Pass());
   CHECK(loader.Load(root_.get(), config_root));
   scene_renderer_.reset(new SceneRender(scene_context_.get(), root_.get()));
 }

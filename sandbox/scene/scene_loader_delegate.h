@@ -16,11 +16,12 @@ void InitMeshEffect(azer::Effect* effect, azer::Mesh* mesh) {
   }
 }
 
-class SimpleSceneLoaderDelegate : public SceneLoaderDelegate {
+class SimpleSceneLoaderDelegate : public SceneNodeLoader {
  public:
   SimpleSceneLoaderDelegate(azer::FileSystem* fs, azer::Effect* effect)
       : fsystem_(fs), effect_(effect) {}
-  bool InitSceneNode(SceneNode* node, azer::ConfigNode* config) override {
+  virtual const char* node_type_name() const { return "mesh";}
+  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config) override {
     using azer::ConfigNode;
     Context* ctx = Context::instance(); 
     const std::string& type =  config->GetAttr("type");

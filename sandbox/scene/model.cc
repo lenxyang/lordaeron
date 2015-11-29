@@ -79,7 +79,7 @@ void MyRenderWindow::OnInitScene() {
   fsystem_.reset(new azer::NativeFileSystem(
       ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
   lord::DirLight dirlight;
-  dirlight.dir = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
+  dirlight.direction = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
   dirlight.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
   dirlight.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
   LightPtr light(new Light(dirlight));

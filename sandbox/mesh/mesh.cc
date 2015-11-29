@@ -9,7 +9,7 @@ using namespace azer;
 class MyProvider : public azer::EffectParamsProvider {
  public:
   MyProvider(const Camera& camera) : camera_(camera) {
-    light_.dir = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
+    light_.direction = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
     light_.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
     light_.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
   }
@@ -100,9 +100,9 @@ int main(int argc, char* argv[]) {
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
-  window->set_show_icon(true);
   nelf::ResourceBundle* bundle = lord::Context::instance()->resource_bundle();
-  window->set_window_icon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
+  window->SetWindowIcon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
+  window->SetShowIcon(true);
   window->Init();
   window->Show();
 

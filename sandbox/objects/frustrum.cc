@@ -13,7 +13,7 @@ using namespace azer;
 class MyRenderWindow : public SceneRenderWindow {
  public:
   MyRenderWindow(const gfx::Rect& rect) : SceneRenderWindow(rect) {}
-  void OnInitScene() override;
+  SceneNodePtr OnInitScene() override;
   void OnInitUI() override;
   void OnUpdateFrame(const FrameArgs& args) override;
   void OnRenderFrame(const FrameArgs& args, Renderer* renderer) override;
@@ -30,10 +30,10 @@ class MyRenderWindow : public SceneRenderWindow {
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
 };
 
-void MyRenderWindow::OnInitScene() {
+SceneNodePtr MyRenderWindow::OnInitScene() {
   effect_ = CreateDiffuseEffect();
   Context* ctx = Context::instance(); 
-  light_.dir = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
+  light_.direction = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
   light_.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
   light_.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
 
@@ -42,6 +42,7 @@ void MyRenderWindow::OnInitScene() {
   entity_ = new Entity(objptr->GetVertexBuffer(), objptr->GetIndicesBuffer());
   frame_ = new Entity(objptr->GetVertexBuffer(), objptr->GetFrameIndicesBuffer());
   frame_->set_topology(azer::kLineList);
+  return SceneNodePtr();
 }
 
 void MyRenderWindow::OnInitUI() { 
@@ -76,13 +77,11 @@ int main(int argc, char* argv[]) {
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
-  window->set_show_icon(true);
   nelf::ResourceBundle* bundle = lord::Context::instance()->resource_bundle();
-  window->set_window_icon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
+  window->SetWindowIcon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
+  window->SetShowIcon(true);
   window->Init();
   window->Show();
-
-  lord::ObjectControlToolbar* toolbar = new lord::ObjectControlToolbar(window);
   window->GetRenderLoop()->Run();
   return 0;
 }
