@@ -71,7 +71,14 @@ const aiScene* ModelLoader::LoadScene(const azer::ResPath& path,
                                       Assimp::Importer* importer, 
                                       uint32 flags) {
   std::vector<uint8> contents;
-  if (!fsystem_->ReadFile(path, &contents)) {
+  FilePtr file = fsystem_->OpenFile(path);
+  if (!file.get()) {
+    LOG(ERROR) << "Failed to open file: " << path.fullpath();
+    return NULL;
+  }
+
+  if (!file->PRead(0, -1, &contents)) {
+    LOG(ERROR) << "Failed to read file: " << path.fullpath();
     return NULL;
   }
 
