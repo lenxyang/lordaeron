@@ -24,8 +24,9 @@ float4 ps_main(VsOutput o):SV_TARGET {
   float ldir = normalize(light.dir.xyz);
   float diffuse_factor = clamp(dot(normalize(o.normal.xyz),	
                                -light.dir), 0.0f, 1.0f);
-  float3 light_factor = light.ambient.xyz + (light.diffuse.xyz * diffuse_factor);
-  float4 reflect = normalize(2.0f * dot(o.normal.xyz, ldir) * o.normal.xyz - ldir);
-  float3 specular_color  = color * pow(2, max(0, dot(reflect, o.viewin)));
-  return float4(light_factor * color.xyz, color.a);
+  float3 light_intensity = light.ambient.xyz + (light.diffuse.xyz * diffuse_factor);
+  float3 reflect = normalize(2.0f * dot(o.normal.xyz, ldir) * o.normal.xyz - ldir);
+  float3 specular_intensity  = pow(2, max(0, dot(reflect, o.viewin))) * light.diffuse;
+  light_intensity += specular_intensity;
+  return float4(light_intensity * color.xyz, color.a);
 }

@@ -61,6 +61,7 @@ void GlobalEnvColorEffectAdapter::Apply(
   GlobalEnvironmentParams* provider = (GlobalEnvironmentParams*)params;
   MyEffect* effect = dynamic_cast<MyEffect*>(e);
 
+  effect->SetCameraPos(azer::Vector4(provider->camera()->position(), 1.0f));
   effect->SetPV(provider->GetProjView());
   effect->SetDirLight(provider->light()->dir_light());
 }

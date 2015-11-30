@@ -24,9 +24,9 @@ bool Context::InitContext(int argc, char* argv[]) {
 
 Context::Context() {
   internal_light_.direction = azer::Vector3(-0.6f, -0.6f, -0.2f);
-  internal_light_.diffuse = azer::Vector4(0.8f, 0.8f, 1.8f, 1.0f);
+  internal_light_.diffuse = azer::Vector4(0.4f, 0.4f, 0.4f, 1.0f);
   internal_light_.ambient = azer::Vector4(0.2f, 0.2f, 0.2f, 1.0f);
-  internal_light_.specular = internal_light_.diffuse;
+  internal_light_.specular = azer::Vector4(0.1f, 0.1f, 0.1f, 1.0f);
 }
 
 Context::~Context() {
