@@ -5,6 +5,11 @@
 #include "azer/render/render.h"
 
 namespace lord {
+struct Attenuation {
+  azer::Vector3 coefficient; 
+  float range;
+};
+
 struct DirLight {
   azer::Vector4 diffuse;
   azer::Vector4 ambient;
@@ -18,9 +23,8 @@ struct PointLight {
   azer::Vector4 ambient;
   azer::Vector4 specular;
   azer::Vector3 position;
-  float range;
-  azer::Vector3 attenuation;
   float pad;
+  Attenuation atten;
 };
 
 struct SpotLight {
@@ -28,11 +32,10 @@ struct SpotLight {
   azer::Vector4 ambient;
   azer::Vector4 specular;
   azer::Vector3 position;
-  float range;
+  float phi;
   azer::Vector3 direction;
   float theta;  // inner corner
-  azer::Vector3 attenuation;
-  float phi;
+  Attenuation atten;
 };
 
 enum LightType {

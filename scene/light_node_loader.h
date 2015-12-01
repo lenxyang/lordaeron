@@ -24,6 +24,7 @@ class LightNodeLoader : public SceneNodeLoader {
   const char* node_type_name() const override;
   bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config) override;
  private:
+  bool LoadAttenuation(Attenuation* atten, azer::ConfigNode* config);
   DISALLOW_COPY_AND_ASSIGN(LightNodeLoader);
 };
 }  // namespace lord

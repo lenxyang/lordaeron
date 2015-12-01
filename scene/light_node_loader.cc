@@ -65,7 +65,7 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
     light.ambient = ambient;
     light.specular = specular;
     light.position = node->position();
-    CHECK(light_node->GetChildTextAsFloat("range", &light.range));
+    CHECK(LoadAttenuation(&light.atten, light_node));
     LightPtr ptr(new Light(light));
     node->mutable_data()->AttachLight(ptr);
     return true;
@@ -75,13 +75,12 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
     light.ambient = ambient;
     light.specular = specular;
     light.position = node->position();
-    CHECK(light_node->GetChildTextAsFloat("range", &light.range));
     CHECK(light_node->GetChildTextAsVec3("directional", &light.direction))
         << "light node has directional";
     CHECK(light_node->GetChildTextAsFloat("phi", &light.phi));
     CHECK(light_node->GetChildTextAsFloat("theta", &light.theta));
-    CHECK(light_node->GetChildTextAsVec3("attenuation", &light.attenuation))
-        << "light node has directional";
+    CHECK(LoadAttenuation(&light.atten, light_node));
+    
     LightPtr ptr(new Light(light));
     Quaternion orient;
     CalcSceneOrientForZDirection(light.direction, &orient);
@@ -105,5 +104,20 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
     CHECK(false) << "unknonw light type: " << light_type;
     return false;
   }
+}
+
+bool LightNodeLoader::LoadAttenuation(Attenuation* atten, ConfigNode* config) {
+  std::vector<ConfigNodePtr> children  =
+      std::move(config->GetNamedChildren("attenuation"));
+  if (children.size() != 1u) {
+    LOG(ERROR) << "has no or too many attenuation node";
+    return false;
+  }
+
+  ConfigNodePtr atten_node = children[0];
+  CHECK(atten_node->GetChildTextAsVec3("coefficient", &atten->coefficient));
+  CHECK(atten_node->GetChildTextAsFloat("range", &atten->range))
+      << "attenuation node has distance";
+  return true;
 }
 }

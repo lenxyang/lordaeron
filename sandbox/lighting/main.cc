@@ -2,6 +2,7 @@
 
 #include "lordaeron/sandbox/sandbox.h"
 #include "lordaeron/sandbox/scene/scene_loader_delegate.h"
+#include "lordaeron/interactive/directional_light_object.h"
 #include "lordaeron/sandbox/lighting/effect.h"
 #include "lordaeron/sandbox/lighting/effect_adapter.h"
 
@@ -26,6 +27,7 @@ class MyRenderWindow : public SimpleRenderWindow {
   SceneNodePtr root_;
   SceneContextPtr scene_context_;
   scoped_ptr<SceneRender> scene_renderer_;
+  scoped_ptr<DirectionalLightObject> dirlight_controller_;
   sandbox::MyEffectPtr effect_;
   azer::Matrix4 pv_;
 
@@ -70,6 +72,8 @@ void MyRenderWindow::OnInitScene() {
   dirlight.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
   dirlight.specular = Vector4(0.1f, 0.1f, 0.1f, 1.0f);
   LightPtr light(new Light(dirlight));
+  dirlight_controller_.reset(new DirectionalLightObject(light));
+
   scene_context_ = new SceneContext;
   scene_context_->GetGlobalEnvironment()->SetCamera(mutable_camera());
   scene_context_->GetGlobalEnvironment()->SetLight(light);
@@ -112,6 +116,8 @@ void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
+  const Matrix4& pv = camera().GetProjViewMatrix();
   scene_renderer_->Render(renderer);
+  dirlight_controller_->Render(pv, renderer);
 }
 }  // namespace lord
