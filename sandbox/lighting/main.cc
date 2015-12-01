@@ -66,8 +66,9 @@ void MyRenderWindow::OnInitScene() {
       ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
   DirLight dirlight;
   dirlight.direction = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
-  dirlight.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
+  dirlight.diffuse = Vector4(0.8f, 0.8f, 0.8f, 1.0f);
   dirlight.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
+  dirlight.specular = Vector4(0.1f, 0.1f, 0.1f, 1.0f);
   LightPtr light(new Light(dirlight));
   scene_context_ = new SceneContext;
   scene_context_->GetGlobalEnvironment()->SetCamera(mutable_camera());

@@ -145,7 +145,6 @@ MeshPtr ModelLoader::Load(const ResPath& path, VertexDesc* desc) {
         IndicesBuffer::Options(), data.idata));
     *entity->mutable_vmin() = data.vmin;
     *entity->mutable_vmax() = data.vmax;
-    mesh->AddMeshPart(part);
     mtrl_index.push_back(paiMesh->mMaterialIndex);
     part->AddEntity(entity);
     mesh->AddMeshPart(part);
