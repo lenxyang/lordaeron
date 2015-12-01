@@ -40,7 +40,7 @@ bool MyRenderWindow::CreateSinWave() {
       desc, tile.GetVertexCount()));
   azer::VertexPack vpack(vdata.get());
   tile.GenerateVertex(10.0f, 10.0f, &vpack);
-  /*
+
   float T = 1.0f;
   VertexPos pos_pos;
   CHECK(GetSemanticIndex("position", 0, desc, &pos_pos));
@@ -53,7 +53,6 @@ bool MyRenderWindow::CreateSinWave() {
     vec.y = 0.1f * sin(15 * L * sin(T));
     vpack.next(1);
   }
-  */
 
   IndicesDataPtr idata(new IndicesData(tile.GetTriangleListIndexCount()));
   IndexPack ipack(idata.get());
