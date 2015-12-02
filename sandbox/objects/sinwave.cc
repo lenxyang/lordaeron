@@ -51,6 +51,7 @@ bool MyRenderWindow::CreateSinWave() {
     Vector4 vec = Vector4(v, 1.0f);
     float L = std::sqrt(vec.x * vec.x + vec.z * vec.z);
     vec.y = 0.1f * sin(15 * L * sin(T));
+    vpack.WriteVector3Or4(&vec, pos_pos);
     vpack.next(1);
   }
 
