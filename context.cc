@@ -81,7 +81,6 @@ gfx::ImageSkia Context::GetIcon(int32 id) {
 void Context::InitAdapterContext() {
   effect_context_.RegisteAdapter(new ColorEffectAdapter);
   effect_context_.RegisteAdapter(new SceneNodeColorEffectAdapter);
-  effect_context_.RegisteAdapter(new GlobalEnvColorEffectAdapter);
   effect_context_.RegisteAdapter(new LightColorDiffuseEffectAdapter);
 }
 

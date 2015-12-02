@@ -51,7 +51,7 @@ SceneNodePtr SceneLoader::Load(const ResPath& path, const std::string& nodepath)
   context.path = path;
   context.loader = this;
 
-  SceneNodePtr root(new SceneNode(scene_context_));
+  SceneNodePtr root(new SceneNode);
   FileContents contents;
   if (!LoadContents(path, &contents, filesystem_)) {
     LOG(ERROR) << "Failed to Load contents from file: " << path.fullpath();

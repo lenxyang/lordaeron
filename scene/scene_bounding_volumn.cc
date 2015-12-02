@@ -31,8 +31,6 @@ SceneBVProvider::~SceneBVProvider() {
 
 
 void SceneBVProvider::UpdateParams(const azer::FrameArgs& args) {
-  SceneContext* scene_ctx = node_->context();
-  GlobalEnvironmentParams* gparams = scene_ctx->GetGlobalEnvironment();
   Vector3 vmin = node_->vmin();
   Vector3 vmax = node_->vmax();
   Vector3 center = (vmin + vmax) * 0.5f;

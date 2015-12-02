@@ -6,6 +6,7 @@
 #include "lordaeron/effect/scene_node_params.h"
 
 namespace lord {
+using namespace azer;
 // class SceneRenderEnvNode
 SceneRenderEnvNode::SceneRenderEnvNode() 
     : parent_(NULL) {
@@ -59,10 +60,10 @@ int32 SceneRenderEnvNode::GetIndexOf(SceneRenderEnvNode* child) const {
   return -1;
 }
 
-void SceneRenderEnvNode::UpdateParams(const azer::FrameArgs& args) {
+void SceneRenderEnvNode::UpdateParams(const FrameArgs& args) {
   all_lights_.clear();
-  if (parent) {
-    all_lights_.assign(parent->all_lights_);
+  if (parent()) {
+    all_lights_ = parent()->all_lights_;
   }
 
   for (auto iter = lights_.begin(); iter != lights_.end(); ++iter) {
@@ -71,14 +72,14 @@ void SceneRenderEnvNode::UpdateParams(const azer::FrameArgs& args) {
 }
 
 // class SceneRenderNode
-SceneRenderNode::SceneRenderNode(SceneNode* node, SceneRenderEnvNode* envnode)
+SceneRenderNode::SceneRenderNode(SceneNode* node)
     : node_(node),
-      envnode_(envnode) {
+      envnode_(NULL) {
   if (node->type() == SceneNode::kMeshNode) {
     AddMesh(node->mutable_data()->GetMesh());
   } else if (node->type() == SceneNode::kLampNode) {
     Light* light = node->mutable_data()->light();
-    AddMesh(light->GetLightMesh(););
+    AddMesh(light->GetLightMesh());
   }
 }
 
@@ -129,29 +130,25 @@ int32 SceneRenderNode::GetIndexOf(SceneRenderNode* child) const {
   return -1;
 }
 
-void SceneRenderNode::AddMesh(azer::Mesh* mesh) {
+void SceneRenderNode::AddMesh(Mesh* mesh) {
   /*
-  light_mesh->AddProvider(new LightColorProvider(light_.get()));
-  SceneNodeParamsPtr params(new SceneNodeParams(node_));
-  light_mesh->AddProvider(params);
-  light_mesh->AddProvider(node_->context()->GetGlobalEnvironment());
+    light_mesh->AddProvider(new LightColorProvider(light_.get()));
+    SceneNodeParamsPtr params(new SceneNodeParams(node_));
+    light_mesh->AddProvider(params);
+    light_mesh->AddProvider(node_->context()->GetGlobalEnvironment());
   */
   
   SceneNodeParamsPtr params(new SceneNodeParams(node_));
-  mesh_->AddProvider(params);
-  mesh_.push_back(mesh);
+  mesh->AddProvider(params);
+  mesh_ = mesh;
 }
 
-void SceneRenderNode::Update(const azer::FrameArgs& args) {
-  for (auto iter = mesh_.begin(); iter != mesh_.end(); ++iter) {
-    (*iter)->UpdateProviderParams(args);
-  }
+void SceneRenderNode::Update(const FrameArgs& args) {
+  mesh_->UpdateProviderParams(args);
 }
 
-void SceneRenderNode::Render(azer::Renderer* renderer) {
-  for (auto iter = mesh_.begin(); iter != mesh_.end(); ++iter) {
-    (*iter)->Render(renderer);
-  }
+void SceneRenderNode::Render(Renderer* renderer) {
+  mesh_->Render(renderer);
 }
 
 // class SceneRenderTreeBuilder
@@ -163,9 +160,9 @@ SceneRenderTreeBuilder::~SceneRenderTreeBuilder() {
 }
 
 void SceneRenderTreeBuilder::Bulid(SceneNode* root) {
-  env_root_ = new SceneRenderEnvNode;
-  root_ = new SceneRenderNode;
-  root_->SetSceneRenderEnvNode(env_root_.get());
+  SceneRenderEnvNode* rootenv = new SceneRenderEnvNode;
+  root_ = new SceneRenderNode(root);
+  root_->SetSceneRenderEnvNode(rootenv);
   cur_ = root_.get();
   SceneNodeTraverse traverser(this);
   traverser.Traverse(root);
@@ -180,38 +177,71 @@ bool SceneRenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
   }
 
   if (!node->parent())
-    continue;
+    return true;
 
-  if (node->type() == kEnvNode) {
+  if (node->type() == SceneNode::kEnvNode) {
     CHECK(node->parent() != NULL);
     SceneRenderEnvNode* envnode = new SceneRenderEnvNode(cur_->GetRenderEnvNode());
     cur_->SetSceneRenderEnvNode(envnode);
-  } else if (node->type() == kSceneNode) {
+  } else if (node->type() == SceneNode::kSceneNode) {
     SceneRenderNode* n = new SceneRenderNode(node);
     n->SetSceneRenderEnvNode(cur_->GetRenderEnvNode());
     cur_->AddChild(n);
     cur_ = n;
-  } else if (node->type() == kMeshNode) {
+  } else if (node->type() == SceneNode::kMeshNode) {
     SceneRenderNode* n = new SceneRenderNode(node);
     n->SetSceneRenderEnvNode(cur_->GetRenderEnvNode());
     cur_->AddChild(n);
     cur_ = n;
-  } else if (node->type() == kLampNode) {
+  } else if (node->type() == SceneNode::kLampNode) {
     SceneRenderNode* n = new SceneRenderNode(node);
     n->SetSceneRenderEnvNode(cur_->GetRenderEnvNode());
-    n->GetRenderEnvNode()->AddLight(node->data()->light());
+    n->GetRenderEnvNode()->AddLight(node->mutable_data()->light());
     cur_->AddChild(n);
     cur_ = n;
   }
+
+  return true;
 }
 
 void SceneRenderTreeBuilder::OnTraverseNodeExit(SceneNode* node) {
-  node->SetSceneRenderEnvNode(cur_->GetRenderEnvNode());
   cur_ = cur_->parent();
 }
 
 void SceneRenderTreeBuilder::OnTraverseEnd() {
   DCHECK(cur_ == root_.get());
+}
+
+
+// class SimpleRenderTreeRenderer
+SimpleRenderTreeRenderer::SimpleRenderTreeRenderer(SceneRenderNode* root)
+    : root_(root) {
+}
+
+void SimpleRenderTreeRenderer::Update(const FrameArgs& args) {
+  UpdateNode(root_, args);
+}
+
+void SimpleRenderTreeRenderer::Render(Renderer* renderer) {
+  RenderNode(root_, renderer);
+}
+
+void SimpleRenderTreeRenderer::UpdateNode(SceneRenderNode* node, 
+                                          const FrameArgs& args) {
+  node->Update(args);
+  for (auto iter = node->children().begin(); 
+       iter != node->children().end(); ++iter) {
+    UpdateNode(iter->get(), args);
+  }
+}
+
+void SimpleRenderTreeRenderer::RenderNode(SceneRenderNode* node, 
+                                          Renderer* renderer) {
+  node->Render(renderer);
+  for (auto iter = node->children().begin(); 
+       iter != node->children().end(); ++iter) {
+    RenderNode(iter->get(), renderer);
+  }
 }
 
 }  // namespace lord

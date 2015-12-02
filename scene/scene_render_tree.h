@@ -11,7 +11,9 @@
 
 namespace lord {
 class SceneRenderEnvNode;
+class SceneRenderNode;
 typedef scoped_refptr<SceneRenderEnvNode> SceneRenderEnvNodePtr;
+typedef scoped_refptr<SceneRenderNode> SceneRenderNodePtr;
 
 class SceneRenderEnvNode : public azer::EffectParamsProvider {
  public:
@@ -33,9 +35,10 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
   SceneRenderEnvNode* parent_;
   Lights all_lights_;
   std::vector<SceneRenderEnvNodePtr> children_;
+  DISALLOW_COPY_AND_ASSIGN(SceneRenderEnvNode);
 };
 
-class SceneRenderNode : public ::baee::RefCounted<SceneRenderNode> {
+class SceneRenderNode : public ::base::RefCounted<SceneRenderNode> {
  public:
   SceneRenderNode(SceneNode* node);
   virtual ~SceneRenderNode();
@@ -51,20 +54,20 @@ class SceneRenderNode : public ::baee::RefCounted<SceneRenderNode> {
   void AddChild(SceneRenderNode* child);
   bool Contains(SceneRenderNode* child) const;
   int32 GetIndexOf(SceneRenderNode* child) const;
+  const std::vector<SceneRenderNodePtr>& children() const { return children_;}
 
   virtual void Update(const azer::FrameArgs& args);
-  virtual void Render(Renderer* renderer);
+  virtual void Render(azer::Renderer* renderer);
  private:
   void AddMesh(azer::Mesh* mesh);
   SceneRenderNode* parent_;
   SceneNode* node_;
   SceneRenderEnvNodePtr envnode_;
-  std::vector<azer::MeshPtr> mesh_;
+  std::vector<SceneRenderNodePtr> children_;
+  azer::MeshPtr mesh_;
   azer::Matrix4 world_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderNode);
 };
-
-typedef scoped_refptr<SceneRenderNode> SceneRenderNodePtr;
 
 class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
  public:
@@ -85,5 +88,17 @@ class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
   SceneRenderNode* cur_;
   SceneRenderNodePtr root_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderTreeBuilder);
+};
+
+class SimpleRenderTreeRenderer {
+ public:
+  explicit SimpleRenderTreeRenderer(SceneRenderNode* root);
+  void Update(const azer::FrameArgs& args);
+  void Render(azer::Renderer* renderer);
+ private:
+  void UpdateNode(SceneRenderNode* node, const azer::FrameArgs& args);
+  void RenderNode(SceneRenderNode* node, azer::Renderer* renderer);
+  SceneRenderNode* root_;
+  DISALLOW_COPY_AND_ASSIGN(SimpleRenderTreeRenderer);
 };
 }  // namespace lord

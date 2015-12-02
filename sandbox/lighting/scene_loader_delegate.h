@@ -3,8 +3,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "lordaeron/context.h"
 #include "lordaeron/util/model_loader.h"
-#include "lordaeron/scene/scene_context.h"
-#include "lordaeron/scene/scene_render.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/scene/scene_loader.h"

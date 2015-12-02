@@ -10,8 +10,6 @@ using base::UTF8ToUTF16;
 using views::Widget;
 using lord::SceneNodePtr;
 using lord::SceneNode;
-using lord::SceneContext;
-using lord::SceneContextPtr;
 using namespace azer;
 
 namespace lord {
@@ -24,8 +22,6 @@ class MyRenderWindow : public lord::SceneRenderWindow {
   void OnUpdateFrame(const azer::FrameArgs& args) override;
   void OnRenderFrame(const azer::FrameArgs& args, Renderer* renderer) override;
  private:
-  SceneContextPtr scene_context_;
-  scoped_ptr<SceneRender> scene_renderer_;
   sandbox::MyEffectPtr effect_;
   azer::Matrix4 pv_;
 
@@ -41,7 +37,6 @@ int main(int argc, char* argv[]) {
   azer::EffectAdapterContext* adapterctx = ctx->GetEffectAdapterContext();
   adapterctx->RegisteAdapter(new lord::sandbox::ColorEffectAdapter);
   adapterctx->RegisteAdapter(new lord::sandbox::SceneNodeColorEffectAdapter);
-  adapterctx->RegisteAdapter(new lord::sandbox::GlobalEnvColorEffectAdapter);
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
@@ -65,19 +60,15 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   Context* ctx = Context::instance();
   fsystem_.reset(new azer::NativeFileSystem(FilePath(UTF8ToUTF16("lordaeron/"))));
 
-  scene_context_ = new SceneContext;
-  scene_context_->GetGlobalEnvironment()->SetCamera(mutable_camera());
-
   scoped_ptr<SceneNodeLoader> light_loader(new LightNodeLoader());
   scoped_ptr<SceneNodeLoader> env_loader(new EnvNodeLoader());
   scoped_ptr<SimpleSceneNodeLoader> node_loader(new SimpleSceneNodeLoader(
       fsystem_.get(), effect_.get()));
-  SceneLoader loader(fsystem_.get(), scene_context_.get());
+  SceneLoader loader(fsystem_.get());
   loader.RegisterSceneNodeLoader(node_loader.Pass());
   loader.RegisterSceneNodeLoader(env_loader.Pass());
   loader.RegisterSceneNodeLoader(light_loader.Pass());
   SceneNodePtr root = loader.Load(ResPath(UTF8ToUTF16("//sandbox/lighting/scene.xml")), "//");
-  scene_renderer_.reset(new SceneRender(scene_context_.get(), root.get()));
   return root;
 }
 
@@ -98,11 +89,11 @@ SceneTreeView* view = new SceneTreeView(root());
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
   pv_ = camera().GetProjViewMatrix();
   Renderer* renderer = window()->GetRenderer().get();
-  scene_renderer_->Update(args);
+  // scene_renderer_->Update(args);
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
   const Matrix4& pv = camera().GetProjViewMatrix();
-  scene_renderer_->Render(renderer);
+  // scene_renderer_->Render(renderer);
 }
 }  // namespace lord
