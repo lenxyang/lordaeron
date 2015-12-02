@@ -3,6 +3,7 @@
 #include "base/logging.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_node_data.h"
+#include "lordaeron/effect/scene_node_params.h"
 
 namespace lord {
 // class SceneRenderEnvNode
@@ -129,6 +130,15 @@ int32 SceneRenderNode::GetIndexOf(SceneRenderNode* child) const {
 }
 
 void SceneRenderNode::AddMesh(azer::Mesh* mesh) {
+  /*
+  light_mesh->AddProvider(new LightColorProvider(light_.get()));
+  SceneNodeParamsPtr params(new SceneNodeParams(node_));
+  light_mesh->AddProvider(params);
+  light_mesh->AddProvider(node_->context()->GetGlobalEnvironment());
+  */
+  
+  SceneNodeParamsPtr params(new SceneNodeParams(node_));
+  mesh_->AddProvider(params);
   mesh_.push_back(mesh);
 }
 
@@ -138,7 +148,7 @@ void SceneRenderNode::Update(const azer::FrameArgs& args) {
   }
 }
 
-void SceneRenderNode::Render(Renderer* renderer) {
+void SceneRenderNode::Render(azer::Renderer* renderer) {
   for (auto iter = mesh_.begin(); iter != mesh_.end(); ++iter) {
     (*iter)->Render(renderer);
   }
@@ -196,7 +206,7 @@ bool SceneRenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
 }
 
 void SceneRenderTreeBuilder::OnTraverseNodeExit(SceneNode* node) {
-  n->SetSceneRenderEnvNode(cur_->GetRenderEnvNode());
+  node->SetSceneRenderEnvNode(cur_->GetRenderEnvNode());
   cur_ = cur_->parent();
 }
 

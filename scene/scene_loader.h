@@ -59,7 +59,7 @@ class SceneNodeLoader {
 // must be stateless class
 class SceneLoader {
  public:
-  SceneLoader(azer::FileSystem* fs, SceneContext* context);
+  SceneLoader(azer::FileSystem* fs);
   ~SceneLoader();
 
   SceneNodeLoader* GetLoader(const std::string& name);
@@ -79,7 +79,6 @@ class SceneLoader {
 
   std::map<std::string, scoped_ptr<SceneNodeLoader> >loader_map_;
   azer::FileSystem* filesystem_;
-  SceneContext* scene_context_;
   DISALLOW_COPY_AND_ASSIGN(SceneLoader);
 };
 }

@@ -3,7 +3,6 @@
 #include "azer/render/util.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/effect/diffuse_effect_provider.h"
-#include "lordaeron/effect/global_environemnt_params.h"
 #include "lordaeron/effect/scene_node_params.h"
 
 namespace lord {
@@ -42,26 +41,6 @@ void SceneNodeColorEffectAdapter::Apply(
 
   effect->SetWorld(provider->world());
   // effect->SetDirLight(*(provider->light()));
-}
-
-// class GlobalEnvColorEffectAdapter
-GlobalEnvColorEffectAdapter::GlobalEnvColorEffectAdapter() {
-}
-
-azer::EffectAdapterKey GlobalEnvColorEffectAdapter::key() const {
-  return std::make_pair(typeid(DiffuseEffect).name(),
-                        typeid(GlobalEnvironmentParams).name());
-}
-
-void GlobalEnvColorEffectAdapter::Apply(
-    azer::Effect* e, const azer::EffectParamsProvider* params) const  {
-  CHECK(typeid(*e) == typeid(DiffuseEffect));
-  CHECK(typeid(*params) == typeid(GlobalEnvironmentParams));
-  GlobalEnvironmentParams* provider = (GlobalEnvironmentParams*)params;
-  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
-
-  effect->SetPV(provider->GetProjView());
-  effect->SetDirLight(provider->light()->dir_light());
 }
 
 }  // namespace lord

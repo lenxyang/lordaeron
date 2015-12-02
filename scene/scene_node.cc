@@ -7,7 +7,6 @@
 #include "azer/render/render.h"
 #include "azer/math/math.h"
 #include "lordaeron/scene/scene_bounding_volumn.h"
-#include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/scene/scene_node_observer.h"
 
@@ -19,16 +18,6 @@ SceneNode::SceneNode()
       shadow_caster_(false),
       parent_(NULL),
       user_data_(NULL) {
-  data_.reset(new SceneNodeData(this));
-}
-
-SceneNode::SceneNode(SceneContextPtr context)
-    : visible_(true),
-      pickable_(false),
-      shadow_caster_(false),
-      parent_(NULL),
-      user_data_(NULL),
-      context_(context) {
   data_.reset(new SceneNodeData(this));
 }
 
@@ -195,14 +184,6 @@ void SceneNode::print_info(std::string* str, int depth, SceneNode* node) {
   str->append("]\n");
   for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
     (*iter)->print_info(str, depth + 1, iter->get());
-  }
-}
-
-SceneContext* SceneNode::context() {
-  if (parent()) {
-    return parent()->context();
-  } else {
-    return context_.get();
   }
 }
 

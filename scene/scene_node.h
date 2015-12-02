@@ -5,11 +5,9 @@
 #include "azer/render/render.h"
 
 namespace lord {
-class SceneContext;
 class SceneNode;
 class SceneNodeData;
 class SceneNodeObserver;
-typedef scoped_refptr<SceneContext> SceneContextPtr;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
 
 class SceneNode: public ::base::RefCounted<SceneNode> {
@@ -25,7 +23,6 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   };
 
   SceneNode();
-  SceneNode(SceneContextPtr context);
   explicit SceneNode(const std::string& name);
   ~SceneNode();
 
@@ -113,8 +110,6 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void AddObserver(SceneNodeObserver* observer); 
   void RemoveObserver(SceneNodeObserver* observer);
   bool HasObserver(SceneNodeObserver* observer);
-
-  SceneContext* context();
  protected:
   void BoundsChanged(const azer::Vector3& orgmin, const azer::Vector3& orgmax);
   void LocationChanged(const azer::Vector3& orgpos);
@@ -143,7 +138,6 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   azer::Vector3 vmin_;
   azer::Vector3 vmax_;
 
-  SceneContextPtr context_;
   ObserverList<SceneNodeObserver> observers_;
   DISALLOW_COPY_AND_ASSIGN(SceneNode);
 };

@@ -3,7 +3,6 @@
 #include "base/logging.h"
 #include "azer/base/file_system.h"
 #include "lordaeron/util/xml_util.h"
-#include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
@@ -25,9 +24,8 @@ bool LoadContents(const ResPath& path, FileContents* contents, FileSystem* fs) {
 }
 }
 
-SceneLoader::SceneLoader(FileSystem* fs, SceneContext* context)
-    : filesystem_(fs),
-      scene_context_(context) {
+SceneLoader::SceneLoader(FileSystem* fs)
+    : filesystem_(fs) {
 }
 
 SceneLoader::~SceneLoader() {

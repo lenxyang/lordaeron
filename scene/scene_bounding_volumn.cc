@@ -7,8 +7,6 @@
 
 #include "lordaeron/context.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_context.h"
-#include "lordaeron/effect/global_environemnt_params.h"
 #include "lordaeron/effect/diffuse_effect.h"
 
 namespace lord {
@@ -39,7 +37,6 @@ void SceneBVProvider::UpdateParams(const azer::FrameArgs& args) {
   Vector3 vmax = node_->vmax();
   Vector3 center = (vmin + vmax) * 0.5f;
   Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
-  pv_ = gparams->camera()->GetProjViewMatrix();
   world_ = std::move(azer::Scale(scale));
   world_ = std::move(node_->orientation().ToMatrix()) * world_;
   world_ = std::move(azer::Translate(center)) * world_;
@@ -63,7 +60,6 @@ void SceneBVParamsAdapter::Apply(
   DCHECK(box && effect);
 
   effect->SetWorld(box->world_);
-  effect->SetPV(box->pv_);
   effect->SetColor(box->color_);
   effect->SetDirLight(ctx->GetInternalLight());
 }

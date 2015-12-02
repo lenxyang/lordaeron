@@ -27,7 +27,6 @@ class SceneBVProvider : public azer::EffectParamsProvider {
   SceneNode* node_;
   azer::Vector4 color_;
   azer::Matrix4 world_;
-  azer::Matrix4 pv_;
   DISALLOW_COPY_AND_ASSIGN(SceneBVProvider);
 };
 

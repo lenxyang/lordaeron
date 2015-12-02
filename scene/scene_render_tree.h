@@ -4,11 +4,15 @@
 #include <vector>
 
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/ref_counted.h"
 #include "azer/render/render.h"
 #include "lordaeron/render/light.h"
 #include "lordaeron/scene/scene_node_traverse.h"
 
 namespace lord {
+class SceneRenderEnvNode;
+typedef scoped_refptr<SceneRenderEnvNode> SceneRenderEnvNodePtr;
+
 class SceneRenderEnvNode : public azer::EffectParamsProvider {
  public:
   SceneRenderEnvNode();
@@ -59,6 +63,8 @@ class SceneRenderNode : public ::baee::RefCounted<SceneRenderNode> {
   azer::Matrix4 world_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderNode);
 };
+
+typedef scoped_refptr<SceneRenderNode> SceneRenderNodePtr;
 
 class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
  public:
