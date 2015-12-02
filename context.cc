@@ -6,7 +6,7 @@
 #include "lordaeron/ui/iconset.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/effect/diffuse_effect_adapter.h"
-#include "lordaeron/render/light_mesh.h"
+#include "lordaeron/effect/light_mesh.h"
 
 namespace lord {
 Context* Context::instance_ = NULL;;

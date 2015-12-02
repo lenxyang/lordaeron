@@ -4,7 +4,6 @@
 #include "lordaeron/context.h"
 #include "lordaeron/util/model_loader.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/scene/scene_loader.h"
 
 namespace lord {

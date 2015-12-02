@@ -1,4 +1,4 @@
-#include "lordaeron/render/light_mesh.h"
+#include "lordaeron/effect/light_mesh.h"
 
 #include "azer/render/render.h"
 #include "lordaeron/context.h"

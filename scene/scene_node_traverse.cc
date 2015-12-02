@@ -1,7 +1,6 @@
 #include "lordaeron/scene/scene_node_traverse.h"
 
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
 SceneNodeTraverse::SceneNodeTraverse(SceneNodeTraverseDelegate* delegate) 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "azer/render/render.h"
-#include "lordaeron/render/light.h"
+#include "lordaeron/effect/light.h"
 
 namespace lord {
 class SceneNode;

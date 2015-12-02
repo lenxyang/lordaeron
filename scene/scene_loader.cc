@@ -3,7 +3,6 @@
 #include "base/logging.h"
 #include "azer/base/file_system.h"
 #include "lordaeron/util/xml_util.h"
-#include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
 using namespace azer;

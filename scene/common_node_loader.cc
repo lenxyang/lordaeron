@@ -1,9 +1,8 @@
 #include "lordaeron/scene/common_node_loader.h"
 
 #include "base/logging.h"
-#include "lordaeron/render/light.h"
+#include "lordaeron/effect/light.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
 namespace {

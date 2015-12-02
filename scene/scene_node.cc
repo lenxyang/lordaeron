@@ -7,11 +7,75 @@
 #include "azer/render/render.h"
 #include "azer/math/math.h"
 #include "lordaeron/scene/scene_bounding_volumn.h"
-#include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/scene/scene_node_observer.h"
 
 namespace lord {
 using namespace azer;
+
+// class SceneNodeData
+SceneNodeData::SceneNodeData(SceneNode* node)
+    : type_(kEmptySceneNode),
+      node_(node) {
+  node->AddObserver(this);
+}
+
+SceneNodeData::~SceneNodeData() {
+  // neednot to Remove observer, because it will be release by SceneNode
+  // node_->RemoveObserver(this);
+}
+
+Mesh* SceneNodeData::GetMesh() {
+  DCHECK(mesh_.get());
+  return mesh_.get();
+}
+
+void SceneNodeData::reset() {
+  if (light_.get()) {
+    light_ = NULL;
+  }
+
+  mesh_ = NULL;
+  type_ = kEmptySceneNode;
+  node_->SetMin(Vector3(0.0f, 0.0f, 0.0f));
+  node_->SetMax(Vector3(0.0f, 0.0f, 0.0f));
+}
+
+Light* SceneNodeData::light() { 
+  return light_.get();
+}
+
+void SceneNodeData::AttachMesh(MeshPtr mesh) {
+  DCHECK(type_ == kEmptySceneNode);
+  mesh_ = mesh;
+  type_ = kMeshSceneNode;
+  node_->SetMin(mesh->vmin());
+  node_->SetMax(mesh->vmax());
+}
+
+void SceneNodeData::AttachLight(Light* light) {
+  DCHECK(light);
+  DCHECK(type_ == kEmptySceneNode);
+  light_ = light;
+  type_ = kLampSceneNode;
+
+  // set mesh
+  Mesh* light_mesh = light_->GetLightMesh();
+  DCHECK(light_mesh);
+  node_->SetMin(light_mesh->vmin());
+  node_->SetMax(light_mesh->vmax());
+}
+
+
+void SceneNodeData::OnSceneNodeOrientationChanged(
+    SceneNode* node, const azer::Quaternion& prev_orient) {
+  if (node_->type() == kLampSceneNode && light_->type() == kDirectionalLight) {
+    Matrix4 rotation = std::move(node->orientation().ToMatrix());
+    Vector4 newdir = rotation * Vector4(0.0f, 0.0f, 1.0f, 0.0f);
+    light_->mutable_dir_light()->direction = Vector3(newdir.x, newdir.y, newdir.z);;
+  }
+}
+
+// class SceneNode
 SceneNode::SceneNode() 
     : visible_(true),
       pickable_(false),
@@ -141,11 +205,11 @@ SceneNodePtr SceneNode::RemoveChildAtPath(const std::string& path) {
   return pnode;
 }
 
-SceneNode::Type SceneNode::type() const {
+SceneNodeType SceneNode::type() const {
   if (data_.get()) {
     return data_->type();
   } else {
-    return SceneNode::kEmptyNode;
+    return kEmptySceneNode;
   }
 }
 

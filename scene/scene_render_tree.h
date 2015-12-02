@@ -6,7 +6,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/ref_counted.h"
 #include "azer/render/render.h"
-#include "lordaeron/render/light.h"
+#include "lordaeron/effect/light.h"
 #include "lordaeron/scene/scene_node_traverse.h"
 
 namespace lord {

@@ -8,7 +8,6 @@
 #include "lordaeron/ui/iconset.h"
 #include "lordaeron/ui/scene_tree_view_lineitem.h"
 #include "lordaeron/scene/scene_tree_model.h"
-#include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
 namespace {

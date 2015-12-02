@@ -1,7 +1,7 @@
 #pragma once
 
 #include "azer/base/config_node.h"
-#include "lordaeron/render/light.h"
+#include "lordaeron/effect/light.h"
 #include "lordaeron/scene/scene_loader.h"
 #include "lordaeron/scene/scene_node.h"
 

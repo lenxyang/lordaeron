@@ -3,25 +3,57 @@
 #include "base/memory/ref_counted.h"
 #include "base/observer_list.h"
 #include "azer/render/render.h"
+#include "lordaeron/effect/light.h"
+#include "lordaeron/scene/scene_node_observer.h"
 
 namespace lord {
+class Light;
 class SceneNode;
 class SceneNodeData;
 class SceneNodeObserver;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
 
+enum SceneNodeType {
+  kEmptySceneNode,
+  kEnvSceneNode,
+  kSceneNode,
+  kMeshSceneNode,
+  kLampSceneNode,
+  kCameraSceneNode,
+  kTerrainTileSceneNode,
+};
+
+class SceneNodeData : public SceneNodeObserver {
+ public:
+  SceneNodeData(SceneNode* node);
+  ~SceneNodeData();
+
+  SceneNodeType type() const { return type_;}
+
+  void reset();
+  void AttachMesh(azer::MeshPtr mesh);
+  azer::Mesh* GetMesh();
+
+  void AttachLight(Light* light);
+  Light* light();
+
+  void SetSceneNode(SceneNode* node);
+ private:
+  // override SceneNodeObserver
+  void OnSceneNodeOrientationChanged(
+      SceneNode* node, const azer::Quaternion& prev_orient) override;
+
+  SceneNodeType type_;
+  azer::MeshPtr mesh_;
+  LightPtr light_;
+  SceneNode* node_;
+  DISALLOW_COPY_AND_ASSIGN(SceneNodeData);
+};
+
+typedef scoped_refptr<SceneNodeData> SceneNodeDataPtr;
+
 class SceneNode: public ::base::RefCounted<SceneNode> {
  public:
-  enum Type {
-    kEmptyNode,
-    kEnvNode,
-    kSceneNode,
-    kMeshNode,
-    kLampNode,
-    kCameraNode,
-    kTerrainTileNode,
-  };
-
   SceneNode();
   explicit SceneNode(const std::string& name);
   ~SceneNode();
@@ -96,7 +128,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
 
   std::string print_info();
 
-  Type type() const;
+  SceneNodeType type() const;
   const SceneNodeData* data() const { return data_.get();}
   SceneNodeData* mutable_data() { return data_.get();}
 

@@ -3,7 +3,7 @@
 #include "base/memory/ref_counted.h"
 #include "azer/math/math.h"
 #include "azer/render/render.h"
-#include "lordaeron/render/light.h"
+#include "lordaeron/effect/light.h"
 
 namespace lord {
 namespace sandbox {

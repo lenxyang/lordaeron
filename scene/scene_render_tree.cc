@@ -2,7 +2,6 @@
 
 #include "base/logging.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
 using namespace azer;
@@ -74,9 +73,9 @@ void SceneRenderEnvNode::UpdateParams(const FrameArgs& args) {
 SceneRenderNode::SceneRenderNode(SceneNode* node)
     : node_(node),
       envnode_(NULL) {
-  if (node->type() == SceneNode::kMeshNode) {
+  if (node->type() == kMeshSceneNode) {
     AddMesh(node->mutable_data()->GetMesh());
-  } else if (node->type() == SceneNode::kLampNode) {
+  } else if (node->type() == kLampSceneNode) {
     Light* light = node->mutable_data()->light();
     AddMesh(light->GetLightMesh());
   }
@@ -182,21 +181,21 @@ bool SceneRenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
   if (!node->parent())
     return true;
 
-  if (node->type() == SceneNode::kEnvNode) {
+  if (node->type() == kEnvSceneNode) {
     CHECK(node->parent() != NULL);
     SceneRenderEnvNode* envnode = new SceneRenderEnvNode(cur_->GetRenderEnvNode());
     cur_->SetSceneRenderEnvNode(envnode);
-  } else if (node->type() == SceneNode::kSceneNode) {
+  } else if (node->type() == kSceneNode) {
     SceneRenderNode* n = new SceneRenderNode(node);
     n->SetSceneRenderEnvNode(cur_->GetRenderEnvNode());
     cur_->AddChild(n);
     cur_ = n;
-  } else if (node->type() == SceneNode::kMeshNode) {
+  } else if (node->type() == kMeshSceneNode) {
     SceneRenderNode* n = new SceneRenderNode(node);
     n->SetSceneRenderEnvNode(cur_->GetRenderEnvNode());
     cur_->AddChild(n);
     cur_ = n;
-  } else if (node->type() == SceneNode::kLampNode) {
+  } else if (node->type() == kLampSceneNode) {
     SceneRenderNode* n = new SceneRenderNode(node);
     n->SetSceneRenderEnvNode(cur_->GetRenderEnvNode());
     n->GetRenderEnvNode()->AddLight(node->mutable_data()->light());

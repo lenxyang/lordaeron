@@ -3,7 +3,7 @@
 #include "azer/base/config_node.h"
 #include "azer/base/file_system.h"
 #include "azer/render/render.h"
-#include "lordaeron/render/light.h"
+#include "lordaeron/effect/light.h"
 #include "lordaeron/scene/scene_node.h"
 
 // xml

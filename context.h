@@ -4,7 +4,7 @@
 #include "azer/render/util.h"
 #include "ui/gfx/image/image_skia.h"
 #include "nelf/nelf.h"
-#include "lordaeron/render/light.h"
+#include "lordaeron/effect/light.h"
 
 namespace lord {
 class Iconset;

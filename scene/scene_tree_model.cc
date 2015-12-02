@@ -3,7 +3,6 @@
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "lordaeron/context.h"
-#include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/ui/iconset.h"
 
 namespace lord {
@@ -115,10 +114,10 @@ int SceneTreeModel::GetIconIndex(ui::TreeModelNode* n)  {
   SceneTreeModelNode* node = dynamic_cast<SceneTreeModelNode*>(n);
   SceneNode* rnode = node->scene_node();
   switch (rnode->type()) {
-    case SceneNode::kEmptyNode: return 0;
-    case SceneNode::kCameraNode: return 1;
-    case SceneNode::kLampNode: return 2;
-    case SceneNode::kMeshNode: return 3;
+    case kEmptySceneNode: return 0;
+    case kCameraSceneNode: return 1;
+    case kLampSceneNode: return 2;
+    case kMeshSceneNode: return 3;
     default: return 0;
   }
 }

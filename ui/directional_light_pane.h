@@ -3,7 +3,7 @@
 #include "ui/views/view.h"
 #include "ui/views/controls/label.h"
 #include "ui/views/controls/textfield/textfield.h"
-#include "lordaeron/render/light.h"
+#include "lordaeron/effect/light.h"
 
 namespace lord {
 class ColorControl;

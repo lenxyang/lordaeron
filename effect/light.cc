@@ -1,7 +1,7 @@
-#include "lordaeron/render/light.h"
+#include "lordaeron/effect/light.h"
 
 #include "base/logging.h"
-#include "lordaeron/render/light_mesh.h"
+#include "lordaeron/effect/light_mesh.h"
 #include "lordaeron/scene/scene_node.h"
 
 namespace lord {
