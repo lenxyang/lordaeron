@@ -3,7 +3,6 @@
 #include "base/logging.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_node_data.h"
-#include "lordaeron/effect/scene_node_params.h"
 
 namespace lord {
 using namespace azer;
@@ -130,6 +129,10 @@ int32 SceneRenderNode::GetIndexOf(SceneRenderNode* child) const {
   return -1;
 }
 
+void SceneRenderNode::UpdateParams(const azer::FrameArgs& args) {
+  world_ = node_->world();
+}
+
 void SceneRenderNode::AddMesh(Mesh* mesh) {
   /*
     light_mesh->AddProvider(new LightColorProvider(light_.get()));
@@ -138,8 +141,8 @@ void SceneRenderNode::AddMesh(Mesh* mesh) {
     light_mesh->AddProvider(node_->context()->GetGlobalEnvironment());
   */
   
-  SceneNodeParamsPtr params(new SceneNodeParams(node_));
-  mesh->AddProvider(params);
+  // mesh->AddProvider(this);
+  // mesh->AddProvider(envnode_);
   mesh_ = mesh;
 }
 

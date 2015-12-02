@@ -36,7 +36,6 @@ int main(int argc, char* argv[]) {
   lord::Context* ctx = lord::Context::instance();
   azer::EffectAdapterContext* adapterctx = ctx->GetEffectAdapterContext();
   adapterctx->RegisteAdapter(new lord::sandbox::ColorEffectAdapter);
-  adapterctx->RegisteAdapter(new lord::sandbox::SceneNodeColorEffectAdapter);
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));

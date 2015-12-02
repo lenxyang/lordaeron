@@ -38,7 +38,7 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
   DISALLOW_COPY_AND_ASSIGN(SceneRenderEnvNode);
 };
 
-class SceneRenderNode : public ::base::RefCounted<SceneRenderNode> {
+class SceneRenderNode : public azer::EffectParamsProvider {
  public:
   SceneRenderNode(SceneNode* node);
   virtual ~SceneRenderNode();
@@ -56,6 +56,10 @@ class SceneRenderNode : public ::base::RefCounted<SceneRenderNode> {
   int32 GetIndexOf(SceneRenderNode* child) const;
   const std::vector<SceneRenderNodePtr>& children() const { return children_;}
 
+  const azer::Matrix4& world() const { return world_;}
+  void UpdateParams(const azer::FrameArgs& args) override;
+
+  // virtual function;
   virtual void Update(const azer::FrameArgs& args);
   virtual void Render(azer::Renderer* renderer);
  private:
