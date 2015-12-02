@@ -1,6 +1,8 @@
-#include "lordaeron/scene/scene_environment.h"
+#include "lordaeron/scene/scene_render_tree.h"
 
 #include "base/logging.h"
+#include "lordaeron/scene/scene_node.h"
+#include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
 // class SceneRenderEnvNode
