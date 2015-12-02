@@ -18,4 +18,7 @@ void SceneEnvironment::PushLight(LightPtr light) {
 void SceneEnvironment::PopLight() {
   light_.pop_back();
 }
+
+void SceneEnvironment::UpdateParams(const azer::FrameArgs& args) {
+}
 }  // namespace lord

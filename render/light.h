@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "base/memory/ref_counted.h"
 #include "azer/math/math.h"
 #include "azer/render/render.h"
@@ -45,8 +47,7 @@ enum LightType {
   kSpotLight,
 };
 
-class Light : public ::base::RefCounted<Light>,
-              public SceneNodeObserver {
+class Light : public ::base::RefCounted<Light> {
  public:
   explicit Light(const DirLight& light);
   explicit Light(const PointLight& light);
@@ -67,12 +68,6 @@ class Light : public ::base::RefCounted<Light>,
   SpotLight* mutable_spot_light();
 
   azer::Mesh* GetLightMesh() { return mesh_.get();}
-
-  // override form SceneNodeObserver
-  void OnSceneNodeOrientationChanged(
-      SceneNode* node, const azer::Quaternion& prev_orient) override;
-  void OnSceneNodeLocationChanged(
-      SceneNode* node, const azer::Vector3& prevpos) override;
  private:
   LightType type_;
   DirLight dir_light_;
@@ -83,4 +78,5 @@ class Light : public ::base::RefCounted<Light>,
 };
 
 typedef scoped_refptr<Light> LightPtr;
+typedef std::vector<LightPtr> Lights;
 }  // namespace lord

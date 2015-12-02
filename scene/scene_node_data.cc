@@ -27,7 +27,6 @@ MeshPtr SceneNodeData::GetMesh() {
 
 void SceneNodeData::reset() {
   if (light_.get()) {
-    node_->RemoveObserver(light_.get());
     light_ = NULL;
   }
 
@@ -53,7 +52,6 @@ void SceneNodeData::AttachLight(LightPtr light) {
   DCHECK(type_ == SceneNode::kEmptyNode);
   light_ = light;
   type_ = SceneNode::kLampNode;
-  node_->AddObserver(light_.get());
 
   // set mesh
   Mesh* light_mesh = light_->GetLightMesh();

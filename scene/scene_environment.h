@@ -6,7 +6,7 @@
 #include "lordaeron/render/light.h"
 
 namespace lord {
-class SceneEnvironment {
+class SceneEnvironment : public azer::EffectParamsProvider {
  public:
   SceneEnvironment();
   ~SceneEnvironment();
@@ -16,9 +16,10 @@ class SceneEnvironment {
   void PushLight(LightPtr light);
   void PopLight();
 
-  const std::deque<LightPtr>& light() const { return light_;}
+  const Lights light() const { return light_;}
+  void UpdateParams(const azer::FrameArgs& args) override;
  private:
-  std::deque<LightPtr> light_;
+  Lights light_;
   DISALLOW_COPY_AND_ASSIGN(SceneEnvironment);
 };
 }  // namespace lord
