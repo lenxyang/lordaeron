@@ -1,4 +1,4 @@
-#include "lordaeron/scene/light_node_loader.H"
+#include "lordaeron/scene/common_node_loader.h"
 
 #include "base/logging.h"
 #include "lordaeron/render/light.h"
@@ -41,7 +41,8 @@ const char* LightNodeLoader::node_type_name() const {
   return "light";
 }
 
-bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
+bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
+                                    SceneLoadContext* ctx) {
   using namespace azer;
   const std::string& type =  config->GetAttr("type");
   DCHECK(type == "light");
@@ -49,8 +50,8 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
   Vector4 diffuse;
   Vector4 ambient;
   Vector4 specular;
-  DCHECK(config->HasNamedChild("light")) << "has no light node";
-  ConfigNode* light_node = config->GetNamedChildren("light")[0];
+  DCHECK(config->HasTaggedChild("light")) << "has no light node";
+  ConfigNode* light_node = config->GetTaggedChildren("light")[0];
   CHECK(light_node->GetChildTextAsVec4("ambient", &ambient))
       << "light node has ambient";
   CHECK(light_node->GetChildTextAsVec4("diffuse", &diffuse))
@@ -108,7 +109,7 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config) {
 
 bool LightNodeLoader::LoadAttenuation(Attenuation* atten, ConfigNode* config) {
   std::vector<ConfigNodePtr> children  =
-      std::move(config->GetNamedChildren("attenuation"));
+      std::move(config->GetTaggedChildren("attenuation"));
   if (children.size() != 1u) {
     LOG(ERROR) << "has no or too many attenuation node";
     return false;
@@ -118,6 +119,23 @@ bool LightNodeLoader::LoadAttenuation(Attenuation* atten, ConfigNode* config) {
   CHECK(atten_node->GetChildTextAsVec3("coefficient", &atten->coefficient));
   CHECK(atten_node->GetChildTextAsFloat("range", &atten->range))
       << "attenuation node has distance";
+  return true;
+}
+
+// class EnvNodeLoader
+const char EnvNodeLoader::kNodeTypeName[] = "environement";
+EnvNodeLoader::EnvNodeLoader() {
+}
+
+EnvNodeLoader::~EnvNodeLoader() {
+}
+
+const char* EnvNodeLoader::node_type_name() const {
+  return kNodeTypeName;
+}
+
+bool EnvNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
+                                  SceneLoadContext* ctx) {
   return true;
 }
 }

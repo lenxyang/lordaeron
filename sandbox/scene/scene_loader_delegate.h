@@ -21,15 +21,16 @@ class SimpleSceneLoaderDelegate : public SceneNodeLoader {
   SimpleSceneLoaderDelegate(azer::FileSystem* fs, azer::Effect* effect)
       : fsystem_(fs), effect_(effect) {}
   virtual const char* node_type_name() const { return "mesh";}
-  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config) override {
+  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
+                     SceneLoadContext* loadctx) override {
     using azer::ConfigNode;
     Context* ctx = Context::instance(); 
     const std::string& type =  config->GetAttr("type");
     if (type == "mesh") {
-      DCHECK(config->HasNamedChild("mesh"));
-      ConfigNode* mesh_node = config->GetNamedChildren("mesh")[0];
-      DCHECK(mesh_node->HasNamedChild("provider"));
-      ConfigNode* provider_node = mesh_node->GetNamedChildren("provider")[0];
+      DCHECK(config->HasTaggedChild("mesh"));
+      ConfigNode* mesh_node = config->GetTaggedChildren("mesh")[0];
+      DCHECK(mesh_node->HasTaggedChild("provider"));
+      ConfigNode* provider_node = mesh_node->GetTaggedChildren("provider")[0];
       azer::MeshPtr mesh = LoadMesh(mesh_node);
       mesh->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
       mesh->AddProvider(LoadProvider(provider_node));

@@ -18,7 +18,7 @@
 #include "lordaeron/effect/global_environemnt_params.h"
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/mainframe_render_delegate.h"
-#include "lordaeron/scene/light_node_loader.h"
+#include "lordaeron/scene/common_node_loader.h"
 #include "lordaeron/scene/scene_context.h"
 #include "lordaeron/scene/scene_render.h"
 #include "lordaeron/scene/scene_node.h"

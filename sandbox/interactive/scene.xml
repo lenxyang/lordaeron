@@ -10,6 +10,11 @@
         <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
         <specular>0.8, 0.8, 0.8, 1.0</specular>
         <range>100.0</range>
+
+        <attenuation>
+          <coefficient>1.0, 3.0, 4.0</coefficient>
+          <range>100</range>
+        </attenuation>
       </light>
     </node>
     <node name="dir" type="light">
@@ -36,8 +41,11 @@
         <directional>0.0, 0.0, 1.0</directional>
 	<phi>0.4</phi>
 	<theta>0.2</theta>
-	<range>100</range>
-	<attenuation>1.0, 3.0, 4.0</attenuation>
+	
+	<attenuation>
+          <coefficient>1.0, 3.0, 4.0</coefficient>
+          <range>100</range>
+        </attenuation>
       </light>
     </node>
     <node name="teaport" type="mesh">
@@ -45,7 +53,7 @@
         <position>0.0f, 0.0f, -3.0f</position>
       </location>
       <mesh>
-        <path>//model/teapot.obj</path>
+        <path>//media/model/teapot.obj</path>
         <effect name="DiffuseEffect"/>
         <provider name="lord::DiffuseEffectProvider">
           <color>0.3f, 0.3f, 0.3f, 1.0f</color>
@@ -57,7 +65,7 @@
         <position>-10.0f, 0.0f, -7.0f</position>
       </location>
       <mesh>
-        <path>//model/trunk.obj</path>
+        <path>//media/model/trunk.obj</path>
         <effect name="DiffuseEffect"/>
         <provider name="lord::DiffuseEffectProvider">
           <color>0.3f, 0.3f, 0.3f, 1.0f</color>
@@ -70,7 +78,7 @@
         <position>10.0f, 0.0f, 0.0f</position>
       </location>
       <mesh>
-        <path>//model/cow.obj</path>
+        <path>//media/model/cow.obj</path>
         <effect name="DiffuseEffect"/>
         <provider name="lord::DiffuseEffectProvider">
           <color>0.3f, 0.3f, 0.3f, 1.0f</color>

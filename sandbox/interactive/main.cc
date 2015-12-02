@@ -4,6 +4,8 @@
 #include "lordaeron/sandbox/interactive/scene_node_loader.h"
 #include "lordaeron/interactive/fps_camera_controller.h"
 
+using base::FilePath;
+using base::UTF8ToUTF16;
 using views::Widget;
 using lord::SceneNodePtr;
 using lord::SceneNode;
@@ -26,6 +28,7 @@ class MyRenderWindow : public lord::SceneRenderWindow {
   lord::DiffuseEffectPtr effect_;
   azer::Matrix4 pv_;
   scoped_ptr<FileSystem> fsystem_;
+  SceneNodePtr root_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
 };
 }  // namespace lord
@@ -58,8 +61,7 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
 
   effect_ = CreateDiffuseEffect();
   lord::Context* ctx = lord::Context::instance(); 
-  fsystem_.reset(new azer::NativeFileSystem(
-      ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
+  fsystem_.reset(new azer::NativeFileSystem(FilePath(UTF8ToUTF16("lordaeron/"))));
   lord::DirLight dirlight;
   dirlight.direction = Vector3(-0.6f, -0.2f, -0.2f);
   dirlight.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
@@ -68,22 +70,18 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   scene_context_ = new lord::SceneContext;
   scene_context_->GetGlobalEnvironment()->SetCamera(mutable_camera());
   scene_context_->GetGlobalEnvironment()->SetLight(light);
-  SceneNodePtr root = new SceneNode(scene_context_);
 
-  std::string contents;
-  base::ReadFileToString(base::FilePath(
-      FILE_PATH_LITERAL("lordaeron/sandbox/interactive/scene.xml")), &contents);
-  ConfigNodePtr config_root = ConfigNode::InitFromXMLStr(contents);
-  CHECK(config_root.get());
 
-  VertexDescPtr desc = effect_->GetVertexDesc();
-  scoped_ptr<LightNodeLoader> light_loader(new LightNodeLoader());
+  // load loader
+  scoped_ptr<SceneNodeLoader> light_loader(new LightNodeLoader());
+  scoped_ptr<SceneNodeLoader> env_loader(new EnvNodeLoader());
   scoped_ptr<SimpleSceneNodeLoader> node_loader(new SimpleSceneNodeLoader(
       fsystem_.get(), effect_.get()));
-  SceneLoader loader;
+  SceneLoader loader(fsystem_.get(), scene_context_.get());
   loader.RegisterSceneNodeLoader(node_loader.Pass());
+  loader.RegisterSceneNodeLoader(env_loader.Pass());
   loader.RegisterSceneNodeLoader(light_loader.Pass());
-  CHECK(loader.Load(root.get(), config_root));
+  SceneNodePtr root = loader.Load(ResPath(UTF8ToUTF16("//sandbox/interactive/scene.xml")), "//");
   scene_renderer_.reset(new SceneRender(scene_context_.get(), root.get()));
   return root;
 }
@@ -100,7 +98,7 @@ void MyRenderWindow::OnInitUI() {
   window->AddPane(pane);
   window->Init();
   window->Show();
-  // window->Dock(nelf::kDockLeft);
+  window->Dock(nelf::kDockLeft);
 
   /*
   {

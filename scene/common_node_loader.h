@@ -22,9 +22,24 @@ class LightNodeLoader : public SceneNodeLoader {
   ~LightNodeLoader();
 
   const char* node_type_name() const override;
-  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config) override;
+  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
+                     SceneLoadContext* ctx) override;
  private:
   bool LoadAttenuation(Attenuation* atten, azer::ConfigNode* config);
   DISALLOW_COPY_AND_ASSIGN(LightNodeLoader);
 };
+
+class EnvNodeLoader : public SceneNodeLoader {
+ public:
+  static const char kNodeTypeName[];
+  EnvNodeLoader();
+  ~EnvNodeLoader();
+
+  const char* node_type_name() const override;
+  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
+                     SceneLoadContext* ctx) override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(EnvNodeLoader);
+};
+
 }  // namespace lord

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "azer/base/config_node.h"
+#include "azer/base/file_system.h"
 #include "azer/render/render.h"
 #include "lordaeron/render/light.h"
 #include "lordaeron/scene/scene_node.h"
@@ -40,30 +41,45 @@
 namespace lord {
 class SceneNode;
 class SceneNodeData;
+class SceneLoader;
+
+struct SceneLoadContext {
+  SceneLoader* loader;
+  azer::FileSystem* filesystem;
+  azer::ResPath path;
+};
 
 class SceneNodeLoader {
  public:
   virtual const char* node_type_name() const = 0;
-  virtual bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config) = 0;
+  virtual bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config, 
+                             SceneLoadContext* ctx) = 0;
 };
 
+// must be stateless class
 class SceneLoader {
  public:
-  explicit SceneLoader();
+  SceneLoader(azer::FileSystem* fs, SceneContext* context);
   ~SceneLoader();
 
   SceneNodeLoader* GetLoader(const std::string& name);
   void RegisterSceneNodeLoader(scoped_ptr<SceneNodeLoader> loader);
 
   // Load Scene
-  bool Load(SceneNode* root, azer::ConfigNode* config_root);
+  SceneNodePtr Load(const azer::ResPath& path, const std::string& nodepath);
  private:
-  bool InitSceneNodeRecusive(SceneNode* node, azer::ConfigNode* config_node);
-  bool InitSceneNode(SceneNode* node, azer::ConfigNode* config);
-  bool LoadChildrenNode(SceneNode* node, azer::ConfigNode* config);
-  bool LoadSceneLocation(SceneNode* node, azer::ConfigNode* config);
+  bool InitSceneNodeRecusive(SceneNode* node, azer::ConfigNode* config_node,
+                             SceneLoadContext* ctx);
+  bool InitSceneNode(SceneNode* node, azer::ConfigNode* config, 
+                     SceneLoadContext* ctx);
+  bool LoadChildrenNode(SceneNode* node, azer::ConfigNode* config,
+                        SceneLoadContext* ctx);
+  bool LoadSceneLocation(SceneNode* node, azer::ConfigNode* config,
+                         SceneLoadContext* ctx);
 
   std::map<std::string, scoped_ptr<SceneNodeLoader> >loader_map_;
+  azer::FileSystem* filesystem_;
+  SceneContext* scene_context_;
   DISALLOW_COPY_AND_ASSIGN(SceneLoader);
 };
 }

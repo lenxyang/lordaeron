@@ -1,0 +1,58 @@
+<scene name="sandbox_scene_config">
+  <node name="root">
+    <node name="scene">
+      <node name="teaport" type="mesh">
+        <location>
+          <position>0.0f, 0.0f, 0.0f</position>
+        </location>
+        <mesh>
+          <path>//media/model/teapot.obj</path>
+          <effect name="DiffuseEffect"/>
+          <provider name="lord::DiffuseEffectProvider">
+            <color>0.3f, 0.3f, 0.3f, 1.0f</color>
+          </provider>
+        </mesh>
+      </node>
+    </node>
+
+      <node name="dir" type="light">
+        <location>
+          <position>8.0f, 8.0f, 0.0f</position>
+        </location>
+        
+        <light type="directional_light">
+          <ambient>0.03, 0.03, 0.03, 1.0</ambient>
+          <diffuse>0.5, 0.5, 0.4, 1.0</diffuse>
+          <specular>0.1, 0.1, 0.1, 1.0</specular>
+          <directional>-0.5, -0.2, -0.2</directional>
+        </light>
+      </node>
+<!--
+   <node name="tree" type="mesh">
+     <location>
+       <position>0.0f, 0.0f, 0.0f</position>
+     </location>
+     <mesh>
+       <path>//media/model/trunk.obj</path>
+       <effect name="DiffuseEffect"/>
+       <provider name="lord::DiffuseEffectProvider">
+          <color>0.3f, 0.3f, 0.3f, 1.0f</color>
+       </provider>
+     </mesh>
+   </node>
+   <node name="venusm" type="mesh">
+     <location>
+       <scale>0.002, 0.002, 0.002</scale>
+       <position>10.0f, 0.0f, 0.0f</position>
+     </location>
+     <mesh>
+       <path>//media/model/venusm.obj</path>
+       <effect name="DiffuseEffect"/>
+       <provider name="lord::DiffuseEffectProvider">
+         <color>0.3f, 0.3f, 0.3f, 1.0f</color>
+       </provider>
+     </mesh>
+   </node>
+-->
+  </node>
+</scene>
