@@ -32,8 +32,6 @@ static_library("lordaeron") {
     "interactive/axis_object.h",
     "interactive/controller_object.cc",
     "interactive/controller_object.h",
-    "interactive/directional_light_object.cc",
-    "interactive/directional_light_object.h",
     "interactive/fps_camera_controller.cc",
     "interactive/fps_camera_controller.h",
     "interactive/interactive_context.cc",

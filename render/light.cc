@@ -2,6 +2,7 @@
 
 #include "base/logging.h"
 #include "lordaeron/render/light_mesh.h"
+#include "lordaeron/scene/scene_node.h"
 
 namespace lord {
 using namespace azer;
@@ -95,6 +96,40 @@ const Vector4& Light::specular() const {
     default:
       CHECK(false);
       return none_color;
+  }
+}
+
+void Light::OnSceneNodeLocationChanged(SceneNode* node,
+                                       const azer::Vector3& prevpos) {
+  switch (type()) {
+    case kDirectionalLight:
+      return;
+    case kSpotLight:
+      spot_light_.position = node->position();
+      return;
+    case kPointLight:
+      point_light_.position = node->position();
+      return;
+    default:
+      CHECK(false);
+      return;
+  }
+}
+
+void Light::OnSceneNodeOrientationChanged(SceneNode* node, 
+                                          const azer::Quaternion& prev_orient) {
+  switch (type()) {
+    case kDirectionalLight:
+      dir_light_.direction = node->orientation().zaxis();
+      return;
+    case kSpotLight:
+      spot_light_.direction = node->orientation().zaxis();
+      return;
+    case kPointLight:
+      return;
+    default:
+      CHECK(false);
+      return;
   }
 }
 }  // namespace lord

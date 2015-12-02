@@ -26,6 +26,11 @@ MeshPtr SceneNodeData::GetMesh() {
 }
 
 void SceneNodeData::reset() {
+  if (light_.get()) {
+    node_->RemoveObserver(light_.get());
+    light_ = NULL;
+  }
+
   mesh_ = NULL;
   type_ = SceneNode::kEmptyNode;
   node_->SetMin(Vector3(0.0f, 0.0f, 0.0f));
@@ -48,6 +53,7 @@ void SceneNodeData::AttachLight(LightPtr light) {
   DCHECK(type_ == SceneNode::kEmptyNode);
   light_ = light;
   type_ = SceneNode::kLampNode;
+  node_->AddObserver(light_.get());
 
   // set mesh
   Mesh* light_mesh = light_->GetLightMesh();

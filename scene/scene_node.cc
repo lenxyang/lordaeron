@@ -299,38 +299,56 @@ void SceneNode::SetMax(const Vector3& v) {
 }
 
 void SceneNode::pitch(const Radians angle) {
+  Quaternion oldq = holder().orientation();
   mutable_holder()->pitch(angle);
+  OrientationChanged(oldq);
 }
 
 void SceneNode::yaw(const Radians angle) {
+  Quaternion oldq = holder().orientation();
   mutable_holder()->yaw(angle);
+  OrientationChanged(oldq);
 }
 
 void SceneNode::roll(const Radians angle) {
+  Quaternion oldq = holder().orientation();
   mutable_holder()->roll(angle);
+  OrientationChanged(oldq);
 }
 
 void SceneNode::pitch(const Degree angle) {
+  Quaternion oldq = holder().orientation();
   mutable_holder()->pitch(angle);
+  OrientationChanged(oldq);
 }
 
 void SceneNode::yaw(const Degree angle) {
+  Quaternion oldq = holder().orientation();
   mutable_holder()->yaw(angle);
+  OrientationChanged(oldq);
 }
 
 void SceneNode::roll(const Degree angle) {
+  Quaternion oldq = holder().orientation();
   mutable_holder()->roll(angle);
+  OrientationChanged(oldq);
 }
 
 void SceneNode::rotate(const Vector3& axis, const Degree angle) {
+  Quaternion oldq = holder().orientation();
   mutable_holder()->rotate(axis, angle);
+  OrientationChanged(oldq);
 }
 void SceneNode::rotate(const Vector3& axis, const Radians angle) {
+  Quaternion oldq = holder().orientation();
   mutable_holder()->rotate(axis, angle);
+  OrientationChanged(oldq);
 }
 
 void SceneNode::set_orientation(const Quaternion& q) {
+  Quaternion oldq = holder().orientation();
   mutable_holder()->set_orientation(q);
+  OrientationChanged(oldq);
 }
 
 // observers

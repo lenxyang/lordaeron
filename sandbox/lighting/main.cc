@@ -1,7 +1,6 @@
 #include <memory>
 
 #include "lordaeron/sandbox/sandbox.h"
-#include "lordaeron/interactive/directional_light_object.h"
 #include "lordaeron/sandbox/lighting/scene_loader_delegate.h"
 #include "lordaeron/sandbox/lighting/effect.h"
 #include "lordaeron/sandbox/lighting/effect_adapter.h"
@@ -27,7 +26,6 @@ class MyRenderWindow : public lord::SceneRenderWindow {
  private:
   SceneContextPtr scene_context_;
   scoped_ptr<SceneRender> scene_renderer_;
-  scoped_ptr<DirectionalLightObject> dirlight_controller_;
   sandbox::MyEffectPtr effect_;
   azer::Matrix4 pv_;
 

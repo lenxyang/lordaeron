@@ -3,6 +3,7 @@
 #include "base/memory/ref_counted.h"
 #include "azer/math/math.h"
 #include "azer/render/render.h"
+#include "lordaeron/scene/scene_node_observer.h"
 
 namespace lord {
 struct Attenuation {
@@ -44,7 +45,8 @@ enum LightType {
   kSpotLight,
 };
 
-class Light : public ::base::RefCounted<Light> {
+class Light : public ::base::RefCounted<Light>,
+              public SceneNodeObserver {
  public:
   explicit Light(const DirLight& light);
   explicit Light(const PointLight& light);
@@ -65,6 +67,12 @@ class Light : public ::base::RefCounted<Light> {
   SpotLight* mutable_spot_light();
 
   azer::Mesh* GetLightMesh() { return mesh_.get();}
+
+  // override form SceneNodeObserver
+  void OnSceneNodeOrientationChanged(
+      SceneNode* node, const azer::Quaternion& prev_orient) override;
+  void OnSceneNodeLocationChanged(
+      SceneNode* node, const azer::Vector3& prevpos) override;
  private:
   LightType type_;
   DirLight dir_light_;
