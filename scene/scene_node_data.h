@@ -15,18 +15,17 @@ class SceneNodeData : public SceneNodeObserver {
   SceneNode::Type type() const { return type_;}
 
   void reset();
-
   void AttachMesh(azer::MeshPtr mesh);
-  azer::MeshPtr GetMesh();
+  azer::Mesh* GetMesh();
 
   void AttachLight(LightPtr light);
-  LightPtr light() { return light_;}
+  Light* light();
 
   void SetSceneNode(SceneNode* node);
  private:
   // override SceneNodeObserver
-  void OnSceneNodeOrientationChanged(SceneNode* node, 
-                                     const azer::Quaternion& prev_orient) override;
+  void OnSceneNodeOrientationChanged(
+      SceneNode* node, const azer::Quaternion& prev_orient) override;
 
   SceneNode::Type type_;
   azer::MeshPtr mesh_;

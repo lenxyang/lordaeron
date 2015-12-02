@@ -8,6 +8,8 @@
 #include "lordaeron/scene/scene_node_data.h"
 
 namespace lord {
+
+// class SceneArgsUpdator
 SceneArgsUpdator::SceneArgsUpdator(SceneEnvironment* env)
     : environment_(env),
       args_(NULL) {

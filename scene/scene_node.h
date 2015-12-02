@@ -16,6 +16,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
  public:
   enum Type {
     kEmptyNode,
+    kEnvNode,
+    kSceneNode,
     kMeshNode,
     kLampNode,
     kCameraNode,

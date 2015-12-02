@@ -22,7 +22,7 @@ SceneNodeData::~SceneNodeData() {
 
 MeshPtr SceneNodeData::GetMesh() {
   DCHECK(mesh_.get());
-  return mesh_;
+  return mesh_.get();
 }
 
 void SceneNodeData::reset() {
@@ -34,6 +34,10 @@ void SceneNodeData::reset() {
   type_ = SceneNode::kEmptyNode;
   node_->SetMin(Vector3(0.0f, 0.0f, 0.0f));
   node_->SetMax(Vector3(0.0f, 0.0f, 0.0f));
+}
+
+Light* SceneNodeData::light() { 
+  return light_.get();
 }
 
 void SceneNodeData::AttachMesh(MeshPtr mesh) {
