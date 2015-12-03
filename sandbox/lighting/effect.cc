@@ -50,6 +50,8 @@ void MyEffect::InitGpuConstantTable() {
   GpuConstantsTable::Desc ps_table_desc[] = {
     GpuConstantsTable::Desc("light", offsetof(ps_cbuffer, light),
                             sizeof(lord::DirLight), 1),
+    GpuConstantsTable::Desc("pointlight", offsetof(ps_cbuffer, pointlight),
+                            sizeof(lord::PointLight), 1),
     GpuConstantsTable::Desc("color", GpuConstantsType::kVector4,
                             offsetof(ps_cbuffer, color), 1),
   };
@@ -73,7 +75,11 @@ void MyEffect::SetColor(const Vector4& value) {
   color_ = value;
 }
 void MyEffect::SetDirLight(const lord::DirLight& value) {
-  light_ = value;
+  dir_light_ = value;
+}
+
+void MyEffect::SetPointLight(const PointLight& value) {
+  point_light_ = value;
 }
 
 void MyEffect::ApplyGpuConstantTable(Renderer* renderer) {
@@ -88,8 +94,9 @@ void MyEffect::ApplyGpuConstantTable(Renderer* renderer) {
   {
     GpuConstantsTable* tb = gpu_table_[(int)kPixelStage].get();
     DCHECK(tb != NULL);
-    tb->SetValue(0, &light_, sizeof(lord::DirLight));
-    tb->SetValue(1, &color_, sizeof(Vector4));
+    tb->SetValue(0, &dir_light_, sizeof(lord::DirLight));
+    tb->SetValue(1, &point_light_, sizeof(lord::PointLight));
+    tb->SetValue(2, &color_, sizeof(Vector4));
   }
 }
 

@@ -15,6 +15,7 @@ class LightColorProvider : public azer::EffectParamsProvider {
   ~LightColorProvider();
   void UpdateParams(const azer::FrameArgs& args) override;
   const azer::Vector4& color() const;
+  const azer::Vector4& emission() const;
  private:
   LightPtr light_;
   DISALLOW_COPY_AND_ASSIGN(LightColorProvider);

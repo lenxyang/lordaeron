@@ -17,13 +17,14 @@ const char DiffuseEffect::kEffectName[] = "DiffuseEffect";
 DiffuseEffect::DiffuseEffect(VertexDescPtr desc) 
     : Effect(RenderSystem::Current()) {
   vertex_desc_ptr_ = desc;
+  emission_ = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 DiffuseEffect::~DiffuseEffect() {
 }
 
 const char* DiffuseEffect::GetEffectName() const {
-   return kEffectName;
+  return kEffectName;
 }
 bool DiffuseEffect::Init(const ShaderPrograms& sources) {
   DCHECK(sources.size() == kRenderPipelineStageNum);
@@ -38,18 +39,20 @@ void DiffuseEffect::InitGpuConstantTable() {
   // generate GpuTable init for stage kVertexStage
   GpuConstantsTable::Desc vs_table_desc[] = {
     GpuConstantsTable::Desc("pvw", GpuConstantsType::kMatrix4,
-         offsetof(vs_cbuffer, pvw), 1),
+                            offsetof(vs_cbuffer, pvw), 1),
     GpuConstantsTable::Desc("world", GpuConstantsType::kMatrix4,
-         offsetof(vs_cbuffer, world), 1),
+                            offsetof(vs_cbuffer, world), 1),
   };
   gpu_table_[kVertexStage] = render_system_->CreateGpuConstantsTable(
       arraysize(vs_table_desc), vs_table_desc);
   // generate GpuTable init for stage kPixelStage
   GpuConstantsTable::Desc ps_table_desc[] = {
     GpuConstantsTable::Desc("color", GpuConstantsType::kVector4,
-         offsetof(ps_cbuffer, color), 1),
+                            offsetof(ps_cbuffer, color), 1),
+    GpuConstantsTable::Desc("emission", GpuConstantsType::kVector4,
+                            offsetof(ps_cbuffer, emission), 1),
     GpuConstantsTable::Desc("light", offsetof(ps_cbuffer, light),
-         sizeof(lord::DirLight), 1),
+                            sizeof(lord::DirLight), 1),
   };
   gpu_table_[kPixelStage] = render_system_->CreateGpuConstantsTable(
       arraysize(ps_table_desc), ps_table_desc);
@@ -64,6 +67,10 @@ void DiffuseEffect::SetPV(const Matrix4& value) {
 void DiffuseEffect::SetWorld(const Matrix4& value) {
   world_ = value;
 }
+void DiffuseEffect::SetEmission(const Vector4& value) {
+  emission_ = value;
+}
+
 void DiffuseEffect::SetColor(const Vector4& value) {
   color_ = value;
 }
@@ -83,7 +90,8 @@ void DiffuseEffect::ApplyGpuConstantTable(Renderer* renderer) {
     GpuConstantsTable* tb = gpu_table_[(int)kPixelStage].get();
     DCHECK(tb != NULL);
     tb->SetValue(0, &color_, sizeof(Vector4));
-    tb->SetValue(1, &light_, sizeof(lord::DirLight));
+    tb->SetValue(1, &emission_, sizeof(Vector4));
+    tb->SetValue(2, &light_, sizeof(lord::DirLight));
   }
 }
 
@@ -96,7 +104,7 @@ DiffuseEffectPtr CreateDiffuseEffect() {
                           "lordaeron/effect/hlsl/colored_diffuse.hlsl.ps",
                           &shaders));
   DiffuseEffectPtr ptr(new DiffuseEffect(
-             PosNormalVertex::CreateVertexDesc()));
+      PosNormalVertex::CreateVertexDesc()));
   ptr->Init(shaders);
   return ptr;
 }
@@ -123,6 +131,7 @@ void DiffuseColorEffectAdapter::Apply(
   DiffuseColorProvider* provider = (DiffuseColorProvider*)params;
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   effect->SetColor(provider->color());
+  effect->SetEmission(Vector4(0.0f, 0.0f, 0.0f, 0.0f));
 }
 
 // class SceneRenderNodeDiffuseEffectAdapter

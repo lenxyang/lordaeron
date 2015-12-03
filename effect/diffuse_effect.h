@@ -23,6 +23,7 @@ class DiffuseEffect : public azer::Effect {
 
   struct ps_cbuffer {
     azer::Vector4 color;
+    azer::Vector4 emission;
     DirLight light;
   };
 #pragma pack(pop)
@@ -30,6 +31,7 @@ class DiffuseEffect : public azer::Effect {
   void SetPV(const azer::Matrix4& value);
   void SetWorld(const azer::Matrix4& value);
   void SetColor(const azer::Vector4& value);
+  void SetEmission(const azer::Vector4& value);
   void SetDirLight(const DirLight& value);
  protected:
   void ApplyGpuConstantTable(azer::Renderer* renderer) override;
@@ -39,6 +41,7 @@ class DiffuseEffect : public azer::Effect {
   azer::Matrix4 pv_;
   azer::Matrix4 world_;
   azer::Vector4 color_;
+  azer::Vector4 emission_;
   DirLight light_;
   DISALLOW_COPY_AND_ASSIGN(DiffuseEffect);
 };

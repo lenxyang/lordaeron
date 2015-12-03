@@ -34,3 +34,18 @@ struct SpotLight {
   float       theta;
   Attenuation atten;
 };
+
+float3 CalcSpecularIntensity(float3 ldir, float3 normal, float3 viewin, int p) {
+  float3 reflect = normalize(2.0f * dot(normal, ldir) * normal - ldir);
+  float3 specular_intensity = pow(p, max(0, dot(reflect, viewin)));
+  return specular_intensity;
+}
+
+float3 CalcDirLightIntensity(DirLight light, float3 normal, float3 viewin, int p) {
+  float3 ldir = normalize(light.dir.xyz);
+  float diffuse_intensity = max(0.0, dot(normal, -ldir));
+  float3 light_intensity = light.ambient.xyz
+      + light.diffuse.xyz * diffuse_intensity
+      + CalcSpecularIntensity(ldir, normal, viewin, p) * light.specular;
+  return light_intensity;
+}

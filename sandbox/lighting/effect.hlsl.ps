@@ -5,24 +5,19 @@
 
 struct VsOutput {
   float4 position:SV_POSITION;
-  float4 normal:NORMAL;
-  float4 viewin: VIEWIN;
+  float3 normal:NORMAL;
+  float3 viewin: VIEWIN;
 };
 
 cbuffer c_buffer {
-   float4 color;
-   DirLight light;
+   DirLight dirlight;
+   PointLight pointlight;
+   float4 color;	
 };
 
+
 float4 ps_main(VsOutput o):SV_TARGET {
-  float3 ldir = normalize(light.dir.xyz);
-  float diffuse_intensity = max(0.0, dot(o.normal.xyz, -ldir));
-  float3 reflect = normalize(2.0f * dot(o.normal.xyz, ldir) * o.normal.xyz - ldir);
-  float3 specular_intensity = pow(32, max(0, dot(reflect, o.viewin))) 
-                              * light.specular.xyz;
-  float3 light_intensity = light.ambient.xyz
-                          + light.diffuse.xyz * diffuse_intensity
-                          + specular_intensity;
+  float3 light_intensity = CalcDirLightIntensity(dirlight, o.normal, o.viewin, 32);
   float4 c = float4(light_intensity * color.xyz, color.a);
   return c;
 }

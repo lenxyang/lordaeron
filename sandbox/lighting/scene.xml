@@ -5,15 +5,28 @@
       <node name="env" type="environment">
         <node name="dir" type="light">
           <location><position>4.0f, 4.0f, 0.0f</position></location>
-          
           <light type="directional_light">
-            <ambient>0.03, 0.03, 0.03, 1.0</ambient>
+            <ambient>1.0, 1.0, 1.0, 1.0</ambient>
             <diffuse>0.5, 0.5, 0.4, 1.0</diffuse>
             <specular>0.1, 0.1, 0.1, 1.0</specular>
             <!--<directional>-0.5, -0.2, -0.2</directional>-->
             <directional>0.0, -1.0, -1.0</directional>
           </light>
         </node>
+
+	<node name="point" type="light">
+        <location><position>0.0f, 5.0f, 0.0f</position></location>
+        <light type="point_light">
+          <ambient>1.0, 1.0, 1.0, 1.0</ambient>
+          <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>
+          <specular>0.1, 0.1, 0.1, 1.0</specular>
+          <range>100.0</range>
+          <attenuation>
+            <coefficient>1.0, 3.0, 4.0</coefficient>
+            <range>100</range>
+          </attenuation>
+        </light>
+      </node>
       </node>
 
       <node name="teaport" type="mesh">

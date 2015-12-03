@@ -2,9 +2,7 @@
   <node name="root">
     <node name="env" type="environment">
       <node name="point" type="light">
-        <location>
-          <position>0.0f, 10.0f, 0.0f</position>
-        </location>
+        <location><position>0.0f, 10.0f, 0.0f</position></location>
         
         <light type="point_light">
           <ambient>0.1, 0.1, 0.1, 1.0</ambient>

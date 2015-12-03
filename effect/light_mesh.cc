@@ -36,13 +36,13 @@ void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
 }  // namespace
 
 MeshPtr CreatePointLightMesh() {
-  Context* context = Context::instance();
+  Context* ctx = Context::instance();
   MeshPtr mesh = new Mesh;
   DiffuseEffectPtr effect = CreateDiffuseEffect();
-  GeometryObjectPtr obj = new SphereObject(effect->GetVertexDesc());
+  GeometryObjectPtr obj = new SphereObject(effect->GetVertexDesc(), 0.1f);
   MeshPartPtr part = obj->CreateObject(effect.get());
   mesh->AddMeshPart(part.get());
-  mesh->SetEffectAdapterContext(context->GetEffectAdapterContext());
+  mesh->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
   return mesh;
 }
 
@@ -176,6 +176,10 @@ const Vector4& LightColorProvider::color() const {
   return light_->diffuse();
 }
 
+const Vector4& LightColorProvider::emission() const { 
+  return light_->diffuse();
+}
+
 // class LightColorDiffuseEffectAdapter
 LightColorDiffuseEffectAdapter::LightColorDiffuseEffectAdapter() {
 }
@@ -192,6 +196,7 @@ void LightColorDiffuseEffectAdapter::Apply(
   const LightColorProvider* provider =
       dynamic_cast<const LightColorProvider*>(params);
   DCHECK(provider);
-  effect->SetColor(provider->color() * 3);
+  effect->SetColor(provider->color());
+  effect->SetColor(provider->emission());
 }
 }  // namespace lord
