@@ -51,7 +51,7 @@ class SimpleSceneNodeLoader : public SceneNodeLoader {
   }
   
   azer::EffectParamsProviderPtr LoadProvider(azer::ConfigNode* config) {
-    DiffuseEffectProvider* p(new DiffuseEffectProvider);
+    DiffuseColorProvider* p(new DiffuseColorProvider);
     p->SetColor(azer::Vector4(0.3f, 0.3f, 0.3f, 1.0f));
     return azer::EffectParamsProviderPtr(p);
   }

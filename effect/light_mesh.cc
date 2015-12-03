@@ -168,16 +168,10 @@ MeshPtr CreateDirectionalLightMesh() {
   return mesh;
 }
 
-LightColorProvider::LightColorProvider(Light* light) 
-    : light_(light) {
-}
-
-LightColorProvider::~LightColorProvider() {
-}
-
-void LightColorProvider::UpdateParams(const FrameArgs& args) {
-}
-
+// class LightColorProvider
+LightColorProvider::LightColorProvider(Light* light) : light_(light) {}
+LightColorProvider::~LightColorProvider() {}
+void LightColorProvider::UpdateParams(const FrameArgs& args) {}
 const Vector4& LightColorProvider::color() const { 
   return light_->ambient();
 }
@@ -195,7 +189,8 @@ void LightColorDiffuseEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const {
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   DCHECK(effect);
-  const LightColorProvider* provider = dynamic_cast<const LightColorProvider*>(params);
+  const LightColorProvider* provider =
+      dynamic_cast<const LightColorProvider*>(params);
   DCHECK(provider);
   effect->SetColor(provider->color() * 3);
 }

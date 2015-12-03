@@ -21,13 +21,23 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
   explicit SceneRenderEnvNode(SceneRenderEnvNode* parent);
 
   void AddLight(Light* light) { lights_.push_back(light);}
+  const Lights& lights() const { return lights_;}
   void UpdateParams(const azer::FrameArgs& args) override;
   
   SceneRenderEnvNode* root();
+  const SceneRenderEnvNode* root() const {
+    return const_cast<const SceneRenderEnvNode*>(
+        const_cast<SceneRenderEnvNode*>(this)->root());
+  }
   SceneRenderEnvNode* parent();
+  const SceneRenderEnvNode* parent() const {
+    return const_cast<const SceneRenderEnvNode*>(
+        const_cast<SceneRenderEnvNode*>(this)->parent());
+  }
   int32 child_count() const;
   SceneRenderEnvNode* child_at(int32 index);
   void AddChild(SceneRenderEnvNode* child);
+  bool RemoveChild(SceneRenderEnvNode* child);
   bool Contains(SceneRenderEnvNode* child) const;
   int32 GetIndexOf(SceneRenderEnvNode* child) const;
  private:
@@ -41,35 +51,49 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
 class SceneRenderNode : public azer::EffectParamsProvider {
  public:
   SceneRenderNode(SceneNode* node);
+  SceneRenderNode(SceneNode* node, const azer::Camera* camera);
   virtual ~SceneRenderNode();
 
   SceneNode* GetSceneNode() { return node_;}
   SceneRenderEnvNode* GetRenderEnvNode() { return envnode_.get();}
   void SetSceneRenderEnvNode(SceneRenderEnvNode* n) { envnode_ = n;}
-
-  SceneRenderNode* root();
-  SceneRenderNode* parent();
-  int32 child_count() const;
-  SceneRenderNode* child_at(int32 index);
-  void AddChild(SceneRenderNode* child);
-  bool Contains(SceneRenderNode* child) const;
-  int32 GetIndexOf(SceneRenderNode* child) const;
-  const std::vector<SceneRenderNodePtr>& children() const { return children_;}
-
-  const azer::Matrix4& world() const { return world_;}
   void UpdateParams(const azer::FrameArgs& args) override;
+  const azer::Matrix4& GetWorld() const { return world_;}
+  const azer::Matrix4& GetPVW() const { return pvw_;}
+  const azer::Camera* camera() const;
 
   // virtual function;
   virtual void Update(const azer::FrameArgs& args);
   virtual void Render(azer::Renderer* renderer);
+
+  SceneRenderNode* root();
+  const SceneRenderNode* root() const {
+    return const_cast<const SceneRenderNode*>(
+        const_cast<SceneRenderNode*>(this)->root());
+  }
+  SceneRenderNode* parent();
+  const SceneRenderNode* parent() const {
+    return const_cast<const SceneRenderNode*>(
+        const_cast<SceneRenderNode*>(this)->parent());
+  }
+  int32 child_count() const;
+  SceneRenderNode* child_at(int32 index);
+  void AddChild(SceneRenderNode* child);
+  bool RemoveChild(SceneRenderNode* child);
+  bool Contains(SceneRenderNode* child) const;
+  int32 GetIndexOf(SceneRenderNode* child) const;
+  const std::vector<SceneRenderNodePtr>& children() const { return children_;}
  private:
   void AddMesh(azer::Mesh* mesh);
   SceneRenderNode* parent_;
+  std::vector<SceneRenderNodePtr> children_;
+
   SceneNode* node_;
   SceneRenderEnvNodePtr envnode_;
-  std::vector<SceneRenderNodePtr> children_;
+  const azer::Camera* camera_;
   azer::MeshPtr mesh_;
   azer::Matrix4 world_;
+  azer::Matrix4 pvw_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderNode);
 };
 
@@ -78,7 +102,7 @@ class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
   SceneRenderTreeBuilder();
   ~SceneRenderTreeBuilder();
 
-  void Bulid(SceneNode* node);
+  void Bulid(SceneNode* node, const azer::Camera* camera);
   SceneRenderNodePtr GetRenderNodeRoot();
   SceneRenderEnvNodePtr GetRenderEnvNodeRoot();
 
@@ -105,4 +129,5 @@ class SimpleRenderTreeRenderer {
   SceneRenderNode* root_;
   DISALLOW_COPY_AND_ASSIGN(SimpleRenderTreeRenderer);
 };
+
 }  // namespace lord

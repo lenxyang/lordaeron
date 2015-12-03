@@ -15,11 +15,11 @@ SceneRenderEnvNode::SceneRenderEnvNode(SceneRenderEnvNode* parent)
 }
 
 SceneRenderEnvNode* SceneRenderEnvNode::root() {
-  if (parent_ == NULL) {
-    return this;
-  } else {
-    return parent()->root();
+  SceneRenderEnvNode* cur = this;
+  while (cur->parent()) {
+    cur = cur->parent();
   }
+  return cur;
 }
 
 SceneRenderEnvNode* SceneRenderEnvNode::parent() {
@@ -36,15 +36,28 @@ SceneRenderEnvNode* SceneRenderEnvNode::child_at(int32 index) {
 
 void SceneRenderEnvNode::AddChild(SceneRenderEnvNode* child) {
   DCHECK(!Contains(child));
+  child->parent_ = this;
   children_.push_back(child);
 }
 
-bool SceneRenderEnvNode::Contains(SceneRenderEnvNode* child) const {
-  for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
-    if (iter->get() == child)
-      return true;
+bool SceneRenderEnvNode::RemoveChild(SceneRenderEnvNode* child) {
+  int32 index = GetIndexOf(child);
+  if (index > 0) {
+    children_.erase(children_.begin() + index);
+    child->parent_ = NULL;
+    return true;
+  } else {
+    return false;
   }
+}
 
+bool SceneRenderEnvNode::Contains(SceneRenderEnvNode* child) const {
+  SceneRenderEnvNode* cur = child;
+  while (cur) {
+    if (cur == this)
+      return true;
+    cur = cur->parent();
+  }
   return false;
 }
 
@@ -71,8 +84,10 @@ void SceneRenderEnvNode::UpdateParams(const FrameArgs& args) {
 
 // class SceneRenderNode
 SceneRenderNode::SceneRenderNode(SceneNode* node)
-    : node_(node),
-      envnode_(NULL) {
+    : parent_(NULL),
+      node_(node),
+      envnode_(NULL),
+      camera_(NULL) {
   if (node->type() == kMeshSceneNode) {
     AddMesh(node->mutable_data()->GetMesh());
   } else if (node->type() == kLampSceneNode) {
@@ -81,14 +96,31 @@ SceneRenderNode::SceneRenderNode(SceneNode* node)
   }
 }
 
+SceneRenderNode::SceneRenderNode(SceneNode* node, const Camera* camera)
+    : parent_(NULL),
+      node_(node),
+      envnode_(NULL),
+      camera_(camera) {
+  DCHECK(node->type() == kSceneNode);
+}
+
 SceneRenderNode::~SceneRenderNode() {
 }
 
 SceneRenderNode* SceneRenderNode::root() {
-  if (parent_ == NULL) {
-    return this;
+  SceneRenderNode* cur = this;
+  while (cur->parent()) {
+    cur = cur->parent();
+  }
+  return cur;
+}
+
+const Camera* SceneRenderNode::camera() const {
+  if (parent()) {
+    return root()->camera();
   } else {
-    return parent()->root();
+    DCHECK(!camera_);
+    return camera_;
   }
 }
 
@@ -105,16 +137,30 @@ SceneRenderNode* SceneRenderNode::child_at(int32 index) {
 }
 
 void SceneRenderNode::AddChild(SceneRenderNode* child) {
+  DCHECK(!child->parent());
   DCHECK(!Contains(child));
+  child->parent_ = this;
   children_.push_back(child);
 }
 
-bool SceneRenderNode::Contains(SceneRenderNode* child) const {
-  for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
-    if (iter->get() == child)
-      return true;
+bool SceneRenderNode::RemoveChild(SceneRenderNode* child) {
+  int32 index = GetIndexOf(child);
+  if (index > 0) {
+    children_.erase(children_.begin() + index);
+    child->parent_ = NULL;
+    return true;
+  } else {
+    return false;
   }
+}
 
+bool SceneRenderNode::Contains(SceneRenderNode* child) const {
+  SceneRenderNode* cur = child;
+  while (cur) {
+    if (cur == this)
+      return true;
+    cur = cur->parent();
+  }
   return false;
 }
 
@@ -130,6 +176,7 @@ int32 SceneRenderNode::GetIndexOf(SceneRenderNode* child) const {
 
 void SceneRenderNode::UpdateParams(const azer::FrameArgs& args) {
   world_ = node_->world();
+  pvw_ = std::move(camera_->GetProjViewMatrix() * world_);
 }
 
 void SceneRenderNode::AddMesh(Mesh* mesh) {
@@ -140,8 +187,8 @@ void SceneRenderNode::AddMesh(Mesh* mesh) {
     light_mesh->AddProvider(node_->context()->GetGlobalEnvironment());
   */
   
-  // mesh->AddProvider(this);
-  // mesh->AddProvider(envnode_);
+  mesh->AddProvider(this);
+  mesh->AddProvider(envnode_);
   mesh_ = mesh;
 }
 
@@ -161,9 +208,9 @@ SceneRenderTreeBuilder::SceneRenderTreeBuilder()
 SceneRenderTreeBuilder::~SceneRenderTreeBuilder() {
 }
 
-void SceneRenderTreeBuilder::Bulid(SceneNode* root) {
+void SceneRenderTreeBuilder::Bulid(SceneNode* root, const Camera* camera) {
   SceneRenderEnvNode* rootenv = new SceneRenderEnvNode;
-  root_ = new SceneRenderNode(root);
+  root_ = new SceneRenderNode(root, camera);
   root_->SetSceneRenderEnvNode(rootenv);
   cur_ = root_.get();
   SceneNodeTraverse traverser(this);

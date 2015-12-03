@@ -14,7 +14,6 @@
 #include "lordaeron/res/grit/common.h"
 #include "lordaeron/context.h"
 #include "lordaeron/effect/diffuse_effect.h"
-#include "lordaeron/effect/diffuse_effect_provider.h"
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/mainframe_render_delegate.h"
 #include "lordaeron/scene/common_node_loader.h"

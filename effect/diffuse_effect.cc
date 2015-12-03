@@ -8,6 +8,7 @@
 #include "azer/render/render.h"
 #include "azer/render/util/effects/vertex_desc.h"
 #include "azer/render/util/shader_util.h"
+#include "lordaeron/scene/scene_render_tree.h"
 
 using namespace azer;
 
@@ -98,5 +99,70 @@ DiffuseEffectPtr CreateDiffuseEffect() {
              PosNormalVertex::CreateVertexDesc()));
   ptr->Init(shaders);
   return ptr;
+}
+
+// class DiffuseColorProvider
+DiffuseColorProvider::DiffuseColorProvider() {
+  color_ = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+}
+DiffuseColorProvider::~DiffuseColorProvider() {}
+void DiffuseColorProvider::UpdateParams(const FrameArgs& args) {}
+
+// class DiffuseColorEffectAdapter
+DiffuseColorEffectAdapter::DiffuseColorEffectAdapter() {}
+
+EffectAdapterKey DiffuseColorEffectAdapter::key() const {
+  return std::make_pair(typeid(DiffuseEffect).name(),
+                        typeid(DiffuseColorProvider).name());
+}
+
+void DiffuseColorEffectAdapter::Apply(
+    Effect* e, const EffectParamsProvider* params) const  {
+  CHECK(typeid(*e) == typeid(DiffuseEffect));
+  CHECK(typeid(*params) == typeid(DiffuseColorProvider));
+  DiffuseColorProvider* provider = (DiffuseColorProvider*)params;
+  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
+  effect->SetColor(provider->color());
+}
+
+// class SceneRenderNodeDiffuseEffectAdapter
+SceneRenderNodeDiffuseEffectAdapter::SceneRenderNodeDiffuseEffectAdapter() {}
+EffectAdapterKey SceneRenderNodeDiffuseEffectAdapter::key() const {
+  return std::make_pair(typeid(DiffuseEffect).name(),
+                        typeid(SceneRenderNode).name());
+}
+
+void SceneRenderNodeDiffuseEffectAdapter::Apply(
+    Effect* e, const EffectParamsProvider* params) const  {
+  CHECK(typeid(*e) == typeid(DiffuseEffect));
+  CHECK(typeid(*params) == typeid(SceneRenderNode));
+  const SceneRenderNode* provider = (const SceneRenderNode*)params;
+  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
+  effect->SetWorld(provider->GetWorld());
+  effect->SetPV(provider->camera()->GetProjViewMatrix());
+}
+
+SceneRenderEnvNodeDiffuseEffectAdapter::SceneRenderEnvNodeDiffuseEffectAdapter() {
+}
+
+EffectAdapterKey SceneRenderEnvNodeDiffuseEffectAdapter::key() const {
+  return std::make_pair(typeid(DiffuseEffect).name(),
+                        typeid(SceneRenderEnvNode).name());
+}
+
+void SceneRenderEnvNodeDiffuseEffectAdapter::Apply(
+    Effect* e, const EffectParamsProvider* params) const  {
+  CHECK(typeid(*e) == typeid(DiffuseEffect));
+  CHECK(typeid(*params) == typeid(SceneRenderEnvNode));
+  const SceneRenderEnvNode* provider = (const SceneRenderEnvNode*)params;
+  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
+  for (auto iter = provider->lights().begin(); 
+       iter != provider->lights().end();
+       ++iter) {
+    if ((*iter)->type() == kDirectionalLight) {
+      effect->SetDirLight((*iter)->dir_light());
+      break;
+    }
+  }
 }
 }  // namespace lord

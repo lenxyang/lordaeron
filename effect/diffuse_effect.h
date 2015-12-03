@@ -43,6 +43,56 @@ class DiffuseEffect : public azer::Effect {
   DISALLOW_COPY_AND_ASSIGN(DiffuseEffect);
 };
 
+class DiffuseColorProvider : public azer::EffectParamsProvider {
+ public:
+  DiffuseColorProvider();
+  ~DiffuseColorProvider();
+
+  azer::Vector4 color() const { return color_;}
+  void SetColor(const azer::Vector4& color) { color_ = color;}
+  
+  void UpdateParams(const azer::FrameArgs& args) override;
+ private:
+  azer::Vector4 color_;
+  DISALLOW_COPY_AND_ASSIGN(DiffuseColorProvider);
+};
+
+using azer::Effect;
+using azer::EffectParamsProvider;
+using azer::EffectAdapterKey;
+using azer::EffectParamsAdapter;
+
+class DiffuseColorEffectAdapter : public EffectParamsAdapter {
+ public:
+  DiffuseColorEffectAdapter();
+
+  EffectAdapterKey key() const override;
+  void Apply(Effect* e, const EffectParamsProvider* params) const override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(DiffuseColorEffectAdapter);
+};
+
+class SceneRenderNodeDiffuseEffectAdapter : public EffectParamsAdapter {
+ public:
+  SceneRenderNodeDiffuseEffectAdapter();
+
+  EffectAdapterKey key() const override;
+  void Apply(Effect* e, const EffectParamsProvider* params) const override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SceneRenderNodeDiffuseEffectAdapter);
+};
+
+class SceneRenderEnvNodeDiffuseEffectAdapter : public EffectParamsAdapter {
+ public:
+  SceneRenderEnvNodeDiffuseEffectAdapter();
+
+  EffectAdapterKey key() const override;
+  void Apply(Effect* e, const EffectParamsProvider* params) const override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SceneRenderEnvNodeDiffuseEffectAdapter);
+};
+
+
 typedef scoped_refptr<DiffuseEffect> DiffuseEffectPtr;
 DiffuseEffectPtr CreateDiffuseEffect();
 }  // namespace lord

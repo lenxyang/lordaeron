@@ -5,7 +5,6 @@
 #include "lordaeron/ui/nelf_context.h"
 #include "lordaeron/ui/iconset.h"
 #include "lordaeron/effect/diffuse_effect.h"
-#include "lordaeron/effect/diffuse_effect_adapter.h"
 #include "lordaeron/effect/light_mesh.h"
 
 namespace lord {
@@ -79,7 +78,9 @@ gfx::ImageSkia Context::GetIcon(int32 id) {
 }
 
 void Context::InitAdapterContext() {
-  effect_context_.RegisteAdapter(new ColorEffectAdapter);
+  effect_context_.RegisteAdapter(new DiffuseColorEffectAdapter);
+  effect_context_.RegisteAdapter(new SceneRenderNodeDiffuseEffectAdapter);
+  effect_context_.RegisteAdapter(new SceneRenderEnvNodeDiffuseEffectAdapter);
   effect_context_.RegisteAdapter(new LightColorDiffuseEffectAdapter);
 }
 
