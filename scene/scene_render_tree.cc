@@ -219,6 +219,8 @@ void SceneRenderNode::Init() {
     Light* light = node_->mutable_data()->light();
     mesh = light->GetLightMesh();
     mesh->AddProvider(new LightColorProvider(light));
+    GetEnvNode()->AddLight(light);
+  } else if (node_->type() == kEnvSceneNode) {
   }
 
   if (mesh) {
@@ -282,33 +284,22 @@ bool SceneRenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
     CHECK(node->parent() != NULL);
     SceneRenderEnvNode* envnode = new SceneRenderEnvNode(cur_->GetEnvNode());
     cur_->SetEnvNode(envnode);
-  } else if (node->type() == kSceneNode) {
-    SceneRenderNode* n = creator_->Create(node);
-    n->SetEnvNode(cur_->GetEnvNode());
-    n->Init();
-    cur_->AddChild(n);
-    cur_ = n;
-  } else if (node->type() == kMeshSceneNode) {
-    SceneRenderNode* n = creator_->Create(node);
-    n->SetEnvNode(cur_->GetEnvNode());
-    n->Init();
-    cur_->AddChild(n);
-    cur_ = n;
-  } else if (node->type() == kLampSceneNode) {
-    SceneRenderNode* n = creator_->Create(node);
-    n->SetEnvNode(cur_->GetEnvNode());
-    n->Init();
-    n->GetEnvNode()->AddLight(node->mutable_data()->light());
-    cur_->AddChild(n);
-    cur_ = n;
   }
 
+  SceneRenderNode* newnode = creator_->Create(node);
+  if (newnode) {
+    newnode->SetEnvNode(cur_->GetEnvNode());
+    newnode->Init();
+    cur_->AddChild(newnode);
+    cur_ = newnode;
+  }
   return true;
 }
 
 void SceneRenderTreeBuilder::OnTraverseNodeExit(SceneNode* node) {
-  if (node->type() != kEnvSceneNode)
+  if (cur_->GetSceneNode() == node) {
     cur_ = cur_->parent();
+  }
 }
 
 void SceneRenderTreeBuilder::OnTraverseEnd() {
@@ -347,4 +338,14 @@ void SimpleRenderTreeRenderer::RenderNode(SceneRenderNode* node,
   }
 }
 
+SceneRenderNode* DefaultSceneRenderNodeCreator::Create(SceneNode* node) {
+  switch (node->type()) {
+    case kSceneNode:
+    case kMeshSceneNode:
+    case kLampSceneNode:
+      return new SceneRenderNode(node);
+    default:
+      return NULL;
+  }
+}
 }  // namespace lord

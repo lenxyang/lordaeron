@@ -20,6 +20,7 @@
 #include "lordaeron/scene/scene_render_tree.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_loader.h"
+#include "lordaeron/scene/scene_bounding_volumn.h"
 #include "lordaeron/ui/directional_light_pane.h"
 #include "lordaeron/ui/scene_tree_view.h"
 #include "lordaeron/ui/simple_render_window.h"

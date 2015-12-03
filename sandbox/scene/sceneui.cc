@@ -20,7 +20,9 @@ class MyRenderWindow : public SimpleRenderWindow {
   SceneNodePtr root_;
   DiffuseEffectPtr effect_;
   SceneRenderNodePtr render_root_;
+  SceneRenderNodePtr bvolumn_root_;
   scoped_ptr<SimpleRenderTreeRenderer> tree_render_;
+  scoped_ptr<SimpleRenderTreeRenderer> bvolumn_render_;
   scoped_ptr<azer::FPSCameraController> camera_controller_;
   scoped_ptr<FileSystem> fsystem_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
@@ -63,11 +65,22 @@ void MyRenderWindow::OnInitScene() {
   root_ = loader.Load(ResPath(UTF8ToUTF16("//sandbox/scene/scene.xml")), "//");
   CHECK(root_.get());
 
-  SceneRenderTreeBuilder builder;
-  builder.Build(root_.get(), &camera());
-  render_root_ = builder.GetRenderNodeRoot();
-  LOG(ERROR) << "\n" << render_root_->DumpTree();
-  tree_render_.reset(new SimpleRenderTreeRenderer(render_root_.get()));
+  {
+    DefaultSceneRenderNodeCreator creator;
+    SceneRenderTreeBuilder builder(&creator);
+    builder.Build(root_.get(), &camera());
+    render_root_ = builder.GetRenderNodeRoot();
+    LOG(ERROR) << "\n" << render_root_->DumpTree();
+    tree_render_.reset(new SimpleRenderTreeRenderer(render_root_.get()));
+  }
+
+  {
+    SceneBVRenderNodeCreator creator;
+    SceneRenderTreeBuilder builder(&creator);
+    builder.Build(root_.get(), &camera());
+    bvolumn_root_ = builder.GetRenderNodeRoot();
+    bvolumn_render_.reset(new SimpleRenderTreeRenderer(bvolumn_root_.get()));
+  }
 }
 
 void MyRenderWindow::OnInitUI() { 
@@ -85,9 +98,11 @@ void MyRenderWindow::OnInitUI() {
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
   camera_controller_->Update(args);
   tree_render_->Update(args);
+  bvolumn_render_->Update(args);
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
   tree_render_->Render(renderer);
+  bvolumn_render_->Render(renderer);
 }
 }  // namespace lord

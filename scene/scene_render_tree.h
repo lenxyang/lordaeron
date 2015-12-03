@@ -111,9 +111,7 @@ class SceneRenderNodeCreator {
 
 class DefaultSceneRenderNodeCreator : public SceneRenderNodeCreator {
  public:
-  SceneRenderNode* Create(SceneNode* node) override {
-    return new SceneRenderNode(node);
-  }
+  SceneRenderNode* Create(SceneNode* node) override;
 };
 
 class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {

@@ -30,9 +30,11 @@ SceneBVRenderNode::~SceneBVRenderNode() {
 }
 
 void SceneBVRenderNode::Init() {
-  MeshPtr mesh = CreateBoundingBoxForSceneNode(node_);
-  mesh->AddProvider(this);
-  AddMesh(mesh);
+  if (node_->type() == kSceneNode || node_->type() == kMeshSceneNode) {
+    MeshPtr mesh = CreateBoundingBoxForSceneNode(node_);
+    mesh->AddProvider(this);
+    bounding_mesh_ = mesh;
+  }
 }
 
 void SceneBVRenderNode::Update(const azer::FrameArgs& args) {
@@ -43,19 +45,14 @@ void SceneBVRenderNode::Update(const azer::FrameArgs& args) {
   world_ = std::move(Scale(scale));
   world_ = std::move(node_->orientation().ToMatrix()) * world_;
   world_ = std::move(Translate(center)) * world_;
-  if (parent()) {
-    world_ = std::move(parent()->GetWorld() * world_);
-  }
-
-  if (node_->is_draw_bounding_volumn()) {
-    CHECK(mesh_.get());
-    mesh_->UpdateProviderParams(args);
+  if (bounding_mesh_.get() && node_->is_draw_bounding_volumn()) {
+    bounding_mesh_->UpdateProviderParams(args);
   }
 }
 
 void SceneBVRenderNode::Render(azer::Renderer* renderer) {
-  if (node_->is_draw_bounding_volumn()) {
-    mesh_->Render(renderer);
+  if (bounding_mesh_.get() && node_->is_draw_bounding_volumn()) {
+    bounding_mesh_->Render(renderer);
   }
 }
 
@@ -80,6 +77,16 @@ void SceneBVParamsAdapter::Apply(
   effect->SetDirLight(ctx->GetInternalLight());
 }
 
+SceneRenderNode* SceneBVRenderNodeCreator::Create(SceneNode* node) {
+  switch (node->type()) {
+    case kSceneNode:
+    case kMeshSceneNode:
+      return new SceneBVRenderNode(node);
+    default:
+      return NULL;
+  }
+}
+
 MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
   Context* ctx = Context::instance();
   EffectPtr effect = ctx->GetEffect(DiffuseEffect::kEffectName);
@@ -91,6 +98,7 @@ MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
   MeshPartPtr framepart = objptr->CreateFrameObject(effect.get());
   MeshPtr mesh(new Mesh(adapter_context_.Pointer()));
   mesh->AddMeshPart(framepart);
+  mesh->AddMeshPart(objpart);
   return mesh;
 }
 }  // namespace lord
