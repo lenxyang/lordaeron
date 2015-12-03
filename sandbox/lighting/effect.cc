@@ -48,10 +48,10 @@ void MyEffect::InitGpuConstantTable() {
       arraysize(vs_table_desc), vs_table_desc);
   // generate GpuTable init for stage kPixelStage
   GpuConstantsTable::Desc ps_table_desc[] = {
-    GpuConstantsTable::Desc("color", GpuConstantsType::kVector4,
-                            offsetof(ps_cbuffer, color), 1),
     GpuConstantsTable::Desc("light", offsetof(ps_cbuffer, light),
                             sizeof(lord::DirLight), 1),
+    GpuConstantsTable::Desc("color", GpuConstantsType::kVector4,
+                            offsetof(ps_cbuffer, color), 1),
   };
   gpu_table_[kPixelStage] = render_system_->CreateGpuConstantsTable(
       arraysize(ps_table_desc), ps_table_desc);
@@ -88,8 +88,8 @@ void MyEffect::ApplyGpuConstantTable(Renderer* renderer) {
   {
     GpuConstantsTable* tb = gpu_table_[(int)kPixelStage].get();
     DCHECK(tb != NULL);
-    tb->SetValue(0, &color_, sizeof(Vector4));
-    tb->SetValue(1, &light_, sizeof(lord::DirLight));
+    tb->SetValue(0, &light_, sizeof(lord::DirLight));
+    tb->SetValue(1, &color_, sizeof(Vector4));
   }
 }
 

@@ -24,8 +24,8 @@ class MyEffect : public azer::Effect {
   };
 
   struct ps_cbuffer {
-    azer::Vector4 color;
     DirLight light;
+    azer::Vector4 color;
   };
 #pragma pack(pop)
 
