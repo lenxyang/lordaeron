@@ -68,7 +68,6 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
     CHECK(LoadAttenuation(&light.atten, light_node));
     LightPtr ptr(new Light(light));
     node->mutable_data()->AttachLight(ptr);
-    return true;
   } else if (light_type == "spot_light") {
     SpotLight light;
     light.diffuse = diffuse;
@@ -86,7 +85,6 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
     CalcSceneOrientForZDirection(light.direction, &orient);
     node->set_orientation(orient);
     node->mutable_data()->AttachLight(ptr);
-    return true;
   } else if (light_type == "directional_light") {
     DirLight light;
     light.diffuse = diffuse;
@@ -99,11 +97,13 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
     CalcSceneOrientForZDirection(light.direction, &orient);
     node->set_orientation(orient);
     node->mutable_data()->AttachLight(ptr);
-    return true;
   } else {
     CHECK(false) << "unknonw light type: " << light_type;
     return false;
   }
+
+  CHECK_EQ(node->type(), kLampSceneNode);
+  return true;
 }
 
 bool LightNodeLoader::LoadAttenuation(Attenuation* atten, ConfigNode* config) {
@@ -122,7 +122,7 @@ bool LightNodeLoader::LoadAttenuation(Attenuation* atten, ConfigNode* config) {
 }
 
 // class EnvNodeLoader
-const char EnvNodeLoader::kNodeTypeName[] = "environement";
+const char EnvNodeLoader::kNodeTypeName[] = "environment";
 EnvNodeLoader::EnvNodeLoader() {
 }
 
@@ -135,6 +135,7 @@ const char* EnvNodeLoader::node_type_name() const {
 
 bool EnvNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
                                   SceneLoadContext* ctx) {
+  node->SetNodeType(kEnvSceneNode);
   return true;
 }
 }

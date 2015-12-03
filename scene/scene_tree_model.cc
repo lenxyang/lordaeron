@@ -114,7 +114,7 @@ int SceneTreeModel::GetIconIndex(ui::TreeModelNode* n)  {
   SceneTreeModelNode* node = dynamic_cast<SceneTreeModelNode*>(n);
   SceneNode* rnode = node->scene_node();
   switch (rnode->type()) {
-    case kEmptySceneNode: return 0;
+    case kSceneNode: return 0;
     case kCameraSceneNode: return 1;
     case kLampSceneNode: return 2;
     case kMeshSceneNode: return 3;

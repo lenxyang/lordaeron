@@ -40,6 +40,8 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
   bool RemoveChild(SceneRenderEnvNode* child);
   bool Contains(SceneRenderEnvNode* child) const;
   int32 GetIndexOf(SceneRenderEnvNode* child) const;
+  std::string DumpTree() const;
+  std::string DumpNode(const SceneRenderEnvNode* node, int32 dump) const;
  private:
   Lights lights_;
   SceneRenderEnvNode* parent_;
@@ -50,19 +52,23 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
 
 class SceneRenderNode : public azer::EffectParamsProvider {
  public:
-  SceneRenderNode(SceneNode* node);
-  SceneRenderNode(SceneNode* node, const azer::Camera* camera);
+  SceneRenderNode(SceneNode* node, SceneRenderEnvNode* envnode);
+  SceneRenderNode(SceneNode* node, SceneRenderEnvNode* envnode,
+                  const azer::Camera* camera);
   virtual ~SceneRenderNode();
 
   SceneNode* GetSceneNode() { return node_;}
-  SceneRenderEnvNode* GetRenderEnvNode() { return envnode_.get();}
-  void SetSceneRenderEnvNode(SceneRenderEnvNode* n) { envnode_ = n;}
+  const SceneNode* GetSceneNode() const { return node_;}
+  SceneRenderEnvNode* GetEnvNode() { return envnode_;}
+  const SceneRenderEnvNode* GetEnvNode() const { return envnode_;}
+  void  SetEnvNode(SceneRenderEnvNode* node);
   void UpdateParams(const azer::FrameArgs& args) override;
   const azer::Matrix4& GetWorld() const { return world_;}
   const azer::Matrix4& GetPVW() const { return pvw_;}
   const azer::Camera* camera() const;
 
   // virtual function;
+  virtual void Init();
   virtual void Update(const azer::FrameArgs& args);
   virtual void Render(azer::Renderer* renderer);
 
@@ -83,6 +89,8 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   bool Contains(SceneRenderNode* child) const;
   int32 GetIndexOf(SceneRenderNode* child) const;
   const std::vector<SceneRenderNodePtr>& children() const { return children_;}
+  std::string DumpTree() const;
+  std::string DumpNode(const SceneRenderNode* node, int32 depth) const;
  private:
   void AddMesh(azer::Mesh* mesh);
   SceneRenderNode* parent_;
@@ -102,9 +110,8 @@ class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
   SceneRenderTreeBuilder();
   ~SceneRenderTreeBuilder();
 
-  void Bulid(SceneNode* node, const azer::Camera* camera);
+  void Build(SceneNode* node, const azer::Camera* camera);
   SceneRenderNodePtr GetRenderNodeRoot();
-  SceneRenderEnvNodePtr GetRenderEnvNodeRoot();
 
   // override from SceneNodeTraverseDelegate
   void OnTraverseBegin(SceneNode* root) override;

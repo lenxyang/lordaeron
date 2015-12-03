@@ -29,5 +29,8 @@
 #include "lordaeron/util/model_loader.h"
 
 
+using lord::SceneNodePtr;
+using lord::SceneNode;
+using base::FilePath;
 using base::UTF8ToUTF16;
 using base::UTF16ToUTF8;

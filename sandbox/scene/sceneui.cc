@@ -4,10 +4,6 @@
 #include "lordaeron/sandbox/scene/scene_loader_delegate.h"
 
 using views::Widget;
-using lord::SceneNodePtr;
-using lord::SceneNode;
-using lord::SceneContext;
-using lord::SceneContextPtr;
 using namespace azer;
 
 namespace lord {
@@ -19,16 +15,12 @@ class MyRenderWindow : public SimpleRenderWindow {
   void OnInitUI() override;
   void OnUpdateFrame(const azer::FrameArgs& args) override;
   void OnRenderFrame(const azer::FrameArgs& args, Renderer* renderer) override;
-
-
   SceneNode* root() { return root_.get();}
  private:
   SceneNodePtr root_;
-  SceneContextPtr scene_context_;
-  scoped_ptr<SceneRender> scene_renderer_;
   DiffuseEffectPtr effect_;
-  azer::Matrix4 pv_;
-
+  SceneRenderNodePtr render_root_;
+  scoped_ptr<SimpleRenderTreeRenderer> tree_render_;
   scoped_ptr<azer::FPSCameraController> camera_controller_;
   scoped_ptr<FileSystem> fsystem_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
@@ -56,31 +48,26 @@ using namespace azer;
 void MyRenderWindow::OnInitScene() {
   effect_ = CreateDiffuseEffect();
   Context* ctx = Context::instance(); 
-  fsystem_.reset(new azer::NativeFileSystem(
-      ::base::FilePath(FILE_PATH_LITERAL("lordaeron/media"))));
-  DirLight dirlight;
-  dirlight.direction = Vector4(-0.6f, -0.2f, -0.2f, 0.0f);
-  dirlight.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
-  dirlight.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
-  LightPtr light(new Light(dirlight));
-  scene_context_ = new SceneContext;
-  scene_context_->GetGlobalEnvironment()->SetCamera(mutable_camera());
-  scene_context_->GetGlobalEnvironment()->SetLight(light);
-  root_ = new SceneNode(scene_context_);
-
-  std::string contents;
-  base::ReadFileToString(base::FilePath(
-      FILE_PATH_LITERAL("lordaeron/sandbox/scene/scene.sce")), &contents);
-  ConfigNodePtr config_root = ConfigNode::InitFromXMLStr(contents);
-  CHECK(config_root.get());
+  fsystem_.reset(new NativeFileSystem(FilePath(FILE_PATH_LITERAL("lordaeron/"))));
+  root_ = new SceneNode("root");
 
   VertexDescPtr desc = effect_->GetVertexDesc();
+  scoped_ptr<SceneNodeLoader> light_loader(new LightNodeLoader());
+  scoped_ptr<SceneNodeLoader> env_loader(new EnvNodeLoader());
   scoped_ptr<SimpleSceneLoaderDelegate> delegate(
-      new SimpleSceneLoaderDelegate(fsystem_.get(), effect_.get()));
-  SceneLoader loader;
+      new SimpleSceneLoaderDelegate(effect_.get()));
+  SceneLoader loader(fsystem_.get());
+  loader.RegisterSceneNodeLoader(env_loader.Pass());
+  loader.RegisterSceneNodeLoader(light_loader.Pass());
   loader.RegisterSceneNodeLoader(delegate.Pass());
-  CHECK(loader.Load(root_.get(), config_root));
-  scene_renderer_.reset(new SceneRender(scene_context_.get(), root_.get()));
+  root_ = loader.Load(ResPath(UTF8ToUTF16("//sandbox/scene/scene.xml")), "//");
+  CHECK(root_.get());
+
+  SceneRenderTreeBuilder builder;
+  builder.Build(root_.get(), &camera());
+  render_root_ = builder.GetRenderNodeRoot();
+  LOG(ERROR) << "\n" << render_root_->DumpTree();
+  tree_render_.reset(new SimpleRenderTreeRenderer(render_root_.get()));
 }
 
 void MyRenderWindow::OnInitUI() { 
@@ -97,12 +84,10 @@ void MyRenderWindow::OnInitUI() {
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
   camera_controller_->Update(args);
-  pv_ = camera().GetProjViewMatrix();
-  Renderer* renderer = window()->GetRenderer().get();
-  scene_renderer_->Update(args);
+  tree_render_->Update(args);
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
-  scene_renderer_->Render(renderer);
+  tree_render_->Render(renderer);
 }
 }  // namespace lord

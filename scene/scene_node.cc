@@ -14,8 +14,7 @@ using namespace azer;
 
 // class SceneNodeData
 SceneNodeData::SceneNodeData(SceneNode* node)
-    : type_(kEmptySceneNode),
-      node_(node) {
+    : node_(node) {
   node->AddObserver(this);
 }
 
@@ -35,7 +34,7 @@ void SceneNodeData::reset() {
   }
 
   mesh_ = NULL;
-  type_ = kEmptySceneNode;
+  node_->SetNodeType(kSceneNode);
   node_->SetMin(Vector3(0.0f, 0.0f, 0.0f));
   node_->SetMax(Vector3(0.0f, 0.0f, 0.0f));
 }
@@ -45,18 +44,16 @@ Light* SceneNodeData::light() {
 }
 
 void SceneNodeData::AttachMesh(MeshPtr mesh) {
-  DCHECK(type_ == kEmptySceneNode);
   mesh_ = mesh;
-  type_ = kMeshSceneNode;
+  node_->SetNodeType(kMeshSceneNode);
   node_->SetMin(mesh->vmin());
   node_->SetMax(mesh->vmax());
 }
 
 void SceneNodeData::AttachLight(Light* light) {
   DCHECK(light);
-  DCHECK(type_ == kEmptySceneNode);
   light_ = light;
-  type_ = kLampSceneNode;
+  node_->SetNodeType(kLampSceneNode);
 
   // set mesh
   Mesh* light_mesh = light_->GetLightMesh();
@@ -76,22 +73,36 @@ void SceneNodeData::OnSceneNodeOrientationChanged(
 }
 
 // class SceneNode
-SceneNode::SceneNode() 
-    : visible_(true),
-      pickable_(false),
-      shadow_caster_(false),
-      parent_(NULL),
-      user_data_(NULL) {
-  data_.reset(new SceneNodeData(this));
+SceneNode::SceneNode() {
+  InitMember();
 }
 
-SceneNode::SceneNode(const std::string& name)
-    : visible_(true),
-      pickable_(false),
-      shadow_caster_(false),
-      parent_(NULL),
-      name_(name),
-      user_data_(NULL) {
+SceneNode::SceneNode(const std::string& name) {
+  InitMember();
+  name_ = name;
+}
+
+SceneNode::SceneNode(const std::string& name, SceneNode* parent) {
+  InitMember();
+  name_ = name;
+  parent->AddChild(this);
+}
+
+SceneNode::SceneNode(const std::string& name, SceneNodeType type,
+                     SceneNode* parent) {
+  InitMember();
+  name_ = name;
+  type_ = type;
+  parent->AddChild(this);
+}
+
+void SceneNode::InitMember() {
+  visible_ = true;
+  pickable_ = false;
+  shadow_caster_ = false;
+  parent_ = NULL;
+  type_ = kSceneNode;
+  user_data_ = NULL;
   data_.reset(new SceneNodeData(this));
 }
 
@@ -206,11 +217,7 @@ SceneNodePtr SceneNode::RemoveChildAtPath(const std::string& path) {
 }
 
 SceneNodeType SceneNode::type() const {
-  if (data_.get()) {
-    return data_->type();
-  } else {
-    return kEmptySceneNode;
-  }
+  return type_;
 }
 
 void SceneNode::set_draw_bounding_volumn(bool b) {
@@ -419,6 +426,11 @@ void SceneNode::BoundsChanged(const Vector3& orgmin, const Vector3& orgmax) {
                     OnSceneNodeBoundsChanged(this, orgmin, orgmax));
 }
 
+void SceneNode::SetNodeType(SceneNodeType type) {
+  DCHECK(type_ == kSceneNode);
+  type_ = type;
+}
+
 void SceneNode::AddObserver(SceneNodeObserver* observer) {
   observers_.AddObserver(observer);
 }
@@ -429,5 +441,17 @@ void SceneNode::RemoveObserver(SceneNodeObserver* observer) {
 
 bool SceneNode::HasObserver(SceneNodeObserver* observer) {
   return observers_.HasObserver(observer);
+}
+
+const char* SceneNodeName(int32 type) {
+  switch (type) {
+    case kSceneNode: return "SceneNode";
+    case kEnvSceneNode: return "EnvNode";
+    case kMeshSceneNode: return "MeshNode";
+    case kLampSceneNode: return "LampNode";
+    case kCameraSceneNode: return "CameraNode";
+    case kTerrainTileSceneNode: return "TerrainNode";
+    default: CHECK(false);return "";
+  }
 }
 }  // namespace lord

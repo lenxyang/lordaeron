@@ -1,38 +1,8 @@
 #include <memory>
-
-#include "base/strings/utf_string_conversions.h"
-#include "base/files/file_path.h"
-#include "base/files/file_util.h"
-#include "azer/files/native_file_system.h"
-#include "azer/render/util.h"
-#include "ui/views/widget/widget_observer.h"
-#include "nelf/nelf.h"
-#include "nelf/gfx_util.h"
-#include "nelf/res/grit/common.h"
-#include "lordaeron/res/grit/common.h"
-#include "lordaeron/context.h"
-#include "lordaeron/effect/diffuse_effect.h"
-#include "lordaeron/effect/diffuse_effect_provider.h"
-#include "lordaeron/effect/global_environemnt_params.h"
-#include "lordaeron/mainframe_render_delegate.h"
-#include "lordaeron/scene/scene_context.h"
-#include "lordaeron/scene/scene_render.h"
-#include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_node_data.h"
-#include "lordaeron/scene/scene_loader.h"
-#include "lordaeron/ui/renderer_info_pane.h"
-#include "lordaeron/ui/scene_tree_view.h"
-#include "lordaeron/ui/simple_render_window.h"
-#include "lordaeron/ui/toolbar/object_control_toolbar.h"
+#include "lordaeron/sandbox/sandbox.h"
 #include "lordaeron/sandbox/scene/scene_loader_delegate.h"
 
 using views::Widget;
-using lord::SceneNodePtr;
-using lord::SceneNode;
-using lord::SceneContext;
-using lord::SceneContextPtr;
-using base::UTF8ToUTF16;
-using base::UTF16ToUTF8;
 using namespace azer;
 
 namespace lord {
@@ -48,13 +18,11 @@ class MyRenderWindow : public lord::SimpleRenderWindow {
   SceneNode* root() { return root_.get();}
  private:
   SceneNodePtr root_;
-  SceneContextPtr scene_context_;
-  scoped_ptr<SceneRender> scene_renderer_;
   lord::DiffuseEffectPtr effect_;
-  azer::Matrix4 pv_;
-
   scoped_ptr<azer::FPSCameraController> camera_controller_;
   scoped_ptr<FileSystem> fsystem_;
+  SceneRenderNodePtr render_root_;
+  scoped_ptr<SimpleRenderTreeRenderer> tree_render_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
 };
 }  // namespace lord
@@ -67,6 +35,8 @@ int main(int argc, char* argv[]) {
   nelf::ResourceBundle* bundle = lord::Context::instance()->resource_bundle();
   window->Init();
   window->Show();
+
+  window->GetRenderLoop()->Run();
   return 0;
 }
 
@@ -83,27 +53,21 @@ void MyRenderWindow::OnInitScene() {
   dirlight.diffuse = Vector4(0.8f, 0.8f, 1.8f, 1.0f);
   dirlight.ambient = Vector4(0.2f, 0.2f, 0.2f, 1.0f);
   LightPtr light(new Light(dirlight));
-  scene_context_ = new lord::SceneContext;
-  scene_context_->GetGlobalEnvironment()->SetCamera(mutable_camera());
-  scene_context_->GetGlobalEnvironment()->SetLight(light);
-  root_ = new SceneNode(scene_context_);
-  root_->set_name("root");
-  SceneNodePtr scene1(new SceneNode("scene1"));
-  SceneNodePtr node1(new SceneNode("obj1"));
-  SceneNodePtr node2(new SceneNode("obj1"));
-  SceneNodePtr node3(new SceneNode("obj1"));
-  root_->AddChild(scene1);
-  scene1->AddChild(node1);
-  scene1->AddChild(node2);
-  scene1->AddChild(node3);
+  root_ = new SceneNode("root");
+  SceneNodePtr scene1(new SceneNode("scene1", root_.get()));
+  SceneNodePtr envnode(new SceneNode("env", kEnvSceneNode, scene1.get()));
+  SceneNodePtr lightnode(new SceneNode("dirlight", envnode.get()));
+  lightnode->mutable_data()->AttachLight(light.get());
+  lightnode->SetPosition(Vector3(8.0f, 8.0f, 0.0f));
+  SceneNodePtr node1(new SceneNode("obj1", scene1.get()));
+  SceneNodePtr node2(new SceneNode("obj2", scene1.get()));
+  SceneNodePtr node3(new SceneNode("obj3", scene1.get()));
 
   lord::ModelLoader loader(fsystem_.get());
-                 
   VertexDescPtr desc = effect_->GetVertexDesc();
-  lord::DiffuseEffectProvider* p1(new lord::DiffuseEffectProvider);
-  lord::DiffuseEffectProvider* p2(new lord::DiffuseEffectProvider);
-  lord::DiffuseEffectProvider* p3(new lord::DiffuseEffectProvider);
-
+  lord::DiffuseColorProvider* p1(new lord::DiffuseColorProvider);
+  lord::DiffuseColorProvider* p2(new lord::DiffuseColorProvider);
+  lord::DiffuseColorProvider* p3(new lord::DiffuseColorProvider);
   p1->SetColor(azer::Vector4(0.3f, 0.3f, 0.3f, 1.0f));
   p2->SetColor(azer::Vector4(0.6f, 0.6f, 0.6f, 1.0f));
   p3->SetColor(azer::Vector4(0.8f, 0.8f, 0.8f, 1.0f));
@@ -127,7 +91,12 @@ void MyRenderWindow::OnInitScene() {
   node2->SetPosition(Vector3(0.0f, 0.0f, -10.0f));
   node3->SetPosition(Vector3(10.0f, 00.0f, 0.0f));
   node3->set_draw_bounding_volumn(true);
-  scene_renderer_.reset(new SceneRender(scene_context_.get(), root_.get()));
+
+  SceneRenderTreeBuilder builder;
+  builder.Build(root_.get(), &camera());
+  render_root_ = builder.GetRenderNodeRoot();
+  LOG(ERROR) << "\n" << render_root_->DumpTree();
+  tree_render_.reset(new SimpleRenderTreeRenderer(render_root_.get()));
 }
 
 void MyRenderWindow::OnInitUI() { 
@@ -137,12 +106,10 @@ void MyRenderWindow::OnInitUI() {
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
   camera_controller_->Update(args);
-  pv_ = camera().GetProjViewMatrix();
-  Renderer* renderer = window()->GetRenderer().get();
-  scene_renderer_->Update(args);
+  tree_render_->Update(args);
 }
 
 void MyRenderWindow::OnRenderFrame(const azer::FrameArgs& args, Renderer* renderer) {
-  scene_renderer_->Render(renderer);
+  tree_render_->Render(renderer);
 }
 }  // namespace lord

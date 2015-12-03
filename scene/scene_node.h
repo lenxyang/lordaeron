@@ -14,9 +14,8 @@ class SceneNodeObserver;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
 
 enum SceneNodeType {
-  kEmptySceneNode,
-  kEnvSceneNode,
   kSceneNode,
+  kEnvSceneNode,
   kMeshSceneNode,
   kLampSceneNode,
   kCameraSceneNode,
@@ -27,8 +26,6 @@ class SceneNodeData : public SceneNodeObserver {
  public:
   SceneNodeData(SceneNode* node);
   ~SceneNodeData();
-
-  SceneNodeType type() const { return type_;}
 
   void reset();
   void AttachMesh(azer::MeshPtr mesh);
@@ -42,8 +39,6 @@ class SceneNodeData : public SceneNodeObserver {
   // override SceneNodeObserver
   void OnSceneNodeOrientationChanged(
       SceneNode* node, const azer::Quaternion& prev_orient) override;
-
-  SceneNodeType type_;
   azer::MeshPtr mesh_;
   LightPtr light_;
   SceneNode* node_;
@@ -56,6 +51,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
  public:
   SceneNode();
   explicit SceneNode(const std::string& name);
+  SceneNode(const std::string& name, SceneNode* parent);
+  SceneNode(const std::string& name, SceneNodeType type, SceneNode* parent);
   ~SceneNode();
 
   typedef std::vector<SceneNodePtr> SceneNodes;
@@ -129,6 +126,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   std::string print_info();
 
   SceneNodeType type() const;
+  void SetNodeType(SceneNodeType type);
   const SceneNodeData* data() const { return data_.get();}
   SceneNodeData* mutable_data() { return data_.get();}
 
@@ -136,13 +134,11 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void* user_data() {return user_data_;}
   const void* user_data() const {return user_data_;}
 
-  azer::Matrix4* mutable_world() { return &world_;}
-  const azer::Matrix4& world() const { return world_;}
-
   void AddObserver(SceneNodeObserver* observer); 
   void RemoveObserver(SceneNodeObserver* observer);
   bool HasObserver(SceneNodeObserver* observer);
  protected:
+  void InitMember();
   void BoundsChanged(const azer::Vector3& orgmin, const azer::Vector3& orgmax);
   void LocationChanged(const azer::Vector3& orgpos);
   void OrientationChanged(const azer::Quaternion& origin_orient);
@@ -163,9 +159,9 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   SceneNode* parent_;
   SceneNodes children_;
   std::string name_;
+  SceneNodeType type_;
   void* user_data_;
   scoped_ptr<SceneNodeData> data_;
-  azer::Matrix4 world_;
   azer::TransformHolder holder_;
   azer::Vector3 vmin_;
   azer::Vector3 vmax_;
@@ -174,4 +170,5 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   DISALLOW_COPY_AND_ASSIGN(SceneNode);
 };
 
+const char* SceneNodeName(int32 type);
 }  // namespace lord
