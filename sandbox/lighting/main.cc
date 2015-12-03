@@ -23,8 +23,11 @@ class MyRenderWindow : public lord::SceneRenderWindow {
   void OnRenderFrame(const azer::FrameArgs& args, Renderer* renderer) override;
  private:
   sandbox::MyEffectPtr effect_;
-  azer::Matrix4 pv_;
 
+  SceneRenderNodePtr render_root_;
+  SceneRenderNodePtr bvolumn_root_;
+  scoped_ptr<SimpleRenderTreeRenderer> tree_render_;
+  scoped_ptr<SimpleRenderTreeRenderer> bvolumn_render_;
   scoped_ptr<FileSystem> fsystem_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
 };
@@ -36,6 +39,8 @@ int main(int argc, char* argv[]) {
   lord::Context* ctx = lord::Context::instance();
   azer::EffectAdapterContext* adapterctx = ctx->GetEffectAdapterContext();
   adapterctx->RegisteAdapter(new lord::sandbox::ColorEffectAdapter);
+  adapterctx->RegisteAdapter(new lord::sandbox::SceneRenderNodeEffectAdapter);
+  adapterctx->RegisteAdapter(new lord::sandbox::SceneRenderEnvNodeEffectAdapter);
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
@@ -68,6 +73,24 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   loader.RegisterSceneNodeLoader(env_loader.Pass());
   loader.RegisterSceneNodeLoader(light_loader.Pass());
   SceneNodePtr root = loader.Load(ResPath(UTF8ToUTF16("//sandbox/lighting/scene.xml")), "//");
+
+  {
+    DefaultSceneRenderNodeCreator creator;
+    SceneRenderTreeBuilder builder(&creator);
+    builder.Build(root.get(), &camera());
+    render_root_ = builder.GetRenderNodeRoot();
+    LOG(ERROR) << "\n" << render_root_->DumpTree();
+    tree_render_.reset(new SimpleRenderTreeRenderer(render_root_.get()));
+  }
+
+  {
+    SceneBVRenderNodeCreator creator;
+    SceneRenderTreeBuilder builder(&creator);
+    builder.Build(root.get(), &camera());
+    bvolumn_root_ = builder.GetRenderNodeRoot();
+    bvolumn_render_.reset(new SimpleRenderTreeRenderer(bvolumn_root_.get()));
+  }
+
   return root;
 }
 
@@ -86,13 +109,12 @@ SceneTreeView* view = new SceneTreeView(root());
 }
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
-  pv_ = camera().GetProjViewMatrix();
-  Renderer* renderer = window()->GetRenderer().get();
-  // scene_renderer_->Update(args);
+  tree_render_->Update(args);
+  bvolumn_render_->Update(args);
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
-  const Matrix4& pv = camera().GetProjViewMatrix();
-  // scene_renderer_->Render(renderer);
+  tree_render_->Render(renderer);
+  bvolumn_render_->Render(renderer);
 }
 }  // namespace lord

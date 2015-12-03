@@ -5,15 +5,40 @@
 
 namespace lord {
 namespace sandbox {
-class ColorEffectAdapter : public azer::EffectParamsAdapter {
+
+using azer::Effect;
+using azer::EffectParamsProvider;
+using azer::EffectAdapterKey;
+using azer::EffectParamsAdapter;
+
+class ColorEffectAdapter : public EffectParamsAdapter {
  public:
   ColorEffectAdapter();
 
-  azer::EffectAdapterKey key() const override;
-  void Apply(azer::Effect* e, const azer::EffectParamsProvider* params) const override;
+  EffectAdapterKey key() const override;
+  void Apply(Effect* e, const EffectParamsProvider* params) const override;
  private:
   DISALLOW_COPY_AND_ASSIGN(ColorEffectAdapter);
 };
 
+class SceneRenderNodeEffectAdapter : public EffectParamsAdapter {
+ public:
+  SceneRenderNodeEffectAdapter();
+
+  EffectAdapterKey key() const override;
+  void Apply(Effect* e, const EffectParamsProvider* params) const override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SceneRenderNodeEffectAdapter);
+};
+
+class SceneRenderEnvNodeEffectAdapter : public EffectParamsAdapter {
+ public:
+  SceneRenderEnvNodeEffectAdapter();
+
+  EffectAdapterKey key() const override;
+  void Apply(Effect* e, const EffectParamsProvider* params) const override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SceneRenderEnvNodeEffectAdapter);
+};
 }  // namespace sandbox
 }  // namespace lord

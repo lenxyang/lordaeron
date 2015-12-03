@@ -1,52 +1,54 @@
 <scene name="sandbox_scene_config">
   <node name="root">
-    <node name="point" type="light">
-      <location>
-        <position>0.0f, 10.0f, 0.0f</position>
-      </location>
-      
-      <light type="point_light">
-        <ambient>0.1, 0.1, 0.1, 1.0</ambient>
-        <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
-        <specular>0.8, 0.8, 0.8, 1.0</specular>
-        <range>100.0</range>
+    <node name="env" type="environment">
+      <node name="point" type="light">
+        <location>
+          <position>0.0f, 10.0f, 0.0f</position>
+        </location>
+        
+        <light type="point_light">
+          <ambient>0.1, 0.1, 0.1, 1.0</ambient>
+          <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
+          <specular>0.8, 0.8, 0.8, 1.0</specular>
+          <range>100.0</range>
 
-        <attenuation>
-          <coefficient>1.0, 3.0, 4.0</coefficient>
-          <range>100</range>
-        </attenuation>
-      </light>
-    </node>
-    <node name="dir" type="light">
-      <location>
-        <position>0.0f, 3.0f, 0.0f</position>
-      </location>
-      
-      <light type="directional_light">
-        <ambient>0.1, 0.1, 0.1, 1.0</ambient>
-        <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
-        <specular>0.8, 0.8, 0.8, 1.0</specular>
-        <directional>1.0, 0.0, 1.0</directional>
-      </light>
-    </node>
-    <node name="spot" type="light">
-      <location>
-        <position>0.0f, 3.0f, 5.0f</position>
-      </location>
-      
-      <light type="spot_light">
-        <ambient>0.1, 0.1, 0.1, 1.0</ambient>
-        <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
-        <specular>0.8, 0.8, 0.8, 1.0</specular>
-        <directional>0.0, 0.0, 1.0</directional>
-	<phi>0.4</phi>
-	<theta>0.2</theta>
-	
-	<attenuation>
-          <coefficient>1.0, 3.0, 4.0</coefficient>
-          <range>100</range>
-        </attenuation>
-      </light>
+          <attenuation>
+            <coefficient>1.0, 3.0, 4.0</coefficient>
+            <range>100</range>
+          </attenuation>
+        </light>
+      </node>
+      <node name="dir" type="light">
+        <location>
+          <position>0.0f, 3.0f, 0.0f</position>
+        </location>
+        
+        <light type="directional_light">
+          <ambient>0.1, 0.1, 0.1, 1.0</ambient>
+          <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
+          <specular>0.8, 0.8, 0.8, 1.0</specular>
+          <directional>1.0, 0.0, 1.0</directional>
+        </light>
+      </node>
+      <node name="spot" type="light">
+        <location>
+          <position>0.0f, 3.0f, 5.0f</position>
+        </location>
+        
+        <light type="spot_light">
+          <ambient>0.1, 0.1, 0.1, 1.0</ambient>
+          <diffuse>0.4, 0.4, 0.4, 1.0</diffuse>
+          <specular>0.8, 0.8, 0.8, 1.0</specular>
+          <directional>0.0, 0.0, 1.0</directional>
+	  <phi>0.4</phi>
+	  <theta>0.2</theta>
+	  
+	  <attenuation>
+            <coefficient>1.0, 3.0, 4.0</coefficient>
+            <range>100</range>
+          </attenuation>
+        </light>
+      </node>
     </node>
     <node name="teaport" type="mesh">
       <location>

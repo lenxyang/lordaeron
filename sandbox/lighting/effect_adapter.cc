@@ -3,6 +3,8 @@
 #include "azer/render/util.h"
 #include "lordaeron/sandbox/lighting/effect.h"
 #include "lordaeron/effect/diffuse_effect.h"
+#include "lordaeron/scene/scene_node.h"
+#include "lordaeron/scene/scene_render_tree.h"
 
 namespace lord {
 namespace sandbox {
@@ -23,5 +25,45 @@ void ColorEffectAdapter::Apply(Effect* e, const EffectParamsProvider* params) co
   effect->SetColor(provider->color());
 }
 
+// class SceneRenderNodeMyEffectAdapter
+SceneRenderNodeEffectAdapter::SceneRenderNodeEffectAdapter() {}
+EffectAdapterKey SceneRenderNodeEffectAdapter::key() const {
+  return std::make_pair(typeid(MyEffect).name(),
+                        typeid(SceneRenderNode).name());
+}
+
+void SceneRenderNodeEffectAdapter::Apply(
+    Effect* e, const EffectParamsProvider* params) const  {
+  CHECK(typeid(*e) == typeid(MyEffect));
+  CHECK(typeid(*params) == typeid(SceneRenderNode));
+  const SceneRenderNode* provider = (const SceneRenderNode*)params;
+  MyEffect* effect = dynamic_cast<MyEffect*>(e);
+  effect->SetWorld(provider->GetWorld());
+  effect->SetPV(provider->camera()->GetProjViewMatrix());
+}
+
+SceneRenderEnvNodeEffectAdapter::SceneRenderEnvNodeEffectAdapter() {
+}
+
+EffectAdapterKey SceneRenderEnvNodeEffectAdapter::key() const {
+  return std::make_pair(typeid(MyEffect).name(),
+                        typeid(SceneRenderEnvNode).name());
+}
+
+void SceneRenderEnvNodeEffectAdapter::Apply(
+    Effect* e, const EffectParamsProvider* params) const  {
+  CHECK(typeid(*e) == typeid(MyEffect));
+  CHECK(typeid(*params) == typeid(SceneRenderEnvNode));
+  const SceneRenderEnvNode* provider = (const SceneRenderEnvNode*)params;
+  MyEffect* effect = dynamic_cast<MyEffect*>(e);
+  for (auto iter = provider->lights().begin(); 
+       iter != provider->lights().end();
+       ++iter) {
+    if ((*iter)->type() == kDirectionalLight) {
+      effect->SetDirLight((*iter)->dir_light());
+      break;
+    }
+  }
+}
 }  // namespace sandbox
 }  // namespace lord

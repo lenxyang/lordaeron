@@ -216,6 +216,7 @@ void SceneRenderNode::Init() {
   if (node_->type() == kMeshSceneNode) {
     mesh = node_->mutable_data()->GetMesh();
   } else if (node_->type() == kLampSceneNode) {
+    CHECK(node_->parent() && node_->parent()->type() == kEnvSceneNode);
     Light* light = node_->mutable_data()->light();
     mesh = light->GetLightMesh();
     mesh->AddProvider(new LightColorProvider(light));
@@ -259,6 +260,7 @@ SceneRenderTreeBuilder::~SceneRenderTreeBuilder() {
 void SceneRenderTreeBuilder::Build(SceneNode* root, const Camera* camera) {
   SceneRenderEnvNode* rootenv = new SceneRenderEnvNode;
   root_ = new SceneRenderNode(root);
+  root_->SetEnvNode(rootenv);
   root_->SetCamera(camera);
   cur_ = root_.get();
   SceneNodeTraverse traverser(this);

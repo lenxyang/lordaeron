@@ -3,10 +3,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "lordaeron/context.h"
 #include "lordaeron/util/model_loader.h"
-#include "lordaeron/scene/scene_context.h"
-#include "lordaeron/scene/scene_render.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_node_data.h"
 #include "lordaeron/scene/scene_loader.h"
 
 namespace lord {
@@ -54,7 +51,7 @@ class SimpleSceneNodeLoader : public SceneNodeLoader {
   }
   
   azer::EffectParamsProviderPtr LoadProvider(azer::ConfigNode* config) {
-    DiffuseEffectProvider* p(new DiffuseEffectProvider);
+    DiffuseColorProvider* p(new DiffuseColorProvider);
     p->SetColor(azer::Vector4(0.3f, 0.3f, 0.3f, 1.0f));
     return azer::EffectParamsProviderPtr(p);
   }

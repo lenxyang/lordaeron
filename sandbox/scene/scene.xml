@@ -2,12 +2,12 @@
   <node name="root">
     <node name="env" type="environment">
       <node name="dir" type="light">
-        <location><position>0.0f, 0.0f, 0.0f</position></location>
+        <location><position>5.0f, 8.0f, 5.0f</position></location>
         <light type="directional_light">
-          <ambient>0.1, 0.1, 0.1, 1.0</ambient>
-          <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>
+          <ambient>0.2, 0.2, 0.2, 1.0</ambient>
+          <diffuse>0.8, 0.8, 1.8, 1.0</diffuse>
           <specular>0.1, 0.1, 0.1, 1.0</specular>
-          <directional>-0.6, 0.0, 1.0</directional>
+          <directional>-0.6, -0.2, -0.2</directional>
         </light>
       </node>
     </node>
