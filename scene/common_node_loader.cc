@@ -7,26 +7,14 @@
 namespace lord {
 namespace {
 using namespace azer;
-void CalcSceneOrientForZDirection(const Vector3& dir, Quaternion* orient) {
-  Vector3 axis;
-  if (dir.x > 0 && dir.z > 0) 
-    axis = Vector3(1.0f, 0.0f, 0.0f);
-  else if (dir.x > 0 && dir.z < 0)
-    axis = Vector3(0.0f, 0.0f, -1.0f);
-  else if (dir.x < 0 && dir.z < 0)
-    axis = Vector3(-1.0f, 0.0f, 0.0f);
-  else if (dir.x < 0 && dir.z > 0)
-    axis = Vector3(0.0f, 0.0f, 1.0f);
-  else
-    axis = Vector3(1.0f, 0.0f, 0.0f);
-
-  axis.Normalize();
-  Vector3 v = dir.cross(axis);
-  Vector3 v2 = v.cross(dir);
-  Vector3 x_axis = v2.NormalizeCopy();
-  Vector3 y_axis = v.NormalizeCopy();
-  Vector3 z_axis = dir.NormalizeCopy();
-  *orient = Quaternion::FromAxis(x_axis, y_axis, z_axis);
+void CalcSceneOrientForZDirection(const Vector3& d, Quaternion* orient) {
+  Camera camera;
+  Vector3 dir = d.NormalizeCopy();
+  Vector3 up = Vector3(dir.x, 10.0f, dir.z);
+  Vector3 newz = dir.NormalizeCopy();
+  Vector3 newx = std::move(up.cross(newz).NormalizeCopy());
+  Vector3 newy = std::move(newz.cross(newx).NormalizeCopy());
+  *orient = Quaternion::FromAxis(newx, newy, newz);
 }
 }
 

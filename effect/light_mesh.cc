@@ -68,7 +68,7 @@ MeshPtr CreateSpotLightMesh() {
         kSpotRadius, kBaseRadius, kStack, kSlice, effect->GetVertexDesc());
     IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
     VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(RotateX(Degree(-90.0f)))
+    Matrix4 trans = std::move(RotateX(Degree(90.0f)))
         * std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f)) 
         * std::move(Scale(1.0f, kSpotHeight, 1.0f));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
@@ -91,7 +91,7 @@ MeshPtr CreateSpotLightMesh() {
         kBaseRadius, kBaseRadius, kStack, kSlice, effect->GetVertexDesc());
     IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
     VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(RotateX(Degree(-90.0f)))
+    Matrix4 trans = std::move(RotateX(Degree(90.0f)))
         * std::move(Translate(0.0f, -0.5f, 0.0f)) 
         * std::move(Scale(1.0f, kBaseHeight, 1.0f));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
@@ -119,7 +119,7 @@ MeshPtr CreateDirectionalLightMesh() {
   MeshPtr mesh = new Mesh;
   DiffuseEffectPtr effect = CreateDiffuseEffect();
 
-  Matrix4 rotation = std::move(RotateX(Degree(90.0f)));
+  Matrix4 rotation = std::move(RotateX(Degree(-90.0f)));
   {
     // create VertexData
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
@@ -127,7 +127,7 @@ MeshPtr CreateDirectionalLightMesh() {
     SlotVertexDataPtr vdata = InitConeVertexData(32, effect->GetVertexDesc());
     IndicesDataPtr idata = InitConeIndicesData(32);
     VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(RotateX(Degree(90.0f)))
+    Matrix4 trans = rotation
         * std::move(Translate(0.0f, kConeY - 0.5f, 0.0f)) 
         * std::move(Scale(kConeRadius, kConeHeight, kConeRadius));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
@@ -150,7 +150,7 @@ MeshPtr CreateDirectionalLightMesh() {
                                                      effect->GetVertexDesc());
     IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
     VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(RotateX(Degree(90.0f)))
+    Matrix4 trans = rotation
         * std::move(Translate(0.0f, -0.5, 0.0f)) 
         * std::move(Scale(kCylinderRadius, kConeY, kCylinderRadius));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
@@ -173,7 +173,7 @@ LightColorProvider::LightColorProvider(Light* light) : light_(light) {}
 LightColorProvider::~LightColorProvider() {}
 void LightColorProvider::UpdateParams(const FrameArgs& args) {}
 const Vector4& LightColorProvider::color() const { 
-  return light_->ambient();
+  return light_->diffuse();
 }
 
 // class LightColorDiffuseEffectAdapter

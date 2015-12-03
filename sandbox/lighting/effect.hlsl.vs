@@ -21,7 +21,7 @@ VsOutput vs_main(VSInput input) {
   VsOutput o;
   o.position = mul(pvw, input.position);
   float4 pos = mul(world, input.position);
-  o.normal = mul(world, input.normal);
+  o.normal = normalize(mul(world, input.normal));
   o.viewin = normalize(pos - camerapos);
   return o;
 }
