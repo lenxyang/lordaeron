@@ -100,20 +100,11 @@ void SceneRenderEnvNode::UpdateParams(const FrameArgs& args) {
 }
 
 // class SceneRenderNode
-SceneRenderNode::SceneRenderNode(SceneNode* node, SceneRenderEnvNode* envnode)
+SceneRenderNode::SceneRenderNode(SceneNode* node)
     : parent_(NULL),
       node_(node),
-      envnode_(envnode),
+      envnode_(NULL),
       camera_(NULL) {
-}
-
-SceneRenderNode::SceneRenderNode(SceneNode* node, SceneRenderEnvNode* envnode,
-                                 const Camera* camera)
-    : parent_(NULL),
-      node_(node),
-      envnode_(envnode),
-      camera_(camera) {
-  DCHECK(node->parent() == NULL);
 }
 
 SceneRenderNode::~SceneRenderNode() {
@@ -129,6 +120,12 @@ SceneRenderNode* SceneRenderNode::root() {
 
 const Camera* SceneRenderNode::camera() const {
   return root()->camera_;
+}
+
+void SceneRenderNode::SetCamera(const azer::Camera* camera) {
+  DCHECK(!camera_);
+  DCHECK(!parent());
+  camera_ = camera;
 }
 
 SceneRenderNode* SceneRenderNode::parent() {
@@ -211,18 +208,22 @@ void SceneRenderNode::UpdateParams(const azer::FrameArgs& args) {
 }
 
 void SceneRenderNode::AddMesh(Mesh* mesh) {
-  mesh->AddProvider(this);
-  mesh->AddProvider(envnode_);
   mesh_ = mesh;
 }
 
 void SceneRenderNode::Init() {
+  Mesh* mesh = NULL;
   if (node_->type() == kMeshSceneNode) {
-    AddMesh(node_->mutable_data()->GetMesh());
+    mesh = node_->mutable_data()->GetMesh();
   } else if (node_->type() == kLampSceneNode) {
     Light* light = node_->mutable_data()->light();
-    Mesh* mesh = light->GetLightMesh();
+    mesh = light->GetLightMesh();
     mesh->AddProvider(new LightColorProvider(light));
+  }
+
+  if (mesh) {
+    mesh->AddProvider(this);
+    mesh->AddProvider(envnode_);
     AddMesh(mesh);
   }
 }
@@ -245,8 +246,9 @@ void SceneRenderNode::Render(Renderer* renderer) {
 }
 
 // class SceneRenderTreeBuilder
-SceneRenderTreeBuilder::SceneRenderTreeBuilder() 
-    : cur_(NULL) {
+SceneRenderTreeBuilder::SceneRenderTreeBuilder(SceneRenderNodeCreator* creator) 
+    : cur_(NULL),
+      creator_(creator) {
 }
 
 SceneRenderTreeBuilder::~SceneRenderTreeBuilder() {
@@ -254,7 +256,8 @@ SceneRenderTreeBuilder::~SceneRenderTreeBuilder() {
 
 void SceneRenderTreeBuilder::Build(SceneNode* root, const Camera* camera) {
   SceneRenderEnvNode* rootenv = new SceneRenderEnvNode;
-  root_ = new SceneRenderNode(root, rootenv, camera);
+  root_ = new SceneRenderNode(root);
+  root_->SetCamera(camera);
   cur_ = root_.get();
   SceneNodeTraverse traverser(this);
   traverser.Traverse(root);
@@ -280,17 +283,20 @@ bool SceneRenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
     SceneRenderEnvNode* envnode = new SceneRenderEnvNode(cur_->GetEnvNode());
     cur_->SetEnvNode(envnode);
   } else if (node->type() == kSceneNode) {
-    SceneRenderNode* n = new SceneRenderNode(node, cur_->GetEnvNode());
+    SceneRenderNode* n = creator_->Create(node);
+    n->SetEnvNode(cur_->GetEnvNode());
     n->Init();
     cur_->AddChild(n);
     cur_ = n;
   } else if (node->type() == kMeshSceneNode) {
-    SceneRenderNode* n = new SceneRenderNode(node, cur_->GetEnvNode());
+    SceneRenderNode* n = creator_->Create(node);
+    n->SetEnvNode(cur_->GetEnvNode());
     n->Init();
     cur_->AddChild(n);
     cur_ = n;
   } else if (node->type() == kLampSceneNode) {
-    SceneRenderNode* n = new SceneRenderNode(node, cur_->GetEnvNode());
+    SceneRenderNode* n = creator_->Create(node);
+    n->SetEnvNode(cur_->GetEnvNode());
     n->Init();
     n->GetEnvNode()->AddLight(node->mutable_data()->light());
     cur_->AddChild(n);

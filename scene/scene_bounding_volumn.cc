@@ -13,12 +13,12 @@ namespace lord {
 using namespace azer;
 
 namespace {
-::base::LazyInstance<azer::EffectAdapterContext> adapter_context_
+::base::LazyInstance<EffectAdapterContext> adapter_context_
 = LAZY_INSTANCE_INITIALIZER;
 }
 
-SceneBVProvider::SceneBVProvider(SceneNode* node)
-    : node_(node),
+SceneBVRenderNode::SceneBVRenderNode(SceneNode* node)
+    : SceneRenderNode(node),
       color_(Vector4(1.0f, 0.0f, 0.0f, 0.3f)) {
   if (!adapter_context_.Pointer()->LookupAdapter(
           SceneBVParamsAdapter::kAdapterKey)) {
@@ -26,56 +26,71 @@ SceneBVProvider::SceneBVProvider(SceneNode* node)
   }
 }
 
-SceneBVProvider::~SceneBVProvider() {
+SceneBVRenderNode::~SceneBVRenderNode() {
 }
 
+void SceneBVRenderNode::Init() {
+  MeshPtr mesh = CreateBoundingBoxForSceneNode(node_);
+  mesh->AddProvider(this);
+  AddMesh(mesh);
+}
 
-void SceneBVProvider::UpdateParams(const azer::FrameArgs& args) {
+void SceneBVRenderNode::Update(const azer::FrameArgs& args) {
   Vector3 vmin = node_->vmin();
   Vector3 vmax = node_->vmax();
   Vector3 center = (vmin + vmax) * 0.5f;
   Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
-  world_ = std::move(azer::Scale(scale));
+  world_ = std::move(Scale(scale));
   world_ = std::move(node_->orientation().ToMatrix()) * world_;
-  world_ = std::move(azer::Translate(center)) * world_;
+  world_ = std::move(Translate(center)) * world_;
+  if (parent()) {
+    world_ = std::move(parent()->GetWorld() * world_);
+  }
+
+  if (node_->is_draw_bounding_volumn()) {
+    CHECK(mesh_.get());
+    mesh_->UpdateProviderParams(args);
+  }
+}
+
+void SceneBVRenderNode::Render(azer::Renderer* renderer) {
+  if (node_->is_draw_bounding_volumn()) {
+    mesh_->Render(renderer);
+  }
 }
 
 // class SceneBVParamsAdapter
-const azer::EffectAdapterKey SceneBVParamsAdapter::kAdapterKey =
+const EffectAdapterKey SceneBVParamsAdapter::kAdapterKey =
     std::make_pair(typeid(DiffuseEffect).name(),
-                   typeid(SceneBVProvider).name());
+                   typeid(SceneBVRenderNode).name());
 
-azer::EffectAdapterKey SceneBVParamsAdapter::key() const {
-  return std::make_pair(typeid(DiffuseEffect).name(),
-                        typeid(SceneBVProvider).name());
-}
+EffectAdapterKey SceneBVParamsAdapter::key() const { return kAdapterKey; }
 
 void SceneBVParamsAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const {
   Context* ctx = Context::instance();
-  const SceneBVProvider* box = dynamic_cast<const SceneBVProvider*>(params);
+  const SceneBVRenderNode* node = 
+      dynamic_cast<const SceneBVRenderNode*>(params);
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
-  DCHECK(box && effect);
+  DCHECK(node && effect);
 
-  effect->SetWorld(box->world_);
-  effect->SetColor(box->color_);
+  effect->SetWorld(node->GetWorld());
+  effect->SetColor(node->color());
+  effect->SetPV(node->camera()->GetProjViewMatrix());
   effect->SetDirLight(ctx->GetInternalLight());
 }
 
-azer::MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
+MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
   Context* ctx = Context::instance();
   EffectPtr effect = ctx->GetEffect(DiffuseEffect::kEffectName);
   BoxObject* objptr = new BoxObject(effect->GetVertexDesc());
   
-  azer::MeshPartPtr objpart = objptr->CreateObject(effect.get());
+  MeshPartPtr objpart = objptr->CreateObject(effect.get());
   BlendingPtr blending = ctx->GetDefaultBlending();
   objpart->SetBlending(blending);
-  azer::MeshPartPtr framepart = objptr->CreateFrameObject(effect.get());
-  azer::MeshPtr mesh(new azer::Mesh(adapter_context_.Pointer()));
-  mesh->AddMeshPart(objpart);
+  MeshPartPtr framepart = objptr->CreateFrameObject(effect.get());
+  MeshPtr mesh(new Mesh(adapter_context_.Pointer()));
   mesh->AddMeshPart(framepart);
-  scoped_refptr<SceneBVProvider> provider(new SceneBVProvider(node));
-  mesh->AddProvider(provider);
   return mesh;
 }
 }  // namespace lord

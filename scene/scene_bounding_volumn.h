@@ -1,6 +1,7 @@
 #pragma once
 
 #include "azer/render/render.h"
+#include "lordaeron/scene/scene_render_tree.h"
 
 namespace lord {
 
@@ -15,19 +16,18 @@ class SceneBVParamsAdapter : public azer::EffectParamsAdapter {
              const azer::EffectParamsProvider* params) const override;
 };
 
-class SceneBVProvider : public azer::EffectParamsProvider {
+class SceneBVRenderNode : public SceneRenderNode {
  public:
-  SceneBVProvider(SceneNode* node);
-  ~SceneBVProvider();
-  
-  // override from azer::EffectParamsProvider
-  void UpdateParams(const azer::FrameArgs& args) override;
+  explicit SceneBVRenderNode(SceneNode* node);
+  ~SceneBVRenderNode() override;
+  void Init() override;
+  void Update(const azer::FrameArgs& args) override;
+  void Render(azer::Renderer* renderer) override;
+
+  const azer::Vector4& color() const { return color_;}
  private:
-  friend class SceneBVParamsAdapter;
-  SceneNode* node_;
   azer::Vector4 color_;
-  azer::Matrix4 world_;
-  DISALLOW_COPY_AND_ASSIGN(SceneBVProvider);
+  DISALLOW_COPY_AND_ASSIGN(SceneBVRenderNode);
 };
 
 azer::MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node);

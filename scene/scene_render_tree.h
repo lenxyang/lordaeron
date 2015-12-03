@@ -52,9 +52,7 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
 
 class SceneRenderNode : public azer::EffectParamsProvider {
  public:
-  SceneRenderNode(SceneNode* node, SceneRenderEnvNode* envnode);
-  SceneRenderNode(SceneNode* node, SceneRenderEnvNode* envnode,
-                  const azer::Camera* camera);
+  explicit SceneRenderNode(SceneNode* node);
   virtual ~SceneRenderNode();
 
   SceneNode* GetSceneNode() { return node_;}
@@ -66,6 +64,7 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   const azer::Matrix4& GetWorld() const { return world_;}
   const azer::Matrix4& GetPVW() const { return pvw_;}
   const azer::Camera* camera() const;
+  void SetCamera(const azer::Camera* camera);
 
   // virtual function;
   virtual void Init();
@@ -91,7 +90,7 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   const std::vector<SceneRenderNodePtr>& children() const { return children_;}
   std::string DumpTree() const;
   std::string DumpNode(const SceneRenderNode* node, int32 depth) const;
- private:
+ protected:
   void AddMesh(azer::Mesh* mesh);
   SceneRenderNode* parent_;
   std::vector<SceneRenderNodePtr> children_;
@@ -105,9 +104,21 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   DISALLOW_COPY_AND_ASSIGN(SceneRenderNode);
 };
 
+class SceneRenderNodeCreator {
+ public:
+  virtual SceneRenderNode* Create(SceneNode* node) = 0;
+};
+
+class DefaultSceneRenderNodeCreator : public SceneRenderNodeCreator {
+ public:
+  SceneRenderNode* Create(SceneNode* node) override {
+    return new SceneRenderNode(node);
+  }
+};
+
 class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
  public:
-  SceneRenderTreeBuilder();
+  SceneRenderTreeBuilder(SceneRenderNodeCreator* creator);
   ~SceneRenderTreeBuilder();
 
   void Build(SceneNode* node, const azer::Camera* camera);
@@ -122,6 +133,7 @@ class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
   void UpdateNodeWorld(SceneNode* node);
   SceneRenderNode* cur_;
   SceneRenderNodePtr root_;
+  SceneRenderNodeCreator* creator_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderTreeBuilder);
 };
 

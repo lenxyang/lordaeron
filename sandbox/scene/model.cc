@@ -92,7 +92,8 @@ void MyRenderWindow::OnInitScene() {
   node3->SetPosition(Vector3(10.0f, 00.0f, 0.0f));
   node3->set_draw_bounding_volumn(true);
 
-  SceneRenderTreeBuilder builder;
+  DefaultSceneRenderNodeCreator creator;
+  SceneRenderTreeBuilder builder(&creator);
   builder.Build(root_.get(), &camera());
   render_root_ = builder.GetRenderNodeRoot();
   LOG(ERROR) << "\n" << render_root_->DumpTree();
