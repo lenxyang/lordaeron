@@ -68,7 +68,7 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
     CHECK(light_node->GetChildTextAsFloat("range", &light.range));
     CHECK(light_node->GetChildTextAsFloat("phi", &light.phi));
     CHECK(light_node->GetChildTextAsFloat("theta", &light.theta));
-    
+    CHECK(light.theta > light.phi);
     LightPtr ptr(new Light(light));
     Quaternion orient;
     CalcSceneOrientForZDirection(light.direction, &orient);

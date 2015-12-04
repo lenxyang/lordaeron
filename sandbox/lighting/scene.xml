@@ -27,17 +27,16 @@
             </attenuation>
           </light>
         </node>
-
         <node name="point" type="light">
-          <location><position>0.0f, 2.0f, 2.0f</position></location>
+          <location><position>0.0f, 4.0f, 4.0f</position></location>
           <light type="spot_light">
             <ambient>1.0, 1.0, 1.0, 1.0</ambient>
             <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>
             <specular>0.1, 0.1, 0.1, 1.0</specular>
             <directional>0.0, 0.0, 1.0</directional>
-            <phi>0.4</phi>
-            <theta>0.2</theta>
-            <falloff>1.0</falloff>
+            <phi>0.6</phi>
+            <theta>1.0</theta>
+            <falloff>0.5</falloff>
             <range>100</range>
           </light>
         </node>

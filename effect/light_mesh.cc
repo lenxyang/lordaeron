@@ -51,7 +51,6 @@ MeshPtr CreateSpotLightMesh() {
   float kSpotRadius = 0.3f;
   float kBaseHeight = 0.3f;
   float kBaseRadius = 0.1f;
-  
 
   Context* context = Context::instance();
   RenderSystem* rs = RenderSystem::Current();

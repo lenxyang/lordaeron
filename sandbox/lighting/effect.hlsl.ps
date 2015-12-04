@@ -17,7 +17,6 @@ cbuffer c_buffer {
    float4 color;	
 };
 
-
 float4 ps_main(VsOutput o):SV_TARGET {
   Matrial mtrl;
   mtrl.ambient = float4(0.01, 0.01, 0.01, 1.0);
@@ -30,5 +29,7 @@ float4 ps_main(VsOutput o):SV_TARGET {
   float3 dir_color = CalcDirLightColor(dirlight, o.normal, o.viewin, mtrl);
   float3 point_color = CalcPointLightColor(pointlight, o.worldpos,
                                            o.normal, o.viewin, mtrl);
-  return float4(point_color, mtrl.alpha);
+  float3 spot_color = CalcSpotLightColor(spotlight, o.worldpos,
+                                         o.normal, o.viewin, mtrl);
+  return float4(spot_color + dir_color + point_color, mtrl.alpha);
 }
