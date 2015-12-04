@@ -11,8 +11,9 @@ struct VsOutput {
 };
 
 cbuffer c_buffer {
-   DirLight dirlight;
+   DirLight   dirlight;
    PointLight pointlight;
+   SpotLight  spotlight;
    float4 color;	
 };
 
@@ -28,6 +29,6 @@ float4 ps_main(VsOutput o):SV_TARGET {
 
   float3 dir_color = CalcDirLightColor(dirlight, o.normal, o.viewin, mtrl);
   float3 point_color = CalcPointLightColor(pointlight, o.worldpos,
-                                          o.normal, o.viewin, mtrl);
+                                           o.normal, o.viewin, mtrl);
   return float4(point_color, mtrl.alpha);
 }

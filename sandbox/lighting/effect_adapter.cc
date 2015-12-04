@@ -65,6 +65,8 @@ void SceneRenderEnvNodeEffectAdapter::Apply(
       effect->SetDirLight(light->dir_light());
     } else if (light->type() == kPointLight) {
       effect->SetPointLight(light->point_light());
+    } else if (light->type() == kSpotLight) {
+      effect->SetSpotLight(light->spot_light());
     }
   }
 }

@@ -35,10 +35,13 @@ struct SpotLight {
   azer::Vector4 ambient;
   azer::Vector4 specular;
   azer::Vector3 position;
-  float phi;
+  float pad1;
   azer::Vector3 direction;
+  float pad2;
+  float phi;
   float theta;  // inner corner
-  Attenuation atten;
+  float range;
+  float falloff;
 };
 
 enum LightType {

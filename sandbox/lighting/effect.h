@@ -26,6 +26,7 @@ class MyEffect : public azer::Effect {
   struct ps_cbuffer {
     DirLight light;
     PointLight pointlight;
+    SpotLight  spotlight;
     azer::Vector4 color;
   };
 #pragma pack(pop)
@@ -36,6 +37,7 @@ class MyEffect : public azer::Effect {
   void SetColor(const azer::Vector4& value);
   void SetDirLight(const DirLight& value);
   void SetPointLight(const PointLight& value);
+  void SetSpotLight(const SpotLight& value);
  protected:
   void ApplyGpuConstantTable(azer::Renderer* renderer) override;
   void InitTechnique(const ShaderPrograms& source);
@@ -47,6 +49,7 @@ class MyEffect : public azer::Effect {
   azer::Vector4 camerapos_;
   DirLight dir_light_;
   PointLight point_light_;
+  SpotLight spot_light_;
   DISALLOW_COPY_AND_ASSIGN(MyEffect);
 };
 

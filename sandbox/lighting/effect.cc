@@ -52,6 +52,8 @@ void MyEffect::InitGpuConstantTable() {
                             sizeof(lord::DirLight), 1),
     GpuConstantsTable::Desc("pointlight", offsetof(ps_cbuffer, pointlight),
                             sizeof(lord::PointLight), 1),
+    GpuConstantsTable::Desc("spotlight", offsetof(ps_cbuffer, spotlight),
+                            sizeof(lord::SpotLight), 1),
     GpuConstantsTable::Desc("color", GpuConstantsType::kVector4,
                             offsetof(ps_cbuffer, color), 1),
   };
@@ -82,6 +84,10 @@ void MyEffect::SetPointLight(const PointLight& value) {
   point_light_ = value;
 }
 
+void MyEffect::SetSpotLight(const SpotLight& value) {
+  spot_light_ = value;
+}
+
 void MyEffect::ApplyGpuConstantTable(Renderer* renderer) {
   {
     Matrix4 pvw = std::move(pv_ * world_);
@@ -96,7 +102,8 @@ void MyEffect::ApplyGpuConstantTable(Renderer* renderer) {
     DCHECK(tb != NULL);
     tb->SetValue(0, &dir_light_, sizeof(lord::DirLight));
     tb->SetValue(1, &point_light_, sizeof(lord::PointLight));
-    tb->SetValue(2, &color_, sizeof(Vector4));
+    tb->SetValue(2, &spot_light_, sizeof(lord::SpotLight));
+    tb->SetValue(3, &color_, sizeof(Vector4));
   }
 }
 
