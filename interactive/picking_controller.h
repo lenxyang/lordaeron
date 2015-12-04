@@ -7,6 +7,21 @@ namespace lord {
 class InteractiveContext;
 class SceneNode;
 
+class PickingObject {
+ public:
+  virtual void Update(const azer::FrameArgs& args) = 0;
+  virtual void Render(azer::Renderer* renderer) = 0;
+};
+
+class BoundingVolumnPickingObject : public PickingObject {
+ public:
+  BoundingVolumnPickingObject(SceneNode* node);
+  void Update(const azer::FrameArgs& args) override;
+  void Render(azer::Renderer* renderer) override;
+ private:
+  azer::MeshPtr mesh_;
+};
+
 class PickingController : public InteractiveController {
  public:
   PickingController();
@@ -18,7 +33,7 @@ class PickingController : public InteractiveController {
   void OnLostFocus() override;
   bool OnMousePressed(const ui::MouseEvent& event);
  private:
-  azer::MeshPtr mesh_;
+  scoped_ptr<PickingObject> object_;
   DISALLOW_COPY_AND_ASSIGN(PickingController);
 };
 

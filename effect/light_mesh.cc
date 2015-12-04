@@ -56,7 +56,7 @@ MeshPtr CreateSpotLightMesh() {
   RenderSystem* rs = RenderSystem::Current();
   MeshPtr mesh = new Mesh;
   DiffuseEffectPtr effect = CreateDiffuseEffect();
-  Matrix4 rotation = std::move(RotateX(Degree(-90.0f)));
+  Matrix4 rotation = std::move(RotateX(Degree(90.0f)));
   // spot cylinder
   {
     // create VertexData
@@ -117,7 +117,7 @@ MeshPtr CreateDirectionalLightMesh() {
   MeshPtr mesh = new Mesh;
   DiffuseEffectPtr effect = CreateDiffuseEffect();
 
-  Matrix4 rotation = std::move(RotateX(Degree(-90.0f)));
+  Matrix4 rotation = std::move(RotateX(Degree(90.0f)));
   {
     // create VertexData
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);

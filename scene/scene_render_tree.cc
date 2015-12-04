@@ -6,6 +6,27 @@
 #include "lordaeron/effect/light_mesh.h"
 
 namespace lord {
+
+namespace {
+void UpdateSceneNodeLight(SceneNode* node) {
+  if (node->type() == kLampSceneNode) {
+    Light* light = node->mutable_data()->light();
+    switch (light->type()) {
+      case kDirectionalLight: 
+        light->mutable_dir_light()->enable = node->visible() ? 1.0f : 0.0f;
+        break;
+      case kPointLight: 
+        light->mutable_point_light()->enable = node->visible() ? 1.0f : 0.0f;
+        break;
+      case kSpotLight: 
+        light->mutable_spot_light()->enable = node->visible() ? 1.0f : 0.0f;
+        break;
+      default:
+        CHECK(false);
+    }
+  }
+}
+}
 using namespace azer;
 // class SceneRenderEnvNode
 SceneRenderEnvNode::SceneRenderEnvNode() 
@@ -88,14 +109,22 @@ std::string SceneRenderEnvNode::DumpNode(const SceneRenderEnvNode* node,
   return ss.str();
 }
 
+void SceneRenderEnvNode::AddLightNode(SceneNode* node) {
+  DCHECK(node->type() == kLampSceneNode);
+  light_nodes_.push_back(node);
+}
+
 void SceneRenderEnvNode::UpdateParams(const FrameArgs& args) {
   all_lights_.clear();
   if (parent()) {
     all_lights_ = parent()->all_lights_;
   }
 
-  for (auto iter = lights_.begin(); iter != lights_.end(); ++iter) {
-    all_lights_.push_back(*iter);
+  for (auto iter = light_nodes_.begin(); iter != light_nodes_.end(); ++iter) {
+    SceneNode* node = iter->get();
+    DCHECK(node->type() == kLampSceneNode);
+    UpdateSceneNodeLight(node);
+    all_lights_.push_back(node->mutable_data()->light());
   }
 }
 
@@ -220,7 +249,7 @@ void SceneRenderNode::Init() {
     Light* light = node_->mutable_data()->light();
     mesh = light->GetLightMesh();
     mesh->AddProvider(new LightColorProvider(light));
-    GetEnvNode()->AddLight(light);
+    GetEnvNode()->AddLightNode(node_);
   } else if (node_->type() == kEnvSceneNode) {
   }
 
@@ -333,6 +362,10 @@ void SimpleRenderTreeRenderer::UpdateNode(SceneRenderNode* node,
 
 void SimpleRenderTreeRenderer::RenderNode(SceneRenderNode* node, 
                                           Renderer* renderer) {
+  if (!node->GetSceneNode()->visible()) {
+    return;
+  }
+
   node->Render(renderer);
   for (auto iter = node->children().begin(); 
        iter != node->children().end(); ++iter) {

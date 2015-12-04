@@ -5,7 +5,7 @@ struct DirLight {
   float4 ambient;
   float4 specular;
   float3 dir;
-  float  pad;
+  float  enable;
 };
 
 struct Attenuation {
@@ -20,7 +20,7 @@ struct PointLight {
   float4      ambient;
   float4      specular;
   float3      position;
-  float       pad;
+  float       enable;
   Attenuation atten;
 };
 
@@ -31,7 +31,7 @@ struct SpotLight {
   float3      position;
   float       pad1;
   float3      direction;
-  float       pad2;
+  float       enable;
   float       phi;
   float       theta;
   float       range;
@@ -64,10 +64,11 @@ float3 CalcDirLightColor(DirLight light, float3 normal, float3 viewin, Matrial m
   float3 diffuse = max(0.0, dot(normal, -ldir)) * 
                   light.diffuse.xyz * m.diffuse.xyz;
   float3 ambient = m.ambient.xyz * light.ambient.xyz;
-  float3 specular = pow(m.power, blinn_phong(ldir, normal, viewin))
+  float3 specular = pow(m.power, phong(ldir, normal, viewin))
                         * light.specular.xyz * m.specular.xyz;
 
-  return float3(ambient.xyz + diffuse.xyz + specular.xyz + m.emission.xyz);
+  float3 c = float3(ambient.xyz + diffuse.xyz + specular.xyz + m.emission.xyz);
+  return light.enable * c;
 }
 
 float CalcAttenuation(float dist, Attenuation atten) {
@@ -83,11 +84,12 @@ float3 CalcPointLightColor(PointLight light, float3 pos, float3 normal,
                   light.diffuse.xyz * mtrl.diffuse.xyz;
   float atten = CalcAttenuation(dist, light.atten);
   float3 ambient = mtrl.ambient.xyz * light.ambient.xyz;
-  float3 specular = pow(mtrl.power, blinn_phong(ldir, normal, viewin))
+  float3 specular = pow(mtrl.power, phong(ldir, normal, viewin))
                         * light.specular.xyz * mtrl.specular.xyz;
 
-  return float3(ambient.xyz + (diffuse.xyz + specular.xyz) * atten
-                + mtrl.emission.xyz);
+  float3 c = float3(ambient.xyz + (diffuse.xyz + specular.xyz) * atten
+                    + mtrl.emission.xyz);
+  return c * light.enable;
 }
 
 float3 CalcSpotLightColor(SpotLight light, float3 pos, float3 normal, 
@@ -110,6 +112,7 @@ float3 CalcSpotLightColor(SpotLight light, float3 pos, float3 normal,
   float3 ambient = m.ambient.xyz * light.ambient.xyz;
   float3 specular = pow(m.power, blinn_phong(ldir, normal, viewin))
                         * light.specular.xyz * m.specular.xyz;
-  return ambient.xyz + (diffuse.xyz + specular.xyz) * linear_atten + m.emission.xyz;
+  float3 c = ambient.xyz + (diffuse.xyz + specular.xyz) * atten + m.emission.xyz;
+  return c * light.enable;
 }
 

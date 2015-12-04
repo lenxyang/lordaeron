@@ -18,7 +18,7 @@ struct DirLight {
   azer::Vector4 ambient;
   azer::Vector4 specular;
   azer::Vector3 direction;
-  float pad;
+  float enable;
 };
 
 struct PointLight {
@@ -26,7 +26,7 @@ struct PointLight {
   azer::Vector4 ambient;
   azer::Vector4 specular;
   azer::Vector3 position;
-  float pad;
+  float enable;
   Attenuation atten;
 };
 
@@ -37,7 +37,7 @@ struct SpotLight {
   azer::Vector3 position;
   float pad1;
   azer::Vector3 direction;
-  float pad2;
+  float enable;
   float phi;
   float theta;  // inner corner
   float range;

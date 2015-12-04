@@ -8,6 +8,7 @@
 #include "azer/render/render.h"
 #include "lordaeron/effect/light.h"
 #include "lordaeron/scene/scene_node_traverse.h"
+#include "lordaeron/scene/scene_node.h"
 
 namespace lord {
 class SceneRenderEnvNode;
@@ -20,8 +21,8 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
   SceneRenderEnvNode();
   explicit SceneRenderEnvNode(SceneRenderEnvNode* parent);
 
-  void AddLight(Light* light) { lights_.push_back(light);}
-  const Lights& lights() const { return lights_;}
+  void AddLightNode(SceneNode* node);
+  const Lights& lights() const { return all_lights_;}
   void UpdateParams(const azer::FrameArgs& args) override;
   
   SceneRenderEnvNode* root();
@@ -43,7 +44,7 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
   std::string DumpTree() const;
   std::string DumpNode(const SceneRenderEnvNode* node, int32 dump) const;
  private:
-  Lights lights_;
+  SceneNodes light_nodes_;
   SceneRenderEnvNode* parent_;
   Lights all_lights_;
   std::vector<SceneRenderEnvNodePtr> children_;

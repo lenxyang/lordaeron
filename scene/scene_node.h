@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "base/memory/ref_counted.h"
 #include "base/observer_list.h"
 #include "azer/render/render.h"
@@ -12,6 +14,7 @@ class SceneNode;
 class SceneNodeData;
 class SceneNodeObserver;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
+typedef std::vector<SceneNodePtr> SceneNodes;
 
 enum SceneNodeType {
   kSceneNode,
@@ -55,8 +58,6 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   SceneNode(const std::string& name, SceneNode* parent);
   SceneNode(const std::string& name, SceneNodeType type, SceneNode* parent);
   ~SceneNode();
-
-  typedef std::vector<SceneNodePtr> SceneNodes;
   
   // attributes
   void set_visible(bool visible) { visible_ = visible;}

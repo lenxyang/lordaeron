@@ -57,8 +57,8 @@ MeshData LoadMeshData(const aiMesh* paiMesh, VertexDescPtr desc) {
   MeshData data;
   data.vdata = vdata;
   data.idata = idata;
-  data.vmax = vmax;
-  data.vmin = vmin;
+  data.vmax = vmax + Vector3(0.001f, 0.001f, 0.001f);
+  data.vmin = vmin - Vector3(0.001f, 0.001f, 0.001f);
   return data;
 }
 }  // namespace

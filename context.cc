@@ -26,6 +26,7 @@ Context::Context() {
   internal_light_.diffuse = azer::Vector4(0.4f, 0.4f, 0.4f, 1.0f);
   internal_light_.ambient = azer::Vector4(0.2f, 0.2f, 0.2f, 1.0f);
   internal_light_.specular = azer::Vector4(0.1f, 0.1f, 0.1f, 1.0f);
+  internal_light_.enable = 1.0f;
 }
 
 Context::~Context() {
