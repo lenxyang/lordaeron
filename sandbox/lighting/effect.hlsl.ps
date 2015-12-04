@@ -25,6 +25,8 @@ float4 ps_main(VsOutput o):SV_TARGET {
   mtrl.power = 32;
   mtrl.alpha = 1.0f;
 
-  float3 color = CalcDirLightColor(dirlight, o.normal, o.viewin, mtrl);
-  return float4(color, 1.0);
+  // float3 dir_color = CalcDirLightColor(dirlight, o.normal, o.viewin, mtrl);
+  float3 point_color = CalcPointLightColor(pointlight, o.position.xyz,
+                                           o.normal, o.viewin, mtrl);
+  return float4(point_color, mtrl.alpha);
 }

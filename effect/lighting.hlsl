@@ -46,10 +46,14 @@ struct Matrial {
   float  pad2;
 };
 
-float3 CalcSpecularIntensity(float3 ldir, float3 normal, float3 viewin, int p) {
+float phong(float3 ldir, float3 normal, float3 viewin) {
   float3 reflect = normalize(2.0f * dot(normal, ldir) * normal - ldir);
-  float3 specular_intensity = pow(p, max(0, dot(reflect, viewin)));
-  return specular_intensity;
+  return max(0, dot(reflect, viewin));
+}
+
+float blinn_phong(float3 ldir, float3 normal, float3 viewin) {
+  float half_vec = normalize(ldir + viewin);
+  return max(0, dot(half_vec, viewin));
 }
 
 float3 CalcDirLightColor(DirLight light, float3 normal, float3 viewin, 
@@ -58,7 +62,7 @@ float3 CalcDirLightColor(DirLight light, float3 normal, float3 viewin,
   float3 diffuse = max(0.0, dot(normal, -ldir)) * 
                   light.diffuse.xyz * mtrl.diffuse.xyz;
   float3 ambient = mtrl.ambient.xyz * light.ambient.xyz;
-  float3 specular = CalcSpecularIntensity(ldir, normal, viewin, mtrl.power) 
+  float3 specular = pow(mtrl.power, blinn_phong(ldir, normal, viewin))
                  * light.specular.xyz * mtrl.specular.xyz;
   
   return float3(diffuse.xyz + ambient.xyz + specular.xyz + mtrl.emission.xyz);
