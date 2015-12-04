@@ -15,14 +15,14 @@
         </node>
 
 	<node name="point" type="light">
-        <location><position>0.0f, 5.0f, 0.0f</position></location>
+        <location><position>0.0f, 2.0f, 2.0f</position></location>
         <light type="point_light">
           <ambient>1.0, 1.0, 1.0, 1.0</ambient>
           <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>
           <specular>0.1, 0.1, 0.1, 1.0</specular>
           <range>100.0</range>
           <attenuation>
-            <coefficient>0.0001, 0.01, 1.0</coefficient>
+            <coefficient>0.0, 0.0, 1.0</coefficient>
             <range>100</range>
           </attenuation>
         </light>
@@ -36,6 +36,17 @@
           <effect name="DiffuseEffect"/>
           <provider name="lord::DiffuseEffectProvider">
             <color>0.3f, 0.3f, 0.3f, 1.0f</color>
+          </provider>
+        </mesh>
+      </node>
+
+      <node name="plane" type="mesh">
+        <location><position>0.0f, 0.0f, 0.0f</position></location>
+        <mesh>
+          <path>//media/model/plane.obj</path>
+          <effect name="DiffuseEffect"/>
+          <provider name="lord::DiffuseEffectProvider">
+            <color>1.0f, 1.0f, 1.0f, 1.0f</color>
           </provider>
         </mesh>
       </node>

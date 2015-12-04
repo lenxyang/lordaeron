@@ -39,6 +39,7 @@ class SceneNodeData : public SceneNodeObserver {
   // override SceneNodeObserver
   void OnSceneNodeOrientationChanged(
       SceneNode* node, const azer::Quaternion& prev_orient) override;
+  void OnSceneNodeLocationChanged(SceneNode* node, const azer::Vector3& prevpos) override;
   azer::MeshPtr mesh_;
   LightPtr light_;
   SceneNode* node_;
@@ -108,6 +109,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   const azer::TransformHolder& holder() const { return holder_;}
   void SetPosition(const azer::Vector3& pos);
   const azer::Vector3& position() const { return holder().position();}
+  azer::Vector3 GetWorldPosition() const;
   
   void SetScale(const azer::Vector3& v);
   const azer::Vector3& scale() const { return holder().scale();}

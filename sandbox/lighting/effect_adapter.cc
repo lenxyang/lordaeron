@@ -40,6 +40,7 @@ void SceneRenderNodeEffectAdapter::Apply(
   MyEffect* effect = dynamic_cast<MyEffect*>(e);
   effect->SetWorld(provider->GetWorld());
   effect->SetPV(provider->camera()->GetProjViewMatrix());
+  effect->SetCameraPos(Vector4(provider->camera()->position(), 1.0f));
 }
 
 SceneRenderEnvNodeEffectAdapter::SceneRenderEnvNodeEffectAdapter() {

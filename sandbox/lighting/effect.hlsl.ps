@@ -5,6 +5,7 @@
 
 struct VsOutput {
   float4 position:SV_POSITION;
+  float3 worldpos: WPOS;
   float3 normal:NORMAL;
   float3 viewin: VIEWIN;
 };
@@ -22,11 +23,11 @@ float4 ps_main(VsOutput o):SV_TARGET {
   mtrl.specular = float4(0.8, 0.8, 0.8, 1.0);
   mtrl.diffuse = color;
   mtrl.emission = float4(0.0f, 0.0f, 0.0f, 0.0f);
-  mtrl.power = 32;
+  mtrl.power = 4;
   mtrl.alpha = 1.0f;
 
-  // float3 dir_color = CalcDirLightColor(dirlight, o.normal, o.viewin, mtrl);
-  float3 point_color = CalcPointLightColor(pointlight, o.position.xyz,
-                                           o.normal, o.viewin, mtrl);
+  float3 dir_color = CalcDirLightColor(dirlight, o.normal, o.viewin, mtrl);
+  float3 point_color = CalcPointLightColor(pointlight, o.worldpos,
+                                          o.normal, o.viewin, mtrl);
   return float4(point_color, mtrl.alpha);
 }

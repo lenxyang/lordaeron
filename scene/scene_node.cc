@@ -62,13 +62,23 @@ void SceneNodeData::AttachLight(Light* light) {
   node_->SetMax(light_mesh->vmax());
 }
 
+void SceneNodeData::OnSceneNodeLocationChanged(SceneNode* node, 
+                                               const Vector3& prevpos) {
+  if (node_->type() == kLampSceneNode) {
+    if (light_->type() == kPointLight) {
+      light_->mutable_point_light()->position = node->GetWorldPosition();
+    }
+  }
+}
 
 void SceneNodeData::OnSceneNodeOrientationChanged(
     SceneNode* node, const azer::Quaternion& prev_orient) {
-  if (node_->type() == kLampSceneNode && light_->type() == kDirectionalLight) {
-    Matrix4 rotation = std::move(node->orientation().ToMatrix());
-    Vector4 newdir = rotation * Vector4(0.0f, 0.0f, 1.0f, 0.0f);
-    light_->mutable_dir_light()->direction = Vector3(newdir.x, newdir.y, newdir.z);;
+  if (node_->type() == kLampSceneNode) {
+    if (light_->type() == kDirectionalLight) {
+      Matrix4 rotation = std::move(node->orientation().ToMatrix());
+      Vector4 dir = rotation * Vector4(0.0f, 0.0f, 1.0f, 0.0f);
+      light_->mutable_dir_light()->direction = Vector3(dir.x, dir.y, dir.z);
+    }
   }
 }
 
@@ -153,6 +163,16 @@ SceneNode* SceneNode::root() {
 
 void SceneNode::set_name(const std::string& name) {
   name_ = name;
+}
+
+Vector3 SceneNode::GetWorldPosition() const {
+  Vector3 pos;
+  const SceneNode* cur = this;
+  while (cur) {
+    pos += cur->position();
+    cur = cur->parent();
+  }
+  return pos;
 }
 
 SceneNodePtr SceneNode::GetLocalChild(const std::string& name) {
@@ -301,6 +321,7 @@ Vector3  SceneNode::ApplyTranformOnPos(const Vector3 &v) {
 }
 
 void SceneNode::SetPosition(const Vector3& pos) {
+  Vector3 oldpos = this->position();
   Vector3 org_vmin = vmin_;
   Vector3 org_vmax = vmax_;
   vmin_ = RevertTranformOnPos(vmin_);
@@ -312,6 +333,7 @@ void SceneNode::SetPosition(const Vector3& pos) {
   if (vmin_ != org_vmin || vmax_ != org_vmax) {
     BoundsChanged(org_vmin, org_vmax);
   }
+  LocationChanged(oldpos);
 }
 
 void SceneNode::SetScale(const Vector3& v) {

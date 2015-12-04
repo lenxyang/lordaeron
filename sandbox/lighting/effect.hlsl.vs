@@ -2,6 +2,7 @@
 
 struct VsOutput {
   float4 position:SV_POSITION;
+  float3 worldpos: WPOS;
   float3 normal:NORMAL;
   float3 viewin: VIEWIN;
 };
@@ -20,8 +21,8 @@ cbuffer c_buffer {
 VsOutput vs_main(VSInput input) {
   VsOutput o;
   o.position = mul(pvw, input.position);
-  float4 pos = mul(world, input.position);
+  o.worldpos = mul(world, input.position).xyz;
   o.normal = normalize(mul(world, input.normal)).xyz;
-  o.viewin = normalize(camerapos - pos).xyz;
+  o.viewin = normalize(camerapos - o.worldpos);
   return o;
 }
