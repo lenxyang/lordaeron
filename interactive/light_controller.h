@@ -6,21 +6,22 @@
 
 namespace lord {
 class SceneNode;
-class PointLightObject : public PickingObject,
-                         public azer::EffectParamsProvider {
+class PointLightObject : public PickingObject {
  public:
-  explicit PointLightObject(SceneNode* node);
-  ~PointLightObject() override;
+  PointLightObject(const azer::Camera* camera, SceneNode* node);
+  ~PointLightObject();
 
-  void UpdateParams(const azer::FrameArgs& args) override;
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
   // to draw center and range ball
-  LightPtr light_;
+  const azer::Camera* camera_;
   SceneNode* node_;
-  azer::EntityPtr sphere_;
+  
   DiffuseEffectPtr effect_;
+  azer::MeshPartPtr sphere_;
+  azer::Matrix4 world_;
+  azer::Matrix4 pv_;
   DISALLOW_COPY_AND_ASSIGN(PointLightObject);
 };
 

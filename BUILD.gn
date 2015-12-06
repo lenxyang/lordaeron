@@ -30,6 +30,8 @@ static_library("lordaeron") {
     "interactive/controller_object.h",
     "interactive/fps_camera_controller.cc",
     "interactive/fps_camera_controller.h",
+    "interactive/light_controller.cc",
+    "interactive/light_controller.h",
     "interactive/interactive_context.cc",
     "interactive/interactive_context.h",
     "interactive/interactive_controller.cc",

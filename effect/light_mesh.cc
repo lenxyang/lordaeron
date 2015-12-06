@@ -64,8 +64,8 @@ MeshPtr CreateSpotLightMesh() {
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
     Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
     SlotVertexDataPtr vdata = InitCylinderVertexData(
-        kSpotRadius, kBaseRadius, kStack, kSlice, effect->GetVertexDesc());
-    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
+        kSpotRadius, kBaseRadius, kStack, kSlice, false, effect->GetVertexDesc());
+    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
     VertexPack vpack(vdata.get());
     Matrix4 trans = rotation 
         * std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f)) 
@@ -87,8 +87,8 @@ MeshPtr CreateSpotLightMesh() {
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
     Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
     SlotVertexDataPtr vdata = InitCylinderVertexData(
-        kBaseRadius, kBaseRadius, kStack, kSlice, effect->GetVertexDesc());
-    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
+        kBaseRadius, kBaseRadius, kStack, kSlice, false, effect->GetVertexDesc());
+    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
     VertexPack vpack(vdata.get());
     Matrix4 trans = rotation * std::move(Translate(0.0f, -0.5f, 0.0f)) 
         * std::move(Scale(1.0f, kBaseHeight, 1.0f));
@@ -144,9 +144,9 @@ MeshPtr CreateDirectionalLightMesh() {
     const int32 kStack = 10, kSlice = 32;
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
     Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
-    SlotVertexDataPtr vdata = InitCylinderVertexData(1.0f, 1.0f, kStack, kSlice, 
-                                                     effect->GetVertexDesc());
-    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice);
+    SlotVertexDataPtr vdata = InitCylinderVertexData(
+        1.0f, 1.0f, kStack, kSlice, false, effect->GetVertexDesc());
+    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
     VertexPack vpack(vdata.get());
     Matrix4 trans = rotation
         * std::move(Translate(0.0f, -0.5, 0.0f)) 

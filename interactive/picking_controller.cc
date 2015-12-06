@@ -2,26 +2,24 @@
 
 #include "azer/render/render.h"
 #include "lordaeron/interactive/interactive_context.h"
+#include "lordaeron/interactive/light_controller.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_bounding_volumn.h"
 #include "lordaeron/ui/scene_render_window.h"
-#include "lordaeron/interactive/point_light_object.h"
 
 
 namespace lord {
+using namespace azer;
 BoundingVolumnPickingObject::BoundingVolumnPickingObject(SceneNode* node) {
   CHECK(node->type() == kSceneNode || node->type() == kMeshSceneNode);
-  mesh_ = CreateBoundingBoxForSceneNode(picking_node);
+  mesh_ = CreateBoundingBoxForSceneNode(node);
 }
 
-void BoundingVolumnPickingObject::Unpick() {
-}
-
-void BoundingVolumnPickingObject::Update(const azer::FrameArgs& args) {
+void BoundingVolumnPickingObject::Update(const FrameArgs& args) {
   mesh_->UpdateProviderParams(args);
 }
 
-void BoundingVolumnPickingObject::Render(azer::Renderer* renderer) {
+void BoundingVolumnPickingObject::Render(Renderer* renderer) {
   mesh_->Render(renderer);
 }
 
@@ -29,13 +27,13 @@ void BoundingVolumnPickingObject::Render(azer::Renderer* renderer) {
 PickingController::PickingController() {}
 
 PickingController::~PickingController() {}
-void PickingController::Update(const azer::FrameArgs& args) {
+void PickingController::Update(const FrameArgs& args) {
   if (object_.get()) {
     object_->Update(args);
   }
 }
 
-void PickingController::Render(azer::Renderer* renderer) {
+void PickingController::Render(Renderer* renderer) {
   if (object_.get()) {
     object_->Render(renderer);
   }
@@ -50,11 +48,17 @@ bool PickingController::OnMousePressed(const ui::MouseEvent& event) {
   if (picking_node) {
     switch (picking_node->type()) {
       case kSceneNode:
-      case kMeshNode:
+      case kMeshSceneNode:
         object_.reset(new BoundingVolumnPickingObject(picking_node));
         break;
-      case kLampNode:
+      case kLampSceneNode: {
+        const Light* light = picking_node->mutable_data()->light();
+        const Camera& camera = context_->window()->camera();
+        if (light->type() == kPointLight) {
+          object_.reset(new PointLightObject(&camera, picking_node));
+        }
         break;
+      }
     }
   }
   return false;
