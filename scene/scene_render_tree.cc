@@ -350,7 +350,19 @@ void SimpleRenderTreeRenderer::Update(const FrameArgs& args) {
 }
 
 void SimpleRenderTreeRenderer::Render(Renderer* renderer) {
+  blending_node_.clear();
   RenderNode(root_, renderer);
+
+  {
+    ScopedDepthBuffer(false, renderer);
+    for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
+      (*iter)->Render(renderer);
+    }
+  }
+
+  for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
+    (*iter)->Render(renderer);
+  }
 }
 
 void SimpleRenderTreeRenderer::UpdateNode(SceneRenderNode* node, 
@@ -368,7 +380,11 @@ void SimpleRenderTreeRenderer::RenderNode(SceneRenderNode* node,
     return;
   }
 
-  node->Render(renderer);
+  if (node->GetSceneNode()->type() != kLampSceneNode) {
+    node->Render(renderer);
+  } else {
+    blending_node_.push_back(node);
+  }
   for (auto iter = node->children().begin(); 
        iter != node->children().end(); ++iter) {
     RenderNode(iter->get(), renderer);

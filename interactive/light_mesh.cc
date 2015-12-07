@@ -48,7 +48,6 @@ LightMesh::LightMesh(SceneNode* node, DiffuseEffect* effect)
 }
 
 void LightMesh::Render(Renderer* renderer) {
-  ScopedCullingMode auto_culling(kCullNone, renderer);
   Mesh::Render(renderer);
   if (node_->picked()) {
     RenderPickedPart(renderer);
@@ -86,6 +85,7 @@ void PointLightControllerMesh::InitPickedMesh() {
 }
 
 // class SpotLightControllerMesh
+const float SpotLightControllerMesh::kTopRadius = 0.2f;
 SpotLightControllerMesh::SpotLightControllerMesh(SceneNode* node, 
                                                  DiffuseEffect* effect) 
     : LightMesh(node, effect) {
@@ -110,11 +110,10 @@ void SpotLightControllerMesh::InitMesh() {
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
     Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
     SlotVertexDataPtr vdata = InitCylinderVertexData(
-        kSpotRadius, kBaseRadius, 1.0f, kStack, kSlice, false, desc);
+        kSpotRadius, kBaseRadius, kSpotHeight, kStack, kSlice, false, desc);
     IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
     VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f)) 
-        * std::move(Scale(1.0f, kSpotHeight, 1.0f));
+    Matrix4 trans = std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
@@ -132,11 +131,10 @@ void SpotLightControllerMesh::InitMesh() {
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
     Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
     SlotVertexDataPtr vdata = InitCylinderVertexData(
-        kBaseRadius, kBaseRadius, 1.0f, kStack, kSlice, false, desc);
+        kBaseRadius, kBaseRadius, kBaseHeight, kStack, kSlice, false, desc);
     IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
     VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(Translate(0.0f, -0.5f, 0.0f)) 
-        * std::move(Scale(1.0f, kBaseHeight, 1.0f));
+    Matrix4 trans = std::move(Translate(0.0f, -0.5f, 0.0f));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
@@ -149,16 +147,23 @@ void SpotLightControllerMesh::InitMesh() {
   }
 }
 
+
 void SpotLightControllerMesh::InitPickedMesh() {
+  Light* light = node_->mutable_data()->light();
+  InitCone(light);
+  CreateCircles(light->spot_light().range, light);
+  CreateCircles(10.0f, light);
+}
+
+void SpotLightControllerMesh::InitCone(Light* light) {
   DCHECK(node_->type() == kLampSceneNode);
   Context* ctx = Context::instance();
   BlendingPtr blending = ctx->GetDefaultBlending();
   effect_ = CreateDiffuseEffect();
-  Light* light = node_->mutable_data()->light();
   const SpotLight& spot = light->spot_light();
   float range = spot.range;
   
-  float top_radius = 0.2f;
+  float top_radius = kTopRadius;
   float inner_sine = std::sqrt(1 - spot.theta * spot.theta);
   float inner_radius = range * inner_sine / spot.theta;
   float outer_sine = std::sqrt(1 - spot.phi * spot.phi);
@@ -175,6 +180,38 @@ void SpotLightControllerMesh::InitPickedMesh() {
   picked_part_.push_back(outer_cone);
 }
 
+void SpotLightControllerMesh::CreateCircles(float mid, Light* light) {
+  const SpotLight& spot = light->spot_light();
+  float range = spot.range;
+  float top_radius = kTopRadius;
+  
+  float inner_sine = std::sqrt(1 - spot.theta * spot.theta);
+  float inner_radius = range * inner_sine / spot.theta;
+  float outer_sine = std::sqrt(1 - spot.phi * spot.phi);
+  float outer_radius = range * outer_sine / spot.phi;
+  float inner_top = kTopRadius * spot.theta / inner_sine;
+  float outer_top = kTopRadius * spot.phi / outer_sine;
+  float mid_inner = kTopRadius * (mid + inner_top) / inner_top;
+  float mid_outer = kTopRadius * (mid + outer_top) / outer_top;
+  VertexDesc* desc = effect_->GetVertexDesc();
+  GeometryObjectPtr inner_obj = new CircleObject(desc, 32, mid_inner, range - mid);
+  GeometryObjectPtr outer_obj = new CircleObject(desc, 32, mid_outer, range - mid);
+  MeshPartPtr inner_circle = outer_obj->CreateObject(effect_.get());
+  MeshPartPtr outer_circle = outer_obj->CreateObject(effect_.get());
+  picked_part_.push_back(inner_circle);
+  picked_part_.push_back(outer_circle);
+}
+
+void SpotLightControllerMesh::Render(Renderer* renderer) {
+  {
+    ScopedCullingMode auto_culling(kCullNone, renderer);
+    Mesh::Render(renderer);
+  }
+
+  if (node_->picked()) {
+    RenderPickedPart(renderer);
+  }
+}
 
 // class DirLightControllerMesh
 DirLightControllerMesh::DirLightControllerMesh(SceneNode* node, 
@@ -218,11 +255,10 @@ void DirLightControllerMesh::InitMesh() {
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
     Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
     SlotVertexDataPtr vdata = InitCylinderVertexData(
-        1.0f, 1.0f, 1.0f, kStack, kSlice, false, desc);
+        kCylinderRadius, kCylinderRadius, kConeY, kStack, kSlice, false, desc);
     IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
     VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(Translate(0.0f, -0.5, 0.0f)) 
-        * std::move(Scale(kCylinderRadius, kConeY, kCylinderRadius));
+    Matrix4 trans = std::move(Translate(0.0f, -0.5, 0.0f));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);

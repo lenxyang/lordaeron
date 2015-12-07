@@ -145,6 +145,7 @@ class SimpleRenderTreeRenderer {
   void UpdateNode(SceneRenderNode* node, const azer::FrameArgs& args);
   void RenderNode(SceneRenderNode* node, azer::Renderer* renderer);
   SceneRenderNode* root_;
+  std::vector<SceneRenderNode*> blending_node_;
   DISALLOW_COPY_AND_ASSIGN(SimpleRenderTreeRenderer);
 };
 

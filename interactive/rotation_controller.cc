@@ -84,9 +84,10 @@ bool RotationController::OnMousePressed(const ui::MouseEvent& event) {
   context_->SetPickingNode(node);
   if (node) {
     InitControllerObject(node);
+    return true;
+  } else {
+    return false;
   }
-
-  return true;
 }
 
 bool RotationController::OnMouseDragged(const ui::MouseEvent& event) {
@@ -178,7 +179,7 @@ CircleCoordinateObject::CircleCoordinateObject(DiffuseEffect* effect)
      effect_(effect) {
   set_radius(1.0f);
   
-  circle_ = new CircleObject(effect_->GetVertexDesc(), 128);
+  circle_ = new CircleObject(effect_->GetVertexDesc(), 256);
   reset_color();
 
   axis_world_[0] = std::move(RotateZ(Degree(90.0f)));

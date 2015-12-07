@@ -37,9 +37,13 @@ class PointLightControllerMesh : public LightMesh {
 class SpotLightControllerMesh : public LightMesh {
  public:
   SpotLightControllerMesh(SceneNode* node, DiffuseEffect* effect);
+  void Render(azer::Renderer* renderer) override;
  private:
   void InitMesh();
   void InitPickedMesh();
+  void InitCone(Light* light);
+  void CreateCircles(float range, Light* light);
+  static const float kTopRadius;
   DISALLOW_COPY_AND_ASSIGN(SpotLightControllerMesh);
 };
 
