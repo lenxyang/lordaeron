@@ -1,7 +1,6 @@
 #include "lordaeron/effect/light.h"
 
 #include "base/logging.h"
-#include "lordaeron/effect/light_mesh.h"
 #include "lordaeron/scene/scene_node.h"
 
 namespace lord {
@@ -9,19 +8,16 @@ using namespace azer;
 Light::Light(const DirLight& light)
     : type_(kDirectionalLight),
       dir_light_(light) {
-  mesh_ = CreateDirectionalLightMesh();
 }
 
 Light::Light(const PointLight& light) 
     : type_(kPointLight),
       point_light_(light) {
-  mesh_ = CreatePointLightMesh();
 }
 
 Light::Light(const SpotLight& light)
     : type_(kSpotLight),
       spot_light_(light) {
-  mesh_ = CreateSpotLightMesh();
 }
 
 const DirLight& Light::dir_light() const {

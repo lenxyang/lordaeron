@@ -69,14 +69,11 @@ class Light : public ::base::RefCounted<Light> {
 
   const SpotLight& spot_light() const;
   SpotLight* mutable_spot_light();
-
-  azer::Mesh* GetLightMesh() { return mesh_.get();}
  private:
   LightType type_;
   DirLight dir_light_;
   PointLight point_light_;
   SpotLight spot_light_;
-  azer::MeshPtr mesh_;
   DISALLOW_COPY_AND_ASSIGN(Light);
 };
 

@@ -181,9 +181,9 @@ CircleCoordinateObject::CircleCoordinateObject(DiffuseEffect* effect)
   circle_ = new CircleObject(effect_->GetVertexDesc(), 128);
   reset_color();
 
-  axis_world_[0] = std::move(RotateY(Degree(-90.0f)));
-  axis_world_[1] = std::move(RotateX(Degree(90.0f)));
-  axis_world_[2] = Matrix4::kIdentity;
+  axis_world_[0] = std::move(RotateZ(Degree(90.0f)));
+  axis_world_[1] = Matrix4::kIdentity;
+  axis_world_[2] = std::move(RotateX(Degree(-90.0f)));
 
   world_[0] = axis_world_[0];
   world_[1] = axis_world_[1];

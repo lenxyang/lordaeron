@@ -2,8 +2,8 @@
 
 #include <sstream>
 #include "base/logging.h"
+#include "lordaeron/interactive/light_mesh.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/effect/light_mesh.h"
 
 namespace lord {
 
@@ -241,23 +241,25 @@ void SceneRenderNode::AddMesh(Mesh* mesh) {
 }
 
 void SceneRenderNode::Init() {
-  Mesh* mesh = NULL;
   if (node_->type() == kMeshSceneNode) {
-    mesh = node_->mutable_data()->GetMesh();
-  } else if (node_->type() == kLampSceneNode) {
-    CHECK(node_->parent() && node_->parent()->type() == kEnvSceneNode);
-    Light* light = node_->mutable_data()->light();
-    mesh = light->GetLightMesh();
-    mesh->AddProvider(new LightColorProvider(light));
-    GetEnvNode()->AddLightNode(node_);
-  } else if (node_->type() == kEnvSceneNode) {
-  }
-
-  if (mesh) {
+    MeshPtr mesh = node_->mutable_data()->GetMesh();
     mesh->AddProvider(this);
     mesh->AddProvider(envnode_);
     AddMesh(mesh);
+  } else if (node_->type() == kLampSceneNode) {
+    CHECK(node_->parent() && node_->parent()->type() == kEnvSceneNode);
+    Light* light = node_->mutable_data()->light();
+    LightMeshPtr mesh = CreateLightMesh(node_);
+    GetEnvNode()->AddLightNode(node_);
+    mesh->AddProvider(this);
+    mesh->AddProvider(envnode_);
+    // LightMeshProvider must be put last, because it will override
+    // the world matrix
+    mesh->AddProvider(new LightMeshProvider(node_, mesh->local_transform()));
+    AddMesh(mesh);
+  } else if (node_->type() == kEnvSceneNode) {
   }
+
 }
 
 void SceneRenderNode::Update(const FrameArgs& args) {

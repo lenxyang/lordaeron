@@ -20,8 +20,6 @@ static_library("lordaeron") {
     "context.h",
     "effect/light.cc",
     "effect/light.h",
-    "effect/light_mesh.cc",
-    "effect/light_mesh.h",
     "effect/diffuse_effect.cc",
     "effect/diffuse_effect.h",
     "interactive/axis_object.cc",

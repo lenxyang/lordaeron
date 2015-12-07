@@ -5,7 +5,7 @@
 #include "lordaeron/ui/nelf_context.h"
 #include "lordaeron/ui/iconset.h"
 #include "lordaeron/effect/diffuse_effect.h"
-#include "lordaeron/effect/light_mesh.h"
+#include "lordaeron/interactive/light_mesh.h"
 
 namespace lord {
 Context* Context::instance_ = NULL;;
@@ -82,7 +82,7 @@ void Context::InitAdapterContext() {
   effect_context_.RegisteAdapter(new DiffuseColorEffectAdapter);
   effect_context_.RegisteAdapter(new SceneRenderNodeDiffuseEffectAdapter);
   effect_context_.RegisteAdapter(new SceneRenderEnvNodeDiffuseEffectAdapter);
-  effect_context_.RegisteAdapter(new LightColorDiffuseEffectAdapter);
+  effect_context_.RegisteAdapter(new LightMeshDiffuseEffectAdapter);
 }
 
 bool Context::LoadResourcePack(const base::FilePath& path) {
