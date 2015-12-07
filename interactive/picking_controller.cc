@@ -43,24 +43,26 @@ void PickingController::OnLostFocus() {
 }
 
 bool PickingController::OnMousePressed(const ui::MouseEvent& event) {
-  SceneNode* picking_node = context_->GetObjectFromLocation(event.location());
-  context_->SetPickingNode(picking_node);
-  if (picking_node) {
-    switch (picking_node->type()) {
+  SceneNode* node = context_->GetObjectFromLocation(event.location());
+  context_->SetPickingNode(node);
+  if (node) {
+    switch (node->type()) {
       case kSceneNode:
       case kMeshSceneNode:
-        object_.reset(new BoundingVolumnPickingObject(picking_node));
+        object_.reset(new BoundingVolumnPickingObject(node));
         break;
       case kLampSceneNode: {
-        const Light* light = picking_node->mutable_data()->light();
+        /*
+        const Light* light = node->mutable_data()->light();
         const Camera& camera = context_->window()->camera();
         if (light->type() == kPointLight) {
-          object_.reset(new PointLightObject(&camera, picking_node));
+          object_.reset(new PointLightObject(&camera, node));
         } else if (light->type() == kSpotLight) {
-          object_.reset(new SpotLightObject(&camera, picking_node));
+          object_.reset(new SpotLightObject(&camera, node));
         } else if (light->type() == kDirectionalLight) {
-          object_.reset(new DirLightObject(&camera, picking_node));
+          object_.reset(new DirLightObject(&camera, node));
         }
+        */
         break;
       }
     }

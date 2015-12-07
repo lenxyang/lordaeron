@@ -1,9 +1,12 @@
-#include "lordaeron/effect/light_mesh.h"
+#include "lordaeron/interactive/light_mesh.h"
 
+#include "base/logging.h"
 #include "azer/render/render.h"
 #include "lordaeron/context.h"
+#include "lordaeron/effect/light.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/scene/scene_node.h"
+
 
 namespace lord {
 using namespace azer;
@@ -35,7 +38,58 @@ void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
 }
 }  // namespace
 
-MeshPtr CreateSpotLightMesh() {
+
+LightMesh::LightMesh(SceneNode* node, DiffuseEffect* effect) 
+    : Mesh(Context::instance()->GetEffectAdapterContext()),
+      node_(node),
+      effect_(effect) {
+}
+
+void LightMesh::Render(Renderer* renderer) {
+  Mesh::Render(renderer);
+  if (node_->picked()) {
+    RenderPickedPart(renderer);
+  }
+}
+
+void LightMesh::RenderPickedPart(Renderer* renderer) {
+  for (auto iter = picked_part_.begin(); iter != picked_part_.end(); ++iter) {
+    MeshPart* part = iter->get();
+    ApplyParams(part->effect());
+    part->Render(renderer);
+  }
+}
+
+PointLightControllerMesh::PointLightControllerMesh(
+    SceneNode* node, DiffuseEffect* effect) 
+    : LightMesh(node, effect) {
+  Context* ctx = Context::instance();
+  GeometryObjectPtr obj = new SphereObject(effect->GetVertexDesc(), 0.1f);
+  MeshPartPtr part = obj->CreateObject(effect_.get());
+  AddMeshPart(part.get());
+  InitPickedMesh();
+}
+
+void PointLightControllerMesh::InitPickedMesh() {
+  DCHECK(node_->type() == kLampSceneNode);
+  Light* light = node_->mutable_data()->light();
+  float range = light->point_light().atten.range;
+  Context* ctx = Context::instance();
+  BlendingPtr blending = ctx->GetDefaultBlending();
+  GeometryObjectPtr obj = new SphereObject(effect_->GetVertexDesc(), range);
+  MeshPartPtr part = obj->CreateObject(effect_.get());
+  part->SetBlending(blending.get());
+  picked_part_.push_back(part);
+}
+
+// class SpotLightControllerMesh
+SpotLightControllerMesh::SpotLightControllerMesh(SceneNode* node, 
+                                                 DiffuseEffect* effect) 
+    : LightMesh(node, effect) {
+  InitMesh();
+}
+
+void SpotLightControllerMesh::InitMesh() {
   float kSpotHeight = 0.7f;
   float kSpotRadius = 0.3f;
   float kBaseHeight = 0.3f;
@@ -43,10 +97,8 @@ MeshPtr CreateSpotLightMesh() {
 
   Context* context = Context::instance();
   RenderSystem* rs = RenderSystem::Current();
-  MeshPtr mesh = new Mesh;
-  DiffuseEffectPtr effect = CreateDiffuseEffect();
   Matrix4 rotation = std::move(RotateX(Degree(90.0f)));
-  VertexDesc* desc = effect->GetVertexDesc();
+  VertexDesc* desc = effect_->GetVertexDesc();
   // spot cylinder
   {
     // create VertexData
@@ -63,12 +115,12 @@ MeshPtr CreateSpotLightMesh() {
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect.get());
+    MeshPartPtr part = new MeshPart(effect_.get());
     EntityPtr entity(new Entity(vb, ib));
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
-    mesh->AddMeshPart(part);
+    AddMeshPart(part);
   }
 
   {
@@ -85,28 +137,35 @@ MeshPtr CreateSpotLightMesh() {
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect.get());
+    MeshPartPtr part = new MeshPart(effect_.get());
     EntityPtr entity(new Entity(vb, ib));
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
-    mesh->AddMeshPart(part);
+    AddMeshPart(part);
   }
-
-  mesh->SetEffectAdapterContext(context->GetEffectAdapterContext());
-  return mesh;
 }
 
-MeshPtr CreateDirectionalLightMesh() {
+void SpotLightControllerMesh::InitPickedMesh() {
+
+}
+
+
+// class DirLightControllerMesh
+DirLightControllerMesh::DirLightControllerMesh(SceneNode* node, 
+                                                 DiffuseEffect* effect) 
+    : LightMesh(node, effect) {
+  InitMesh();
+}
+
+void DirLightControllerMesh::InitMesh() {
   const float kConeHeight = 0.3f;
   const float kConeRadius = 0.2f;
   const float kConeY = 0.8f;
   const float kCylinderRadius = 0.08f;
   Context* context = Context::instance();
   RenderSystem* rs = RenderSystem::Current();
-  MeshPtr mesh = new Mesh;
-  DiffuseEffectPtr effect = CreateDiffuseEffect();
-  VertexDesc* desc = effect->GetVertexDesc();
+  VertexDesc* desc = effect_->GetVertexDesc();
   Matrix4 rotation = std::move(RotateX(Degree(90.0f)));
   {
     // create VertexData
@@ -121,12 +180,11 @@ MeshPtr CreateDirectionalLightMesh() {
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect.get());
+    MeshPartPtr part = new MeshPart(effect_.get());
     EntityPtr entity(new Entity(vb, ib));
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
-    mesh->AddMeshPart(part);
   }
 
   {
@@ -144,47 +202,28 @@ MeshPtr CreateDirectionalLightMesh() {
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect.get());
+    MeshPartPtr part = new MeshPart(effect_.get());
     EntityPtr entity(new Entity(vb, ib));
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
-    mesh->AddMeshPart(part);
   }
-
-  mesh->SetEffectAdapterContext(context->GetEffectAdapterContext());
-  return mesh;
 }
 
-// class LightColorProvider
-LightColorProvider::LightColorProvider(Light* light) : light_(light) {}
-LightColorProvider::~LightColorProvider() {}
-void LightColorProvider::UpdateParams(const FrameArgs& args) {}
-const Vector4& LightColorProvider::color() const { 
-  return light_->diffuse();
+void DirLightControllerMesh::InitPickedMesh() {
+
 }
 
-const Vector4& LightColorProvider::emission() const { 
-  return light_->diffuse();
-}
-
-// class LightColorDiffuseEffectAdapter
-LightColorDiffuseEffectAdapter::LightColorDiffuseEffectAdapter() {
-}
-
-EffectAdapterKey LightColorDiffuseEffectAdapter::key() const {
-  return std::make_pair(typeid(DiffuseEffect).name(),
-                        typeid(LightColorProvider).name());
-}
-
-void LightColorDiffuseEffectAdapter::Apply(
-    Effect* e, const EffectParamsProvider* params) const {
-  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
-  DCHECK(effect);
-  const LightColorProvider* provider =
-      dynamic_cast<const LightColorProvider*>(params);
-  DCHECK(provider);
-  effect->SetColor(provider->color());
-  effect->SetEmission(provider->emission());
+MeshPtr CreateLightMesh(SceneNode* node) {
+  DCHECK(node->type() == kLampSceneNode);
+  Light* light = node->mutable_data()->light();
+  DiffuseEffectPtr effect = CreateDiffuseEffect();
+  DCHECK(effect.get());
+  switch (light->type()) {
+    case kPointLight: 
+      return MeshPtr(new PointLightControllerMesh(node, effect.get()));
+    default:
+      return light->GetLightMesh();
+  }
 }
 }  // namespace lord

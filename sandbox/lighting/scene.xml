@@ -31,8 +31,8 @@
             <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>
             <specular>0.1, 0.1, 0.1, 1.0</specular>
             <directional>0.0, 0.0, 1.0</directional>
-            <phi>0.6</phi>
-            <theta>1.0</theta>
+            <inner_angle>30</inner_angle>
+            <outer_angle>40</outer_angle>
             <falloff>0.5</falloff>
             <range>100</range>
           </light>

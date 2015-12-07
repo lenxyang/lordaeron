@@ -69,6 +69,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   
   void set_pickable(bool pickable) { pickable_ = pickable;}
   bool pickable() const { return pickable_;}
+  void set_picked(bool picked) { picked_ = picked;}
+  bool picked() const { return picked_;}
 
   void set_shadow_caster(bool v) {shadow_caster_ = v;}
   bool shadow_caster() const { return shadow_caster_;}
@@ -156,6 +158,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   // attributes
   bool visible_;
   bool pickable_;
+  bool picked_;
   bool shadow_caster_;
   azer::MeshPtr bounding_volumn_;
 
@@ -174,4 +177,5 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
 };
 
 const char* SceneNodeName(int32 type);
+azer::Matrix4 GenWorldMatrixForSceneNode(SceneNode* node);
 }  // namespace lord

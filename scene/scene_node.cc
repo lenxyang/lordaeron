@@ -6,6 +6,7 @@
 #include "base/strings/string_tokenizer.h"
 #include "azer/render/render.h"
 #include "azer/math/math.h"
+#include "lordaeron/interactive/light_mesh.h"
 #include "lordaeron/scene/scene_bounding_volumn.h"
 #include "lordaeron/scene/scene_node_observer.h"
 
@@ -56,7 +57,7 @@ void SceneNodeData::AttachLight(Light* light) {
   node_->SetNodeType(kLampSceneNode);
 
   // set mesh
-  Mesh* light_mesh = light_->GetLightMesh();
+  Mesh* light_mesh = CreateLightMesh(node_);
   DCHECK(light_mesh);
   node_->SetMin(light_mesh->vmin());
   node_->SetMax(light_mesh->vmax());
@@ -113,6 +114,7 @@ SceneNode::SceneNode(const std::string& name, SceneNodeType type,
 void SceneNode::InitMember() {
   visible_ = true;
   pickable_ = false;
+  picked_ = false;
   shadow_caster_ = false;
   parent_ = NULL;
   type_ = kSceneNode;
@@ -479,5 +481,16 @@ const char* SceneNodeName(int32 type) {
     case kTerrainTileSceneNode: return "TerrainNode";
     default: CHECK(false);return "";
   }
+}
+
+Matrix4 GenWorldMatrixForSceneNode(SceneNode* node) {
+  Matrix4 world = Matrix4::kIdentity;
+  SceneNode* cur = node;
+  while (cur) {
+    world = std::move(world * cur->orientation().ToMatrix());
+    world = std::move(world * std::move(Translate(cur->position())));
+    cur = cur->parent();
+  }
+  return world;
 }
 }  // namespace lord

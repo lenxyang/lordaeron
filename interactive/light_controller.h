@@ -40,6 +40,7 @@ class SpotLightObject : public PickingObject {
   DiffuseEffectPtr effect_;
   azer::MeshPartPtr inner_cone_;
   azer::MeshPartPtr outer_cone_;
+  azer::Mesh object_;
   azer::Matrix4 world_;
   azer::Matrix4 pv_;
   DISALLOW_COPY_AND_ASSIGN(SpotLightObject);

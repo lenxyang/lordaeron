@@ -62,12 +62,15 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
     light.ambient = ambient;
     light.specular = specular;
     light.position = node->position();
+    float inner_angle, outer_angle;
     CHECK(light_node->GetChildTextAsVec3("directional", &light.direction))
         << "light node has directional";
     CHECK(light_node->GetChildTextAsFloat("falloff", &light.falloff));
     CHECK(light_node->GetChildTextAsFloat("range", &light.range));
-    CHECK(light_node->GetChildTextAsFloat("phi", &light.phi));
-    CHECK(light_node->GetChildTextAsFloat("theta", &light.theta));
+    CHECK(light_node->GetChildTextAsFloat("outer_angle", &outer_angle));
+    CHECK(light_node->GetChildTextAsFloat("inner_angle", &inner_angle));
+    light.phi = cos(Degree(outer_angle));
+    light.theta = cos(Degree(inner_angle));
     CHECK(light.theta > light.phi);
     LightPtr ptr(new Light(light));
     Quaternion orient;

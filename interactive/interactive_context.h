@@ -24,7 +24,7 @@ class InteractiveContext : public nelf::EventListener {
   SceneNode* root();
   SceneRenderWindow* window() { return window_;}
 
-  void SetPickingNode(SceneNode* node) { picking_node_ = node;}
+  void SetPickingNode(SceneNode* node);
   SceneNode* GetPickingNode() { return picking_node_;}
   SceneNode* GetObjectFromLocation(const gfx::Point& point);
   azer::Ray GetPickingRay(const gfx::Point& pt);

@@ -41,6 +41,17 @@ void InteractiveContext::ResetController() {
   }
 }
 
+void InteractiveContext::SetPickingNode(SceneNode* node) {
+  if (picking_node_) {
+    picking_node_->set_picked(false);
+  }
+
+  picking_node_ = node;
+  if (picking_node_) {
+    picking_node_->set_picked(true);
+  }
+}
+
 void InteractiveContext::SetController(scoped_ptr<InteractiveController> controller) {
   ResetController();
   controller_ = controller.Pass();

@@ -8,8 +8,7 @@
 
 namespace lord {
 namespace {
-const float kControllerObjectInnerAlpha = 0.8f;
-const float kControllerObjectOuterAlpha = 0.6f;
+const float kControllerObjectAlpha = 0.8f;
 }
 using namespace azer;
 PointLightObject::PointLightObject(const azer::Camera* camera, SceneNode* node) 
@@ -39,7 +38,7 @@ void PointLightObject::Render(azer::Renderer* renderer) {
   Context* ctx = Context::instance();
   Light* light = node_->mutable_data()->light();
   Vector4 color = light->point_light().diffuse;
-  color.w = kControllerObjectOuterAlpha;
+  color.w = kControllerObjectAlpha;
   effect_->SetPV(pv_);
   effect_->SetWorld(world_);
   effect_->SetColor(color);
@@ -53,16 +52,25 @@ SpotLightObject::SpotLightObject(const azer::Camera* camera, SceneNode* node)
     : camera_(camera),
       node_(node) {
   DCHECK(node->type() == kLampSceneNode);
-  effect_ = CreateDiffuseEffect();
-  Light* light = node->mutable_data()->light();
-  float range = light->spot_light().range;
   Context* ctx = Context::instance();
   BlendingPtr blending = ctx->GetDefaultBlending();
-  GeometryObjectPtr obj1 = new CylinderObject(effect_->GetVertexDesc(), range);
+  effect_ = CreateDiffuseEffect();
+  Light* light = node->mutable_data()->light();
+  const SpotLight& spot = light->spot_light();
+  float range = spot.range;
+  
+  float top_radius = 0.2f;
+  float inner_sine = std::sqrt(1 - spot.theta * spot.theta);
+  float inner_radius = range * inner_sine / spot.theta;
+  float outer_sine = std::sqrt(1 - spot.phi * spot.phi);
+  float outer_radius = range * outer_sine / spot.phi;
+  GeometryObjectPtr obj1 = new CylinderObject(
+      effect_->GetVertexDesc(), inner_radius, top_radius, range);
   inner_cone_ = obj1->CreateObject(effect_.get());
   inner_cone_->SetBlending(blending.get());
 
-  GeometryObjectPtr obj2 = new CylinderObject(effect_->GetVertexDesc(), range);
+  GeometryObjectPtr obj2 = new CylinderObject(
+      effect_->GetVertexDesc(), outer_radius, top_radius, range);
   outer_cone_ = obj2->CreateObject(effect_.get());
   outer_cone_->SetBlending(blending.get());
 }
@@ -72,7 +80,7 @@ SpotLightObject::~SpotLightObject() {
 
 void SpotLightObject::Update(const azer::FrameArgs& args) {
   Matrix4 rotation = std::move(RotateX(Degree(90.0f)));
-  world_ = Translate(node_->GetWorldPosition()) * rotation;
+  world_ = std::move(GenWorldMatrixForSceneNode(node_) * rotation);
   pv_ = camera_->GetProjViewMatrix();
 }
 
@@ -81,17 +89,13 @@ void SpotLightObject::Render(azer::Renderer* renderer) {
   Context* ctx = Context::instance();
   Light* light = node_->mutable_data()->light();
   Vector4 color = light->spot_light().diffuse;
-  color.w = kControllerObjectOuterAlpha;
+  color.w = kControllerObjectAlpha;
   effect_->SetPV(pv_);
   effect_->SetWorld(world_);
   effect_->SetColor(color);
   effect_->SetDirLight(ctx->GetInternalLight());
   renderer->UseEffect(effect_.get());
   outer_cone_->Render(renderer);
-
-  effect_->SetColor(color);
-  color.w = kControllerObjectInnerAlpha;
-  renderer->UseEffect(effect_.get());
   inner_cone_->Render(renderer);
 }
 
