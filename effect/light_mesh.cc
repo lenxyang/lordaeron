@@ -195,6 +195,6 @@ void LightColorDiffuseEffectAdapter::Apply(
       dynamic_cast<const LightColorProvider*>(params);
   DCHECK(provider);
   effect->SetColor(provider->color());
-  effect->SetColor(provider->emission());
+  effect->SetEmission(provider->emission());
 }
 }  // namespace lord

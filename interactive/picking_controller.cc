@@ -56,6 +56,10 @@ bool PickingController::OnMousePressed(const ui::MouseEvent& event) {
         const Camera& camera = context_->window()->camera();
         if (light->type() == kPointLight) {
           object_.reset(new PointLightObject(&camera, picking_node));
+        } else if (light->type() == kSpotLight) {
+          object_.reset(new SpotLightObject(&camera, picking_node));
+        } else if (light->type() == kDirectionalLight) {
+          object_.reset(new DirLightObject(&camera, picking_node));
         }
         break;
       }

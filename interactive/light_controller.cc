@@ -7,6 +7,10 @@
 #include "lordaeron/scene/scene_node.h"
 
 namespace lord {
+namespace {
+const float kControllerObjectInnerAlpha = 0.8f;
+const float kControllerObjectOuterAlpha = 0.6f;
+}
 using namespace azer;
 PointLightObject::PointLightObject(const azer::Camera* camera, SceneNode* node) 
     : camera_(camera),
@@ -31,14 +35,99 @@ void PointLightObject::Update(const azer::FrameArgs& args) {
 }
 
 void PointLightObject::Render(azer::Renderer* renderer) {
+  ScopedCullingMode auto_culling(kCullNone, renderer);
   Context* ctx = Context::instance();
   Light* light = node_->mutable_data()->light();
+  Vector4 color = light->point_light().diffuse;
+  color.w = kControllerObjectOuterAlpha;
+  effect_->SetPV(pv_);
+  effect_->SetWorld(world_);
+  effect_->SetColor(color);
   effect_->SetDirLight(ctx->GetInternalLight());
+  renderer->UseEffect(effect_.get());
+  sphere_->Render(renderer);
+}
+
+// class SpotLightObject
+SpotLightObject::SpotLightObject(const azer::Camera* camera, SceneNode* node) 
+    : camera_(camera),
+      node_(node) {
+  DCHECK(node->type() == kLampSceneNode);
+  effect_ = CreateDiffuseEffect();
+  Light* light = node->mutable_data()->light();
+  float range = light->spot_light().range;
+  Context* ctx = Context::instance();
+  BlendingPtr blending = ctx->GetDefaultBlending();
+  GeometryObjectPtr obj1 = new CylinderObject(effect_->GetVertexDesc(), range);
+  inner_cone_ = obj1->CreateObject(effect_.get());
+  inner_cone_->SetBlending(blending.get());
+
+  GeometryObjectPtr obj2 = new CylinderObject(effect_->GetVertexDesc(), range);
+  outer_cone_ = obj2->CreateObject(effect_.get());
+  outer_cone_->SetBlending(blending.get());
+}
+
+SpotLightObject::~SpotLightObject() {
+}
+
+void SpotLightObject::Update(const azer::FrameArgs& args) {
+  Matrix4 rotation = std::move(RotateX(Degree(90.0f)));
+  world_ = Translate(node_->GetWorldPosition()) * rotation;
+  pv_ = camera_->GetProjViewMatrix();
+}
+
+void SpotLightObject::Render(azer::Renderer* renderer) {
+  ScopedCullingMode auto_culling(kCullNone, renderer);
+  Context* ctx = Context::instance();
+  Light* light = node_->mutable_data()->light();
+  Vector4 color = light->spot_light().diffuse;
+  color.w = kControllerObjectOuterAlpha;
+  effect_->SetPV(pv_);
+  effect_->SetWorld(world_);
+  effect_->SetColor(color);
+  effect_->SetDirLight(ctx->GetInternalLight());
+  renderer->UseEffect(effect_.get());
+  outer_cone_->Render(renderer);
+
+  effect_->SetColor(color);
+  color.w = kControllerObjectInnerAlpha;
+  renderer->UseEffect(effect_.get());
+  inner_cone_->Render(renderer);
+}
+
+// class DirLightObject
+DirLightObject::DirLightObject(const azer::Camera* camera, SceneNode* node) 
+    : camera_(camera),
+      node_(node) {
+  DCHECK(node->type() == kLampSceneNode);
+  effect_ = CreateDiffuseEffect();
+  Light* light = node->mutable_data()->light();
+  float range = light->point_light().atten.range;
+  Context* ctx = Context::instance();
+  BlendingPtr blending = ctx->GetDefaultBlending();
+  GeometryObjectPtr obj = new SphereObject(effect_->GetVertexDesc(), range);
+  sphere_ = obj->CreateObject(effect_.get());
+  sphere_->SetBlending(blending.get());
+}
+
+DirLightObject::~DirLightObject() {
+}
+
+void DirLightObject::Update(const azer::FrameArgs& args) {
+  world_ = Translate(node_->GetWorldPosition());
+  pv_ = camera_->GetProjViewMatrix();
+}
+
+void DirLightObject::Render(azer::Renderer* renderer) {
+  ScopedCullingMode auto_culling(kCullNone, renderer);
+  Context* ctx = Context::instance();
+  Light* light = node_->mutable_data()->light();
   Vector4 color = light->point_light().diffuse;
   color.w = 0.2f;
-  effect_->SetColor(color);
-  effect_->SetWorld(world_);
   effect_->SetPV(pv_);
+  effect_->SetWorld(world_);
+  effect_->SetColor(color);
+  effect_->SetDirLight(ctx->GetInternalLight());
   renderer->UseEffect(effect_.get());
   sphere_->Render(renderer);
 }
