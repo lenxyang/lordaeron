@@ -91,6 +91,7 @@ SpotLightControllerMesh::SpotLightControllerMesh(SceneNode* node,
     : LightMesh(node, effect) {
   InitMesh();
   InitPickedMesh();
+  local_transform_ = std::move(RotateX(Degree(90.0f)));
 }
 
 void SpotLightControllerMesh::InitMesh() {
@@ -172,7 +173,6 @@ void SpotLightControllerMesh::InitPickedMesh() {
   outer_cone->SetBlending(blending.get());
   picked_part_.push_back(inner_cone);
   picked_part_.push_back(outer_cone);
-  local_transform_ = std::move(RotateX(Degree(90.0f)));
 }
 
 
@@ -180,6 +180,7 @@ void SpotLightControllerMesh::InitPickedMesh() {
 DirLightControllerMesh::DirLightControllerMesh(SceneNode* node, 
                                                  DiffuseEffect* effect) 
     : LightMesh(node, effect) {
+  local_transform_ = std::move(RotateX(Degree(90.0f)));
   InitMesh();
 }
 
@@ -191,7 +192,6 @@ void DirLightControllerMesh::InitMesh() {
   Context* context = Context::instance();
   RenderSystem* rs = RenderSystem::Current();
   VertexDesc* desc = effect_->GetVertexDesc();
-  Matrix4 rotation = std::move(RotateX(Degree(90.0f)));
   {
     // create VertexData
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
@@ -199,8 +199,7 @@ void DirLightControllerMesh::InitMesh() {
     SlotVertexDataPtr vdata = InitConeVertexData(32, desc);
     IndicesDataPtr idata = InitConeIndicesData(32);
     VertexPack vpack(vdata.get());
-    Matrix4 trans = rotation
-        * std::move(Translate(0.0f, kConeY - 0.5f, 0.0f)) 
+    Matrix4 trans = std::move(Translate(0.0f, kConeY - 0.5f, 0.0f)) 
         * std::move(Scale(kConeRadius, kConeHeight, kConeRadius));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
@@ -222,8 +221,7 @@ void DirLightControllerMesh::InitMesh() {
         1.0f, 1.0f, 1.0f, kStack, kSlice, false, desc);
     IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
     VertexPack vpack(vdata.get());
-    Matrix4 trans = rotation
-        * std::move(Translate(0.0f, -0.5, 0.0f)) 
+    Matrix4 trans = std::move(Translate(0.0f, -0.5, 0.0f)) 
         * std::move(Scale(kCylinderRadius, kConeY, kCylinderRadius));
     TransformVertex(trans, vdata.get(), &vmin, &vmax);
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
