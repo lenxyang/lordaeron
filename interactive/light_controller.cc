@@ -61,16 +61,16 @@ void LightControllerProvider::SetLocalTransform(const azer::Matrix4& local) {
 }
 
 
-// class LightMeshDiffuseEffectAdapter
-LightMeshDiffuseEffectAdapter::LightMeshDiffuseEffectAdapter() {
+// class LightControllerEffectAdapter
+LightControllerEffectAdapter::LightControllerEffectAdapter() {
 }
 
-EffectAdapterKey LightMeshDiffuseEffectAdapter::key() const {
+EffectAdapterKey LightControllerEffectAdapter::key() const {
   return std::make_pair(typeid(DiffuseEffect).name(),
                         typeid(LightControllerProvider).name());
 }
 
-void LightMeshDiffuseEffectAdapter::Apply(
+void LightControllerEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const {
   Context* ctx = Context::instance();
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);

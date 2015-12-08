@@ -84,13 +84,13 @@ class LightControllerProvider : public azer::EffectParamsProvider {
   DISALLOW_COPY_AND_ASSIGN(LightControllerProvider);
 };
 
-class LightMeshDiffuseEffectAdapter : public azer::EffectParamsAdapter {
+class LightControllerEffectAdapter : public azer::EffectParamsAdapter {
  public:
-  LightMeshDiffuseEffectAdapter();
+  LightControllerEffectAdapter();
   azer::EffectAdapterKey key() const override;
   void Apply(azer::Effect* e, const azer::EffectParamsProvider* params)
       const override;
  private:
-  DISALLOW_COPY_AND_ASSIGN(LightMeshDiffuseEffectAdapter);
+  DISALLOW_COPY_AND_ASSIGN(LightControllerEffectAdapter);
 };
 }  // namespace lord
