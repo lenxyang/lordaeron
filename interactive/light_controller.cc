@@ -14,6 +14,45 @@ using namespace azer;
 const float kControllerObjectAlpha = 0.8f;
 
 namespace {
+void GenerateCrossLine(float radius, float y, VertexPack* vpack) {
+  VertexPos npos;
+  CHECK(GetSemanticIndex("normal", 0, vpack->desc(), &npos));
+  Vector4 normal(0.0f, 1.0f, 0.0f, 0.0f);
+
+  vpack->WriteVector4(Vector4(-radius, y, 0.0f, 1.0f), VertexPos(0, 0));
+  vpack->WriteVector4(normal, npos);
+  vpack->next(1);
+  vpack->WriteVector4(Vector4( radius, y, 0.0f, 1.0f), VertexPos(0, 0));
+  vpack->WriteVector4(normal, npos);
+  vpack->next(1);
+  vpack->WriteVector4(Vector4(0.0f, y, -radius, 1.0f), VertexPos(0, 0));
+  vpack->WriteVector4(normal, npos);
+  vpack->next(1);
+  vpack->WriteVector4(Vector4(0.0f, y,  radius, 1.0f), VertexPos(0, 0));
+  vpack->WriteVector4(normal, npos);
+  vpack->next(1);
+}
+
+void GenerateCircle(float radius, float y, int32 slice, VertexPack* vpack) {
+  VertexPos npos;
+  CHECK(GetSemanticIndex("normal", 0, vpack->desc(), &npos));
+  float degree = 360.0f / (float)slice;
+  Vector4 normal(0.0f, 1.0f, 0.0f, 0.0f);
+  for (int32 i = 0; i < slice + 1; ++i) {
+    int index = i % slice;
+    float x = cos(Degree(i * degree)) * radius;
+    float z = sin(Degree(i * degree)) * radius;
+    Vector4 pos(x, y, z, 1.0f);
+    for (int j = 0; j < 2; ++j) {
+      vpack->WriteVector4(pos, VertexPos(0, 0));
+      vpack->WriteVector4(normal, npos);
+      vpack->next(1);
+      if (i == 0 || i == slice)
+        break;
+    }
+  }
+}
+
 void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
                      Vector3* vmin, Vector3* vmax) {
   VertexDesc* desc = vdata->desc();
@@ -40,53 +79,6 @@ void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
 }
 }  // namespace
 
-LightControllerProvider::LightControllerProvider(SceneRenderNode* node) 
-    : node_(node) {
-  Light* light = node->GetSceneNode()->mutable_data()->light();
-  emission_ = light->diffuse() * 0.5f;
-  color_ = light->diffuse();
-  local_transform_ = Matrix4::kIdentity;
-}
-
-const azer::Matrix4& LightControllerProvider::GetPV() const {
-  return node_->GetPV();
-}
-
-void LightControllerProvider::UpdateParams(const azer::FrameArgs& args) {
-  world_ = node_->GetWorld() * local_transform_;
-}
-
-void LightControllerProvider::SetLocalTransform(const azer::Matrix4& local) {
-  local_transform_ = local;
-}
-
-
-// class LightControllerEffectAdapter
-LightControllerEffectAdapter::LightControllerEffectAdapter() {
-}
-
-EffectAdapterKey LightControllerEffectAdapter::key() const {
-  return std::make_pair(typeid(DiffuseEffect).name(),
-                        typeid(LightControllerProvider).name());
-}
-
-void LightControllerEffectAdapter::Apply(
-    Effect* e, const EffectParamsProvider* params) const {
-  Context* ctx = Context::instance();
-  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
-  DCHECK(effect);
-  const LightControllerProvider* provider =
-      dynamic_cast<const LightControllerProvider*>(params);
-  DCHECK(provider);
-  Vector4 color = provider->color();
-  color.w = 0.3f;
-  effect->SetColor(color);
-  effect->SetEmission(provider->emission());
-  effect->SetWorld(provider->GetWorld());
-  effect->SetPV(provider->GetPV());
-  effect->SetDirLight(ctx->GetInternalLight());
-}
-
 // class LightController
 LightController::LightController(SceneRenderNode* node)
     : node_(node) {
@@ -105,18 +97,20 @@ void LightController::Render(azer::Renderer* renderer) {
 // class PointLightController
 PointLightController::PointLightController(SceneRenderNode* node)
     : LightController(node) {
+  Context* ctx = Context::instance();
   effect_ = CreateDiffuseEffect();
+  light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
+  controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   InitMesh();
   InitControllerMesh();
+  light_mesh_->AddProvider(provider_.get());
+  controller_mesh_->AddProvider(provider_.get());
 }
 
 void PointLightController::InitMesh() {
-  Context* ctx = Context::instance();
   GeometryObjectPtr obj = new SphereObject(effect_->GetVertexDesc(), 0.1f);
   MeshPartPtr part = obj->CreateObject(effect_.get());
-  light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   light_mesh_->AddMeshPart(part.get());
-  light_mesh_->AddProvider(provider_.get());
 }
 
 void PointLightController::InitControllerMesh() {
@@ -129,9 +123,7 @@ void PointLightController::InitControllerMesh() {
   GeometryObjectPtr obj = new SphereObject(effect_->GetVertexDesc(), range);
   MeshPartPtr part = obj->CreateObject(effect_.get());
   part->SetBlending(blending.get());
-  controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   controller_mesh_->AddMeshPart(part);
-  controller_mesh_->AddProvider(provider_.get());
 }
 
 void PointLightController::Update(const azer::FrameArgs& args) {
@@ -149,15 +141,26 @@ void PointLightController::Render(azer::Renderer* renderer) {
 const float SpotLightController::kTopRadius = 0.2f;
 SpotLightController::SpotLightController(SceneRenderNode* node)
     : LightController(node) {
+  Context* ctx = Context::instance();
   provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
   effect_ = CreateDiffuseEffect();
+  light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
+  controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
+  line_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
+
+  SceneNode* scene_node = node_->GetSceneNode();
+  Light* light = scene_node->mutable_data()->light();
   InitMesh();
   InitControllerMesh();
+  CreateCircles(10.0f, light);
+
+  light_mesh_->AddProvider(provider_.get());
+  controller_mesh_->AddProvider(provider_.get());
+  line_mesh_->AddProvider(provider_.get());
+  line_mesh_->AddProvider(new LightControllerColorProvider());
 }
 
 void SpotLightController::InitMesh() {
-  Context* ctx = Context::instance();
-  light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   float kSpotHeight = 0.7f;
   float kSpotRadius = 0.3f;
   float kBaseHeight = 0.3f;
@@ -207,17 +210,14 @@ void SpotLightController::InitMesh() {
     part->AddEntity(entity);
     light_mesh_->AddMeshPart(part);
   }
-
-  light_mesh_->AddProvider(provider_.get());
 }
 
 void SpotLightController::InitControllerMesh() {
   Context* ctx = Context::instance();
-  controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   SceneNode* scene_node = node_->GetSceneNode();
+  Light* light = scene_node->mutable_data()->light();
   DCHECK(scene_node->type() == kLampSceneNode);
   BlendingPtr blending = ctx->GetDefaultBlending();
-  Light* light = scene_node->mutable_data()->light();
   const SpotLight& spot = light->spot_light();
   float range = spot.range;
   
@@ -227,16 +227,15 @@ void SpotLightController::InitControllerMesh() {
   float outer_sine = std::sqrt(1 - spot.phi * spot.phi);
   float outer_radius = range * outer_sine / spot.phi;
   GeometryObjectPtr obj1 = new CylinderObject(
-      effect_->GetVertexDesc(), inner_radius, top_radius, range);
+      effect_->GetVertexDesc(), inner_radius, top_radius, range, 64, 64, false);
   MeshPartPtr inner_cone = obj1->CreateObject(effect_.get());
   inner_cone->SetBlending(blending.get());
   GeometryObjectPtr obj2 = new CylinderObject(
-      effect_->GetVertexDesc(), outer_radius, top_radius, range);
+      effect_->GetVertexDesc(), outer_radius, top_radius, range, 64, 64, false);
   MeshPartPtr outer_cone = obj2->CreateObject(effect_.get());
   outer_cone->SetBlending(blending.get());
   controller_mesh_->AddMeshPart(inner_cone);
   controller_mesh_->AddMeshPart(outer_cone);
-  controller_mesh_->AddProvider(provider_.get());
 }
 
 void SpotLightController::Update(const azer::FrameArgs& args) {
@@ -250,11 +249,13 @@ void SpotLightController::Render(azer::Renderer* renderer) {
   }
 
   if (node_->GetSceneNode()->picked()) {
+    line_mesh_->Render(renderer);
     controller_mesh_->Render(renderer);
   }
 }
-/*
-void SpotLightControllerMesh::CreateCircles(float mid, Light* light) {
+
+void SpotLightController::CreateCircles(float mid, Light* light) {
+  RenderSystem* rs = RenderSystem::Current();
   const SpotLight& spot = light->spot_light();
   float range = spot.range;
   float top_radius = kTopRadius;
@@ -268,22 +269,34 @@ void SpotLightControllerMesh::CreateCircles(float mid, Light* light) {
   float mid_inner = kTopRadius * (mid + inner_top) / inner_top;
   float mid_outer = kTopRadius * (mid + outer_top) / outer_top;
   VertexDesc* desc = effect_->GetVertexDesc();
-  GeometryObjectPtr inner_obj = new CircleObject(desc, 32, mid_inner, range - mid);
-  GeometryObjectPtr outer_obj = new CircleObject(desc, 32, mid_outer, range - mid);
-  MeshPartPtr inner_circle = outer_obj->CreateObject(effect_.get());
-  MeshPartPtr outer_circle = outer_obj->CreateObject(effect_.get());
-  picked_part_.push_back(inner_circle);
-  picked_part_.push_back(outer_circle);
+  float y = range - mid;
+
+  int32 kSlice = 64;
+  int32 kVertexNum = kSlice * 4 + 4;
+  SlotVertexDataPtr vdata(new SlotVertexData(desc, kVertexNum));
+  VertexPack vpack(vdata.get());
+  vpack.first();
+  GenerateCircle(mid_inner, mid, kSlice, &vpack);
+  GenerateCircle(mid_outer, mid, kSlice, &vpack);
+  GenerateCrossLine(mid_outer, mid, &vpack);
+  EntityPtr entity(new Entity);
+  entity->SetVertexBuffer(rs->CreateVertexBuffer(VertexBuffer::Options(), vdata));
+  entity->set_topology(kLineList);
+  MeshPartPtr part(new MeshPart(effect_.get()));
+  part->AddEntity(entity);
+  line_mesh_->AddMeshPart(part);
 }
-*/
 
 // class DirLightController
 DirLightController::DirLightController(SceneRenderNode* node)
     : LightController(node) {
+  Context* ctx = Context::instance();
   effect_ = CreateDiffuseEffect();
   provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
+  light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   InitMesh();
   InitControllerMesh();
+  light_mesh_->AddProvider(provider_.get());
 }
 
 void DirLightController::InitMesh() {
@@ -291,8 +304,6 @@ void DirLightController::InitMesh() {
   const float kConeRadius = 0.2f;
   const float kConeY = 0.8f;
   const float kCylinderRadius = 0.08f;
-  Context* ctx = Context::instance();
-  light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   RenderSystem* rs = RenderSystem::Current();
   VertexDesc* desc = effect_->GetVertexDesc();
   {
@@ -335,8 +346,6 @@ void DirLightController::InitMesh() {
     part->AddEntity(entity);
     light_mesh_->AddMeshPart(part);
   }
-
-  light_mesh_->AddProvider(provider_.get());
 }
 
 void DirLightController::InitControllerMesh() {
@@ -348,5 +357,70 @@ void DirLightController::Update(const azer::FrameArgs& args) {
 
 void DirLightController::Render(azer::Renderer* renderer) {
   LightController::Render(renderer);
+}
+
+
+
+LightControllerProvider::LightControllerProvider(SceneRenderNode* node) 
+    : node_(node) {
+  Light* light = node->GetSceneNode()->mutable_data()->light();
+  emission_ = light->diffuse() * 0.5f;
+  color_ = light->diffuse();
+  local_transform_ = Matrix4::kIdentity;
+}
+
+const azer::Matrix4& LightControllerProvider::GetPV() const {
+  return node_->GetPV();
+}
+
+void LightControllerProvider::UpdateParams(const azer::FrameArgs& args) {
+  world_ = node_->GetWorld() * local_transform_;
+}
+
+void LightControllerProvider::SetLocalTransform(const azer::Matrix4& local) {
+  local_transform_ = local;
+}
+
+LightControllerColorProvider::LightControllerColorProvider(const Vector4& c) 
+    : color_(c) {}
+LightControllerColorProvider::LightControllerColorProvider() 
+    : color_(Vector4(0.0f, 1.0f, 1.0f, 1.0f)) {}
+
+// class LightControllerEffectAdapter
+LightControllerEffectAdapter::LightControllerEffectAdapter() {}
+const azer::EffectAdapterKey LightControllerEffectAdapter::kAdapterKey =
+    std::make_pair(typeid(DiffuseEffect).name(),
+                   typeid(LightControllerProvider).name());
+
+void LightControllerEffectAdapter::Apply(
+    Effect* e, const EffectParamsProvider* params) const {
+  Context* ctx = Context::instance();
+  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
+  const LightControllerProvider* provider =
+      dynamic_cast<const LightControllerProvider*>(params);
+  DCHECK(provider && effect);
+  Vector4 color = provider->color();
+  color.w = 0.3f;
+  effect->SetColor(color);
+  effect->SetEmission(provider->emission());
+  effect->SetWorld(provider->GetWorld());
+  effect->SetPV(provider->GetPV());
+  effect->SetDirLight(ctx->GetInternalLight());
+}
+
+// class LightControllerColorEffectAdapter
+LightControllerColorEffectAdapter::LightControllerColorEffectAdapter() {}
+const azer::EffectAdapterKey LightControllerColorEffectAdapter::kAdapterKey =
+    std::make_pair(typeid(DiffuseEffect).name(),
+                   typeid(LightControllerColorProvider).name());
+
+void LightControllerColorEffectAdapter::Apply(
+    Effect* e, const EffectParamsProvider* params) const {
+  Context* ctx = Context::instance();
+  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
+  const LightControllerColorProvider* provider =
+      dynamic_cast<const LightControllerColorProvider*>(params);
+  DCHECK(provider && effect);
+  effect->SetColor(provider->color());
 }
 }  // namespace lord

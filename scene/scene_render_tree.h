@@ -54,7 +54,6 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
 class SceneRenderNodeDelegate {
  public:
   explicit SceneRenderNodeDelegate(SceneRenderNode* node);
-  virtual bool Init() = 0;
   virtual void Update(const azer::FrameArgs& args) = 0;
   virtual void Render(azer::Renderer* renderer) = 0;
   SceneNode* GetSceneNode();

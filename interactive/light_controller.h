@@ -47,8 +47,10 @@ class SpotLightController : public LightController {
  private:
   void InitMesh();
   void InitControllerMesh();
+  void CreateCircles(float mid, Light* light);
 
   azer::MeshPtr controller_mesh_;
+  azer::MeshPtr line_mesh_;
   static const float kTopRadius;
   DISALLOW_COPY_AND_ASSIGN(SpotLightController);
 };
@@ -84,13 +86,37 @@ class LightControllerProvider : public azer::EffectParamsProvider {
   DISALLOW_COPY_AND_ASSIGN(LightControllerProvider);
 };
 
+class LightControllerColorProvider : public azer::EffectParamsProvider {
+ public:
+  explicit LightControllerColorProvider(const azer::Vector4& color);
+  LightControllerColorProvider();
+  // override from EffectParamsProvider
+  void UpdateParams(const azer::FrameArgs& args) override {}
+  const azer::Vector4& color() const { return color_;}
+ private:
+  azer::Vector4 color_;
+  DISALLOW_COPY_AND_ASSIGN(LightControllerColorProvider);
+};
+
 class LightControllerEffectAdapter : public azer::EffectParamsAdapter {
  public:
+  static const azer::EffectAdapterKey kAdapterKey;
   LightControllerEffectAdapter();
-  azer::EffectAdapterKey key() const override;
+  azer::EffectAdapterKey key() const override { return kAdapterKey;}
   void Apply(azer::Effect* e, const azer::EffectParamsProvider* params)
       const override;
  private:
   DISALLOW_COPY_AND_ASSIGN(LightControllerEffectAdapter);
+};
+
+class LightControllerColorEffectAdapter : public azer::EffectParamsAdapter {
+ public:
+  static const azer::EffectAdapterKey kAdapterKey;
+  LightControllerColorEffectAdapter();
+  azer::EffectAdapterKey key() const override { return kAdapterKey;}
+  void Apply(azer::Effect* e, const azer::EffectParamsProvider* params)
+      const override;
+ private:
+  DISALLOW_COPY_AND_ASSIGN(LightControllerColorEffectAdapter);
 };
 }  // namespace lord

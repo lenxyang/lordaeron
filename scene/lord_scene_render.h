@@ -34,10 +34,10 @@ class LoadSceneBVRenderProvider : public azer::EffectParamsProvider {
 class LordObjectNodeRenderDelegate : public SceneRenderNodeDelegate {
  public:
   explicit LordObjectNodeRenderDelegate(SceneRenderNode* node);
-  bool Init() override;
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
+  bool Init();
   azer::MeshPtr mesh_;
   azer::MeshPtr bounding_mesh_;
   DISALLOW_COPY_AND_ASSIGN(LordObjectNodeRenderDelegate);
@@ -46,10 +46,10 @@ class LordObjectNodeRenderDelegate : public SceneRenderNodeDelegate {
 class LordLampNodeRenderDelegate : public SceneRenderNodeDelegate {
  public:
   explicit LordLampNodeRenderDelegate(SceneRenderNode* node);
-  bool Init() override;
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
+  bool Init();
   LightController* controller_;
   DISALLOW_COPY_AND_ASSIGN(LordLampNodeRenderDelegate);
 };

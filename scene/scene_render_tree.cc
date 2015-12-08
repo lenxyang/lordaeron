@@ -257,10 +257,7 @@ bool SceneRenderNode::Init() {
     GetEnvNode()->AddLightNode(node_);
   }
 
-  if (delegate_.get())
-    return delegate_->Init();
-  else
-    return true;
+  return true;
 }
 
 void SceneRenderNode::Update(const azer::FrameArgs& args) {
@@ -329,9 +326,9 @@ bool SceneRenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
   }
 
   SceneRenderNode* newnode = new SceneRenderNode(node);
-  newnode->SetDelegate(factory_->CreateDelegate(newnode).Pass());
   if (newnode) {
     newnode->SetEnvNode(cur_->GetEnvNode());
+    newnode->SetDelegate(factory_->CreateDelegate(newnode).Pass());
     newnode->Init();
     cur_->AddChild(newnode);
     cur_ = newnode;

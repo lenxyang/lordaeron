@@ -46,16 +46,19 @@ const azer::Matrix4& LoadSceneBVRenderProvider::GetPV() const {
 // class LordObjectNodeRenderDelegate
 LordObjectNodeRenderDelegate::LordObjectNodeRenderDelegate(SceneRenderNode* node)
     : SceneRenderNodeDelegate(node) {
+  Init();
 }
 
 bool LordObjectNodeRenderDelegate::Init() {
   SceneNode* scene_node = GetSceneNode();
   CHECK(scene_node->type() == kObjectSceneNode
         || scene_node->type() == kSceneNode);
-  MeshPtr mesh = scene_node->mutable_data()->GetMesh();
-  mesh->AddProvider(node_);
-  mesh->AddProvider(node_->GetEnvNode());
-  mesh_ = mesh;
+
+  if (scene_node->type() == kObjectSceneNode) {
+    mesh_ = scene_node->mutable_data()->GetMesh();
+    mesh_->AddProvider(node_);
+    mesh_->AddProvider(node_->GetEnvNode());
+  }
 
   bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
   bounding_mesh_->AddProvider(new LoadSceneBVRenderProvider(node_));
@@ -86,6 +89,7 @@ LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(SceneRenderNode* node)
   SceneNode* scene_node = GetSceneNode();
   CHECK(scene_node->type() == kLampSceneNode);
   CHECK(scene_node->parent() && scene_node->parent()->type() == kEnvSceneNode);
+  Init();
 }
 
 bool LordLampNodeRenderDelegate::Init() {
@@ -123,8 +127,8 @@ scoped_ptr<SceneRenderNodeDelegate>
 LoadSceneRenderNodeDelegateFactory::CreateDelegate(SceneRenderNode* node) {
   switch (node->GetSceneNode()->type()) {
     case kEnvSceneNode:
-    case kSceneNode:
       return NULL;
+    case kSceneNode:
     case kObjectSceneNode:
       return scoped_ptr<SceneRenderNodeDelegate>(
           new LordObjectNodeRenderDelegate(node)).Pass();
