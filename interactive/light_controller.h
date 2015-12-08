@@ -6,70 +6,82 @@
 namespace lord {
 class DiffuseEffect;
 class Light;
+class LightControllerProvider;
 class SceneNode;
+class SceneRenderNode;
 typedef scoped_refptr<Light> LightPtr;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
+typedef scoped_refptr<DiffuseEffect> DiffuseEffectPtr;
 
-class LightMesh : public azer::Mesh {
+class LightController : public ::base::RefCounted<LightController> {
  public:
-  LightMesh(SceneNode* node, DiffuseEffect* desc);
-  void Render(azer::Renderer* renderer) override;
-
-  const azer::Matrix4& local_transform() const { return local_transform_;}
+  explicit LightController(SceneRenderNode* node);
+  azer::Mesh* GetLightMesh() { return light_mesh_.get();}
+  virtual void Update(const azer::FrameArgs& args) = 0;
+  virtual void Render(azer::Renderer* renderer) = 0;
  protected:
-  void RenderPickedPart(azer::Renderer* renderer);
-  SceneNode* node_;
-  std::vector<azer::MeshPartPtr> picked_part_;
-  scoped_refptr<DiffuseEffect> effect_;
-  azer::Matrix4 local_transform_;
-  DISALLOW_COPY_AND_ASSIGN(LightMesh);
-};
-typedef scoped_refptr<LightMesh> LightMeshPtr;
-
-class PointLightControllerMesh : public LightMesh {
- public:
-  PointLightControllerMesh(SceneNode* node, DiffuseEffect* effect);
- private:
-  void InitPickedMesh();
-  DISALLOW_COPY_AND_ASSIGN(PointLightControllerMesh);
+  azer::MeshPtr light_mesh_;
+  DiffuseEffectPtr effect_;
+  SceneRenderNode* node_;
+  scoped_refptr<LightControllerProvider> provider_;
+  DISALLOW_COPY_AND_ASSIGN(LightController);
 };
 
-class SpotLightControllerMesh : public LightMesh {
+class PointLightController : public LightController {
  public:
-  SpotLightControllerMesh(SceneNode* node, DiffuseEffect* effect);
+  explicit PointLightController(SceneRenderNode* node);
+  void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
   void InitMesh();
-  void InitPickedMesh();
-  void InitCone(Light* light);
-  void CreateCircles(float range, Light* light);
-  static const float kTopRadius;
-  DISALLOW_COPY_AND_ASSIGN(SpotLightControllerMesh);
+  void InitControllerMesh();
+  azer::MeshPtr controller_mesh_;
+  DISALLOW_COPY_AND_ASSIGN(PointLightController);
 };
 
-class DirLightControllerMesh : public LightMesh {
+class SpotLightController : public LightController {
  public:
-  DirLightControllerMesh(SceneNode* node, DiffuseEffect* effect);
+  explicit SpotLightController(SceneRenderNode* node);
+  void Update(const azer::FrameArgs& args) override;
+  void Render(azer::Renderer* renderer) override;
  private:
   void InitMesh();
-  void InitPickedMesh();
-  DISALLOW_COPY_AND_ASSIGN(DirLightControllerMesh);
+  void InitControllerMesh();
+
+  azer::MeshPtr controller_mesh_;
+  static const float kTopRadius;
+  DISALLOW_COPY_AND_ASSIGN(SpotLightController);
 };
 
-class LightMeshProvider : public azer::EffectParamsProvider {
+class DirLightController : public LightController {
  public:
-  LightMeshProvider(SceneNode* node, const azer::Matrix4& local_transform);
-  ~LightMeshProvider();
-  void UpdateParams(const azer::FrameArgs& args) override;
-  const azer::Matrix4& world() const;
-  const azer::Vector4& color() const;
-  const azer::Vector4& emission() const;
+  explicit DirLightController(SceneRenderNode* node);
+  void Update(const azer::FrameArgs& args) override;
+  void Render(azer::Renderer* renderer) override;
  private:
-  SceneNodePtr node_;
-  const Light* light_;
-  azer::Matrix4 local_transform_;
+  void InitMesh();
+  void InitControllerMesh();
+  DISALLOW_COPY_AND_ASSIGN(DirLightController);
+};
+
+class LightControllerProvider : public azer::EffectParamsProvider {
+ public:
+  LightControllerProvider(SceneRenderNode* node);
+  void SetLocalTransform(const azer::Matrix4& local);
+
+  // override from EffectParamsProvider
+  void UpdateParams(const azer::FrameArgs& args) override;
+  const azer::Vector4& color() const { return color_;}
+  const azer::Vector4& emission() const { return emission_;}
+  const azer::Matrix4& GetWorld() const { return world_;}
+  const azer::Matrix4& GetPV() const;
+ private:
+  azer::Vector4 color_;
+  azer::Vector4 emission_;
   azer::Matrix4 world_;
-  DISALLOW_COPY_AND_ASSIGN(LightMeshProvider);
+  azer::Matrix4 local_transform_;
+  SceneRenderNode* node_;
+  DISALLOW_COPY_AND_ASSIGN(LightControllerProvider);
 };
 
 class LightMeshDiffuseEffectAdapter : public azer::EffectParamsAdapter {
@@ -81,6 +93,4 @@ class LightMeshDiffuseEffectAdapter : public azer::EffectParamsAdapter {
  private:
   DISALLOW_COPY_AND_ASSIGN(LightMeshDiffuseEffectAdapter);
 };
-
-LightMeshPtr CreateLightMesh(SceneNode* node);
 }  // namespace lord

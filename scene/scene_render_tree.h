@@ -77,9 +77,11 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   SceneRenderEnvNode* GetEnvNode() { return envnode_;}
   const SceneRenderEnvNode* GetEnvNode() const { return envnode_;}
   void  SetEnvNode(SceneRenderEnvNode* node);
+
   void UpdateParams(const azer::FrameArgs& args) override;
   const azer::Matrix4& GetWorld() const { return world_;}
   const azer::Matrix4& GetPVW() const { return pvw_;}
+  const azer::Matrix4& GetPV() const { return pv_;}
   const azer::Camera* camera() const;
   void SetCamera(const azer::Camera* camera);
 
@@ -108,6 +110,7 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   std::string DumpTree() const;
   std::string DumpNode(const SceneRenderNode* node, int32 depth) const;
  protected:
+  void CalcParams(const azer::FrameArgs& args);
   SceneRenderNode* parent_;
   std::vector<SceneRenderNodePtr> children_;
 
@@ -117,6 +120,7 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   const azer::Camera* camera_;
   azer::Matrix4 world_;
   azer::Matrix4 pvw_;
+  azer::Matrix4 pv_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderNode);
 };
 

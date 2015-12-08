@@ -8,17 +8,57 @@
 
 namespace lord {
 using namespace azer;
+const azer::EffectAdapterKey LoadSceneBVParamsAdapter::kAdapterKey =
+    std::make_pair(typeid(DiffuseEffect).name(),
+                   typeid(LoadSceneBVRenderProvider).name());
+
+azer::EffectAdapterKey LoadSceneBVParamsAdapter::key() const {
+  return kAdapterKey;
+}
+void LoadSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) const {
+  Context* ctx = Context::instance();
+  const LoadSceneBVRenderProvider* provider =
+      dynamic_cast<const LoadSceneBVRenderProvider*>(p);
+  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
+  DCHECK(provider && effect);
+  effect->SetWorld(provider->GetWorld());
+  effect->SetColor(provider->color());
+  effect->SetPV(provider->GetPV());
+  effect->SetDirLight(ctx->GetInternalLight());
+}
+LoadSceneBVRenderProvider::LoadSceneBVRenderProvider(SceneRenderNode* node)
+    : color_(Vector4(1.0f, 0.0f, 0.0f, 0.3f)), node_(node) {}
+
+void LoadSceneBVRenderProvider::UpdateParams(const azer::FrameArgs& args) {
+  SceneNode* snode = node_->GetSceneNode();
+  Vector3 vmin = snode->vmin();
+  Vector3 vmax = snode->vmax();
+  Vector3 center = (vmin + vmax) * 0.5f;
+  Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
+  scale_ = std::move(Scale(scale));
+  world_ = node_->GetWorld() * scale_;
+}
+
+const azer::Matrix4& LoadSceneBVRenderProvider::GetPV() const {
+  return node_->GetPV();
+}
+
+// class LordObjectNodeRenderDelegate
 LordObjectNodeRenderDelegate::LordObjectNodeRenderDelegate(SceneRenderNode* node)
     : SceneRenderNodeDelegate(node) {
 }
 
 bool LordObjectNodeRenderDelegate::Init() {
   SceneNode* scene_node = GetSceneNode();
-  CHECK(scene_node->type() == kObjectSceneNode);
+  CHECK(scene_node->type() == kObjectSceneNode
+        || scene_node->type() == kSceneNode);
   MeshPtr mesh = scene_node->mutable_data()->GetMesh();
   mesh->AddProvider(node_);
   mesh->AddProvider(node_->GetEnvNode());
   mesh_ = mesh;
+
+  bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
+  bounding_mesh_->AddProvider(new LoadSceneBVRenderProvider(node_));
   return true;
 }
 
@@ -26,16 +66,23 @@ void LordObjectNodeRenderDelegate::Update(const FrameArgs& args) {
   if (mesh_.get()) {
     mesh_->UpdateProviderParams(args);
   }
+  bounding_mesh_->UpdateProviderParams(args);
 }
 
 void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
   if (mesh_.get())
     mesh_->Render(renderer);
+
+  SceneNode* scene_node = GetSceneNode();
+  if (scene_node->is_draw_bounding_volumn()) {
+    bounding_mesh_->Render(renderer);
+  }
 }
 
 // class LordLampNodeRenderDelegate
 LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(SceneRenderNode* node)
-    : SceneRenderNodeDelegate(node) {
+    : SceneRenderNodeDelegate(node),
+      controller_(NULL) {
   SceneNode* scene_node = GetSceneNode();
   CHECK(scene_node->type() == kLampSceneNode);
   CHECK(scene_node->parent() && scene_node->parent()->type() == kEnvSceneNode);
@@ -44,25 +91,31 @@ LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(SceneRenderNode* node)
 bool LordLampNodeRenderDelegate::Init() {
   SceneNode* scene_node = GetSceneNode();
   Light* light = scene_node->mutable_data()->light();
-  LightMeshPtr mesh = CreateLightMesh(scene_node);
-  mesh->AddProvider(node_);
-  mesh->AddProvider(node_->GetEnvNode());
-  // LightMeshProvider must be put last, because it will override
-  // the world matrix
-  mesh->AddProvider(new LightMeshProvider(scene_node, mesh->local_transform()));
-  mesh_ = mesh;
+  switch (light->type()) {
+    case kDirectionalLight:
+      controller_ = new DirLightController(node_);
+      break;
+    case kSpotLight:
+      controller_ = new SpotLightController(node_);
+      break;
+    case kPointLight:
+      controller_ = new PointLightController(node_);
+      break;
+    default:
+      CHECK(false);
+  }
+
+  scene_node->SetMin(controller_->GetLightMesh()->vmin());
+  scene_node->SetMax(controller_->GetLightMesh()->vmax());
   return true;
 }
 
 void LordLampNodeRenderDelegate::Update(const FrameArgs& args) {
-  if (mesh_.get()) {
-    mesh_->UpdateProviderParams(args);
-  }
+  controller_->Update(args);
 }
 
 void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
-  if (mesh_.get())
-    mesh_->Render(renderer);
+  controller_->Render(renderer);
 }
 
 

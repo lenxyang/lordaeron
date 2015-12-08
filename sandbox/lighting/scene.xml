@@ -3,7 +3,6 @@
   <node name="root">
     <node name="scene">
       <node name="env" type="environment">
-<!--
         <node name="dir" type="light">
           <location><position>4.0f, 4.0f, 0.0f</position></location>
           <light type="directional_light">
@@ -25,7 +24,6 @@
             </attenuation>
           </light>
         </node>
--->
         <node name="spot" type="light">
           <location><position>0.0f, 4.0f, 4.0f</position></location>
           <light type="spot_light">
@@ -40,7 +38,6 @@
           </light>
         </node>
       </node>
-<!--
       <node name="teaport" type="mesh">
         <location><position>0.0f, 0.0f, 0.0f</position></location>
         <mesh>
@@ -61,9 +58,7 @@
           </provider>
         </mesh>
       </node>
--->
     </node>
-<!--
    <node name="tree" type="mesh">
      <location>
        <position>0.0f, 0.0f, 0.0f</position>
@@ -89,6 +84,5 @@
        </provider>
      </mesh>
    </node>
--->
   </node>
 </scene>

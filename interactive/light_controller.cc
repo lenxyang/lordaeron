@@ -6,6 +6,7 @@
 #include "lordaeron/effect/light.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/scene/scene_render_tree.h"
 
 
 namespace lord {
@@ -39,68 +40,129 @@ void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
 }
 }  // namespace
 
-
-LightMesh::LightMesh(SceneNode* node, DiffuseEffect* effect) 
-    : Mesh(Context::instance()->GetEffectAdapterContext()),
-      node_(node),
-      effect_(effect) {
+LightControllerProvider::LightControllerProvider(SceneRenderNode* node) 
+    : node_(node) {
+  Light* light = node->GetSceneNode()->mutable_data()->light();
+  emission_ = light->diffuse() * 0.5f;
+  color_ = light->diffuse();
   local_transform_ = Matrix4::kIdentity;
 }
 
-void LightMesh::Render(Renderer* renderer) {
-  Mesh::Render(renderer);
-  if (node_->picked()) {
-    RenderPickedPart(renderer);
-  }
+const azer::Matrix4& LightControllerProvider::GetPV() const {
+  return node_->GetPV();
 }
 
-void LightMesh::RenderPickedPart(Renderer* renderer) {
-  for (auto iter = picked_part_.begin(); iter != picked_part_.end(); ++iter) {
-    MeshPart* part = iter->get();
-    ApplyParams(part->effect());
-    part->Render(renderer);
-  }
+void LightControllerProvider::UpdateParams(const azer::FrameArgs& args) {
+  world_ = node_->GetWorld() * local_transform_;
 }
 
-PointLightControllerMesh::PointLightControllerMesh(
-    SceneNode* node, DiffuseEffect* effect) 
-    : LightMesh(node, effect) {
+void LightControllerProvider::SetLocalTransform(const azer::Matrix4& local) {
+  local_transform_ = local;
+}
+
+
+// class LightMeshDiffuseEffectAdapter
+LightMeshDiffuseEffectAdapter::LightMeshDiffuseEffectAdapter() {
+}
+
+EffectAdapterKey LightMeshDiffuseEffectAdapter::key() const {
+  return std::make_pair(typeid(DiffuseEffect).name(),
+                        typeid(LightControllerProvider).name());
+}
+
+void LightMeshDiffuseEffectAdapter::Apply(
+    Effect* e, const EffectParamsProvider* params) const {
   Context* ctx = Context::instance();
-  GeometryObjectPtr obj = new SphereObject(effect->GetVertexDesc(), 0.1f);
-  MeshPartPtr part = obj->CreateObject(effect_.get());
-  AddMeshPart(part.get());
-  InitPickedMesh();
+  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
+  DCHECK(effect);
+  const LightControllerProvider* provider =
+      dynamic_cast<const LightControllerProvider*>(params);
+  DCHECK(provider);
+  Vector4 color = provider->color();
+  color.w = 0.3f;
+  effect->SetColor(color);
+  effect->SetEmission(provider->emission());
+  effect->SetWorld(provider->GetWorld());
+  effect->SetPV(provider->GetPV());
+  effect->SetDirLight(ctx->GetInternalLight());
 }
 
-void PointLightControllerMesh::InitPickedMesh() {
-  DCHECK(node_->type() == kLampSceneNode);
-  Light* light = node_->mutable_data()->light();
+// class LightController
+LightController::LightController(SceneRenderNode* node)
+    : node_(node) {
+  DCHECK(node->GetSceneNode()->type() == kLampSceneNode);
+  provider_ = new LightControllerProvider(node);
+}
+
+void LightController::Update(const azer::FrameArgs& args) {
+  light_mesh_->UpdateProviderParams(args);
+}
+
+void LightController::Render(azer::Renderer* renderer) {
+  light_mesh_->Render(renderer);
+}
+
+// class PointLightController
+PointLightController::PointLightController(SceneRenderNode* node)
+    : LightController(node) {
+  effect_ = CreateDiffuseEffect();
+  InitMesh();
+  InitControllerMesh();
+}
+
+void PointLightController::InitMesh() {
+  Context* ctx = Context::instance();
+  GeometryObjectPtr obj = new SphereObject(effect_->GetVertexDesc(), 0.1f);
+  MeshPartPtr part = obj->CreateObject(effect_.get());
+  light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
+  light_mesh_->AddMeshPart(part.get());
+  light_mesh_->AddProvider(provider_.get());
+}
+
+void PointLightController::InitControllerMesh() {
+  SceneNode* scene_node = node_->GetSceneNode();
+  DCHECK(scene_node->type() == kLampSceneNode);
+  Light* light = scene_node->mutable_data()->light();
   float range = light->point_light().atten.range;
   Context* ctx = Context::instance();
   BlendingPtr blending = ctx->GetDefaultBlending();
   GeometryObjectPtr obj = new SphereObject(effect_->GetVertexDesc(), range);
   MeshPartPtr part = obj->CreateObject(effect_.get());
   part->SetBlending(blending.get());
-  picked_part_.push_back(part);
+  controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
+  controller_mesh_->AddMeshPart(part);
+  controller_mesh_->AddProvider(provider_.get());
 }
 
-// class SpotLightControllerMesh
-const float SpotLightControllerMesh::kTopRadius = 0.2f;
-SpotLightControllerMesh::SpotLightControllerMesh(SceneNode* node, 
-                                                 DiffuseEffect* effect) 
-    : LightMesh(node, effect) {
+void PointLightController::Update(const azer::FrameArgs& args) {
+  LightController::Update(args);
+}
+
+void PointLightController::Render(azer::Renderer* renderer) {
+  LightController::Render(renderer);
+  if (node_->GetSceneNode()->picked()) {
+    controller_mesh_->Render(renderer);
+  }
+}
+
+// class SpotLightController
+const float SpotLightController::kTopRadius = 0.2f;
+SpotLightController::SpotLightController(SceneRenderNode* node)
+    : LightController(node) {
+  provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
+  effect_ = CreateDiffuseEffect();
   InitMesh();
-  InitPickedMesh();
-  local_transform_ = std::move(RotateX(Degree(90.0f)));
+  InitControllerMesh();
 }
 
-void SpotLightControllerMesh::InitMesh() {
+void SpotLightController::InitMesh() {
+  Context* ctx = Context::instance();
+  light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   float kSpotHeight = 0.7f;
   float kSpotRadius = 0.3f;
   float kBaseHeight = 0.3f;
   float kBaseRadius = 0.1f;
 
-  Context* context = Context::instance();
   RenderSystem* rs = RenderSystem::Current();
   VertexDesc* desc = effect_->GetVertexDesc();
   // spot cylinder
@@ -122,7 +184,7 @@ void SpotLightControllerMesh::InitMesh() {
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
-    AddMeshPart(part);
+    light_mesh_->AddMeshPart(part);
   }
 
   {
@@ -143,23 +205,19 @@ void SpotLightControllerMesh::InitMesh() {
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
-    AddMeshPart(part);
+    light_mesh_->AddMeshPart(part);
   }
+
+  light_mesh_->AddProvider(provider_.get());
 }
 
-
-void SpotLightControllerMesh::InitPickedMesh() {
-  Light* light = node_->mutable_data()->light();
-  InitCone(light);
-  CreateCircles(light->spot_light().range, light);
-  CreateCircles(10.0f, light);
-}
-
-void SpotLightControllerMesh::InitCone(Light* light) {
-  DCHECK(node_->type() == kLampSceneNode);
+void SpotLightController::InitControllerMesh() {
   Context* ctx = Context::instance();
+  controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
+  SceneNode* scene_node = node_->GetSceneNode();
+  DCHECK(scene_node->type() == kLampSceneNode);
   BlendingPtr blending = ctx->GetDefaultBlending();
-  effect_ = CreateDiffuseEffect();
+  Light* light = scene_node->mutable_data()->light();
   const SpotLight& spot = light->spot_light();
   float range = spot.range;
   
@@ -176,10 +234,26 @@ void SpotLightControllerMesh::InitCone(Light* light) {
       effect_->GetVertexDesc(), outer_radius, top_radius, range);
   MeshPartPtr outer_cone = obj2->CreateObject(effect_.get());
   outer_cone->SetBlending(blending.get());
-  picked_part_.push_back(inner_cone);
-  picked_part_.push_back(outer_cone);
+  controller_mesh_->AddMeshPart(inner_cone);
+  controller_mesh_->AddMeshPart(outer_cone);
+  controller_mesh_->AddProvider(provider_.get());
 }
 
+void SpotLightController::Update(const azer::FrameArgs& args) {
+  LightController::Update(args);
+}
+
+void SpotLightController::Render(azer::Renderer* renderer) {
+  {
+    ScopedCullingMode scoped_cull(kCullNone, renderer);
+    LightController::Render(renderer);
+  }
+
+  if (node_->GetSceneNode()->picked()) {
+    controller_mesh_->Render(renderer);
+  }
+}
+/*
 void SpotLightControllerMesh::CreateCircles(float mid, Light* light) {
   const SpotLight& spot = light->spot_light();
   float range = spot.range;
@@ -201,32 +275,24 @@ void SpotLightControllerMesh::CreateCircles(float mid, Light* light) {
   picked_part_.push_back(inner_circle);
   picked_part_.push_back(outer_circle);
 }
+*/
 
-void SpotLightControllerMesh::Render(Renderer* renderer) {
-  {
-    ScopedCullingMode auto_culling(kCullNone, renderer);
-    Mesh::Render(renderer);
-  }
-
-  if (node_->picked()) {
-    RenderPickedPart(renderer);
-  }
-}
-
-// class DirLightControllerMesh
-DirLightControllerMesh::DirLightControllerMesh(SceneNode* node, 
-                                                 DiffuseEffect* effect) 
-    : LightMesh(node, effect) {
-  local_transform_ = std::move(RotateX(Degree(90.0f)));
+// class DirLightController
+DirLightController::DirLightController(SceneRenderNode* node)
+    : LightController(node) {
+  effect_ = CreateDiffuseEffect();
+  provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
   InitMesh();
+  InitControllerMesh();
 }
 
-void DirLightControllerMesh::InitMesh() {
+void DirLightController::InitMesh() {
   const float kConeHeight = 0.3f;
   const float kConeRadius = 0.2f;
   const float kConeY = 0.8f;
   const float kCylinderRadius = 0.08f;
-  Context* context = Context::instance();
+  Context* ctx = Context::instance();
+  light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   RenderSystem* rs = RenderSystem::Current();
   VertexDesc* desc = effect_->GetVertexDesc();
   {
@@ -246,7 +312,7 @@ void DirLightControllerMesh::InitMesh() {
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
-    AddMeshPart(part);
+    light_mesh_->AddMeshPart(part);
   }
 
   {
@@ -267,76 +333,20 @@ void DirLightControllerMesh::InitMesh() {
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
-    AddMeshPart(part);
+    light_mesh_->AddMeshPart(part);
   }
+
+  light_mesh_->AddProvider(provider_.get());
 }
 
-void DirLightControllerMesh::InitPickedMesh() {
-
+void DirLightController::InitControllerMesh() {
 }
 
-LightMeshPtr CreateLightMesh(SceneNode* node) {
-  DCHECK(node->type() == kLampSceneNode);
-  Light* light = node->mutable_data()->light();
-  DiffuseEffectPtr effect = CreateDiffuseEffect();
-  DCHECK(effect.get());
-  switch (light->type()) {
-    case kPointLight: 
-      return LightMeshPtr(new PointLightControllerMesh(node, effect.get()));
-    case kSpotLight:
-      return LightMeshPtr(new SpotLightControllerMesh(node, effect.get()));
-    case kDirectionalLight:
-      return LightMeshPtr(new DirLightControllerMesh(node, effect.get()));
-    default:
-      NOTREACHED();
-      return LightMeshPtr();
-  }
+void DirLightController::Update(const azer::FrameArgs& args) {
+  LightController::Update(args);
 }
 
-// class LightMeshProvider
-LightMeshProvider::LightMeshProvider(SceneNode* node, const Matrix4& ltran) 
-    : node_(node),
-      light_(node->mutable_data()->light()),
-      local_transform_(ltran) {
-}
-
-LightMeshProvider::~LightMeshProvider() {}
-void LightMeshProvider::UpdateParams(const FrameArgs& args) {
-  world_ = std::move(GenWorldMatrixForSceneNode(node_) * local_transform_);
-}
-
-const Vector4& LightMeshProvider::color() const {
-  return light_->diffuse();
-}
-
-const Vector4& LightMeshProvider::emission() const {
-  return light_->diffuse();
-}
-
-const azer::Matrix4& LightMeshProvider::world() const {
-  return world_;
-}
-
-// class LightMeshDiffuseEffectAdapter
-LightMeshDiffuseEffectAdapter::LightMeshDiffuseEffectAdapter() {
-}
-
-EffectAdapterKey LightMeshDiffuseEffectAdapter::key() const {
-  return std::make_pair(typeid(DiffuseEffect).name(),
-                        typeid(LightMeshProvider).name());
-}
-
-void LightMeshDiffuseEffectAdapter::Apply(
-    Effect* e, const EffectParamsProvider* params) const {
-  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
-  DCHECK(effect);
-    const LightMeshProvider* provider =
-        dynamic_cast<const LightMeshProvider*>(params);
-    DCHECK(provider);
-    Vector4 color = provider->color();
-    color.w = 0.3f;
-    effect->SetColor(color);
-    effect->SetEmission(provider->emission());
-    effect->SetWorld(provider->world());
+void DirLightController::Render(azer::Renderer* renderer) {
+  LightController::Render(renderer);
 }
 }  // namespace lord

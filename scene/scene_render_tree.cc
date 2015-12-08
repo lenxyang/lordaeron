@@ -250,10 +250,6 @@ std::string SceneRenderNode::DumpNode(const SceneRenderNode* node, int depth) co
 }
 
 void SceneRenderNode::UpdateParams(const azer::FrameArgs& args) {
-  // pvw_ computation must be here
-  // otherwise, even no mesh need the provider, the pvw must be 
-  // calculated.
-  pvw_ = std::move(camera()->GetProjViewMatrix() * world_);
 }
 
 bool SceneRenderNode::Init() {
@@ -268,11 +264,7 @@ bool SceneRenderNode::Init() {
 }
 
 void SceneRenderNode::Update(const azer::FrameArgs& args) {
-  world_ = std::move(node_->holder().GenWorldMatrix());
-  if (parent()) {
-    world_ = std::move(parent()->world_ * world_);
-  }
-
+  CalcParams(args);
   if(delegate_.get())
     delegate_->Update(args);
 }
@@ -280,6 +272,18 @@ void SceneRenderNode::Update(const azer::FrameArgs& args) {
 void SceneRenderNode::Render(azer::Renderer* renderer) {
   if (delegate_.get())
     delegate_->Render(renderer);
+}
+
+void SceneRenderNode::CalcParams(const azer::FrameArgs& args) {
+  // will be called on traverse the SceneRenderTree
+  // if put the code into UpdateParams, the params will be calculated multily time
+  // when SceneRenderNode used by multiple objects
+  world_ = std::move(node_->holder().GenWorldMatrix());
+  if (parent()) {
+    world_ = std::move(parent()->world_ * world_);
+  }
+  pv_ = camera()->GetProjViewMatrix();
+  pvw_ = std::move(pv_ * world_);
 }
 
 // class SceneRenderTreeBuilder

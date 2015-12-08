@@ -54,12 +54,6 @@ void SceneNodeData::AttachLight(Light* light) {
   DCHECK(light);
   light_ = light;
   node_->SetNodeType(kLampSceneNode);
-
-  // just calculate the min and max
-  MeshPtr light_mesh = CreateLightMesh(node_);
-  DCHECK(light_mesh.get());
-  node_->SetMin(light_mesh->vmin());
-  node_->SetMax(light_mesh->vmax());
 }
 
 void SceneNodeData::OnSceneNodeLocationChanged(SceneNode* node, 
