@@ -36,7 +36,8 @@ void LoadSceneBVRenderProvider::UpdateParams(const azer::FrameArgs& args) {
   Vector3 center = (vmin + vmax) * 0.5f;
   Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
   scale_ = std::move(Scale(scale));
-  world_ = node_->GetWorld() * scale_;
+  world_ = std::move(node_->GetWorld() * Translate(center)
+                     * scale_);
 }
 
 const azer::Matrix4& LoadSceneBVRenderProvider::GetPV() const {

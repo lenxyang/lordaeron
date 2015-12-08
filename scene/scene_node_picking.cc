@@ -25,11 +25,12 @@ bool SceneNodePickHelper::OnTraverseNodeEnter(SceneNode* node) {
   if (picking_node_)
     return false;
 
-  if (node->pickable())
-    return false;
   if (!node->visible()) {
     return false;
   }
+
+  if (node->pickable())
+    return false;
 
   using namespace azer;
   Vector3 vmin = node->vmin();

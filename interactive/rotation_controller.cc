@@ -179,7 +179,7 @@ CircleCoordinateObject::CircleCoordinateObject(DiffuseEffect* effect)
      effect_(effect) {
   set_radius(1.0f);
   
-  circle_ = new CircleObject(effect_->GetVertexDesc(), 256);
+  circle_ = new CircleObject(effect_->GetVertexDesc(), 1024);
   reset_color();
 
   axis_world_[0] = std::move(RotateZ(Degree(90.0f)));
@@ -232,7 +232,7 @@ RotationControllerObject::RotationControllerObject()
   RenderSystem* rs = RenderSystem::Current();
   effect_ = CreateDiffuseEffect();
   sphere_color_ = Vector4(1.0f, 1.0f, 1.0f, 0.4f);
-  sphere_ = new SphereObject(effect_->GetVertexDesc(), 24, 24);
+  sphere_ = new SphereObject(effect_->GetVertexDesc(), 1.0f, 32, 32);
 
   circles_.reset(new CircleCoordinateObject(effect_));
 }
@@ -242,7 +242,7 @@ RotationControllerObject::~RotationControllerObject() {
 
 void RotationControllerObject::set_radius(float r) {
   radius_ = r;
-  circles_->set_radius(r + 0.001);
+  circles_->set_radius(r * 1.01);
 }
 
 void RotationControllerObject::SetPosition(azer::Vector3& position) {
@@ -272,11 +272,12 @@ void RotationControllerObject::SetSelectedAxis(int32 axis) {
 
 void RotationControllerObject::Render(const azer::Matrix4& pv, 
                                       azer::Renderer* renderer) {
+  ScopedCullingMode scoped_culling(kCullNone, renderer);
   Matrix4 world = Translate(position_);
   Matrix4 lworld = std::move(world * Scale(radius_, radius_, radius_));
-
   renderer->SetPrimitiveTopology(kTriangleList);
   Context* context = Context::instance();
+
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
   effect_->SetDirLight(context->GetInternalLight());
@@ -287,6 +288,7 @@ void RotationControllerObject::Render(const azer::Matrix4& pv,
   sphere_->Render(renderer);
   renderer->ResetBlending();
 
+  // the sphere will forbidden the circle behind other cirle
   circles_->Render(world, pv, renderer);
 }
 }  // namespace lord

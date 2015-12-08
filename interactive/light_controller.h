@@ -47,7 +47,8 @@ class SpotLightController : public LightController {
  private:
   void InitMesh();
   void InitControllerMesh();
-  void CreateCircles(float mid, Light* light);
+  void CreateCrossCircle(float mid, Light* light);
+  void CreateBorderLine(Light* light);
 
   azer::MeshPtr controller_mesh_;
   azer::MeshPtr line_mesh_;
