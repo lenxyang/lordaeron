@@ -27,7 +27,7 @@
         </node>
 -->
         <node name="spot" type="light">
-          <location><position>0.0f, 0.0f, 0.0f</position></location>
+          <location><position>0.0f, 4.0f, 4.0f</position></location>
           <light type="spot_light">
             <ambient>1.0, 1.0, 1.0, 1.0</ambient>
             <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>

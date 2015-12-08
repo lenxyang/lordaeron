@@ -487,8 +487,7 @@ Matrix4 GenWorldMatrixForSceneNode(SceneNode* node) {
   Matrix4 world = Matrix4::kIdentity;
   SceneNode* cur = node;
   while (cur) {
-    world = std::move(world * cur->orientation().ToMatrix());
-    world = std::move(world * std::move(Translate(cur->position())));
+    world = std::move(cur->holder().GenWorldMatrix() * world);
     cur = cur->parent();
   }
   return world;
