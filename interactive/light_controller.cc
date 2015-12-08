@@ -1,4 +1,4 @@
-#include "lordaeron/interactive/light_mesh.h"
+#include "lordaeron/interactive/light_controller.h"
 
 #include "base/logging.h"
 #include "azer/render/render.h"
