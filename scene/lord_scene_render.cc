@@ -2,7 +2,7 @@
 
 #include "lordaeron/context.h"
 #include "lordaeron/effect/diffuse_effect.h"
-#include "lordaeron/interactive/light_mesh.h"
+#include "lordaeron/interactive/light_controller.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_render_tree.h"
 
@@ -13,8 +13,8 @@ LordObjectNodeRenderDelegate::LordObjectNodeRenderDelegate(SceneRenderNode* node
 }
 
 bool LordObjectNodeRenderDelegate::Init() {
-  CHECK(scene_node->type() == kObjectSceneNode);
   SceneNode* scene_node = GetSceneNode();
+  CHECK(scene_node->type() == kObjectSceneNode);
   MeshPtr mesh = scene_node->mutable_data()->GetMesh();
   mesh->AddProvider(node_);
   mesh->AddProvider(node_->GetEnvNode());
@@ -37,11 +37,12 @@ void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
 LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(SceneRenderNode* node)
     : SceneRenderNodeDelegate(node) {
   SceneNode* scene_node = GetSceneNode();
-  CHECK(GetSceneNode->type() == kLampSceneNode);
+  CHECK(scene_node->type() == kLampSceneNode);
   CHECK(scene_node->parent() && scene_node->parent()->type() == kEnvSceneNode);
 }
 
 bool LordLampNodeRenderDelegate::Init() {
+  SceneNode* scene_node = GetSceneNode();
   Light* light = scene_node->mutable_data()->light();
   LightMeshPtr mesh = CreateLightMesh(scene_node);
   mesh->AddProvider(node_);
@@ -79,6 +80,7 @@ LoadSceneRenderNodeDelegateFactory::CreateDelegate(SceneRenderNode* node) {
           new LordLampNodeRenderDelegate(node)).Pass();
     default:
       NOTREACHED() << "no such type supported: " << node->GetSceneNode()->type();
+      return scoped_ptr<SceneRenderNodeDelegate>().Pass();
   }
 }
 

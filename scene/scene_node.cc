@@ -6,7 +6,7 @@
 #include "base/strings/string_tokenizer.h"
 #include "azer/render/render.h"
 #include "azer/math/math.h"
-#include "lordaeron/interactive/light_mesh.h"
+#include "lordaeron/interactive/light_controller.h"
 #include "lordaeron/scene/scene_node_observer.h"
 
 namespace lord {

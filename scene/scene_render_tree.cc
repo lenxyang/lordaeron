@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include "base/logging.h"
-#include "lordaeron/interactive/light_mesh.h"
+#include "lordaeron/interactive/light_controller.h"
 #include "lordaeron/scene/scene_node.h"
 
 namespace lord {
