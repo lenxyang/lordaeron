@@ -7,7 +7,6 @@
 #include "azer/render/render.h"
 #include "azer/math/math.h"
 #include "lordaeron/interactive/light_mesh.h"
-#include "lordaeron/scene/scene_bounding_volumn.h"
 #include "lordaeron/scene/scene_node_observer.h"
 
 namespace lord {
@@ -46,7 +45,7 @@ Light* SceneNodeData::light() {
 
 void SceneNodeData::AttachMesh(MeshPtr mesh) {
   mesh_ = mesh;
-  node_->SetNodeType(kMeshSceneNode);
+  node_->SetNodeType(kObjectSceneNode);
   node_->SetMin(mesh->vmin());
   node_->SetMax(mesh->vmax());
 }
@@ -120,6 +119,7 @@ void SceneNode::InitMember() {
   type_ = kSceneNode;
   user_data_ = NULL;
   data_.reset(new SceneNodeData(this));
+  draw_bounding_ = false;
 }
 
 SceneNode::~SceneNode() {
@@ -247,23 +247,12 @@ SceneNodeType SceneNode::type() const {
 }
 
 void SceneNode::set_draw_bounding_volumn(bool b) {
-  if (b) {
-    if (!bounding_volumn_.get()) {
-      bounding_volumn_ = CreateBoundingBoxForSceneNode(this);
-    }
-  } else {
-    bounding_volumn_ = NULL;
-  }
+  draw_bounding_ = b;
 }
 
 bool SceneNode::is_draw_bounding_volumn() const {
-  return bounding_volumn_.get() != NULL;
+  return draw_bounding_;
 }
-
-Mesh* SceneNode::bounding_volumn() {
-  return bounding_volumn_.get();
-}
-
 
 std::string SceneNode::print_info() {
   std::string str;
@@ -475,7 +464,7 @@ const char* SceneNodeName(int32 type) {
   switch (type) {
     case kSceneNode: return "SceneNode";
     case kEnvSceneNode: return "EnvNode";
-    case kMeshSceneNode: return "MeshNode";
+    case kObjectSceneNode: return "ObjectNode";
     case kLampSceneNode: return "LampNode";
     case kCameraSceneNode: return "CameraNode";
     case kTerrainTileSceneNode: return "TerrainNode";

@@ -117,7 +117,7 @@ int SceneTreeModel::GetIconIndex(ui::TreeModelNode* n)  {
     case kSceneNode: return 0;
     case kCameraSceneNode: return 1;
     case kLampSceneNode: return 2;
-    case kMeshSceneNode: return 3;
+    case kObjectSceneNode: return 3;
     default: return 0;
   }
 }

@@ -128,6 +128,23 @@ void SceneRenderEnvNode::UpdateParams(const FrameArgs& args) {
   }
 }
 
+// class SceneRenderNodeDelegate
+SceneRenderNodeDelegate::SceneRenderNodeDelegate(SceneRenderNode* node)
+    : node_(node) {
+}
+
+SceneNode* SceneRenderNodeDelegate::GetSceneNode() {
+  return node_->GetSceneNode();
+}
+
+const SceneNode* SceneRenderNodeDelegate::GetSceneNode() const {
+  return node_->GetSceneNode();
+}
+SceneRenderNode* SceneRenderNodeDelegate::GetSceneRenderNode() { return node_;}
+const SceneRenderNode* SceneRenderNodeDelegate::GetSceneRenderNode() const {
+  return node_;
+}
+
 // class SceneRenderNode
 SceneRenderNode::SceneRenderNode(SceneNode* node)
     : parent_(NULL),
@@ -137,6 +154,10 @@ SceneRenderNode::SceneRenderNode(SceneNode* node)
 }
 
 SceneRenderNode::~SceneRenderNode() {
+}
+
+void SceneRenderNode::SetDelegate(scoped_ptr<SceneRenderNodeDelegate> delegate) {
+  delegate_ = delegate.Pass();
 }
 
 SceneRenderNode* SceneRenderNode::root() {
@@ -179,7 +200,6 @@ void SceneRenderNode::AddChild(SceneRenderNode* child) {
 void SceneRenderNode::SetEnvNode(SceneRenderEnvNode* node) {
   envnode_ = node;
   CHECK(children_.size() == 0u);
-  CHECK(mesh_.get() == NULL);
 }
 
 bool SceneRenderNode::RemoveChild(SceneRenderNode* child) {
@@ -236,70 +256,55 @@ void SceneRenderNode::UpdateParams(const azer::FrameArgs& args) {
   pvw_ = std::move(camera()->GetProjViewMatrix() * world_);
 }
 
-void SceneRenderNode::AddMesh(Mesh* mesh) {
-  mesh_ = mesh;
-}
-
-void SceneRenderNode::Init() {
-  if (node_->type() == kMeshSceneNode) {
-    MeshPtr mesh = node_->mutable_data()->GetMesh();
-    mesh->AddProvider(this);
-    mesh->AddProvider(envnode_);
-    AddMesh(mesh);
-  } else if (node_->type() == kLampSceneNode) {
-    CHECK(node_->parent() && node_->parent()->type() == kEnvSceneNode);
-    Light* light = node_->mutable_data()->light();
-    LightMeshPtr mesh = CreateLightMesh(node_);
+bool SceneRenderNode::Init() {
+  if (node_->type() == kLampSceneNode) {
     GetEnvNode()->AddLightNode(node_);
-    mesh->AddProvider(this);
-    mesh->AddProvider(envnode_);
-    // LightMeshProvider must be put last, because it will override
-    // the world matrix
-    mesh->AddProvider(new LightMeshProvider(node_, mesh->local_transform()));
-    AddMesh(mesh);
-  } else if (node_->type() == kEnvSceneNode) {
   }
 
+  if (delegate_.get())
+    return delegate_->Init();
+  else
+    return true;
 }
 
-void SceneRenderNode::Update(const FrameArgs& args) {
+void SceneRenderNode::Update(const azer::FrameArgs& args) {
+  world_ = std::move(node_->holder().GenWorldMatrix());
   if (parent()) {
-    world_ = std::move(parent()->world_ * node_->holder().GenWorldMatrix());
-  } else {
-    world_ = Matrix4::kIdentity;
+    world_ = std::move(parent()->world_ * world_);
   }
 
-  if (mesh_.get()) {
-    mesh_->UpdateProviderParams(args);
-  }
+  if(delegate_.get())
+    delegate_->Update(args);
 }
 
-void SceneRenderNode::Render(Renderer* renderer) {
-  if (mesh_.get())
-    mesh_->Render(renderer);
+void SceneRenderNode::Render(azer::Renderer* renderer) {
+  if (delegate_.get())
+    delegate_->Render(renderer);
 }
 
 // class SceneRenderTreeBuilder
-SceneRenderTreeBuilder::SceneRenderTreeBuilder(SceneRenderNodeCreator* creator) 
+SceneRenderTreeBuilder::SceneRenderTreeBuilder(SceneRenderNodeDelegateFactory* fa) 
     : cur_(NULL),
-      creator_(creator) {
+      factory_(fa) {
 }
 
 SceneRenderTreeBuilder::~SceneRenderTreeBuilder() {
 }
 
-void SceneRenderTreeBuilder::Build(SceneNode* root, const Camera* camera) {
+SceneRenderNodePtr SceneRenderTreeBuilder::Build(SceneNode* root, 
+                                                 const Camera* camera) {
+  DCHECK(cur_ == NULL);
+  DCHECK(factory_ != NULL);
   SceneRenderEnvNode* rootenv = new SceneRenderEnvNode;
-  root_ = new SceneRenderNode(root);
-  root_->SetEnvNode(rootenv);
-  root_->SetCamera(camera);
-  cur_ = root_.get();
+  SceneRenderNodePtr render_root = new SceneRenderNode(root);
+  render_root->SetDelegate(factory_->CreateDelegate(render_root.get()).Pass());
+  render_root->SetEnvNode(rootenv);
+  render_root->SetCamera(camera);
+  cur_ = render_root.get();
   SceneNodeTraverse traverser(this);
   traverser.Traverse(root);
-}
-
-SceneRenderNodePtr SceneRenderTreeBuilder::GetRenderNodeRoot() {
-  return root_;
+  cur_ = NULL;
+  return render_root;
 }
 
 void SceneRenderTreeBuilder::OnTraverseBegin(SceneNode* root) {
@@ -319,7 +324,8 @@ bool SceneRenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
     cur_->SetEnvNode(envnode);
   }
 
-  SceneRenderNode* newnode = creator_->Create(node);
+  SceneRenderNode* newnode = new SceneRenderNode(node);
+  newnode->SetDelegate(factory_->CreateDelegate(newnode).Pass());
   if (newnode) {
     newnode->SetEnvNode(cur_->GetEnvNode());
     newnode->Init();
@@ -337,68 +343,5 @@ void SceneRenderTreeBuilder::OnTraverseNodeExit(SceneNode* node) {
 
 void SceneRenderTreeBuilder::OnTraverseEnd() {
   DCHECK(cur_ == NULL);
-}
-
-
-// class SimpleRenderTreeRenderer
-SimpleRenderTreeRenderer::SimpleRenderTreeRenderer(SceneRenderNode* root)
-    : root_(root) {
-}
-
-void SimpleRenderTreeRenderer::Update(const FrameArgs& args) {
-  UpdateNode(root_, args);
-}
-
-void SimpleRenderTreeRenderer::Render(Renderer* renderer) {
-  blending_node_.clear();
-  RenderNode(root_, renderer);
-
-  {
-    ScopedDepthBuffer(false, renderer);
-    for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
-      (*iter)->Render(renderer);
-    }
-  }
-
-  for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
-    (*iter)->Render(renderer);
-  }
-}
-
-void SimpleRenderTreeRenderer::UpdateNode(SceneRenderNode* node, 
-                                          const FrameArgs& args) {
-  node->Update(args);
-  for (auto iter = node->children().begin(); 
-       iter != node->children().end(); ++iter) {
-    UpdateNode(iter->get(), args);
-  }
-}
-
-void SimpleRenderTreeRenderer::RenderNode(SceneRenderNode* node, 
-                                          Renderer* renderer) {
-  if (!node->GetSceneNode()->visible()) {
-    return;
-  }
-
-  if (node->GetSceneNode()->type() != kLampSceneNode) {
-    node->Render(renderer);
-  } else {
-    blending_node_.push_back(node);
-  }
-  for (auto iter = node->children().begin(); 
-       iter != node->children().end(); ++iter) {
-    RenderNode(iter->get(), renderer);
-  }
-}
-
-SceneRenderNode* DefaultSceneRenderNodeCreator::Create(SceneNode* node) {
-  switch (node->type()) {
-    case kSceneNode:
-    case kMeshSceneNode:
-    case kLampSceneNode:
-      return new SceneRenderNode(node);
-    default:
-      return NULL;
-  }
 }
 }  // namespace lord

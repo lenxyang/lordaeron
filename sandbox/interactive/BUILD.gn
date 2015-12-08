@@ -1,6 +1,0 @@
-
-executable("interactive") {
-  output_name = "lordaeron_sandbox_interactive"
-  sources = ["main.cc",]
-  deps = ["//lordaeron"]
-}

@@ -5,6 +5,5 @@ group("sandbox") {
     "scene",
     "mesh",
     "lighting",
-    "interactive",
   ]
 }

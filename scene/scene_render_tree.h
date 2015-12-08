@@ -51,10 +51,26 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
   DISALLOW_COPY_AND_ASSIGN(SceneRenderEnvNode);
 };
 
+class SceneRenderNodeDelegate {
+ public:
+  explicit SceneRenderNodeDelegate(SceneRenderNode* node);
+  virtual bool Init() = 0;
+  virtual void Update(const azer::FrameArgs& args) = 0;
+  virtual void Render(azer::Renderer* renderer) = 0;
+  SceneNode* GetSceneNode();
+  const SceneNode* GetSceneNode() const;
+  SceneRenderNode* GetSceneRenderNode();
+  const SceneRenderNode* GetSceneRenderNode() const;
+ protected:
+  SceneRenderNode* node_;
+  DISALLOW_COPY_AND_ASSIGN(SceneRenderNodeDelegate);
+};
+
 class SceneRenderNode : public azer::EffectParamsProvider {
  public:
   explicit SceneRenderNode(SceneNode* node);
   virtual ~SceneRenderNode();
+  void SetDelegate(scoped_ptr<SceneRenderNodeDelegate> delegate);
 
   SceneNode* GetSceneNode() { return node_;}
   const SceneNode* GetSceneNode() const { return node_;}
@@ -68,9 +84,9 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   void SetCamera(const azer::Camera* camera);
 
   // virtual function;
-  virtual void Init();
-  virtual void Update(const azer::FrameArgs& args);
-  virtual void Render(azer::Renderer* renderer);
+  bool Init();
+  void Update(const azer::FrameArgs& args);
+  void Render(azer::Renderer* renderer);
 
   SceneRenderNode* root();
   const SceneRenderNode* root() const {
@@ -92,36 +108,29 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   std::string DumpTree() const;
   std::string DumpNode(const SceneRenderNode* node, int32 depth) const;
  protected:
-  void AddMesh(azer::Mesh* mesh);
   SceneRenderNode* parent_;
   std::vector<SceneRenderNodePtr> children_;
 
   SceneNode* node_;
+  scoped_ptr<SceneRenderNodeDelegate> delegate_;
   SceneRenderEnvNodePtr envnode_;
   const azer::Camera* camera_;
-  azer::MeshPtr mesh_;
   azer::Matrix4 world_;
   azer::Matrix4 pvw_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderNode);
 };
 
-class SceneRenderNodeCreator {
+class SceneRenderNodeDelegateFactory {
  public:
-  virtual SceneRenderNode* Create(SceneNode* node) = 0;
-};
-
-class DefaultSceneRenderNodeCreator : public SceneRenderNodeCreator {
- public:
-  SceneRenderNode* Create(SceneNode* node) override;
+  virtual scoped_ptr<SceneRenderNodeDelegate> CreateDelegate(SceneRenderNode* n) = 0;
 };
 
 class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
  public:
-  SceneRenderTreeBuilder(SceneRenderNodeCreator* creator);
+  explicit SceneRenderTreeBuilder(SceneRenderNodeDelegateFactory* factory);
   ~SceneRenderTreeBuilder();
 
-  void Build(SceneNode* node, const azer::Camera* camera);
-  SceneRenderNodePtr GetRenderNodeRoot();
+  SceneRenderNodePtr Build(SceneNode* node, const azer::Camera* camera);
 
   // override from SceneNodeTraverseDelegate
   void OnTraverseBegin(SceneNode* root) override;
@@ -131,22 +140,7 @@ class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
  private:
   void UpdateNodeWorld(SceneNode* node);
   SceneRenderNode* cur_;
-  SceneRenderNodePtr root_;
-  SceneRenderNodeCreator* creator_;
+  SceneRenderNodeDelegateFactory* factory_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderTreeBuilder);
 };
-
-class SimpleRenderTreeRenderer {
- public:
-  explicit SimpleRenderTreeRenderer(SceneRenderNode* root);
-  void Update(const azer::FrameArgs& args);
-  void Render(azer::Renderer* renderer);
- private:
-  void UpdateNode(SceneRenderNode* node, const azer::FrameArgs& args);
-  void RenderNode(SceneRenderNode* node, azer::Renderer* renderer);
-  SceneRenderNode* root_;
-  std::vector<SceneRenderNode*> blending_node_;
-  DISALLOW_COPY_AND_ASSIGN(SimpleRenderTreeRenderer);
-};
-
 }  // namespace lord

@@ -19,7 +19,7 @@ typedef std::vector<SceneNodePtr> SceneNodes;
 enum SceneNodeType {
   kSceneNode,
   kEnvSceneNode,
-  kMeshSceneNode,
+  kObjectSceneNode,
   kLampSceneNode,
   kCameraSceneNode,
   kTerrainTileSceneNode,
@@ -65,8 +65,6 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
 
   void set_draw_bounding_volumn(bool b);
   bool is_draw_bounding_volumn() const;
-  azer::Mesh* bounding_volumn();
-  
   void set_pickable(bool pickable) { pickable_ = pickable;}
   bool pickable() const { return pickable_;}
   void set_picked(bool picked) { picked_ = picked;}
@@ -160,8 +158,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   bool pickable_;
   bool picked_;
   bool shadow_caster_;
-  azer::MeshPtr bounding_volumn_;
-
+  bool draw_bounding_;
   SceneNode* parent_;
   SceneNodes children_;
   std::string name_;

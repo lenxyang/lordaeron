@@ -27,7 +27,6 @@ class MyRenderWindow : public lord::SceneRenderWindow {
   SceneRenderNodePtr render_root_;
   SceneRenderNodePtr bvolumn_root_;
   scoped_ptr<SimpleRenderTreeRenderer> tree_render_;
-  scoped_ptr<SimpleRenderTreeRenderer> bvolumn_render_;
   scoped_ptr<FileSystem> fsystem_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
 };
@@ -74,23 +73,12 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   loader.RegisterSceneNodeLoader(light_loader.Pass());
   SceneNodePtr root = loader.Load(ResPath(UTF8ToUTF16("//sandbox/lighting/scene.xml")), "//");
 
-  {
-    DefaultSceneRenderNodeCreator creator;
-    SceneRenderTreeBuilder builder(&creator);
-    builder.Build(root.get(), &camera());
-    render_root_ = builder.GetRenderNodeRoot();
-    LOG(ERROR) << "\n" << render_root_->DumpTree();
-    tree_render_.reset(new SimpleRenderTreeRenderer(render_root_.get()));
-  }
-
-  {
-    SceneBVRenderNodeCreator creator;
-    SceneRenderTreeBuilder builder(&creator);
-    builder.Build(root.get(), &camera());
-    bvolumn_root_ = builder.GetRenderNodeRoot();
-    bvolumn_render_.reset(new SimpleRenderTreeRenderer(bvolumn_root_.get()));
-  }
-
+  LoadSceneRenderNodeDelegateFactory factory;
+  SceneRenderTreeBuilder builder(&factory);
+  render_root_ = builder.Build(root.get(), &camera());
+  LOG(ERROR) << "\n" << render_root_->DumpTree();
+  tree_render_.reset(new SimpleRenderTreeRenderer(render_root_.get()));
+  
   return root;
 }
 
@@ -113,11 +101,9 @@ void MyRenderWindow::OnInitUI() {
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {
   tree_render_->Update(args);
-  bvolumn_render_->Update(args);
 }
 
 void MyRenderWindow::OnRenderFrame(const FrameArgs& args, Renderer* renderer) {
   tree_render_->Render(renderer);
-  bvolumn_render_->Render(renderer);
 }
 }  // namespace lord
