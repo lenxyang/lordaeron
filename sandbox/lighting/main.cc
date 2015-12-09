@@ -82,9 +82,15 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   return root;
 }
 
-void MyRenderWindow::OnInitUI() { 
-  nelf::TabbedWindow* wnd = CreateSceneTreeViewWindow(gfx::Rect(300, 400), root);
+void MyRenderWindow::OnInitUI() {
+  gfx::Rect bounds(300, 400);
+  nelf::TabbedWindow* wnd = CreateSceneTreeViewWindow(bounds, root(), this);
   wnd->Dock(nelf::kDockLeft);
+
+  SceneNodePropertyWindow* property = new SceneNodePropertyWindow(bounds, this);
+  property->Init();
+  GetInteractive()->AddObserver(property->property_pane());
+  property->Show();
   mutable_camera()->reset(Vector3(0.0f, 8.0f, 12.0f), Vector3(0.0f, 0.0f, 0.0f),
                           Vector3(0.0f, 1.0f, 0.0f));
 }

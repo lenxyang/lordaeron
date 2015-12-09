@@ -1,14 +1,21 @@
 #pragma once
 
 #include "base/memory/scoped_ptr.h"
+#include "base/observer_list.h"
 #include "azer/render/render.h"
 #include "nelf/render/event_listener.h"
 
 namespace lord {
-
-class SceneNode;
-class SceneRenderWindow;
 class InteractiveController;
+class InteractiveContext;
+class SceneNode;
+class SceneNodePropertyPane;
+class SceneRenderWindow;
+
+class InteractiveContextObserver {
+ public:
+  virtual void OnSceneNodeSelected(InteractiveContext* context, SceneNode* prevsel) {}
+};
 
 class InteractiveContext : public nelf::EventListener {
  public:
@@ -30,6 +37,10 @@ class InteractiveContext : public nelf::EventListener {
   azer::Ray GetPickingRay(const gfx::Point& pt);
   azer::Vector4 CalcWorldPosFromScreen(const gfx::Point& pt);
 
+  void AddObserver(InteractiveContextObserver* observer);
+  void RemoveObserver(InteractiveContextObserver* observer);
+  bool HasObserver(InteractiveContextObserver* observer) const;
+
   // override from nelf::EventListener
   void OnKeyPressed(const ui::KeyEvent& event) override;
   void OnKeyReleased(const ui::KeyEvent& event) override;
@@ -43,6 +54,7 @@ class InteractiveContext : public nelf::EventListener {
   SceneRenderWindow* window_;
   SceneNode* picking_node_;
   scoped_ptr<InteractiveController> controller_;
+  ObserverList<InteractiveContextObserver> observers_;
   DISALLOW_COPY_AND_ASSIGN(InteractiveContext);
 };
 }  // namespace lord

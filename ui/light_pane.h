@@ -7,8 +7,30 @@
 #include "lordaeron/effect/light.h"
 
 namespace lord {
-class DirectionalLightContents : public views::View,
-                                 public nelf::ColorButtonDelegate {
+class LightColorPane : public views::View,
+                       public nelf::ColorButtonDelegate {
+ public:
+  static const char kViewClassName[];
+  explicit LightColorPane(Light* light);
+  const char* GetClassName() const override;
+  gfx::Size GetPreferredSize() const override;
+  void Layout() override;
+  // overriden from nelf::ColorButtonDelegate
+  void OnColorChanged(nelf::ColorButton* color_btn, SkColor color) override;
+ private:
+  void SetLight(Light* light);
+  nelf::GroupView* color_group_;
+  nelf::ColorButton* ambient_control_;
+  nelf::ColorButton* diffuse_control_;
+  nelf::ColorButton* specular_control_;
+  views::Label* ambient_label_;
+  views::Label* diffuse_label_;
+  views::Label* specular_label_;
+  LightPtr light_;
+  DISALLOW_COPY_AND_ASSIGN(LightColorPane);
+};
+
+class DirectionalLightContents : public views::View {
  public:
   static const char kViewClassName[];
   explicit DirectionalLightContents(Light* light);
@@ -17,21 +39,10 @@ class DirectionalLightContents : public views::View,
   const char* GetClassName() const override;
   gfx::Size GetPreferredSize() const override;
   void Layout() override;
-  // overriden from nelf::ColorButtonDelegate
-  void OnColorChanged(nelf::ColorButton* color_btn, SkColor color) override;
  private:
-  void SetLight(Light* light);
+  void LayoutColorControls();
   LightPtr light_;
-  nelf::ColorButton* ambient_control_;
-  nelf::ColorButton* diffuse_control_;
-  nelf::ColorButton* specular_control_;
-  views::Label* dir_label_;
-  views::Label* ambient_label_;
-  views::Label* diffuse_label_;
-  views::Label* specular_label_;
-  static const int32 kLineHeight;
-  static const int32 kVerticalMargin;
-  static const int32 kHorzMargin;
+  LightColorPane* pane_;
   DISALLOW_COPY_AND_ASSIGN(DirectionalLightContents);
 };
 
@@ -40,6 +51,7 @@ class DirectionalLightPane : public nelf::CollapseView {
   static const char kViewClassName[];
   explicit DirectionalLightPane(Light* light);
   const char* GetClassName() const override;
+  void Layout() override;
  private:
   DirectionalLightContents* contents_;
   DISALLOW_COPY_AND_ASSIGN(DirectionalLightPane);

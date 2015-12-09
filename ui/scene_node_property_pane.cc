@@ -12,9 +12,7 @@ using base::UTF8ToUTF16;
 const char SceneNodePropertyPane::kViewClassName[] = "nelf::SceneNodePropertyPane";
 SceneNodePropertyPane::SceneNodePropertyPane() 
     : node_(NULL) {
-  container_ = new nelf::CollapseViewContainer;
-  AddChildView(container_->CreateParentIfNecessary());
-  SetLayoutManager(new views::FillLayout);
+  ClearUI();
 }
 
 const char* SceneNodePropertyPane::GetClassName() const {
@@ -25,27 +23,40 @@ void SceneNodePropertyPane::ClearUI() {
   RemoveAllChildViews(true);
   container_ = new nelf::CollapseViewContainer;
   AddChildView(container_->CreateParentIfNecessary());
+  SetLayoutManager(new views::FillLayout);
 }
 
 void SceneNodePropertyPane::SetSceneNode(SceneNode* node) {
   ClearUI();
   node_ = node;
-  InitUIForCommonNode();
-  switch (node->type()) {
-    case kLampSceneNode:
-      InitUIForLampNode();
-      break;
-    case kObjectSceneNode:
-      InitUIForObjectNode();
-      break;
-    default:
-      break;
+  if (node_) {
+    InitUIForCommonNode();
+    switch (node->type()) {
+      case kLampSceneNode:
+        InitUIForLampNode();
+        break;
+      case kObjectSceneNode:
+        InitUIForObjectNode();
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+void SceneNodePropertyPane::Layout() {
+  views::View* child = child_at(0);
+  if (child) {
+    child->SetBoundsRect(std::move(GetContentsBounds()));
+    gfx::Size size = container_->GetPreferredSize();
+    size.set_width(child->GetContentsBounds().width());
+    container_->SetBounds(0, 0, size.width(), size.height());
   }
 }
 
 void SceneNodePropertyPane::InitUIForLampNode() {
   Light* light = node_->mutable_data()->light();
-  switch (node_->type()) {
+  switch (light->type()) {
     case kDirectionalLight: {
       DirectionalLightPane* pane = new DirectionalLightPane(light);
       container_->AddChildView(pane);
@@ -62,16 +73,25 @@ void SceneNodePropertyPane::InitUIForObjectNode() {
 void SceneNodePropertyPane::InitUIForCommonNode() {
 }
 
+void SceneNodePropertyPane::OnSceneNodeSelected(InteractiveContext* context, 
+                                                SceneNode* prevsel) {
+  SetSceneNode(context->GetPickingNode());
+  Layout();
+}
+
 // class SceneNodePropertyWindow
 const char SceneNodePropertyWindow::kViewClassName[] = "nelf::SceneNodePropertyWindow";
-SceneNodePropertyWindow::SceneNodePropertyWindow(nelf::MainFrame* mainframe)
-    : nelf::TabbedWindow(mainframe),
+SceneNodePropertyWindow::SceneNodePropertyWindow(const gfx::Rect& bounds, 
+                                                 nelf::MainFrame* mainframe)
+    : nelf::TabbedWindow(bounds, mainframe),
       property_pane_(NULL) {
   nelf::Pane* pane = new nelf::Pane();
   property_pane_ = new SceneNodePropertyPane;
   pane->GetContents()->AddChildView(property_pane_);
   pane->GetContents()->SetLayoutManager(new views::FillLayout);
-  pane->SetTitle(::base::UTF8ToUTF16("Scene Node Property"));
+  pane->SetTitle(::base::UTF8ToUTF16("Property"));
+  AddPane(pane);
+  Layout();
 }
 
 void SceneNodePropertyWindow::SetSceneNode(SceneNode* node) {

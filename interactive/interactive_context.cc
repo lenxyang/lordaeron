@@ -42,14 +42,21 @@ void InteractiveContext::ResetController() {
 }
 
 void InteractiveContext::SetPickingNode(SceneNode* node) {
+  if (node == picking_node_)
+    return;
+
   if (picking_node_) {
     picking_node_->set_picked(false);
   }
 
+  SceneNode* prev_sel = picking_node_;
   picking_node_ = node;
   if (picking_node_) {
     picking_node_->set_picked(true);
   }
+
+  FOR_EACH_OBSERVER(InteractiveContextObserver, observers_,
+    OnSceneNodeSelected(this, prev_sel));
 }
 
 void InteractiveContext::SetController(scoped_ptr<InteractiveController> controller) {
@@ -124,5 +131,17 @@ Ray InteractiveContext::GetPickingRay(const gfx::Point& pt) {
   const Camera& camera = window()->camera();
   const gfx::Size size  = window()->GetContentsBounds().size();
   return std::move(lord::GetPickingRay(pt, size, &camera));
+}
+
+void InteractiveContext::AddObserver(InteractiveContextObserver* observer) {
+  observers_.AddObserver(observer);
+}
+
+void InteractiveContext::RemoveObserver(InteractiveContextObserver* observer) {
+  observers_.RemoveObserver(observer);
+}
+
+bool InteractiveContext::HasObserver(InteractiveContextObserver* observer) const {
+  return observers_.HasObserver(observer);
 }
 }  // namespace lord
