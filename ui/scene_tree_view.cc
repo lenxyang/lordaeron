@@ -54,13 +54,13 @@ bool SceneTreeView::CanEdit(nelf::TreeView* tree_view, ui::TreeModelNode* node) 
 
 // class SceneTreeWindow
 nelf::TabbedWindow* CreateSceneTreeViewWindow(
-    const gfx::Rect& bounds, SceneNode* root) {
+    const gfx::Rect& bounds, SceneNode* root, nelf::Window* parent) {
   SceneTreeView* view = new SceneTreeView(root);
   nelf::Pane* pane = new nelf::Pane();
   pane->GetContents()->AddChildView(view);
   pane->GetContents()->SetLayoutManager(new views::FillLayout);
   pane->SetTitle(::base::UTF8ToUTF16("scene"));
-  nelf::TabbedWindow* window = new nelf::TabbedWindow(bounds, this);
+  nelf::TabbedWindow* window = new nelf::TabbedWindow(bounds, parent->mainframe());
   window->AddPane(pane);
   window->Init();
   window->Show();

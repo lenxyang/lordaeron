@@ -30,5 +30,5 @@ class SceneTreeView : public views::View,
 };
 
 nelf::TabbedWindow* CreateSceneTreeViewWindow(
-    const gfx::Rect& bounds, SceneNode* root);
+    const gfx::Rect& bounds, SceneNode* root, nelf::Window* window);
 }  // namespace lord

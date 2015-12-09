@@ -5,10 +5,11 @@
 #include "lordaeron/ui/color_util.h"
 
 namespace lord {
-const int32 DirectionalLightPane::kVerticalMargin = 10;;
-const int32 DirectionalLightPane::kHorzMargin = 10;
-const char DirectionalLightPane::kViewClassName[] = "nelf::DirectionalLightPane";
-DirectionalLightPane::DirectionalLightPane() {
+const int32 DirectionalLightContents::kVerticalMargin = 10;;
+const int32 DirectionalLightContents::kHorzMargin = 10;
+const char DirectionalLightContents::kViewClassName[] = "nelf::DirectionalLightContents";
+DirectionalLightContents::DirectionalLightContents(Light* light) {
+  SetLight(light);
   dir_label_ = new views::Label;
   dir_label_->SetHorizontalAlignment(gfx::ALIGN_RIGHT);
   dir_label_->SetText(::base::UTF8ToUTF16("Directional:"));
@@ -37,10 +38,10 @@ DirectionalLightPane::DirectionalLightPane() {
   AddChildView(specular_label_);
 }
 
-DirectionalLightPane::~DirectionalLightPane() {
+DirectionalLightContents::~DirectionalLightContents() {
 }
 
-void DirectionalLightPane::SetControlLight(Light* light) {
+void DirectionalLightContents::SetLight(Light* light) {
   DCHECK_EQ(light->type(), kDirectionalLight);
   light_ = light;
   DirLight* l = light_->mutable_dir_light();
@@ -50,7 +51,7 @@ void DirectionalLightPane::SetControlLight(Light* light) {
   specular_control_->SetColor(SkColorFromVector4(l->specular));
 }
 
-void DirectionalLightPane::OnColorChanged(nelf::ColorButton* color_btn,
+void DirectionalLightContents::OnColorChanged(nelf::ColorButton* color_btn,
                                           SkColor color) {
   if (color_btn == ambient_control_) {
     light_->set_ambient(Vector4FromSkColor(color));
@@ -63,15 +64,15 @@ void DirectionalLightPane::OnColorChanged(nelf::ColorButton* color_btn,
   }
 }
 
-const char* DirectionalLightPane::GetClassName() const {
+const char* DirectionalLightContents::GetClassName() const {
   return kViewClassName;
 }
 
-gfx::Size DirectionalLightPane::GetPreferredSize() const {
+gfx::Size DirectionalLightContents::GetPreferredSize() const {
   return gfx::Size(320, 240);
 }
 
-void DirectionalLightPane::Layout() {
+void DirectionalLightContents::Layout() {
   int32 kMidline = 80;
 
   int y = 18;
@@ -115,4 +116,17 @@ void DirectionalLightPane::Layout() {
       gfx::Point(kMidline - specular_label_size.width(), y), specular_label_size));
 }
 
+// 
+const char DirectionalLightPane::kViewClassName[] = "nelf::DirectionalLightPane";
+DirectionalLightPane::DirectionalLightPane(Light* light)
+    : nelf::CollapseView(::base::UTF8ToUTF16("Directional Light")) {
+  contents_ = new DirectionalLightContents(light);
+  GetContents()->AddChildView(contents_);
+  GetContents()->SetLayoutManager(new views::FillLayout);
+  Layout();
+}
+
+const char* DirectionalLightPane::GetClassName() const {
+  return kViewClassName;
+}
 }  // namespace lord
