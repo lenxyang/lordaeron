@@ -6,11 +6,11 @@
 namespace lord {
 class SceneNode;
 
-class SceneNodeControPanel : public views::View, 
-                             public views::ButtonListener {
+class SceneNodeControPane : public views::View, 
+                            public views::ButtonListener {
  public:
-  SceneNodeControPanel(SceneNode* node);
-  ~SceneNodeControPanel() override;
+  SceneNodeControPane(SceneNode* node);
+  ~SceneNodeControPane() override;
 
   // override from views::ButtonListener
   void ButtonPressed(views::Button* sender, const ui::Event& event) override;
@@ -21,6 +21,6 @@ class SceneNodeControPanel : public views::View,
   views::ToggleImageButton* btn_pickable_;
   views::ToggleImageButton* btn_draw_bv_;
   views::ToggleImageButton* btn_locked_;
-  DISALLOW_COPY_AND_ASSIGN(SceneNodeControPanel);
+  DISALLOW_COPY_AND_ASSIGN(SceneNodeControPane);
 };
 }  // namespace lord

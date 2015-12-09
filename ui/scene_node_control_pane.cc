@@ -1,4 +1,4 @@
-#include "lordaeron/ui/scene_node_control_panel.h"
+#include "lordaeron/ui/scene_node_control_pane.h"
 
 #include "base/strings/utf_string_conversions.h"
 #include "ui/views/view.h"
@@ -11,7 +11,7 @@
 namespace lord {
 
 using base::UTF8ToUTF16;
-SceneNodeControPanel::SceneNodeControPanel(SceneNode* node)
+SceneNodeControPane::SceneNodeControPane(SceneNode* node)
     : node_(node) {
   using views::BoxLayout;
   using views::Button;
@@ -79,16 +79,16 @@ SceneNodeControPanel::SceneNodeControPanel(SceneNode* node)
   UpdateState(node);
 }
 
-SceneNodeControPanel::~SceneNodeControPanel() {
+SceneNodeControPane::~SceneNodeControPane() {
 }
 
-void SceneNodeControPanel::UpdateState(SceneNode* node) {
+void SceneNodeControPane::UpdateState(SceneNode* node) {
   btn_visible_->SetToggled(node->visible());
   btn_pickable_->SetToggled(node->pickable());
   btn_draw_bv_->SetToggled(node->is_draw_bounding_volumn());
 }
 
-void SceneNodeControPanel::ButtonPressed(views::Button* sender, 
+void SceneNodeControPane::ButtonPressed(views::Button* sender, 
                                          const ui::Event& event) {
   if (btn_visible_ == sender) {
     node_->set_visible(!node_->visible());

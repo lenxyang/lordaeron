@@ -3,12 +3,12 @@
 #include "ui/views/view.h"
 #include "ui/views/controls/label.h"
 #include "ui/views/controls/textfield/textfield.h"
+#include "nelf/nelf.h"
 #include "lordaeron/effect/light.h"
 
 namespace lord {
-class ColorControl;
-class Vector3Control;
-class DirectionalLightPane : public views::View {
+class DirectionalLightPane : public views::View,
+                             public nelf::ColorButtonDelegate {
  public:
   static const char kViewClassName[];
   DirectionalLightPane();
@@ -19,17 +19,18 @@ class DirectionalLightPane : public views::View {
   const char* GetClassName() const override;
   gfx::Size GetPreferredSize() const override;
   void Layout() override;
+  // overriden from nelf::ColorButtonDelegate
+  void OnColorChanged(ColorButton* color_btn, SkColor color) override;
  private:
-  views::Textfield* diffuse;
   LightPtr light_;
-  Vector3Control* dir_control_;
-  ColorControl* ambient_control_;
-  ColorControl* diffuse_control_;
-  ColorControl* specular_control_;
+  nelf::ColorButton* ambient_control_;
+  nelf::ColorButton* diffuse_control_;
+  nelf::ColorButton* specular_control_;
   views::Label* dir_label_;
   views::Label* ambient_label_;
   views::Label* diffuse_label_;
   views::Label* specular_label_;
+  static const int32 kLineHeight;
   static const int32 kVerticalMargin;
   static const int32 kHorzMargin;
   DISALLOW_COPY_AND_ASSIGN(DirectionalLightPane);

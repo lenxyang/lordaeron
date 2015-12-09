@@ -1,9 +1,8 @@
-#include "lordaeron/ui/directional_light_pane.h"
+#include "lordaeron/ui/light_pane.h"
 
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
-#include "lordaeron/ui/controls/color_controls.h"
-#include "lordaeron/ui/controls/vector_controls.h"
+#include "lordaeron/ui/color_util.h"
 
 namespace lord {
 const int32 DirectionalLightPane::kVerticalMargin = 10;;
@@ -13,28 +12,27 @@ DirectionalLightPane::DirectionalLightPane() {
   dir_label_ = new views::Label;
   dir_label_->SetHorizontalAlignment(gfx::ALIGN_RIGHT);
   dir_label_->SetText(::base::UTF8ToUTF16("Directional:"));
-  dir_control_ = new Vector3Control;
-  AddChildView(dir_control_);
+  // AddChildView(dir_control_);
   AddChildView(dir_label_);
 
   ambient_label_ = new views::Label;
   ambient_label_->SetHorizontalAlignment(gfx::ALIGN_RIGHT);
   ambient_label_->SetText(::base::UTF8ToUTF16("Ambient:"));
-  ambient_control_ = new ColorControl;
+  ambient_control_ = new nelf::ColorButton;
   AddChildView(ambient_control_);
   AddChildView(ambient_label_);
 
   diffuse_label_ = new views::Label;
   diffuse_label_->SetHorizontalAlignment(gfx::ALIGN_RIGHT);
   diffuse_label_->SetText(::base::UTF8ToUTF16("Diffuse:"));
-  diffuse_control_ = new ColorControl;
+  diffuse_control_ = new nelf::ColorButton;
   AddChildView(diffuse_control_);
   AddChildView(diffuse_label_);
 
   specular_label_ = new views::Label;
   specular_label_->SetHorizontalAlignment(gfx::ALIGN_RIGHT);
   specular_label_->SetText(::base::UTF8ToUTF16("Specular:"));
-  specular_control_ = new ColorControl;
+  specular_control_ = new nelf::ColorButton;
   AddChildView(specular_control_);
   AddChildView(specular_label_);
 }
@@ -46,10 +44,13 @@ void DirectionalLightPane::SetControlLight(Light* light) {
   DCHECK_EQ(light->type(), kDirectionalLight);
   light_ = light;
   DirLight* l = light_->mutable_dir_light();
-  dir_control_->SetVector3(&l->direction);
-  ambient_control_->SetColor(&l->ambient);
-  diffuse_control_->SetColor(&l->diffuse);
-  specular_control_->SetColor(&l->specular);
+  // dir_control_->SetVector3(&l->direction);
+  ambient_control_->SetColor(SkColorFromVector4(l->ambient));
+  diffuse_control_->SetColor(SkColorFromVector4(l->diffuse));
+  specular_control_->SetColor(SkColorFromVector4(l->specular));
+}
+
+void DirectionalLightPane::OnColorChanged(ColorButton* color_btn, SkColor color) {
 }
 
 const char* DirectionalLightPane::GetClassName() const {
@@ -64,8 +65,8 @@ void DirectionalLightPane::Layout() {
   int32 kMidline = 80;
 
   int y = 18;
-  dir_control_->SizeToPreferredSize();
-  dir_control_->SetPosition(gfx::Point(kMidline + kHorzMargin, y));
+  // dir_control_->SizeToPreferredSize();
+  // dir_control_->SetPosition(gfx::Point(kMidline + kHorzMargin, y));
   gfx::Size dir_label_size = dir_label_->GetPreferredSize();
   dir_label_size.set_height(dir_control_->height());
   dir_label_->SetBoundsRect(gfx::Rect(
