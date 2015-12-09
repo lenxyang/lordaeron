@@ -83,18 +83,8 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
 }
 
 void MyRenderWindow::OnInitUI() { 
-  SceneTreeView* view = new SceneTreeView(root());
-  nelf::Pane* pane = new nelf::Pane();
-  pane->GetContents()->AddChildView(view);
-  pane->GetContents()->SetLayoutManager(new views::FillLayout);
-  pane->SetTitle(::base::UTF8ToUTF16("scene"));
-  gfx::Rect bounds(300, 400);
-  nelf::TabbedWindow* window = new nelf::TabbedWindow(bounds, this);
-  window->AddPane(pane);
-  window->Init();
-  window->Show();
-  window->Dock(nelf::kDockLeft);
-
+  nelf::TabbedWindow* wnd = CreateSceneTreeViewWindow(gfx::Rect(300, 400), root);
+  wnd->Dock(nelf::kDockLeft);
   mutable_camera()->reset(Vector3(0.0f, 8.0f, 12.0f), Vector3(0.0f, 0.0f, 0.0f),
                           Vector3(0.0f, 1.0f, 0.0f));
 }

@@ -13,7 +13,7 @@ class SceneNodePropertyPane : public nelf::CollapseView {
   void ClearUI();
   void InitUIForLampNode();
   void InitUIForObjectNode();
-  void InitCommonNode();
+  void InitUIForCommonNode();
   SceneNode* node_;
   DISALLOW_COPY_AND_ASSIGN(SceneNodePropertyPane);
 };

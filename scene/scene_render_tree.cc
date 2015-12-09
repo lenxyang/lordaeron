@@ -323,15 +323,15 @@ bool SceneRenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
     CHECK(node->parent() != NULL);
     SceneRenderEnvNode* envnode = new SceneRenderEnvNode(cur_->GetEnvNode());
     cur_->SetEnvNode(envnode);
-  }
-
-  SceneRenderNode* newnode = new SceneRenderNode(node);
-  if (newnode) {
-    newnode->SetEnvNode(cur_->GetEnvNode());
-    newnode->SetDelegate(factory_->CreateDelegate(newnode).Pass());
-    newnode->Init();
-    cur_->AddChild(newnode);
-    cur_ = newnode;
+  } else {
+    SceneRenderNode* newnode = new SceneRenderNode(node);
+    if (newnode) {
+      newnode->SetEnvNode(cur_->GetEnvNode());
+      newnode->SetDelegate(factory_->CreateDelegate(newnode).Pass());
+      newnode->Init();
+      cur_->AddChild(newnode);
+      cur_ = newnode;
+    }
   }
   return true;
 }

@@ -36,6 +36,6 @@ void SceneNodePropertyPane::InitUIForLampNode() {
 void SceneNodePropertyPane::InitUIForObjectNode() {
 }
 
-void SceneNodePropertyPane::InitCommonNodeUI() {
+void SceneNodePropertyPane::InitUIForCommonNode() {
 }
 }  // namespace lord

@@ -29,14 +29,6 @@ class SceneTreeView : public views::View,
   DISALLOW_COPY_AND_ASSIGN(SceneTreeView);
 };
 
-class SceneTreeWindow : public Window {
- public:
-  SceneTreeWindow(const gfx::Rect& init_bounds,  nelf::Window* window);
-  ~SceneTreeWindow() override;
-
-  void SetSceneNode(SceneNodePtr node);
- private:
-  SceneTreeView* view_;
-  DISALLOW_COPY_AND_ASSIGN(SceneTreeWindow);
-};
+nelf::TabbedWindow* CreateSceneTreeViewWindow(
+    const gfx::Rect& bounds, SceneNode* root);
 }  // namespace lord

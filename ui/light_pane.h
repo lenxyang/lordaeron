@@ -20,7 +20,7 @@ class DirectionalLightPane : public views::View,
   gfx::Size GetPreferredSize() const override;
   void Layout() override;
   // overriden from nelf::ColorButtonDelegate
-  void OnColorChanged(ColorButton* color_btn, SkColor color) override;
+  void OnColorChanged(nelf::ColorButton* color_btn, SkColor color) override;
  private:
   LightPtr light_;
   nelf::ColorButton* ambient_control_;

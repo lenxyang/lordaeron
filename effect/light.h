@@ -60,6 +60,13 @@ class Light : public ::base::RefCounted<Light> {
   const azer::Vector4& diffuse() const;
   const azer::Vector4& ambient() const;
   const azer::Vector4& specular() const;
+  const azer::Vector3& directional() const;
+
+  void set_diffuse(const azer::Vector4& color);
+  void set_ambient(const azer::Vector4& color);
+  void set_specular(const azer::Vector4& color);
+  void set_position(const azer::Vector3& pos);
+  void set_directional(const azer::Vector3& dir);
 
   const DirLight& dir_light() const;
   DirLight* mutable_dir_light();

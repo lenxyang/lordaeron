@@ -13,7 +13,7 @@
 #include "lordaeron/context.h"
 #include "lordaeron/scene/scene_tree_model.h"
 #include "lordaeron/ui/iconset.h"
-#include "lordaeron/ui/scene_node_control_panel.h"
+#include "lordaeron/ui/scene_node_control_pane.h"
 
 namespace lord {
 
@@ -33,7 +33,7 @@ SceneTreeViewLineItemView::SceneTreeViewLineItemView(
   SceneTreeModelNode* model_node =
       dynamic_cast<SceneTreeModelNode*>(node->model_node());
 
-  control_panel_ = new SceneNodeControPanel(model_node->scene_node());
+  control_panel_ = new SceneNodeControPane(model_node->scene_node());
   AddChildView(control_panel_);
   UpdateNodeInfo();
 }

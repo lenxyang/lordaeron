@@ -53,23 +53,17 @@ bool SceneTreeView::CanEdit(nelf::TreeView* tree_view, ui::TreeModelNode* node) 
 }
 
 // class SceneTreeWindow
-SceneTreeWindow::SceneTreeWindow(const gfx::Rect& init_bounds, nelf::Window* window)
-    : Window(init_bounds, window),
-      view_(NULL) {
-  SetLayoutManager(new views::FillLayout);
-  SetTitle(base::UTF8ToUTF16("Scene"));
-  Context* ctx = Context::instance();
-  SetShowIcon(true);
-  SetWindowIcon(ctx->GetIcon(Iconset::kIconWindowExpanded));
-}
-
-SceneTreeWindow::~SceneTreeWindow() {
-}
-
-void SceneTreeWindow::SetSceneNode(SceneNodePtr node) {
-  if (view_)
-    delete view_;
-  view_ = new SceneTreeView(node);
-  AddChildView(view_);
+nelf::TabbedWindow* CreateSceneTreeViewWindow(
+    const gfx::Rect& bounds, SceneNode* root) {
+  SceneTreeView* view = new SceneTreeView(root);
+  nelf::Pane* pane = new nelf::Pane();
+  pane->GetContents()->AddChildView(view);
+  pane->GetContents()->SetLayoutManager(new views::FillLayout);
+  pane->SetTitle(::base::UTF8ToUTF16("scene"));
+  nelf::TabbedWindow* window = new nelf::TabbedWindow(bounds, this);
+  window->AddPane(pane);
+  window->Init();
+  window->Show();
+  return window;
 }
 }  // namespace lord

@@ -3,7 +3,7 @@
 #include "nelf/nelf.h"
 
 namespace lord {
-class SceneNodeControPanel;
+class SceneNodeControPane;
 class SceneTreeViewLineItemView : public nelf::CollapsedBasedTreeView::LineItemView {
  public:
   static const char kViewClassName[];
@@ -39,7 +39,7 @@ class SceneTreeViewLineItemView : public nelf::CollapsedBasedTreeView::LineItemV
   gfx::Rect expand_bounds_;
   gfx::Rect icon_bounds_;
   gfx::Rect text_bounds_;
-  SceneNodeControPanel* control_panel_;
+  SceneNodeControPane* control_panel_;
   
   int32 line_height_;
   static const int32 kTextVerticalPadding;

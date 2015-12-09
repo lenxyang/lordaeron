@@ -50,7 +50,17 @@ void DirectionalLightPane::SetControlLight(Light* light) {
   specular_control_->SetColor(SkColorFromVector4(l->specular));
 }
 
-void DirectionalLightPane::OnColorChanged(ColorButton* color_btn, SkColor color) {
+void DirectionalLightPane::OnColorChanged(nelf::ColorButton* color_btn,
+                                          SkColor color) {
+  if (color_btn == ambient_control_) {
+    light_->set_ambient(Vector4FromSkColor(color));
+  } else if (color_btn == diffuse_control_) {
+    light_->set_diffuse(Vector4FromSkColor(color));
+  } else if (color_btn == specular_control_) {
+    light_->set_specular(Vector4FromSkColor(color));
+  } else {
+    NOTREACHED();
+  }
 }
 
 const char* DirectionalLightPane::GetClassName() const {
@@ -65,15 +75,17 @@ void DirectionalLightPane::Layout() {
   int32 kMidline = 80;
 
   int y = 18;
+  /*
   // dir_control_->SizeToPreferredSize();
   // dir_control_->SetPosition(gfx::Point(kMidline + kHorzMargin, y));
   gfx::Size dir_label_size = dir_label_->GetPreferredSize();
   dir_label_size.set_height(dir_control_->height());
   dir_label_->SetBoundsRect(gfx::Rect(
       gfx::Point(kMidline - dir_label_size.width(), y), dir_label_size));
+  */
 
-  y += dir_label_size.height();
-  y += kVerticalMargin;
+  // y += dir_label_size.height();
+  // y += kVerticalMargin;
 
   ambient_control_->SizeToPreferredSize();
   ambient_control_->SetPosition(gfx::Point(kMidline + kHorzMargin, y));
