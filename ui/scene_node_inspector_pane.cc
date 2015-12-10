@@ -1,4 +1,4 @@
-#include "lordaeron/ui/scene_node_property_pane.h"
+#include "lordaeron/ui/scene_node_inspector_pane.h"
 
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
@@ -9,24 +9,24 @@
 
 namespace lord {
 using base::UTF8ToUTF16;
-const char SceneNodePropertyPane::kViewClassName[] = "nelf::SceneNodePropertyPane";
-SceneNodePropertyPane::SceneNodePropertyPane() 
+const char SceneNodeInspectorPane::kViewClassName[] = "nelf::SceneNodeInspectorPane";
+SceneNodeInspectorPane::SceneNodeInspectorPane() 
     : node_(NULL) {
   ClearUI();
 }
 
-const char* SceneNodePropertyPane::GetClassName() const {
+const char* SceneNodeInspectorPane::GetClassName() const {
   return kViewClassName;
 }
 
-void SceneNodePropertyPane::ClearUI() {
+void SceneNodeInspectorPane::ClearUI() {
   RemoveAllChildViews(true);
   container_ = new nelf::CollapseViewContainer;
   AddChildView(container_->CreateParentIfNecessary());
   SetLayoutManager(new views::FillLayout);
 }
 
-void SceneNodePropertyPane::SetSceneNode(SceneNode* node) {
+void SceneNodeInspectorPane::SetSceneNode(SceneNode* node) {
   ClearUI();
   node_ = node;
   if (node_) {
@@ -44,7 +44,7 @@ void SceneNodePropertyPane::SetSceneNode(SceneNode* node) {
   }
 }
 
-void SceneNodePropertyPane::Layout() {
+void SceneNodeInspectorPane::Layout() {
   views::View* child = child_at(0);
   if (child) {
     child->SetBoundsRect(std::move(GetContentsBounds()));
@@ -54,7 +54,7 @@ void SceneNodePropertyPane::Layout() {
   }
 }
 
-void SceneNodePropertyPane::InitUIForLampNode() {
+void SceneNodeInspectorPane::InitUIForLampNode() {
   Light* light = node_->mutable_data()->light();
   switch (light->type()) {
     case kDirectionalLight: {
@@ -77,38 +77,38 @@ void SceneNodePropertyPane::InitUIForLampNode() {
   }
 }
 
-void SceneNodePropertyPane::InitUIForObjectNode() {
+void SceneNodeInspectorPane::InitUIForObjectNode() {
 }
 
-void SceneNodePropertyPane::InitUIForCommonNode() {
+void SceneNodeInspectorPane::InitUIForCommonNode() {
 }
 
-void SceneNodePropertyPane::OnSceneNodeSelected(InteractiveContext* context, 
-                                                SceneNode* prevsel) {
+void SceneNodeInspectorPane::OnSceneNodeSelected(InteractiveContext* context, 
+                                                 SceneNode* prevsel) {
   SetSceneNode(context->GetPickingNode());
   Layout();
 }
 
-// class SceneNodePropertyWindow
-const char SceneNodePropertyWindow::kViewClassName[] = "nelf::SceneNodePropertyWindow";
-SceneNodePropertyWindow::SceneNodePropertyWindow(const gfx::Rect& bounds, 
-                                                 nelf::MainFrame* mainframe)
+// class SceneNodeInspectorWindow
+const char SceneNodeInspectorWindow::kViewClassName[] = "nelf::SceneNodeInspectorWindow";
+SceneNodeInspectorWindow::SceneNodeInspectorWindow(const gfx::Rect& bounds, 
+                                                   nelf::MainFrame* mainframe)
     : nelf::TabbedWindow(bounds, mainframe),
-      property_pane_(NULL) {
+      inspector_pane_(NULL) {
   nelf::Pane* pane = new nelf::Pane();
-  property_pane_ = new SceneNodePropertyPane;
-  pane->GetContents()->AddChildView(property_pane_);
+  inspector_pane_ = new SceneNodeInspectorPane;
+  pane->GetContents()->AddChildView(inspector_pane_);
   pane->GetContents()->SetLayoutManager(new views::FillLayout);
-  pane->SetTitle(::base::UTF8ToUTF16("Property"));
+  pane->SetTitle(::base::UTF8ToUTF16("Inspector"));
   AddPane(pane);
   Layout();
 }
 
-void SceneNodePropertyWindow::SetSceneNode(SceneNode* node) {
-  property_pane_->SetSceneNode(node);
+void SceneNodeInspectorWindow::SetSceneNode(SceneNode* node) {
+  inspector_pane_->SetSceneNode(node);
 }
 
-const char* SceneNodePropertyWindow::GetClassName() const {
+const char* SceneNodeInspectorWindow::GetClassName() const {
   return kViewClassName;
 }
 }  // namespace lord

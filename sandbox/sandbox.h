@@ -22,7 +22,7 @@
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_loader.h"
 #include "lordaeron/ui/light_pane.h"
-#include "lordaeron/ui/scene_node_property_pane.h"
+#include "lordaeron/ui/scene_node_inspector_pane.h"
 #include "lordaeron/ui/scene_render_window.h"
 #include "lordaeron/ui/scene_tree_view.h"
 #include "lordaeron/ui/simple_render_window.h"

@@ -6,11 +6,11 @@
 
 namespace lord {
 class SceneNode;
-class SceneNodePropertyPane : public views::View,
-                              public InteractiveContextObserver {
+class SceneNodeInspectorPane : public views::View,
+                               public InteractiveContextObserver {
  public:
   static const char kViewClassName[];
-  SceneNodePropertyPane();
+  SceneNodeInspectorPane();
 
   const char* GetClassName() const override;
   void Layout() override;
@@ -23,19 +23,19 @@ class SceneNodePropertyPane : public views::View,
   void InitUIForCommonNode();
   SceneNode* node_;
   nelf::CollapseViewContainer* container_;
-  DISALLOW_COPY_AND_ASSIGN(SceneNodePropertyPane);
+  DISALLOW_COPY_AND_ASSIGN(SceneNodeInspectorPane);
 };
 
-class SceneNodePropertyWindow : public nelf::TabbedWindow {
+class SceneNodeInspectorWindow : public nelf::TabbedWindow {
  public:
   static const char kViewClassName[];
-  SceneNodePropertyWindow(const gfx::Rect& bounds, nelf::MainFrame* mainframe);
+  SceneNodeInspectorWindow(const gfx::Rect& bounds, nelf::MainFrame* mainframe);
 
   void SetSceneNode(SceneNode* node);
   const char* GetClassName() const override;
-  SceneNodePropertyPane* property_pane() { return property_pane_;}
+  SceneNodeInspectorPane* inspector_pane() { return inspector_pane_;}
  private:
-  SceneNodePropertyPane* property_pane_;
-  DISALLOW_COPY_AND_ASSIGN(SceneNodePropertyWindow);
+  SceneNodeInspectorPane* inspector_pane_;
+  DISALLOW_COPY_AND_ASSIGN(SceneNodeInspectorWindow);
 };
 }  // namespace lord

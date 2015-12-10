@@ -87,10 +87,10 @@ void MyRenderWindow::OnInitUI() {
   nelf::TabbedWindow* wnd = CreateSceneTreeViewWindow(bounds, root(), this);
   wnd->Dock(nelf::kDockLeft);
 
-  SceneNodePropertyWindow* property = new SceneNodePropertyWindow(bounds, this);
-  property->Init();
-  GetInteractive()->AddObserver(property->property_pane());
-  property->Show();
+  SceneNodeInspectorWindow* inspector = new SceneNodeInspectorWindow(bounds, this);
+  inspector->Init();
+  GetInteractive()->AddObserver(inspector->inspector_pane());
+  inspector->Show();
   mutable_camera()->reset(Vector3(0.0f, 8.0f, 12.0f), Vector3(0.0f, 0.0f, 0.0f),
                           Vector3(0.0f, 1.0f, 0.0f));
 }
