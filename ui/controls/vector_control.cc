@@ -19,32 +19,41 @@ bool StringToFloat(const base::string16& text, float* f) {
 }
 
 const char VectorControl::kViewClassName[] = "lord::VectorControl";
-VectorControl::VectorControl(azer::Vector2* vec)
-    : vec2_(vec), vec3_(NULL), vec4_(NULL), quaternion_(NULL),
+VectorControl::VectorControl(const azer::Vector2& vec)
+    : vec2_(vec),
+      delegate_(NULL),
       type_(kTypeVector2) {
   InitUI();
   UpdateUIFromData();
 }
 
-VectorControl::VectorControl(azer::Vector3* vec) 
-    : vec2_(NULL), vec3_(vec), vec4_(NULL), quaternion_(NULL),
+VectorControl::VectorControl(const azer::Vector3& vec) 
+    : vec3_(vec), 
+      delegate_(NULL),
       type_(kTypeVector3) {
   InitUI();
   UpdateUIFromData();
 }
 
-VectorControl::VectorControl(azer::Vector4* vec)
-    : vec2_(NULL), vec3_(NULL), vec4_(vec), quaternion_(NULL),
+VectorControl::VectorControl(const azer::Vector4& vec)
+    : vec4_(vec),
+      delegate_(NULL),
       type_(kTypeVector4) {
   InitUI();
   UpdateUIFromData();
 }
 
-VectorControl::VectorControl(azer::Quaternion* q) 
-    : vec2_(NULL), vec3_(NULL), vec4_(NULL), quaternion_(q),
+VectorControl::VectorControl(const azer::Quaternion& q) 
+    : quaternion_(q),
+      delegate_(NULL),
       type_(kTypeQuaternion) {
   InitUI();
   UpdateUIFromData();
+}
+
+void VectorControl::set_delegate(VectorControlDelegate* delegate) {
+  DCHECK(!delegate_);
+  delegate_ = delegate;
 }
 
 const char* VectorControl::GetClassName() const {
@@ -67,6 +76,31 @@ gfx::Size VectorControl::GetPreferredSize() const {
 }
 
 void VectorControl::Layout() {
+  int32 count = 0;
+  switch (type_) {
+    case kTypeVector2: count = 2; break;
+    case kTypeVector3: count = 3; break;
+    case kTypeVector4:
+    case kTypeQuaternion:
+    case kTypeVector3: count = 4; break;
+    default: CHECK(false);
+  }
+
+  const int32 kTextfieldWidth = 40;
+  const int32 kLabelWidth = 20;
+  const int32 kLabelSpacing = 3;
+  const int32 kHorzMargin = 10;
+  const int32 kVertMargin = 5;
+  const int32 kControlHeight = 24;
+  int x = 0;
+  for (int i = 0; i < count; ++i) {
+    x += kHorzMargin;
+    label_[i]->SetRect(x, kVertMargin, kLabelWidth, kControlHeight);
+    x += kLabelWidth;
+    x += kLabelSpacing;
+    textfield_[i]->SetRect(x, kVertMargin, kTextfieldWidth, kControlHeight);
+    x += kTextfieldWidth;
+  }
 }
 
 base::string16 VectorControl::label_text(int32 i) const {
@@ -106,31 +140,31 @@ void VectorControl::UpdateUIFromData() {
   switch (type_) {
     case kTypeVector2: {
       DCHECK(vec2_);
-      textfield_[0]->SetText(UTF8ToUTF16(StringPrintf("%f", vec2_->x)));
-      textfield_[1]->SetText(UTF8ToUTF16(StringPrintf("%f", vec2_->y)));
+      textfield_[0]->SetText(UTF8ToUTF16(StringPrintf("%f", vec2_.x)));
+      textfield_[1]->SetText(UTF8ToUTF16(StringPrintf("%f", vec2_.y)));
       break;
     }
     case kTypeVector3: {
       DCHECK(vec3_);
-      textfield_[0]->SetText(UTF8ToUTF16(StringPrintf("%f", vec3_->x)));
-      textfield_[1]->SetText(UTF8ToUTF16(StringPrintf("%f", vec3_->y)));
-      textfield_[2]->SetText(UTF8ToUTF16(StringPrintf("%f", vec3_->z)));
+      textfield_[0]->SetText(UTF8ToUTF16(StringPrintf("%f", vec3_.x)));
+      textfield_[1]->SetText(UTF8ToUTF16(StringPrintf("%f", vec3_.y)));
+      textfield_[2]->SetText(UTF8ToUTF16(StringPrintf("%f", vec3_.z)));
       break;
     }
     case kTypeVector4: {
       DCHECK(vec4_);
-      textfield_[0]->SetText(UTF8ToUTF16(StringPrintf("%f", vec4_->x)));
-      textfield_[1]->SetText(UTF8ToUTF16(StringPrintf("%f", vec4_->y)));
-      textfield_[2]->SetText(UTF8ToUTF16(StringPrintf("%f", vec4_->z)));
-      textfield_[3]->SetText(UTF8ToUTF16(StringPrintf("%f", vec4_->w)));
+      textfield_[0]->SetText(UTF8ToUTF16(StringPrintf("%f", vec4_.x)));
+      textfield_[1]->SetText(UTF8ToUTF16(StringPrintf("%f", vec4_.y)));
+      textfield_[2]->SetText(UTF8ToUTF16(StringPrintf("%f", vec4_.z)));
+      textfield_[3]->SetText(UTF8ToUTF16(StringPrintf("%f", vec4_.w)));
       break;
     }
     case kTypeQuaternion: {
       DCHECK(quaternion_);
-      textfield_[0]->SetText(UTF8ToUTF16(StringPrintf("%f", quaternion_->w)));
-      textfield_[1]->SetText(UTF8ToUTF16(StringPrintf("%f", quaternion_->x)));
-      textfield_[2]->SetText(UTF8ToUTF16(StringPrintf("%f", quaternion_->y)));
-      textfield_[3]->SetText(UTF8ToUTF16(StringPrintf("%f", quaternion_->z)));
+      textfield_[0]->SetText(UTF8ToUTF16(StringPrintf("%f", quaternion_.w)));
+      textfield_[1]->SetText(UTF8ToUTF16(StringPrintf("%f", quaternion_.x)));
+      textfield_[2]->SetText(UTF8ToUTF16(StringPrintf("%f", quaternion_.y)));
+      textfield_[3]->SetText(UTF8ToUTF16(StringPrintf("%f", quaternion_.z)));
       break;
     }
     default:
@@ -143,36 +177,40 @@ void VectorControl::UpdateDataFromUI() {
   switch (type_) {
     case kTypeVector2: {
       DCHECK(vec2_);
-      CHECK(StringToFloat(textfield_[0]->text(), &vec2_->x));
-      CHECK(StringToFloat(textfield_[1]->text(), &vec2_->y));
+      CHECK(StringToFloat(textfield_[0]->text(), &vec2_.x));
+      CHECK(StringToFloat(textfield_[1]->text(), &vec2_.y));
       break;
     }
     case kTypeVector3: {
       DCHECK(vec3_);
-      CHECK(StringToFloat(textfield_[0]->text(), &vec3_->x));
-      CHECK(StringToFloat(textfield_[1]->text(), &vec3_->y));
-      CHECK(StringToFloat(textfield_[2]->text(), &vec3_->z));
+      CHECK(StringToFloat(textfield_[0]->text(), &vec3_.x));
+      CHECK(StringToFloat(textfield_[1]->text(), &vec3_.y));
+      CHECK(StringToFloat(textfield_[2]->text(), &vec3_.z));
       break;
     }
     case kTypeVector4: {
       DCHECK(vec4_);
-      CHECK(StringToFloat(textfield_[0]->text(), &vec4_->x));
-      CHECK(StringToFloat(textfield_[1]->text(), &vec4_->y));
-      CHECK(StringToFloat(textfield_[2]->text(), &vec4_->z));
-      CHECK(StringToFloat(textfield_[4]->text(), &vec4_->w));
+      CHECK(StringToFloat(textfield_[0]->text(), &vec4_.x));
+      CHECK(StringToFloat(textfield_[1]->text(), &vec4_.y));
+      CHECK(StringToFloat(textfield_[2]->text(), &vec4_.z));
+      CHECK(StringToFloat(textfield_[4]->text(), &vec4_.w));
       break;
     }
     case kTypeQuaternion: {
       DCHECK(quaternion_);
-      CHECK(StringToFloat(textfield_[0]->text(), &quaternion_->w));
-      CHECK(StringToFloat(textfield_[1]->text(), &quaternion_->x));
-      CHECK(StringToFloat(textfield_[2]->text(), &quaternion_->y));
-      CHECK(StringToFloat(textfield_[3]->text(), &quaternion_->z));
+      CHECK(StringToFloat(textfield_[0]->text(), &quaternion_.w));
+      CHECK(StringToFloat(textfield_[1]->text(), &quaternion_.x));
+      CHECK(StringToFloat(textfield_[2]->text(), &quaternion_.y));
+      CHECK(StringToFloat(textfield_[3]->text(), &quaternion_.z));
       break;
     }
     default:
       CHECK(false);
       break;
+  }
+
+  if (delegate_) {
+    delegate_->OnVectorChanged(this);
   }
 }
 
@@ -181,6 +219,7 @@ void VectorControl::ContentsChanged(views::Textfield* sender,
   float f;
   if (!StringToFloat(new_contents, &f)) {
     sender->SetText(sender->text());
+    UpdateDataFromUI();
   }
 }
 }  // namespace lord

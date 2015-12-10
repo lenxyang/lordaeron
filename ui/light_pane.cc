@@ -46,7 +46,7 @@ const char* LightColorPane::GetClassName() const {
 }
 
 gfx::Size LightColorPane::GetPreferredSize() const {
-  return gfx::Size(140, 130);
+  return gfx::Size(220, 130);
 }
 
 void LightColorPane::Layout() {
