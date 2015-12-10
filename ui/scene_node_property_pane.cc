@@ -62,6 +62,16 @@ void SceneNodePropertyPane::InitUIForLampNode() {
       container_->AddChildView(pane);
       break;
     }
+    case kSpotLight: {
+      SpotLightPane* pane = new SpotLightPane(light);
+      container_->AddChildView(pane);
+      break;
+    }
+    case kPointLight: {
+      PointLightPane* pane = new PointLightPane(light);
+      container_->AddChildView(pane);
+      break;
+    }
     default:
       break;
   }

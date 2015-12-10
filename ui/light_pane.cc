@@ -46,7 +46,7 @@ const char* LightColorPane::GetClassName() const {
 }
 
 gfx::Size LightColorPane::GetPreferredSize() const {
-  return gfx::Size(180, 130);
+  return gfx::Size(140, 130);
 }
 
 void LightColorPane::Layout() {
@@ -90,7 +90,6 @@ void LightColorPane::Layout() {
 }
 
 void LightColorPane::SetLight(Light* light) {
-  DCHECK_EQ(light->type(), kDirectionalLight);
   light_ = light;
   // dir_control_->SetVector3(&l->direction);
   ambient_control_->SetColor(SkColorFromVector4(light->ambient()));
@@ -120,8 +119,7 @@ DirectionalLightContents::DirectionalLightContents(Light* light)
   pane_->SizeToPreferredSize();
 }
 
-DirectionalLightContents::~DirectionalLightContents() {
-}
+DirectionalLightContents::~DirectionalLightContents() {}
 
 const char* DirectionalLightContents::GetClassName() const {
   return kViewClassName;
@@ -157,6 +155,99 @@ void DirectionalLightPane::Layout() {
   }
   SetCollapseSize(size);
   nelf::CollapseView::Layout();
-                  
+}
+
+// class SpotLightContents
+const char SpotLightContents::kViewClassName[] = "nelf::SpotLightContents";
+SpotLightContents::SpotLightContents(Light* light) 
+    : light_(light) {
+  pane_ = new LightColorPane(light);
+  AddChildView(pane_);
+  pane_->SizeToPreferredSize();
+}
+
+SpotLightContents::~SpotLightContents() {}
+
+const char* SpotLightContents::GetClassName() const {
+  return kViewClassName;
+}
+
+gfx::Size SpotLightContents::GetPreferredSize() const {
+  return gfx::Size(320, 240);
+}
+
+void SpotLightContents::Layout() {
+  gfx::Rect color_pane_bounds = GetContentsBounds();
+  pane_->SetPosition(color_pane_bounds.origin());
+}
+
+// 
+const char SpotLightPane::kViewClassName[] = "nelf::SpotLightPane";
+SpotLightPane::SpotLightPane(Light* light)
+    : nelf::CollapseView(::base::UTF8ToUTF16("Spot Light")) {
+  contents_ = new SpotLightContents(light);
+  GetContents()->AddChildView(contents_);
+  GetContents()->SetLayoutManager(new views::FillLayout);
+  Expand();
+}
+
+const char* SpotLightPane::GetClassName() const {
+  return kViewClassName;
+}
+
+void SpotLightPane::Layout() {
+  gfx::Size size = std::move(GetPreferredSize());
+  if (parent()) {
+    size.set_width(parent()->GetContentsBounds().width());
+  }
+  SetCollapseSize(size);
+  nelf::CollapseView::Layout();
+}
+
+// class PointLightContents
+const char PointLightContents::kViewClassName[] = "nelf::PointLightContents";
+PointLightContents::PointLightContents(Light* light) 
+    : light_(light) {
+  pane_ = new LightColorPane(light);
+  AddChildView(pane_);
+  pane_->SizeToPreferredSize();
+}
+
+PointLightContents::~PointLightContents() {}
+
+const char* PointLightContents::GetClassName() const {
+  return kViewClassName;
+}
+
+gfx::Size PointLightContents::GetPreferredSize() const {
+  return gfx::Size(320, 240);
+}
+
+void PointLightContents::Layout() {
+  gfx::Rect color_pane_bounds = GetContentsBounds();
+  pane_->SetPosition(color_pane_bounds.origin());
+}
+
+// 
+const char PointLightPane::kViewClassName[] = "nelf::PointLightPane";
+PointLightPane::PointLightPane(Light* light)
+    : nelf::CollapseView(::base::UTF8ToUTF16("Point Light")) {
+  contents_ = new PointLightContents(light);
+  GetContents()->AddChildView(contents_);
+  GetContents()->SetLayoutManager(new views::FillLayout);
+  Expand();
+}
+
+const char* PointLightPane::GetClassName() const {
+  return kViewClassName;
+}
+
+void PointLightPane::Layout() {
+  gfx::Size size = std::move(GetPreferredSize());
+  if (parent()) {
+    size.set_width(parent()->GetContentsBounds().width());
+  }
+  SetCollapseSize(size);
+  nelf::CollapseView::Layout();
 }
 }  // namespace lord

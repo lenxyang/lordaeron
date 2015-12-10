@@ -56,4 +56,58 @@ class DirectionalLightPane : public nelf::CollapseView {
   DirectionalLightContents* contents_;
   DISALLOW_COPY_AND_ASSIGN(DirectionalLightPane);
 };
+
+class SpotLightContents : public views::View {
+ public:
+  static const char kViewClassName[];
+  explicit SpotLightContents(Light* light);
+  ~SpotLightContents() override;
+
+  const char* GetClassName() const override;
+  gfx::Size GetPreferredSize() const override;
+  void Layout() override;
+ private:
+  void LayoutColorControls();
+  LightPtr light_;
+  LightColorPane* pane_;
+  DISALLOW_COPY_AND_ASSIGN(SpotLightContents);
+};
+
+class SpotLightPane : public nelf::CollapseView {
+ public:
+  static const char kViewClassName[];
+  explicit SpotLightPane(Light* light);
+  const char* GetClassName() const override;
+  void Layout() override;
+ private:
+  SpotLightContents* contents_;
+  DISALLOW_COPY_AND_ASSIGN(SpotLightPane);
+};
+
+class PointLightContents : public views::View {
+ public:
+  static const char kViewClassName[];
+  explicit PointLightContents(Light* light);
+  ~PointLightContents() override;
+
+  const char* GetClassName() const override;
+  gfx::Size GetPreferredSize() const override;
+  void Layout() override;
+ private:
+  void LayoutColorControls();
+  LightPtr light_;
+  LightColorPane* pane_;
+  DISALLOW_COPY_AND_ASSIGN(PointLightContents);
+};
+
+class PointLightPane : public nelf::CollapseView {
+ public:
+  static const char kViewClassName[];
+  explicit PointLightPane(Light* light);
+  const char* GetClassName() const override;
+  void Layout() override;
+ private:
+  PointLightContents* contents_;
+  DISALLOW_COPY_AND_ASSIGN(PointLightPane);
+};
 }  // namespace lord

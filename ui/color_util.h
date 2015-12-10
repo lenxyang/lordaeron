@@ -23,9 +23,9 @@ azer::Vector4 Vector4FromSkColor(SkColor c) {
 }
 
 azer::Vector3 Vector3FromSkColor(SkColor c) {
-  float r = static_cast<float>(SkColorGetR(c));
-  float g = static_cast<float>(SkColorGetG(c));
-  float b = static_cast<float>(SkColorGetB(c));
+  float r = static_cast<float>(SkColorGetR(c)) / 255.0f;
+  float g = static_cast<float>(SkColorGetG(c)) / 255.0f;
+  float b = static_cast<float>(SkColorGetB(c)) / 255.0f;
   return azer::Vector3(r, g, b);
 }
 }
