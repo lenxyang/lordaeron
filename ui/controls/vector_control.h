@@ -28,6 +28,8 @@ class VectorControl : public views::View,
   explicit VectorControl(const azer::Quaternion& q);
 
   int type() const { return type_;}
+  void set_readonly(bool readonly);
+  void readonly() const;
   const azer::Vector2& GetVec2Value() const { return vec2_;}
   const azer::Vector3& GetVec3Value() const { return vec3_;}
   const azer::Vector4& GetVec4Value() const { return vec4_;}

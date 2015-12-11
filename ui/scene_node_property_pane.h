@@ -8,13 +8,13 @@
 #include "azer/render/render.h"
 
 namespace lord {
-
-class SceneNodePropertyContents : public views::View,
-                                  public VectorControlDelegate {
+class SceneNode;
+class TransformContents : public views::View,
+                          public VectorControlDelegate {
  public:
   static const char kViewClassName[];
-  explicit SceneNodePropertyContents(SceneNode* node);
-  ~SceneNodePropertyContents() override;
+  explicit TransformContents(SceneNode* node);
+  ~TransformContents() override;
 
   const char* GetClassName() const override;
   gfx::Size GetPreferredSize() const override;
@@ -24,10 +24,19 @@ class SceneNodePropertyContents : public views::View,
   SceneNode* node_;
   views::Label* namelabel_;
   views::Textfield* namefield_;
+  views::Label* position_label_;
+  views::Label* orientation_label_;
+  views::Label* scale_label_;
   VectorControl* position_control_;
   VectorControl* orientation_control_;
   VectorControl* scale_control_;
-  DISALLOW_COPY_AND_ASSIGN(SceneNodePropertyContents);
+  DISALLOW_COPY_AND_ASSIGN(TransformContents);
+};
+
+class SceneNodeContents : public views::View {
+ public:
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SceneNodeContents);
 };
 
 class SceneNodePropertyPane : public nelf::CollapseView {
@@ -37,7 +46,7 @@ class SceneNodePropertyPane : public nelf::CollapseView {
   const char* GetClassName() const override;
   void Layout() override;
  private:
-  SceneNodePropertyContents* contents_;
+  TransformContents* contents_;
   DISALLOW_COPY_AND_ASSIGN(SceneNodePropertyPane);
 };
 }  // namespace lord

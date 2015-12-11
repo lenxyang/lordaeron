@@ -6,10 +6,11 @@
 #include "lordaeron/effect/light.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/ui/light_pane.h"
+#include "lordaeron/ui/scene_node_property_pane.h"
 
 namespace lord {
 using base::UTF8ToUTF16;
-const char SceneNodeInspectorPane::kViewClassName[] = "nelf::SceneNodeInspectorPane";
+const char SceneNodeInspectorPane::kViewClassName[] = "lord::SceneNodeInspectorPane";
 SceneNodeInspectorPane::SceneNodeInspectorPane() 
     : node_(NULL) {
   ClearUI();
@@ -81,6 +82,8 @@ void SceneNodeInspectorPane::InitUIForObjectNode() {
 }
 
 void SceneNodeInspectorPane::InitUIForCommonNode() {
+  SceneNodePropertyPane* pane = new SceneNodePropertyPane(node_);
+  container_->AddChildView(pane);
 }
 
 void SceneNodeInspectorPane::OnSceneNodeSelected(InteractiveContext* context, 
