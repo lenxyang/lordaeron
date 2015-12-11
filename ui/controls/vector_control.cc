@@ -66,6 +66,16 @@ const char* VectorControl::GetClassName() const {
   return kViewClassName;
 }
 
+void VectorControl::SetReadOnly(bool readonly) {
+  for (int32 i = 0; i < arraysize(textfield_); ++i) {
+    textfield_[i]->SetReadOnly(readonly);
+  }
+}
+
+bool VectorControl::read_only() const {
+  return textfield_[0]->read_only();
+}
+
 gfx::Size VectorControl::GetPreferredSize() const {
   const int32 height = kControlHeight + kVertMargin * 2;
   const int32 cell_width = (kLabelWidth + kTextfieldWidth);

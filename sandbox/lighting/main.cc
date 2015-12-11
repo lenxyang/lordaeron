@@ -83,7 +83,7 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
 }
 
 void MyRenderWindow::OnInitUI() {
-  gfx::Rect bounds(300, 400);
+  gfx::Rect bounds(300, 500);
   nelf::TabbedWindow* wnd = CreateSceneTreeViewWindow(bounds, root(), this);
   wnd->Dock(nelf::kDockLeft);
 
@@ -93,6 +93,7 @@ void MyRenderWindow::OnInitUI() {
   inspector->Show();
   mutable_camera()->reset(Vector3(0.0f, 8.0f, 12.0f), Vector3(0.0f, 0.0f, 0.0f),
                           Vector3(0.0f, 1.0f, 0.0f));
+  inspector->Dock(nelf::kDockLeft);
 }
 
 void MyRenderWindow::OnUpdateFrame(const FrameArgs& args) {

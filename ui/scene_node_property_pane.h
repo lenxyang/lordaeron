@@ -9,33 +9,23 @@
 
 namespace lord {
 class SceneNode;
-class TransformContents : public views::View,
-                          public VectorControlDelegate {
+class SceneNodeContents : public views::View {
  public:
   static const char kViewClassName[];
-  explicit TransformContents(SceneNode* node);
-  ~TransformContents() override;
+  explicit SceneNodeContents(SceneNode* node);
+  ~SceneNodeContents() override;
 
   const char* GetClassName() const override;
   gfx::Size GetPreferredSize() const override;
   void Layout() override;
  private:
-  void OnVectorChanged(VectorControl* control) override;
   SceneNode* node_;
-  views::Label* namelabel_;
-  views::Textfield* namefield_;
-  views::Label* position_label_;
-  views::Label* orientation_label_;
-  views::Label* scale_label_;
-  VectorControl* position_control_;
-  VectorControl* orientation_control_;
-  VectorControl* scale_control_;
-  DISALLOW_COPY_AND_ASSIGN(TransformContents);
-};
-
-class SceneNodeContents : public views::View {
- public:
- private:
+  views::Label* name_label_;
+  views::Textfield* name_textfield_;
+  views::Label* vmin_label_;
+  views::Label* vmax_label_;
+  VectorControl* vmin_control_;
+  VectorControl* vmax_control_;
   DISALLOW_COPY_AND_ASSIGN(SceneNodeContents);
 };
 
@@ -46,7 +36,7 @@ class SceneNodePropertyPane : public nelf::CollapseView {
   const char* GetClassName() const override;
   void Layout() override;
  private:
-  TransformContents* contents_;
+  SceneNodeContents* contents_;
   DISALLOW_COPY_AND_ASSIGN(SceneNodePropertyPane);
 };
 }  // namespace lord

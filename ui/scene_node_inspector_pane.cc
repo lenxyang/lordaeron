@@ -5,7 +5,8 @@
 #include "ui/views/layout/fill_layout.h"
 #include "lordaeron/effect/light.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/ui/light_pane.h"
+#include "lordaeron/ui/light_property_pane.h"
+#include "lordaeron/ui/transform_property_pane.h"
 #include "lordaeron/ui/scene_node_property_pane.h"
 
 namespace lord {
@@ -82,8 +83,10 @@ void SceneNodeInspectorPane::InitUIForObjectNode() {
 }
 
 void SceneNodeInspectorPane::InitUIForCommonNode() {
-  SceneNodePropertyPane* pane = new SceneNodePropertyPane(node_);
-  container_->AddChildView(pane);
+  SceneNodePropertyPane* node_pane = new SceneNodePropertyPane(node_);
+  container_->AddChildView(node_pane);
+  TransformPropertyPane* transform_pane = new TransformPropertyPane(node_);
+  container_->AddChildView(transform_pane);
 }
 
 void SceneNodeInspectorPane::OnSceneNodeSelected(InteractiveContext* context, 

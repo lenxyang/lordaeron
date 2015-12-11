@@ -1,4 +1,4 @@
-#include "lordaeron/ui/light_pane.h"
+#include "lordaeron/ui/light_property_pane.h"
 
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"

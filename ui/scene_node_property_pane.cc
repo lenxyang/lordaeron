@@ -2,96 +2,62 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/ui/layout_util.h"
 
 namespace lord {
 using base::UTF8ToUTF16;
-namespace {
-int LayoutControlRightAlign(views::View* parent, views::View* view, int32 y) {
-  const gfx::Rect bounds = std::move(parent->GetContentsBounds());
-  view->SizeToPreferredSize();
-  view->SetPosition(gfx::Point(bounds.right() - view->width(), y));
-  return view->bounds().bottom(); 
-}
 
-int LayoutControlLeftAlign(views::View* parent, views::View* view, int32 y) {
-  const gfx::Rect bounds = std::move(parent->GetContentsBounds());
-  view->SizeToPreferredSize();
-  view->SetPosition(gfx::Point(bounds.x(), y));
-  return view->bounds().bottom(); 
-}
-}
-
-// class TransformContents
-const char TransformContents::kViewClassName[]
-= "lor::TransformContents";
-TransformContents::TransformContents(SceneNode* node) 
+const char SceneNodeContents::kViewClassName[] = "lord::SceneNodeContents";
+SceneNodeContents::SceneNodeContents(SceneNode* node)
     : node_(node) {
-  namelabel_ = new views::Label(UTF8ToUTF16(node->name()));
-  AddChildView(namelabel_);
-  namefield_ = new views::Textfield;
-  AddChildView(namefield_);
-  
-  position_control_ = new VectorControl(node->position());
-  AddChildView(position_control_);
-  orientation_control_ = new VectorControl(node->holder().orientation());
-  AddChildView(orientation_control_);
-  scale_control_ = new VectorControl(node->holder().scale());
-  AddChildView(scale_control_);
+  name_label_ = new views::Label(UTF8ToUTF16("Name"));
+  AddChildView(name_label_);
+  name_textfield_ = new views::Textfield();
+  AddChildView(name_textfield_);
 
-  position_label_ = new views::Label(UTF8ToUTF16("Position"));
-  AddChildView(position_label_);
-  orientation_label_ = new views::Label(UTF8ToUTF16("Orientation"));
-  AddChildView(orientation_label_);
-  scale_label_ = new views::Label(UTF8ToUTF16("Scale"));
-  AddChildView(scale_label_);
-  SetBorder(views::Border::CreateEmptyBorder(4, 4, 4, 4));
+  vmin_label_ = new views::Label(UTF8ToUTF16("Bounding Min"));
+  AddChildView(vmin_label_);
+  vmin_control_ = new VectorControl(node->vmin());
+  vmin_control_->SetReadOnly(true);
+  AddChildView(vmin_control_);
+  vmax_label_ = new views::Label(UTF8ToUTF16("Bounding Max"));
+  AddChildView(vmax_label_);
+  vmax_control_ = new VectorControl(node->vmax());
+  vmax_control_->SetReadOnly(true);
+  AddChildView(vmax_control_);
 }
 
-TransformContents::~TransformContents() {}
+SceneNodeContents::~SceneNodeContents() {
+}
 
-const char* TransformContents::GetClassName() const {
+const char* SceneNodeContents::GetClassName() const {
   return kViewClassName;
 }
-
-gfx::Size TransformContents::GetPreferredSize() const {
-  return gfx::Size(360, 240);
+gfx::Size SceneNodeContents::GetPreferredSize() const {
+  return gfx::Size(320, 100);
 }
 
-void TransformContents::Layout() {
+void SceneNodeContents::Layout() {
   const gfx::Rect bounds = std::move(GetContentsBounds());
   int32 x = bounds.x();
   int32 y = GetContentsBounds().y();
   const int32 kLinePadding = 1;
-  LayoutControlLeftAlign(this, position_label_, y);
-  y = LayoutControlRightAlign(position_control_, y);
+  y = LayoutControlLeftAlign(this, name_label_, y);
   y += kLinePadding;
 
-  LayoutControlLeftAlign(this, orientation_label_, y);
-  y = LayoutControlRightAlign(orientation_control_, y);
+  LayoutControlLeftAlign(this, vmin_label_, y);
+  y = LayoutControlRightAlign(this, vmin_control_, y);
   y += kLinePadding;
 
-  LayoutControlLeftAlign(this, scale_label_, y);
-  y = LayoutControlRightAlign(scale_control_, y);
+  LayoutControlLeftAlign(this, vmax_label_, y);
+  y = LayoutControlRightAlign(this, vmax_control_, y);
   y += kLinePadding;
 }
 
-void TransformContents::OnVectorChanged(VectorControl* control) {
-  if (control == position_control_) {
-    node_->SetPosition(control->GetVec3Value());
-  } else if (control == orientation_control_) {
-    node_->set_orientation(control->GetQuaternionValue());
-  } else if (control == scale_control_) {
-    node_->SetScale(control->GetVec3Value());
-  } else {
-    CHECK(false);
-  }
-}
-
-// 
-const char SceneNodePropertyPane::kViewClassName[] = "nelf::SceneNodePropertyPane";
+const char SceneNodePropertyPane::kViewClassName[] = "lord::SceneNodePropertyPane";
 SceneNodePropertyPane::SceneNodePropertyPane(SceneNode* node)
     : nelf::CollapseView(::base::UTF8ToUTF16("SceneNode")) {
-  contents_ = new TransformContents(node);
+  contents_ = new SceneNodeContents(node);
   GetContents()->AddChildView(contents_);
   GetContents()->SetLayoutManager(new views::FillLayout);
   Expand();
@@ -105,6 +71,10 @@ void SceneNodePropertyPane::Layout() {
   gfx::Size size = std::move(GetPreferredSize());
   if (parent()) {
     size.set_width(parent()->GetContentsBounds().width());
+    views::ScrollView* scview = dynamic_cast<views::ScrollView*>(parent());
+    if (scview) {
+      size.set_width(scview->GetVisibleRect().width());
+    }
   }
   SetCollapseSize(size);
   nelf::CollapseView::Layout();
