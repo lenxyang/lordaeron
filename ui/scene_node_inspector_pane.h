@@ -15,7 +15,8 @@ class SceneNodeInspectorPane : public views::View,
   const char* GetClassName() const override;
   void Layout() override;
   void SetSceneNode(SceneNode* node);
-  gfx::Size GetPreferredSize() const override; 
+  gfx::Size GetPreferredSize() const override;
+  void ChildPreferredSizeChanged(views::View* child) override;
   void OnSceneNodeSelected(InteractiveContext* context, SceneNode* prevsel) override;
  private:
   void ClearUI();

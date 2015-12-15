@@ -3,6 +3,7 @@
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "ui/views/layout/fill_layout.h"
+#include "ui/views/controls/scrollbar/native_scroll_bar.h"
 #include "lordaeron/effect/light.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/ui/light_property_pane.h"
@@ -10,6 +11,38 @@
 #include "lordaeron/ui/scene_node_property_pane.h"
 
 namespace lord {
+class AuotResizeContainer : public nelf::CollapseViewContainer {
+ public:
+  AuotResizeContainer(views::ScrollView* scrollview) : scrollview_(scrollview) {}
+  void ChildPreferredSizeChanged(views::View* child) override {
+    nelf::CollapseViewContainer::ChildPreferredSizeChanged(child);
+    gfx::Size size = std::move(GetPreferredSize());
+    size.set_width(this->width());
+    this->SetSize(size);
+    InvalidateLayout();
+    scrollview_->Layout();
+  }
+ private:
+  views::ScrollView* scrollview_;
+};
+
+class HorzbarScrollView : public views::ScrollView {
+ public:
+  HorzbarScrollView() {
+    verticalbar_ = new views::NativeScrollBar(false);
+    SetVerticalScrollBar(verticalbar_);
+  }
+  void Layout() override {
+    views::ScrollView::Layout();
+    if (!Contains(verticalbar_)) {
+      AddChildView(verticalbar_);
+      verticalbar_->Update(height(), height(), 0);
+      verticalbar_->SetVisible(true);
+    }
+  }
+ private:
+  views::ScrollBar* verticalbar_;
+};
 using base::UTF8ToUTF16;
 const char SceneNodeInspectorPane::kViewClassName[] = "lord::SceneNodeInspectorPane";
 SceneNodeInspectorPane::SceneNodeInspectorPane() 
@@ -24,8 +57,9 @@ const char* SceneNodeInspectorPane::GetClassName() const {
 
 void SceneNodeInspectorPane::ClearUI() {
   RemoveAllChildViews(true);
-  container_ = new nelf::CollapseViewContainer;
-  scrollview_ = dynamic_cast<views::ScrollView*>(container_->CreateParentIfNecessary());
+  scrollview_ = new HorzbarScrollView; // views::ScrollView;
+  container_ = new AuotResizeContainer(scrollview_);
+  scrollview_->SetContents(container_);
   AddChildView(scrollview_);
 }
 
@@ -54,7 +88,6 @@ gfx::Size SceneNodeInspectorPane::GetPreferredSize() const {
   gfx::Size size = container_->GetPreferredSize();
   size.set_width(size.width() + scroll_width);
   size.set_width(size.width() + insets.width());
-
   size.set_height(size.height() + insets.height());
   if (parent()) {
     size.set_width(std::max(size.width(), parent()->GetContentsBounds().width()));
@@ -63,14 +96,16 @@ gfx::Size SceneNodeInspectorPane::GetPreferredSize() const {
   return size;
 }
 
-void SceneNodeContents::ChildPreferredSizeChanged(views::View* child) {
-  SizeToPreferredSize();
+void SceneNodeInspectorPane::ChildPreferredSizeChanged(views::View* child) {
+  if (child == container_) {
+    Layout();
+  }
 }
 
 void SceneNodeInspectorPane::Layout() {
   scrollview_->SetBoundsRect(std::move(GetContentsBounds()));
   int32 height = container_->GetPreferredSize().height();
-  int32 width = scrollview_->GetContentsBounds().width();
+  int32 width = scrollview_->GetContentsBounds().width() - scrollview_->GetScrollBarWidth();
   container_->SetSize(gfx::Size(width, height));
   scrollview_->Layout();
 }

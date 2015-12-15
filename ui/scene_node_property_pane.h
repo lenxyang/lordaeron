@@ -17,7 +17,6 @@ class SceneNodeContents : public views::View {
 
   const char* GetClassName() const override;
   gfx::Size GetPreferredSize() const override;
-  void ChildPreferredSizeChanged(views::View* child) override;
   void Layout() override;
  private:
   SceneNode* node_;

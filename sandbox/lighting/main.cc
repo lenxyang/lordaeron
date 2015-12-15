@@ -73,17 +73,18 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   loader.RegisterSceneNodeLoader(light_loader.Pass());
   SceneNodePtr root = loader.Load(ResPath(UTF8ToUTF16("//sandbox/lighting/scene.xml")), "//");
 
-  LoadSceneRenderNodeDelegateFactory factory;
+  tree_render_.reset(new SimpleRenderTreeRenderer);
+  LoadSceneRenderNodeDelegateFactory factory(tree_render_.get());
   SceneRenderTreeBuilder builder(&factory);
   render_root_ = builder.Build(root.get(), &camera());
+  tree_render_->SetSceneNode(render_root_.get());
   LOG(ERROR) << "\n" << render_root_->DumpTree();
-  tree_render_.reset(new SimpleRenderTreeRenderer(render_root_.get()));
   
   return root;
 }
 
 void MyRenderWindow::OnInitUI() {
-  gfx::Rect bounds(300, 500);
+  gfx::Rect bounds(300, 360);
   nelf::TabbedWindow* wnd = CreateSceneTreeViewWindow(bounds, root(), this);
   wnd->Dock(nelf::kDockLeft);
 

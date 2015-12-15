@@ -45,8 +45,10 @@ const azer::Matrix4& LoadSceneBVRenderProvider::GetPV() const {
 }
 
 // class LordObjectNodeRenderDelegate
-LordObjectNodeRenderDelegate::LordObjectNodeRenderDelegate(SceneRenderNode* node)
-    : SceneRenderNodeDelegate(node) {
+LordObjectNodeRenderDelegate::LordObjectNodeRenderDelegate(
+    SceneRenderNode* node, SimpleRenderTreeRenderer* renderer)
+    : SceneRenderNodeDelegate(node),
+      tree_renderer_(renderer) {
   Init();
 }
 
@@ -79,7 +81,7 @@ void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
 
   SceneNode* scene_node = GetSceneNode();
   if (scene_node->is_draw_bounding_volumn()) {
-    bounding_mesh_->Render(renderer);
+    tree_renderer_->AddBoundingVolumnMesh(bounding_mesh_);
   }
 }
 
@@ -132,7 +134,7 @@ LoadSceneRenderNodeDelegateFactory::CreateDelegate(SceneRenderNode* node) {
     case kSceneNode:
     case kObjectSceneNode:
       return scoped_ptr<SceneRenderNodeDelegate>(
-          new LordObjectNodeRenderDelegate(node)).Pass();
+          new LordObjectNodeRenderDelegate(node, tree_renderer_)).Pass();
     case kLampSceneNode:
       return scoped_ptr<SceneRenderNodeDelegate>(
           new LordLampNodeRenderDelegate(node)).Pass();
@@ -143,8 +145,13 @@ LoadSceneRenderNodeDelegateFactory::CreateDelegate(SceneRenderNode* node) {
 }
 
 // class SimpleRenderTreeRenderer
-SimpleRenderTreeRenderer::SimpleRenderTreeRenderer(SceneRenderNode* root)
-    : root_(root) {
+SimpleRenderTreeRenderer::SimpleRenderTreeRenderer()
+    : root_(NULL) {
+}
+
+void SimpleRenderTreeRenderer::SetSceneNode(SceneRenderNode* root) {
+  DCHECK(NULL == root_);
+  root_ = root;
 }
 
 void SimpleRenderTreeRenderer::Update(const FrameArgs& args) {
@@ -153,6 +160,7 @@ void SimpleRenderTreeRenderer::Update(const FrameArgs& args) {
 
 void SimpleRenderTreeRenderer::Render(Renderer* renderer) {
   blending_node_.clear();
+  bvmesh_.clear();
   RenderNode(root_, renderer);
 
   {
@@ -163,6 +171,10 @@ void SimpleRenderTreeRenderer::Render(Renderer* renderer) {
   }
 
   for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
+    (*iter)->Render(renderer);
+  }
+
+  for (auto iter = bvmesh_.begin(); iter != bvmesh_.end(); ++iter) {
     (*iter)->Render(renderer);
   }
 }
