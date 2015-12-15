@@ -13,7 +13,8 @@ namespace lord {
 using base::UTF8ToUTF16;
 const char SceneNodeInspectorPane::kViewClassName[] = "lord::SceneNodeInspectorPane";
 SceneNodeInspectorPane::SceneNodeInspectorPane() 
-    : node_(NULL) {
+    : node_(NULL),
+      scrollview_(NULL) {
   ClearUI();
 }
 
@@ -24,8 +25,8 @@ const char* SceneNodeInspectorPane::GetClassName() const {
 void SceneNodeInspectorPane::ClearUI() {
   RemoveAllChildViews(true);
   container_ = new nelf::CollapseViewContainer;
-  AddChildView(container_->CreateParentIfNecessary());
-  SetLayoutManager(new views::FillLayout);
+  scrollview_ = dynamic_cast<views::ScrollView*>(container_->CreateParentIfNecessary());
+  AddChildView(scrollview_);
 }
 
 void SceneNodeInspectorPane::SetSceneNode(SceneNode* node) {
@@ -46,14 +47,32 @@ void SceneNodeInspectorPane::SetSceneNode(SceneNode* node) {
   }
 }
 
-void SceneNodeInspectorPane::Layout() {
-  views::View* child = child_at(0);
-  if (child) {
-    child->SetBoundsRect(std::move(GetContentsBounds()));
-    gfx::Size size = container_->GetPreferredSize();
-    size.set_width(child->GetContentsBounds().width());
-    container_->SetBounds(0, 0, size.width(), size.height());
+gfx::Size SceneNodeInspectorPane::GetPreferredSize() const {
+  int32 scroll_width = scrollview_->GetScrollBarWidth();
+  int32 scroll_height = scrollview_->GetScrollBarHeight();
+  gfx::Insets insets = std::move(GetInsets());
+  gfx::Size size = container_->GetPreferredSize();
+  size.set_width(size.width() + scroll_width);
+  size.set_width(size.width() + insets.width());
+
+  size.set_height(size.height() + insets.height());
+  if (parent()) {
+    size.set_width(std::max(size.width(), parent()->GetContentsBounds().width()));
   }
+  
+  return size;
+}
+
+void SceneNodeContents::ChildPreferredSizeChanged(views::View* child) {
+  SizeToPreferredSize();
+}
+
+void SceneNodeInspectorPane::Layout() {
+  scrollview_->SetBoundsRect(std::move(GetContentsBounds()));
+  int32 height = container_->GetPreferredSize().height();
+  int32 width = scrollview_->GetContentsBounds().width();
+  container_->SetSize(gfx::Size(width, height));
+  scrollview_->Layout();
 }
 
 void SceneNodeInspectorPane::InitUIForLampNode() {
@@ -93,10 +112,13 @@ void SceneNodeInspectorPane::OnSceneNodeSelected(InteractiveContext* context,
                                                  SceneNode* prevsel) {
   SetSceneNode(context->GetPickingNode());
   Layout();
+  if (parent())
+    parent()->Layout();
 }
 
 // class SceneNodeInspectorWindow
-const char SceneNodeInspectorWindow::kViewClassName[] = "nelf::SceneNodeInspectorWindow";
+const char SceneNodeInspectorWindow::kViewClassName[] = 
+    "nelf::SceneNodeInspectorWindow";
 SceneNodeInspectorWindow::SceneNodeInspectorWindow(const gfx::Rect& bounds, 
                                                    nelf::MainFrame* mainframe)
     : nelf::TabbedWindow(bounds, mainframe),
@@ -116,5 +138,10 @@ void SceneNodeInspectorWindow::SetSceneNode(SceneNode* node) {
 
 const char* SceneNodeInspectorWindow::GetClassName() const {
   return kViewClassName;
+}
+
+void SceneNodeInspectorWindow::Layout() {
+  SizeToPreferredSize();
+  views::View::Layout();
 }
 }  // namespace lord

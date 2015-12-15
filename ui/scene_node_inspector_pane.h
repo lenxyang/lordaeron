@@ -15,6 +15,7 @@ class SceneNodeInspectorPane : public views::View,
   const char* GetClassName() const override;
   void Layout() override;
   void SetSceneNode(SceneNode* node);
+  gfx::Size GetPreferredSize() const override; 
   void OnSceneNodeSelected(InteractiveContext* context, SceneNode* prevsel) override;
  private:
   void ClearUI();
@@ -23,6 +24,7 @@ class SceneNodeInspectorPane : public views::View,
   void InitUIForCommonNode();
   SceneNode* node_;
   nelf::CollapseViewContainer* container_;
+  views::ScrollView* scrollview_;
   DISALLOW_COPY_AND_ASSIGN(SceneNodeInspectorPane);
 };
 
@@ -33,6 +35,7 @@ class SceneNodeInspectorWindow : public nelf::TabbedWindow {
 
   void SetSceneNode(SceneNode* node);
   const char* GetClassName() const override;
+  void Layout() override;
   SceneNodeInspectorPane* inspector_pane() { return inspector_pane_;}
  private:
   SceneNodeInspectorPane* inspector_pane_;
