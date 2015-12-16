@@ -3,17 +3,15 @@
 #include "ui/views/view.h"
 
 namespace lord {
-inline int LayoutControlRightAlign(views::View* parent, views::View* view, int32 y) {
-  const gfx::Rect bounds = std::move(parent->GetContentsBounds());
-  view->SizeToPreferredSize();
-  view->SetPosition(gfx::Point(bounds.right() - view->width(), y));
-  return view->bounds().bottom(); 
-}
+gfx::Rect LayoutCenterLeft(views::View* parent, views::View* view, 
+                           int center_x, int y, int padding, 
+                           const gfx::Size& size);
+gfx::Rect LayoutCenterRight(views::View* parent, views::View* view, 
+                            int center_x, int y, int padding, 
+                            const gfx::Size& size);
+gfx::Rect LayoutCenterLeftWithPrefSize(views::View* parent, views::View* view, 
+                                       int center_x, int y, int padding);
 
-inline int LayoutControlLeftAlign(views::View* parent, views::View* view, int32 y) {
-  const gfx::Rect bounds = std::move(parent->GetContentsBounds());
-  view->SizeToPreferredSize();
-  view->SetPosition(gfx::Point(bounds.x(), y));
-  return view->bounds().bottom(); 
-}
+gfx::Rect LayoutCenterRightWithPrefSize(views::View* parent, views::View* view, 
+                                        int center_x, int y, int padding);
 }  // namespace lord

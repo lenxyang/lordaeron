@@ -35,7 +35,7 @@ const char* TransformContents::GetClassName() const {
 }
 
 gfx::Size TransformContents::GetPreferredSize() const {
-  return gfx::Size(360, 100);
+  return gfx::Size(360, 75);
 }
 
 void TransformContents::Layout() {
@@ -43,17 +43,18 @@ void TransformContents::Layout() {
   int32 x = bounds.x();
   int32 y = GetContentsBounds().y();
   const int32 kLinePadding = 1;
-  LayoutControlLeftAlign(this, position_label_, y);
-  y = LayoutControlRightAlign(this, position_control_, y);
+  float centerx = 80.0f;
+  int padding = 8;
+  LayoutCenterLeftWithPrefSize(this, position_label_, centerx, y, padding);
+  y = LayoutCenterRightWithPrefSize(this, position_control_, centerx, y, padding).bottom();
   y += kLinePadding;
 
-  LayoutControlLeftAlign(this, orientation_label_, y);
-  y = LayoutControlRightAlign(this, orientation_control_, y);
+  LayoutCenterLeftWithPrefSize(this, orientation_label_, centerx, y, padding);
+  y = LayoutCenterRightWithPrefSize(this, orientation_control_, centerx, y, padding).bottom();
   y += kLinePadding;
 
-  LayoutControlLeftAlign(this, scale_label_, y);
-  y = LayoutControlRightAlign(this, scale_control_, y);
-  y += kLinePadding;
+  LayoutCenterLeftWithPrefSize(this, scale_label_, centerx, y, padding);
+  LayoutCenterRightWithPrefSize(this, scale_control_, centerx, y, padding);
 }
 
 void TransformContents::OnVectorChanged(VectorControl* control) {

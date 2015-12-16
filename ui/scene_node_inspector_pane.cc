@@ -110,6 +110,8 @@ void SceneNodeInspectorPane::Layout() {
   int32 width = scrollview_->GetContentsBounds().width() - scrollview_->GetScrollBarWidth();
   container_->SetSize(gfx::Size(width, height));
   scrollview_->SetBoundsRect(std::move(GetContentsBounds()));
+  scrollview_->Layout();
+  container_->Layout();
 }
 
 void SceneNodeInspectorPane::InitUIForLampNode() {

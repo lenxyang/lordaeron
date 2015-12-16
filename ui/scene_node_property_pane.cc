@@ -13,6 +13,7 @@ SceneNodeContents::SceneNodeContents(SceneNode* node)
   name_label_ = new views::Label(UTF8ToUTF16("Name"));
   AddChildView(name_label_);
   name_textfield_ = new views::Textfield();
+  name_textfield_->SetText(::base::UTF8ToUTF16(node->name()));
   AddChildView(name_textfield_);
 
   vmin_label_ = new views::Label(UTF8ToUTF16("Bounding Min"));
@@ -34,23 +35,27 @@ const char* SceneNodeContents::GetClassName() const {
   return kViewClassName;
 }
 gfx::Size SceneNodeContents::GetPreferredSize() const {
-  return gfx::Size(320, 100);
+  return gfx::Size(320, 80);
 }
 
 void SceneNodeContents::Layout() {
   const gfx::Rect bounds = std::move(GetContentsBounds());
   int32 x = bounds.x();
-  int32 y = GetContentsBounds().y();
-  const int32 kLinePadding = 1;
-  y = LayoutControlLeftAlign(this, name_label_, y);
+  const int32 kLinePadding = 3;
+  int32 y = GetContentsBounds().y() + kLinePadding;
+  float center = 100.0f;
+  float padding = 6.0f;
+  LayoutCenterLeftWithPrefSize(this, name_label_, center, y, padding);
+  gfx::Size textfield_size = gfx::Size(100, name_label_->height());
+  y = LayoutCenterRight(this, name_textfield_, center, y, padding, textfield_size).bottom();
+  y += kLinePadding;
+  
+  LayoutCenterLeftWithPrefSize(this, vmin_label_, center, y, padding);
+  y = LayoutCenterRightWithPrefSize(this, vmin_control_, center, y, padding).bottom();
   y += kLinePadding;
 
-  LayoutControlLeftAlign(this, vmin_label_, y);
-  y = LayoutControlRightAlign(this, vmin_control_, y);
-  y += kLinePadding;
-
-  LayoutControlLeftAlign(this, vmax_label_, y);
-  y = LayoutControlRightAlign(this, vmax_control_, y);
+  LayoutCenterLeftWithPrefSize(this, vmax_label_, center, y, padding);
+  y = LayoutCenterRightWithPrefSize(this, vmax_control_, center, y, padding).bottom();
   y += kLinePadding;
 }
 

@@ -66,6 +66,8 @@ static_library("lordaeron") {
     "ui/camera_view.h",
     "ui/controls/vector_control.cc",
     "ui/controls/vector_control.h",
+    "ui/layout_util.cc",
+    "ui/layout_util.h",
     "ui/light_property_pane.cc",
     "ui/light_property_pane.h",
     "ui/iconset.cc",
