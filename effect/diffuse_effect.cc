@@ -97,11 +97,9 @@ void DiffuseEffect::ApplyGpuConstantTable(Renderer* renderer) {
 
 DiffuseEffectPtr CreateDiffuseEffect() {
   Effect::ShaderPrograms shaders;
-  CHECK(LoadShaderAtStage(kVertexStage, 
-                          "lordaeron/effect/hlsl/colored_diffuse.hlsl.vs",
+  CHECK(LoadShaderAtStage(kVertexStage, "lordaeron/effect/colored_diffuse.hlsl.vs",
                           &shaders));
-  CHECK(LoadShaderAtStage(kPixelStage, 
-                          "lordaeron/effect/hlsl/colored_diffuse.hlsl.ps",
+  CHECK(LoadShaderAtStage(kPixelStage, "lordaeron/effect/colored_diffuse.hlsl.ps",
                           &shaders));
   DiffuseEffectPtr ptr(new DiffuseEffect(
       PosNormalVertex::CreateVertexDesc()));

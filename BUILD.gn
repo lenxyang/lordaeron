@@ -22,6 +22,8 @@ static_library("lordaeron") {
     "effect/light.h",
     "effect/diffuse_effect.cc",
     "effect/diffuse_effect.h",
+    "effect/normal_line_effect.h",
+    "effect/normal_line_effect.cc",
     "interactive/axis_object.cc",
     "interactive/axis_object.h",
     "interactive/controller_object.cc",

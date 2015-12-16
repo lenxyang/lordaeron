@@ -155,14 +155,14 @@ void SimpleRenderTreeRenderer::SetSceneNode(SceneRenderNode* root) {
 }
 
 void SimpleRenderTreeRenderer::Update(const FrameArgs& args) {
+  blending_node_.clear();
+  bvmesh_.clear();
+  normal_mesh_.clear();
   UpdateNode(root_, args);
 }
 
 void SimpleRenderTreeRenderer::Render(Renderer* renderer) {
-  blending_node_.clear();
-  bvmesh_.clear();
   RenderNode(root_, renderer);
-
   {
     ScopedDepthBuffer(false, renderer);
     for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {

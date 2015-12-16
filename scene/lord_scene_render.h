@@ -79,6 +79,7 @@ class SimpleRenderTreeRenderer {
   SceneRenderNode* root_;
   std::vector<SceneRenderNode*> blending_node_;
   std::vector<azer::MeshPtr> bvmesh_;
+  std::vector<azer::MeshPtr> normal_mesh_;
   DISALLOW_COPY_AND_ASSIGN(SimpleRenderTreeRenderer);
 };
 
