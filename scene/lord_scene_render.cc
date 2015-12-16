@@ -1,7 +1,9 @@
 #include "lordaeron/scene/lord_scene_render.h"
 
+#include "azer/render/render.h"
 #include "lordaeron/context.h"
 #include "lordaeron/effect/diffuse_effect.h"
+#include "lordaeron/effect/normal_line_effect.h"
 #include "lordaeron/interactive/light_controller.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_render_tree.h"
@@ -64,7 +66,10 @@ bool LordObjectNodeRenderDelegate::Init() {
   }
 
   bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
-  bounding_mesh_->AddProvider(new LoadSceneBVRenderProvider(node_));
+  EffectParamsProviderPtr provider(new LoadSceneBVRenderProvider(node_));
+  bounding_mesh_->AddProvider(provider);
+  normal_mesh_ = CreateNormalLineMeshForSceneNode(scene_node);
+  normal_mesh_->AddProvider(provider);
   return true;
 }
 
@@ -72,16 +77,21 @@ void LordObjectNodeRenderDelegate::Update(const FrameArgs& args) {
   if (mesh_.get()) {
     mesh_->UpdateProviderParams(args);
   }
+  if (normal_mesh_.get())
+    normal_mesh_->UpdateProviderParams(args);
   bounding_mesh_->UpdateProviderParams(args);
 }
 
 void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
   if (mesh_.get())
     mesh_->Render(renderer);
+  if (normal_mesh_.get())
+    normal_mesh_->Render(renderer);
 
   SceneNode* scene_node = GetSceneNode();
   if (scene_node->is_draw_bounding_volumn()) {
     tree_renderer_->AddBoundingVolumnMesh(bounding_mesh_);
+    
   }
 }
 
@@ -218,5 +228,24 @@ MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
   mesh->AddMeshPart(framepart);
   mesh->AddMeshPart(objpart);
   return mesh;
+}
+
+MeshPtr CreateNormalLineMeshForSceneNode(SceneNode* node) {
+  if (node->type() != kObjectSceneNode
+      || node->mutable_data()->GetMesh() == NULL) {
+    return MeshPtr();
+  }
+
+  Context* ctx = Context::instance();
+  EffectPtr effect = ctx->GetEffect(NormalLineEffect::kEffectName);
+  MeshPtr object_mesh = node->mutable_data()->GetMesh();
+  MeshPtr normal_mesh(new Mesh);
+  for (int32 i = 0; i < object_mesh->part_count(); ++i) {
+    MeshPart* orgpart = object_mesh->part_at(i);
+    MeshPartPtr part(new MeshPart(effect.get(), orgpart->entity_vector()));
+    normal_mesh->AddMeshPart(part);
+  }
+  
+  return normal_mesh;
 }
 }  // namespace lord

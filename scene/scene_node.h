@@ -80,21 +80,21 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void SetMin(const azer::Vector3& v);
   void SetMax(const azer::Vector3& v);
 
-  void AddChild(SceneNodePtr child);
-  void RemoveChild(SceneNodePtr child);
+  void AddChild(SceneNode* child);
+  void RemoveChild(SceneNode* child);
   bool has_child() const { return !children_.empty();}
   int32 child_count() const { return children_.size();}
-  SceneNodePtr child_at(int32 index) { return children_.at(index);}
+  SceneNode* child_at(int32 index) { return children_.at(index);}
   bool HasAncestor(SceneNode* node) const;
   SceneNodes* mutable_children() { return &children_;}
 
   // absolute path: //level1/level2/level3
   // relative path: level1/level2/level3
   // relative path: ../level1/level2
-  SceneNodePtr GetNode(const std::string& path);
+  SceneNode* GetNode(const std::string& path);
   void CreatePathRecusive(const std::string& path);
-  bool AddChildAtPath(const std::string& parent, SceneNodePtr node);
-  SceneNodePtr RemoveChildAtPath(const std::string& path);
+  bool AddChildAtPath(const std::string& parent, SceneNode* node);
+  SceneNode* RemoveChildAtPath(const std::string& path);
 
   void set_name(const std::string& name);
   const std::string& name() const { return name_;}
@@ -151,7 +151,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void CalcChildrenBoundingVector();
   azer::TransformHolder* mutable_holder() { return &holder_;}
 
-  SceneNodePtr GetLocalChild(const std::string& name);
+  SceneNode* GetLocalChild(const std::string& name);
   void print_info(std::string* str, int depth, SceneNode* node);
   // attributes
   bool visible_;

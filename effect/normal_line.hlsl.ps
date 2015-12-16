@@ -9,6 +9,6 @@ cbuffer c_buffer {
    float4 color;
 };
 
-float4 ps_main(VsOutput o):SV_TARGET {
+float4 ps_main(GsOutput o):SV_TARGET {
   return color;
 }

@@ -13,7 +13,7 @@ cbuffer c_buffer {
 };
 
 [maxvertexcount(6)]
-void gsmain(triangle VsOutput v[3], inout LineStrip<GsOutput> linestream) {
+void gs_main(triangle VsOutput v[3], inout LineStream<GsOutput> linestream) {
   linestream.RestartStrip();
 
   GsOutput o;

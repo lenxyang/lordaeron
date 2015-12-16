@@ -104,7 +104,7 @@ void NormalLineEffect::ApplyGpuConstantTable(Renderer* renderer) {
 NormalLineEffectPtr CreateNormalLineEffect() {
   Effect::ShaderPrograms shaders;
   CHECK(LoadShaderAtStage(kVertexStage, 
-                          "lordaeron/effect/norma_line.hlsl.vs",
+                          "lordaeron/effect/normal_line.hlsl.vs",
                           &shaders));
   CHECK(LoadShaderAtStage(kGeometryStage, 
                           "lordaeron/effect/normal_line.hlsl.gs",

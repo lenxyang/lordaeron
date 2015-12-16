@@ -119,18 +119,18 @@ void SceneNode::InitMember() {
 SceneNode::~SceneNode() {
 }
 
-void SceneNode::AddChild(SceneNodePtr child) {
+void SceneNode::AddChild(SceneNode* child) {
   DCHECK(child->parent() == NULL);
   child->parent_ = this;
   children_.push_back(child);
 }
 
-void SceneNode::RemoveChild(SceneNodePtr child) {
+void SceneNode::RemoveChild(SceneNode* child) {
   DCHECK(child->parent_ == this);
   child->parent_ = NULL;
 
   for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
-    if (iter->get() == child.get()) {
+    if (iter->get() == child) {
       children_.erase(iter);
       break;
     }
@@ -175,16 +175,16 @@ Vector3 SceneNode::GetWorldPosition() const {
   return pos;
 }
 
-SceneNodePtr SceneNode::GetLocalChild(const std::string& name) {
+SceneNode* SceneNode::GetLocalChild(const std::string& name) {
   for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
     if ((*iter)->name() == name) {
       return *iter;
     }
   }
-  return SceneNodePtr();
+  return NULL;
 }
 
-SceneNodePtr SceneNode::GetNode(const std::string& path) {
+SceneNode* SceneNode::GetNode(const std::string& path) {
   if (StartsWithASCII(path, "//", false)) {
     return root()->GetNode(path.substr(2));
   } else {
@@ -193,7 +193,7 @@ SceneNodePtr SceneNode::GetNode(const std::string& path) {
     while (t.GetNext()) {
       cur = cur->GetLocalChild(t.token());
       if (!cur.get())
-        return SceneNodePtr();
+        return NULL;
     }
     return cur;
   }
@@ -218,9 +218,9 @@ std::string SceneNode::path() const {
 void SceneNode::CreatePathRecusive(const std::string& path) {
 }
 
-bool SceneNode::AddChildAtPath(const std::string& parent, SceneNodePtr node) {
-  SceneNodePtr pnode = GetNode(parent);
-  if (pnode.get()) {
+bool SceneNode::AddChildAtPath(const std::string& parent, SceneNode* node) {
+  SceneNode* pnode = GetNode(parent);
+  if (pnode) {
     pnode->AddChild(node);
     return true;
   } else {
@@ -228,10 +228,10 @@ bool SceneNode::AddChildAtPath(const std::string& parent, SceneNodePtr node) {
   }
 }
 
-SceneNodePtr SceneNode::RemoveChildAtPath(const std::string& path) {
-  SceneNodePtr pnode = GetNode(path);
-  if (pnode.get() && pnode->parent()) {
-    pnode->parent()->RemoveChild(pnode.get());
+SceneNode* SceneNode::RemoveChildAtPath(const std::string& path) {
+  SceneNode* pnode = GetNode(path);
+  if (pnode && pnode->parent()) {
+    pnode->parent()->RemoveChild(pnode);
   }
   return pnode;
 }

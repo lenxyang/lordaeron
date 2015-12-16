@@ -5,6 +5,7 @@
 #include "lordaeron/ui/nelf_context.h"
 #include "lordaeron/ui/iconset.h"
 #include "lordaeron/effect/diffuse_effect.h"
+#include "lordaeron/effect/normal_line_effect.h"
 #include "lordaeron/interactive/light_controller.h"
 #include "lordaeron/scene/lord_scene_render.h"
 
@@ -65,6 +66,7 @@ bool Context::Init(int argc, char* argv[]) {
 
 void Context::InitEffects() {
   effects_.insert(std::make_pair(DiffuseEffect::kEffectName, CreateDiffuseEffect()));
+  effects_.insert(std::make_pair(NormalLineEffect::kEffectName, CreateNormalLineEffect()));
 }
 
 azer::Effect* Context::GetEffect(const std::string& name) {
@@ -86,6 +88,7 @@ void Context::InitAdapterContext() {
   effect_context_.RegisteAdapter(new LightControllerColorEffectAdapter);
   effect_context_.RegisteAdapter(new LightControllerEffectAdapter);
   effect_context_.RegisteAdapter(new LoadSceneBVParamsAdapter);
+  effect_context_.RegisteAdapter(new NormalLineEffectAdapter);
 }
 
 bool Context::LoadResourcePack(const base::FilePath& path) {

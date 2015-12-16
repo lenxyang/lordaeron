@@ -42,6 +42,7 @@ class LordObjectNodeRenderDelegate : public SceneRenderNodeDelegate {
   bool Init();
   azer::MeshPtr mesh_;
   azer::MeshPtr bounding_mesh_;
+  azer::MeshPtr normal_mesh_;
   SimpleRenderTreeRenderer* tree_renderer_;
   DISALLOW_COPY_AND_ASSIGN(LordObjectNodeRenderDelegate);
 };
@@ -84,4 +85,5 @@ class SimpleRenderTreeRenderer {
 };
 
 azer::MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node);
+azer::MeshPtr CreateNormalLineMeshForSceneNode(SceneNode* node);
 }  // namespace lord
