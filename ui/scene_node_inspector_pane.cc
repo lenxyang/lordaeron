@@ -39,6 +39,9 @@ class HorzbarScrollView : public views::ScrollView {
       verticalbar_->Update(height(), height(), 0);
       verticalbar_->SetVisible(true);
     }
+    gfx::Size size = verticalbar_->size();
+    size.set_height(GetContentsBounds().height());
+    verticalbar_->SetSize(size);
   }
  private:
   views::ScrollBar* verticalbar_;
@@ -103,11 +106,10 @@ void SceneNodeInspectorPane::ChildPreferredSizeChanged(views::View* child) {
 }
 
 void SceneNodeInspectorPane::Layout() {
-  scrollview_->SetBoundsRect(std::move(GetContentsBounds()));
   int32 height = container_->GetPreferredSize().height();
   int32 width = scrollview_->GetContentsBounds().width() - scrollview_->GetScrollBarWidth();
   container_->SetSize(gfx::Size(width, height));
-  scrollview_->Layout();
+  scrollview_->SetBoundsRect(std::move(GetContentsBounds()));
 }
 
 void SceneNodeInspectorPane::InitUIForLampNode() {
@@ -163,6 +165,7 @@ SceneNodeInspectorWindow::SceneNodeInspectorWindow(const gfx::Rect& bounds,
   pane->GetContents()->AddChildView(inspector_pane_);
   pane->GetContents()->SetLayoutManager(new views::FillLayout);
   pane->SetTitle(::base::UTF8ToUTF16("Inspector"));
+  pane->GetFootBar()->SetVisible(true);
   AddPane(pane);
   Layout();
 }
