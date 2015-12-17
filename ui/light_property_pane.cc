@@ -158,6 +158,71 @@ void DirectionalLightPane::Layout() {
   nelf::CollapseView::Layout();
 }
 
+// class SpotLightAttenuationPane
+const char SpotLightAttenuationPane::kViewClassName[] = "lord::SpotLightAttenuationPane";
+SpotLightAttenuationPane::SpotLightAttenuationPane(Light* light) 
+    : light_(light) {
+  color_group_ = new nelf::GroupView(UTF8ToUTF16("Spot Light Attenuation"));
+  AddChildView(color_group_);
+  range_label_ = new views::Label(UTF8ToUTF16("Range"));
+  theta_label_ = new views::Label(UTF8ToUTF16("Theta"));
+  phi_label_ = new views::Label(UTF8ToUTF16("Phi"));
+  falloff_label_ = new views::Label(UTF8ToUTF16("Falloff"));
+  color_group_->contents()->AddChildView(range_label_);
+  color_group_->contents()->AddChildView(theta_label_);
+  color_group_->contents()->AddChildView(phi_label_);
+  color_group_->contents()->AddChildView(falloff_label_);
+
+  range_textfield_ = new views::Textfield;
+  theta_textfield_ = new views::Textfield;
+  phi_textfield_ = new views::Textfield;
+  falloff_textfield_ = new views::Textfield;
+  color_group_->contents()->AddChildView(range_textfield_);
+  color_group_->contents()->AddChildView(theta_textfield_);
+  color_group_->contents()->AddChildView(phi_textfield_);
+  color_group_->contents()->AddChildView(falloff_textfield_);
+}
+
+SpotLightAttenuationPane::~SpotLightAttenuationPane() {
+}
+
+const char* SpotLightAttenuationPane::GetClassName() const {
+  return kViewClassName;
+}
+
+gfx::Size SpotLightAttenuationPane::GetPreferredSize() const {
+  return gfx::Size(240, 130);
+}
+
+void SpotLightAttenuationPane::Layout() {
+  color_group_->SetBoundsRect(std::move(GetContentsBounds()));
+  float centerx = 90.0f;
+  int padding = 8;
+  const int32 kLinePadding = 3;
+  int32 height = 20;
+  float y = color_group_->contents()->GetContentsBounds().y() + 10;
+  gfx::Size label_size(85, 18);
+  gfx::Size textfield_size(85, 18);
+  LayoutCenterLeft(this, range_label_, centerx, y, padding, label_size);
+  y = LayoutCenterRight(this, range_textfield_,
+                        centerx, y, padding, textfield_size).bottom();
+  y += kLinePadding;
+
+  LayoutCenterLeft(this, theta_label_, centerx, y, padding, label_size);
+  y = LayoutCenterRight(this, theta_textfield_,
+                        centerx, y, padding, textfield_size).bottom();
+  y += kLinePadding;
+
+  LayoutCenterLeft(this, phi_label_, centerx, y, padding, label_size);
+  y = LayoutCenterRight(this, phi_textfield_,
+                        centerx, y, padding, textfield_size).bottom();
+  y += kLinePadding;
+  
+  LayoutCenterLeft(this, falloff_label_, centerx, y, padding, label_size);
+  y = LayoutCenterRight(this, falloff_textfield_,
+                        centerx, y, padding, textfield_size).bottom();
+}
+
 // class SpotLightContents
 const char SpotLightContents::kViewClassName[] = "nelf::SpotLightContents";
 SpotLightContents::SpotLightContents(Light* light) 
@@ -165,6 +230,10 @@ SpotLightContents::SpotLightContents(Light* light)
   pane_ = new LightColorPane(light);
   AddChildView(pane_);
   pane_->SizeToPreferredSize();
+
+  attenuation_pane_ = new SpotLightAttenuationPane(light);
+  attenuation_pane_->SizeToPreferredSize();
+  AddChildView(attenuation_pane_);
 }
 
 SpotLightContents::~SpotLightContents() {}
@@ -174,12 +243,16 @@ const char* SpotLightContents::GetClassName() const {
 }
 
 gfx::Size SpotLightContents::GetPreferredSize() const {
-  return gfx::Size(320, 240);
+  return gfx::Size(320, 280);
 }
 
 void SpotLightContents::Layout() {
+  const int32 kVertexPadding = 10;
   gfx::Rect color_pane_bounds = GetContentsBounds();
   pane_->SetPosition(color_pane_bounds.origin());
+
+  attenuation_pane_->SetPosition(
+      gfx::Point(color_pane_bounds.x(), pane_->bounds().bottom() + kVertexPadding));
 }
 
 // 
@@ -248,7 +321,7 @@ void PointLightAttenuationPane::Layout() {
   int padding = 8;
   const int32 kLinePadding = 3;
   int32 height = 20;
-  float y = color_group_->contents()->GetContentsBounds().y() + kLinePadding;
+  float y = color_group_->contents()->GetContentsBounds().y() + 10;
   gfx::Size label_size(85, 18);
   gfx::Size textfield_size(85, 18);
   LayoutCenterLeft(this, range_label_, centerx, y, padding, label_size);

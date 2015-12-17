@@ -57,6 +57,29 @@ class DirectionalLightPane : public nelf::CollapseView {
   DISALLOW_COPY_AND_ASSIGN(DirectionalLightPane);
 };
 
+class SpotLightAttenuationPane : public views::View {
+ public:
+  static const char kViewClassName[];
+  explicit SpotLightAttenuationPane(Light* light);
+  ~SpotLightAttenuationPane() override;
+
+  const char* GetClassName() const override;
+  gfx::Size GetPreferredSize() const override;
+  void Layout() override;
+ private:
+  views::Label* range_label_;
+  views::Label* theta_label_;
+  views::Label* phi_label_;
+  views::Label* falloff_label_;
+  views::Textfield* range_textfield_;
+  views::Textfield* theta_textfield_;
+  views::Textfield* phi_textfield_;
+  views::Textfield* falloff_textfield_;
+  nelf::GroupView* color_group_;
+  LightPtr light_;
+  DISALLOW_COPY_AND_ASSIGN(SpotLightAttenuationPane);
+};
+
 class SpotLightContents : public views::View {
  public:
   static const char kViewClassName[];
@@ -70,6 +93,7 @@ class SpotLightContents : public views::View {
   void LayoutColorControls();
   LightPtr light_;
   LightColorPane* pane_;
+  SpotLightAttenuationPane* attenuation_pane_;
   DISALLOW_COPY_AND_ASSIGN(SpotLightContents);
 };
 
