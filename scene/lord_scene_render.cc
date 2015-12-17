@@ -69,7 +69,8 @@ bool LordObjectNodeRenderDelegate::Init() {
   EffectParamsProviderPtr provider(new LoadSceneBVRenderProvider(node_));
   bounding_mesh_->AddProvider(provider);
   normal_mesh_ = CreateNormalLineMeshForSceneNode(scene_node);
-  normal_mesh_->AddProvider(provider);
+  if (normal_mesh_.get())
+    normal_mesh_->AddProvider(node_);
   return true;
 }
 
@@ -85,13 +86,13 @@ void LordObjectNodeRenderDelegate::Update(const FrameArgs& args) {
 void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
   if (mesh_.get())
     mesh_->Render(renderer);
-  if (normal_mesh_.get())
-    normal_mesh_->Render(renderer);
 
   SceneNode* scene_node = GetSceneNode();
   if (scene_node->is_draw_bounding_volumn()) {
     tree_renderer_->AddBoundingVolumnMesh(bounding_mesh_);
     
+    if (normal_mesh_.get())
+      normal_mesh_->Render(renderer);
   }
 }
 
@@ -239,7 +240,7 @@ MeshPtr CreateNormalLineMeshForSceneNode(SceneNode* node) {
   Context* ctx = Context::instance();
   EffectPtr effect = ctx->GetEffect(NormalLineEffect::kEffectName);
   MeshPtr object_mesh = node->mutable_data()->GetMesh();
-  MeshPtr normal_mesh(new Mesh);
+  MeshPtr normal_mesh(new Mesh(ctx->GetEffectAdapterContext()));
   for (int32 i = 0; i < object_mesh->part_count(); ++i) {
     MeshPart* orgpart = object_mesh->part_at(i);
     MeshPartPtr part(new MeshPart(effect.get(), orgpart->entity_vector()));

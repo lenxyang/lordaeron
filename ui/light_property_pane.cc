@@ -4,6 +4,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "ui/views/border.h"
 #include "lordaeron/ui/color_util.h"
+#include "lordaeron/ui/layout_util.h"
 
 namespace lord {
 
@@ -204,6 +205,72 @@ void SpotLightPane::Layout() {
   nelf::CollapseView::Layout();
 }
 
+
+// class PointLightAttenuationPane
+const char PointLightAttenuationPane::kViewClassName[] = "lord::PointLightAttenuationPane";
+PointLightAttenuationPane::PointLightAttenuationPane(Light* light) 
+    : light_(light) {
+  color_group_ = new nelf::GroupView(UTF8ToUTF16("Point Light Attenuation"));
+  AddChildView(color_group_);
+  range_label_ = new views::Label(UTF8ToUTF16("Range"));
+  const_label_ = new views::Label(UTF8ToUTF16("Const"));
+  linear_label_ = new views::Label(UTF8ToUTF16("Linear"));
+  quadratic_label_ = new views::Label(UTF8ToUTF16("Quadratic"));
+  color_group_->contents()->AddChildView(range_label_);
+  color_group_->contents()->AddChildView(const_label_);
+  color_group_->contents()->AddChildView(linear_label_);
+  color_group_->contents()->AddChildView(quadratic_label_);
+
+  range_textfield_ = new views::Textfield;
+  const_textfield_ = new views::Textfield;
+  linear_textfield_ = new views::Textfield;
+  quadratic_textfield_ = new views::Textfield;
+  color_group_->contents()->AddChildView(range_textfield_);
+  color_group_->contents()->AddChildView(const_textfield_);
+  color_group_->contents()->AddChildView(linear_textfield_);
+  color_group_->contents()->AddChildView(quadratic_textfield_);
+}
+
+PointLightAttenuationPane::~PointLightAttenuationPane() {
+}
+
+const char* PointLightAttenuationPane::GetClassName() const {
+  return kViewClassName;
+}
+
+gfx::Size PointLightAttenuationPane::GetPreferredSize() const {
+  return gfx::Size(240, 130);
+}
+
+void PointLightAttenuationPane::Layout() {
+  color_group_->SetBoundsRect(std::move(GetContentsBounds()));
+  float centerx = 90.0f;
+  int padding = 8;
+  const int32 kLinePadding = 3;
+  int32 height = 20;
+  float y = color_group_->contents()->GetContentsBounds().y() + kLinePadding;
+  gfx::Size label_size(85, 18);
+  gfx::Size textfield_size(85, 18);
+  LayoutCenterLeft(this, range_label_, centerx, y, padding, label_size);
+  y = LayoutCenterRight(this, range_textfield_,
+                        centerx, y, padding, textfield_size).bottom();
+  y += kLinePadding;
+
+  LayoutCenterLeft(this, const_label_, centerx, y, padding, label_size);
+  y = LayoutCenterRight(this, const_textfield_,
+                        centerx, y, padding, textfield_size).bottom();
+  y += kLinePadding;
+
+  LayoutCenterLeft(this, linear_label_, centerx, y, padding, label_size);
+  y = LayoutCenterRight(this, linear_textfield_,
+                        centerx, y, padding, textfield_size).bottom();
+  y += kLinePadding;
+  
+  LayoutCenterLeft(this, quadratic_label_, centerx, y, padding, label_size);
+  y = LayoutCenterRight(this, quadratic_textfield_,
+                        centerx, y, padding, textfield_size).bottom();
+}
+
 // class PointLightContents
 const char PointLightContents::kViewClassName[] = "nelf::PointLightContents";
 PointLightContents::PointLightContents(Light* light) 
@@ -211,6 +278,10 @@ PointLightContents::PointLightContents(Light* light)
   pane_ = new LightColorPane(light);
   AddChildView(pane_);
   pane_->SizeToPreferredSize();
+
+  attenuation_pane_ = new PointLightAttenuationPane(light);
+  AddChildView(attenuation_pane_);
+  attenuation_pane_->SizeToPreferredSize();
 }
 
 PointLightContents::~PointLightContents() {}
@@ -220,12 +291,16 @@ const char* PointLightContents::GetClassName() const {
 }
 
 gfx::Size PointLightContents::GetPreferredSize() const {
-  return gfx::Size(320, 240);
+  return gfx::Size(320, 280);
 }
 
 void PointLightContents::Layout() {
+  const int32 kVertexPadding = 10;
   gfx::Rect color_pane_bounds = GetContentsBounds();
   pane_->SetPosition(color_pane_bounds.origin());
+
+  attenuation_pane_->SetPosition(
+      gfx::Point(color_pane_bounds.x(), pane_->bounds().bottom() + kVertexPadding));
 }
 
 // 

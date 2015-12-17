@@ -19,9 +19,6 @@ class NormalLineEffect : public azer::Effect {
   struct vs_cbuffer {
     azer::Matrix4 pvw;
     azer::Matrix4 world;
-  };
-
-  struct gs_cbuffer {
     float linelength;
   };
 

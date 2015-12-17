@@ -84,6 +84,29 @@ class SpotLightPane : public nelf::CollapseView {
   DISALLOW_COPY_AND_ASSIGN(SpotLightPane);
 };
 
+class PointLightAttenuationPane : public views::View {
+ public:
+  static const char kViewClassName[];
+  explicit PointLightAttenuationPane(Light* light);
+  ~PointLightAttenuationPane() override;
+
+  const char* GetClassName() const override;
+  gfx::Size GetPreferredSize() const override;
+  void Layout() override;
+ private:
+  views::Label* range_label_;
+  views::Label* const_label_;
+  views::Label* linear_label_;
+  views::Label* quadratic_label_;
+  views::Textfield* range_textfield_;
+  views::Textfield* const_textfield_;
+  views::Textfield* linear_textfield_;
+  views::Textfield* quadratic_textfield_;
+  nelf::GroupView* color_group_;
+  LightPtr light_;
+  DISALLOW_COPY_AND_ASSIGN(PointLightAttenuationPane);
+};
+
 class PointLightContents : public views::View {
  public:
   static const char kViewClassName[];
@@ -97,6 +120,7 @@ class PointLightContents : public views::View {
   void LayoutColorControls();
   LightPtr light_;
   LightColorPane* pane_;
+  PointLightAttenuationPane* attenuation_pane_;
   DISALLOW_COPY_AND_ASSIGN(PointLightContents);
 };
 
