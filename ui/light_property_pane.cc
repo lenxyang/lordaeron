@@ -1,5 +1,6 @@
 #include "lordaeron/ui/light_property_pane.h"
 
+#include <cmath>
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/strings/stringprintf.h"
@@ -205,11 +206,27 @@ gfx::Size SpotLightAttenuationPane::GetPreferredSize() const {
 }
 
 void SpotLightAttenuationPane::UpdateTextfieldValue() {
+  const SpotLight& light = light_->spot_light();
+  theta_textfield_->SetText(UTF8ToUTF16(StringPrintf("%.4f", std::acos(light.theta))));
+  phi_textfield_->SetText(UTF8ToUTF16(StringPrintf("%.4f", std::acos(light.phi))));
+  falloff_textfield_->SetText(UTF8ToUTF16(StringPrintf("%.4f", light.falloff)));
+  range_textfield_->SetText(UTF8ToUTF16(StringPrintf("%.4f", light.range)));
 }
 
 void SpotLightAttenuationPane::ContentsChanged(views::Textfield* sender,
-                                                const base::string16& new_contents) {
-  
+                                               const base::string16& new_contents) {
+  double v;
+  CHECK(::base::StringToDouble(UTF16ToUTF8(new_contents), &v));
+  SpotLight* light = light_->mutable_spot_light();
+  if (sender == theta_textfield_) {
+    light->theta = std::acos(v);
+  } else if (sender == phi_textfield_) {
+    light->phi = std::acos(v);
+  } else if (sender == falloff_textfield_) {
+    light->falloff = v;
+  } else if (sender == range_textfield_) {
+    light->range = v;
+  }
 }
 
 void SpotLightAttenuationPane::Layout() {
