@@ -3,6 +3,7 @@
 #include "ui/views/view.h"
 #include "ui/views/controls/label.h"
 #include "ui/views/controls/textfield/textfield.h"
+#include "ui/views/controls/textfield/textfield_controller.h"
 #include "nelf/nelf.h"
 #include "lordaeron/effect/light.h"
 
@@ -57,7 +58,8 @@ class DirectionalLightPane : public nelf::CollapseView {
   DISALLOW_COPY_AND_ASSIGN(DirectionalLightPane);
 };
 
-class SpotLightAttenuationPane : public views::View {
+class SpotLightAttenuationPane : public views::View,
+                                 public views::TextfieldController {
  public:
   static const char kViewClassName[];
   explicit SpotLightAttenuationPane(Light* light);
@@ -66,6 +68,10 @@ class SpotLightAttenuationPane : public views::View {
   const char* GetClassName() const override;
   gfx::Size GetPreferredSize() const override;
   void Layout() override;
+
+  void UpdateTextfieldValue();
+  void ContentsChanged(views::Textfield* sender,
+                       const base::string16& new_contents) override;
  private:
   views::Label* range_label_;
   views::Label* theta_label_;
@@ -108,7 +114,8 @@ class SpotLightPane : public nelf::CollapseView {
   DISALLOW_COPY_AND_ASSIGN(SpotLightPane);
 };
 
-class PointLightAttenuationPane : public views::View {
+class PointLightAttenuationPane : public views::View,
+                                  public views::TextfieldController {
  public:
   static const char kViewClassName[];
   explicit PointLightAttenuationPane(Light* light);
@@ -117,6 +124,10 @@ class PointLightAttenuationPane : public views::View {
   const char* GetClassName() const override;
   gfx::Size GetPreferredSize() const override;
   void Layout() override;
+
+  void UpdateTextfieldValue();
+  void ContentsChanged(views::Textfield* sender,
+                       const base::string16& new_contents) override;
  private:
   views::Label* range_label_;
   views::Label* const_label_;
