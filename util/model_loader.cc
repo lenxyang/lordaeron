@@ -7,6 +7,7 @@
 #include "assimp/scene.h"
 #include "assimp/anim.h"
 #include "azer/render/util.h"
+#include "azer/render/render.h"
 #include "lordaeron/util/bounding_volumn.h"
 
 namespace lord {
@@ -19,6 +20,87 @@ struct MeshData {
   Vector3 vmin;
   Vector3 vmax;
 };
+
+void CalcTriangleListTangentAndBinormal(SlotVertexData* vd) {
+  const VertexDesc* desc = vd->desc();
+  VertexPack pickle(vd);
+  VertexPos ppos, npos, tpos, binpos, tagentpos;
+  bool has_pos = GetSemanticIndex("position", 0, desc, &ppos);
+  bool has_normal = GetSemanticIndex("normal", 0, desc, &npos);
+  bool has_tex = GetSemanticIndex("texcoord", 0, desc, &tpos);
+  bool has_binormal = GetSemanticIndex("binormal", 0, desc, &binpos);
+  bool has_tagent = GetSemanticIndex("tangent", 0, desc, &tagentpos);
+  if (!has_pos ||  !has_normal || !has_tex || !has_binormal || !has_tagent) {
+    return;
+  }
+
+  pickle.first();
+  for (int i = 0; i < vd->vertex_num(); i+=3) {
+    Vector3 p1, p2, p3;
+    Vector2 t1, t2, t3;
+    Vector3 tangent, binormal, normal;
+    pickle.move(i);
+    pickle.ReadVector3Or4(&p1, ppos);
+    pickle.ReadVector2(&t1, tpos);
+    pickle.move(i + 1);
+    pickle.ReadVector3Or4(&p1, ppos);
+    pickle.ReadVector2(&t1, tpos);
+    pickle.move(i + 1);
+    pickle.ReadVector3Or4(&p1, ppos);
+    pickle.ReadVector2(&t1, tpos);
+
+    CalcTBN(p1, t1, p2, t2, p3, t3, &tangent, &normal, &binormal);
+    for (int j = 0; j < 3; ++j) {
+      pickle.move(i + j);
+      pickle.WriteVector3Or4(Vector4(binormal, 0.0f), binpos);
+      pickle.WriteVector3Or4(Vector4(tangent, 0.0f), tagentpos);
+      pickle.WriteVector3Or4(Vector4(normal, 0.0f), npos);
+    }
+  }
+}
+
+void CalcIndexedTriangleListTangentAndBinormal(SlotVertexData* vd, IndicesData* id) {
+  VertexPack pickle(vd);
+  IndexPack ipack(id);
+
+  const VertexDesc* desc = vd->desc();
+  VertexPos ppos, npos, tpos, binpos, tagentpos;
+  bool has_pos = GetSemanticIndex("position", 0, desc, &ppos);
+  bool has_normal = GetSemanticIndex("normal", 0, desc, &npos);
+  bool has_tex = GetSemanticIndex("texcoord", 0, desc, &tpos);
+  bool has_binormal = GetSemanticIndex("binormal", 0, desc, &binpos);
+  bool has_tagent = GetSemanticIndex("tangent", 0, desc, &tagentpos);
+  if (!has_pos ||  !has_normal || !has_tex || !has_binormal || !has_tagent) {
+    return;
+  }
+  
+  for (int32 i = 0; i < ipack.count(); i+=3) {
+    uint32 index[3];
+    CHECK(ipack.ReadAndAdvance(index));
+    CHECK(ipack.ReadAndAdvance(index + 1));
+    CHECK(ipack.ReadAndAdvance(index + 2));
+    Vector3 p1, p2, p3;
+    Vector2 t1, t2, t3;
+    Vector3 tangent, binormal, normal;
+    pickle.move(index[0]);
+    pickle.ReadVector3Or4(&p1, ppos);
+    pickle.ReadVector2(&t1, tpos);
+    pickle.move(index[1]);
+    pickle.ReadVector3Or4(&p1, ppos);
+    pickle.ReadVector2(&t1, tpos);
+    pickle.move(index[2]);
+    pickle.ReadVector3Or4(&p1, ppos);
+    pickle.ReadVector2(&t1, tpos);
+
+    CalcTBN(p1, t1, p2, t2, p3, t3, &tangent, &normal, &binormal);
+    for (int j = 0; j < 3; ++j) {
+      pickle.move(index[j]);
+      pickle.WriteVector3Or4(Vector4(binormal, 0.0f), binpos);
+      pickle.WriteVector3Or4(Vector4(tangent, 0.0f), tagentpos);
+      pickle.WriteVector3Or4(Vector4(normal, 0.0f), npos);
+    }
+  }
+}
 
 MeshData LoadMeshData(const aiMesh* paiMesh, VertexDescPtr desc) {
   SlotVertexDataPtr vdata(new SlotVertexData(desc, paiMesh->mNumVertices));
@@ -53,6 +135,8 @@ MeshData LoadMeshData(const aiMesh* paiMesh, VertexDescPtr desc) {
     CHECK(ipack.WriteAndAdvance(face.mIndices[1]));
     CHECK(ipack.WriteAndAdvance(face.mIndices[2]));
   }
+
+  CalcIndexedTriangleListTangentAndBinormal(vdata.get(), idata.get());
 
   MeshData data;
   data.vdata = vdata;
