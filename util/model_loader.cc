@@ -43,11 +43,11 @@ void CalcTriangleListTangentAndBinormal(SlotVertexData* vd) {
     pickle.ReadVector3Or4(&p1, ppos);
     pickle.ReadVector2(&t1, tpos);
     pickle.move(i + 1);
-    pickle.ReadVector3Or4(&p1, ppos);
-    pickle.ReadVector2(&t1, tpos);
+    pickle.ReadVector3Or4(&p2, ppos);
+    pickle.ReadVector2(&t2, tpos);
     pickle.move(i + 1);
-    pickle.ReadVector3Or4(&p1, ppos);
-    pickle.ReadVector2(&t1, tpos);
+    pickle.ReadVector3Or4(&p3, ppos);
+    pickle.ReadVector2(&t3, tpos);
 
     CalcTBN(p1, t1, p2, t2, p3, t3, &tangent, &normal, &binormal);
     for (int j = 0; j < 3; ++j) {
@@ -86,11 +86,11 @@ void CalcIndexedTriangleListTangentAndBinormal(SlotVertexData* vd, IndicesData* 
     pickle.ReadVector3Or4(&p1, ppos);
     pickle.ReadVector2(&t1, tpos);
     pickle.move(index[1]);
-    pickle.ReadVector3Or4(&p1, ppos);
-    pickle.ReadVector2(&t1, tpos);
+    pickle.ReadVector3Or4(&p2, ppos);
+    pickle.ReadVector2(&t2, tpos);
     pickle.move(index[2]);
-    pickle.ReadVector3Or4(&p1, ppos);
-    pickle.ReadVector2(&t1, tpos);
+    pickle.ReadVector3Or4(&p3, ppos);
+    pickle.ReadVector2(&t3, tpos);
 
     CalcTBN(p1, t1, p2, t2, p3, t3, &tangent, &normal, &binormal);
     for (int j = 0; j < 3; ++j) {
