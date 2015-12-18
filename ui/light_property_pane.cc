@@ -1,15 +1,21 @@
 #include "lordaeron/ui/light_property_pane.h"
 
+#include <cmath>
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/strings/stringprintf.h"
 #include "ui/views/border.h"
 #include "lordaeron/ui/color_util.h"
 #include "lordaeron/ui/layout_util.h"
+#include "base/strings/string_number_conversions.h"
 
 namespace lord {
 
 using base::UTF8ToUTF16;
+using base::UTF16ToUTF8;
+using base::StringPrintf;
 using views::Border;
+
 const char LightColorPane::kViewClassName[] = "nelf::LightColorPane";
 LightColorPane::LightColorPane(Light* light) 
     : light_(light) {
@@ -181,6 +187,11 @@ SpotLightAttenuationPane::SpotLightAttenuationPane(Light* light)
   color_group_->contents()->AddChildView(theta_textfield_);
   color_group_->contents()->AddChildView(phi_textfield_);
   color_group_->contents()->AddChildView(falloff_textfield_);
+  range_textfield_->set_controller(this);
+  theta_textfield_->set_controller(this);
+  phi_textfield_->set_controller(this);
+  falloff_textfield_->set_controller(this);
+  UpdateTextfieldValue();
 }
 
 SpotLightAttenuationPane::~SpotLightAttenuationPane() {
@@ -192,6 +203,30 @@ const char* SpotLightAttenuationPane::GetClassName() const {
 
 gfx::Size SpotLightAttenuationPane::GetPreferredSize() const {
   return gfx::Size(240, 130);
+}
+
+void SpotLightAttenuationPane::UpdateTextfieldValue() {
+  const SpotLight& light = light_->spot_light();
+  theta_textfield_->SetText(UTF8ToUTF16(StringPrintf("%.4f", std::acos(light.theta))));
+  phi_textfield_->SetText(UTF8ToUTF16(StringPrintf("%.4f", std::acos(light.phi))));
+  falloff_textfield_->SetText(UTF8ToUTF16(StringPrintf("%.4f", light.falloff)));
+  range_textfield_->SetText(UTF8ToUTF16(StringPrintf("%.4f", light.range)));
+}
+
+void SpotLightAttenuationPane::ContentsChanged(views::Textfield* sender,
+                                               const base::string16& new_contents) {
+  double v;
+  CHECK(::base::StringToDouble(UTF16ToUTF8(new_contents), &v));
+  SpotLight* light = light_->mutable_spot_light();
+  if (sender == theta_textfield_) {
+    light->theta = std::acos(v);
+  } else if (sender == phi_textfield_) {
+    light->phi = std::acos(v);
+  } else if (sender == falloff_textfield_) {
+    light->falloff = v;
+  } else if (sender == range_textfield_) {
+    light->range = v;
+  }
 }
 
 void SpotLightAttenuationPane::Layout() {
@@ -302,6 +337,12 @@ PointLightAttenuationPane::PointLightAttenuationPane(Light* light)
   color_group_->contents()->AddChildView(const_textfield_);
   color_group_->contents()->AddChildView(linear_textfield_);
   color_group_->contents()->AddChildView(quadratic_textfield_);
+
+  UpdateTextfieldValue();
+  range_textfield_->set_controller(this);
+  const_textfield_->set_controller(this);
+  linear_textfield_->set_controller(this);
+  quadratic_textfield_->set_controller(this);
 }
 
 PointLightAttenuationPane::~PointLightAttenuationPane() {
@@ -309,6 +350,34 @@ PointLightAttenuationPane::~PointLightAttenuationPane() {
 
 const char* PointLightAttenuationPane::GetClassName() const {
   return kViewClassName;
+}
+
+void PointLightAttenuationPane::UpdateTextfieldValue() {
+  const PointLight& light = light_->point_light();
+  quadratic_textfield_->SetText(UTF8ToUTF16(
+      StringPrintf("%.4f", light.atten.coefficient.x)));
+  linear_textfield_->SetText(UTF8ToUTF16(
+      StringPrintf("%.4f", light.atten.coefficient.y)));
+  const_textfield_->SetText(UTF8ToUTF16(
+      StringPrintf("%.4f", light.atten.coefficient.z)));
+  range_textfield_->SetText(UTF8ToUTF16(
+      StringPrintf("%.4f", light.atten.range)));
+}
+
+void PointLightAttenuationPane::ContentsChanged(views::Textfield* sender,
+                                                const base::string16& new_contents) {
+  double v;
+  CHECK(::base::StringToDouble(UTF16ToUTF8(new_contents), &v));
+  PointLight* light = light_->mutable_point_light();
+  if (sender == quadratic_textfield_) {
+    light->atten.coefficient.x = v;
+  } else if (sender == linear_textfield_) {
+    light->atten.coefficient.y = v;
+  } else if (sender == const_textfield_) {
+    light->atten.coefficient.z = v;
+  } else if (sender == range_textfield_) {
+    light->atten.range = v;
+  }
 }
 
 gfx::Size PointLightAttenuationPane::GetPreferredSize() const {
