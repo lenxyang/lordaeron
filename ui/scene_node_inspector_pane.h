@@ -6,12 +6,27 @@
 
 namespace lord {
 class SceneNode;
+class SceneNodeInspectorPane;
+
+class SceneNodeInspectorFootBar : public views::View {
+ public:
+  static const char kViewClassName[];
+  explicit SceneNodeInspectorFootBar(SceneNodeInspectorPane* pane);
+
+  const char* GetClassName() const override;
+  gfx::Size GetPreferredSize() const override;
+ private:
+  SceneNodeInspectorPane* pane_;
+  DISALLOW_COPY_AND_ASSIGN(SceneNodeInspectorFootBar);
+};
+
 class SceneNodeInspectorPane : public views::View,
                                public InteractiveContextObserver {
  public:
   static const char kViewClassName[];
   SceneNodeInspectorPane();
 
+  SceneNode* GetSceneNode() { return node_;}
   const char* GetClassName() const override;
   void Layout() override;
   void SetSceneNode(SceneNode* node);

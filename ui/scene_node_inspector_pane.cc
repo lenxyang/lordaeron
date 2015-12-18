@@ -2,6 +2,7 @@
 
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
+#include "ui/views/layout/box_layout.h"
 #include "ui/views/layout/fill_layout.h"
 #include "ui/views/controls/scrollbar/native_scroll_bar.h"
 #include "lordaeron/effect/light.h"
@@ -47,6 +48,22 @@ class HorzbarScrollView : public views::ScrollView {
   views::ScrollBar* verticalbar_;
 };
 using base::UTF8ToUTF16;
+
+const char SceneNodeInspectorFootBar::kViewClassName[] = 
+    "lord::SceneNodeInspectorFootBar";
+SceneNodeInspectorFootBar::SceneNodeInspectorFootBar(SceneNodeInspectorPane* pane)
+    : pane_(pane) {
+}
+
+const char* SceneNodeInspectorFootBar::GetClassName() const {
+  return kViewClassName;
+}
+
+gfx::Size SceneNodeInspectorFootBar::GetPreferredSize() const {
+  return gfx::Size(20, 20);
+}
+
+// class SceneNodeInspectorPane
 const char SceneNodeInspectorPane::kViewClassName[] = "lord::SceneNodeInspectorPane";
 SceneNodeInspectorPane::SceneNodeInspectorPane() 
     : node_(NULL),
@@ -167,9 +184,11 @@ SceneNodeInspectorWindow::SceneNodeInspectorWindow(const gfx::Rect& bounds,
   pane->GetContents()->AddChildView(inspector_pane_);
   pane->GetContents()->SetLayoutManager(new views::FillLayout);
   pane->SetTitle(::base::UTF8ToUTF16("Inspector"));
-  pane->GetFootBar()->SetVisible(true);
+  views::View* footbar = pane->GetFootBar();
+  footbar->AddChildView(new SceneNodeInspectorFootBar(inspector_pane_));
+  footbar->SetVisible(true);
+  footbar->set_background(views::Background::CreateSolidBackground(0xffff0000));
   AddPane(pane);
-  Layout();
 }
 
 void SceneNodeInspectorWindow::SetSceneNode(SceneNode* node) {
@@ -181,7 +200,6 @@ const char* SceneNodeInspectorWindow::GetClassName() const {
 }
 
 void SceneNodeInspectorWindow::Layout() {
-  SizeToPreferredSize();
-  views::View::Layout();
+  nelf::TabbedWindow::Layout();
 }
 }  // namespace lord
