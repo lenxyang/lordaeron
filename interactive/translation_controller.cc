@@ -228,8 +228,8 @@ TransformAxisObject::TransformAxisObject(DiffuseEffect* effect)
   rotation_[2] = std::move(MirrorTrans(xzplane)) * 
       std::move(RotateX(Degree(-90.0f)));
   reset_color();
-  CreatePlane(effect_->GetVertexDesc());
-  CreatePlaneFrame(effect_->GetVertexDesc());
+  CreatePlane(effect_->vertex_desc());
+  CreatePlaneFrame(effect_->vertex_desc());
 }
 
 TransformAxisObject::~TransformAxisObject() {
@@ -269,8 +269,8 @@ void TransformAxisObject::CreatePlaneFrame(azer::VertexDesc* desc) {
 
 void TransformAxisObject::set_length(float length) {
   length_ = length;
-  CreatePlane(effect_->GetVertexDesc());
-  CreatePlaneFrame(effect_->GetVertexDesc());
+  CreatePlane(effect_->vertex_desc());
+  CreatePlaneFrame(effect_->vertex_desc());
 }
 
 void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {

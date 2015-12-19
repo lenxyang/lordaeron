@@ -15,14 +15,14 @@ namespace lord {
 namespace {
 using namespace azer;
 struct MeshData {
-  SlotVertexDataPtr vdata;
+  VertexDataPtr vdata;
   IndicesDataPtr idata;
   Vector3 vmin;
   Vector3 vmax;
 };
 
-void CalcTriangleListTangentAndBinormal(SlotVertexData* vd) {
-  const VertexDesc* desc = vd->desc();
+void CalcTriangleListTangentAndBinormal(VertexData* vd) {
+  const VertexDesc* desc = vd->vertex_desc();
   VertexPack pickle(vd);
   VertexPos ppos, npos, tpos, binpos, tagentpos;
   bool has_pos = GetSemanticIndex("position", 0, desc, &ppos);
@@ -35,7 +35,7 @@ void CalcTriangleListTangentAndBinormal(SlotVertexData* vd) {
   }
 
   pickle.first();
-  for (int i = 0; i < vd->vertex_num(); i+=3) {
+  for (int i = 0; i < vd->vertex_count(); i+=3) {
     Vector3 p1, p2, p3;
     Vector2 t1, t2, t3;
     Vector3 tangent, binormal, normal;
@@ -59,11 +59,11 @@ void CalcTriangleListTangentAndBinormal(SlotVertexData* vd) {
   }
 }
 
-void CalcIndexedTriangleListTangentAndBinormal(SlotVertexData* vd, IndicesData* id) {
+void CalcIndexedTriangleListTangentAndBinormal(VertexData* vd, IndicesData* id) {
   VertexPack pickle(vd);
   IndexPack ipack(id);
 
-  const VertexDesc* desc = vd->desc();
+  const VertexDesc* desc = vd->vertex_desc();
   VertexPos ppos, npos, tpos, binpos, tagentpos;
   bool has_pos = GetSemanticIndex("position", 0, desc, &ppos);
   bool has_normal = GetSemanticIndex("normal", 0, desc, &npos);
@@ -103,7 +103,8 @@ void CalcIndexedTriangleListTangentAndBinormal(SlotVertexData* vd, IndicesData* 
 }
 
 MeshData LoadMeshData(const aiMesh* paiMesh, VertexDescPtr desc) {
-  SlotVertexDataPtr vdata(new SlotVertexData(desc, paiMesh->mNumVertices));
+  VertexDataPtr vdata(new VertexData(desc, paiMesh->mNumVertices));
+  vdata->InitSlotFromDesc();
   IndicesDataPtr idata(new IndicesData(paiMesh->mNumFaces * 3));
   VertexPack vpack(vdata.get());
   Vector3 vmin  = Vector3(999999.9f, 999999.9f, 999999.9f);
@@ -190,11 +191,9 @@ EntityVecPtr ModelLoader::LoadVertexData(const ResPath& path, VertexDesc* desc) 
   for (uint32 i = 0; i < scene->mNumMeshes; ++i) {
     const aiMesh* paiMesh = scene->mMeshes[i];
     MeshData data = LoadMeshData(scene->mMeshes[i], desc);
-    EntityPtr entity(new Entity());
-    entity->SetVertexBuffer(rs->CreateVertexBuffer(
-        VertexBuffer::Options(), data.vdata));
-    entity->SetIndicesBuffer(rs->CreateIndicesBuffer(
-        IndicesBuffer::Options(), data.idata));
+    VertexBufferGroupPtr vbg = CreateVertexBufferGroupWithDefaultOpt(data.vdata);
+    IndicesBufferPtr ib = CreateIndicesBufferWithDefaultOpt(data.idata);
+    EntityPtr entity(new Entity(vbg.get(), ib.get()));
     *entity->mutable_vmin() = data.vmin;
     *entity->mutable_vmax() = data.vmax;
     vecptr->AddEntity(entity);
@@ -222,11 +221,9 @@ MeshPtr ModelLoader::Load(const ResPath& path, VertexDesc* desc) {
     MeshPartPtr part = new MeshPart(NULL);
     const aiMesh* paiMesh = scene->mMeshes[i];
     MeshData data = LoadMeshData(scene->mMeshes[i], desc);
-    EntityPtr entity(new Entity());
-    entity->SetVertexBuffer(rs->CreateVertexBuffer(
-        VertexBuffer::Options(), data.vdata));
-    entity->SetIndicesBuffer(rs->CreateIndicesBuffer(
-        IndicesBuffer::Options(), data.idata));
+    VertexBufferGroupPtr vbg = CreateVertexBufferGroupWithDefaultOpt(data.vdata);
+    IndicesBufferPtr ib = CreateIndicesBufferWithDefaultOpt(data.idata);
+    EntityPtr entity(new Entity(vbg.get(), ib.get()));
     *entity->mutable_vmin() = data.vmin;
     *entity->mutable_vmax() = data.vmax;
     mtrl_index.push_back(paiMesh->mMaterialIndex);

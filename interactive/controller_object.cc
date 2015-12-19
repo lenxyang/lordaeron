@@ -23,8 +23,8 @@ EntityPtr CreatePlane(const Vector4 pos[4], VertexDesc* desc) {
 
   RenderSystem* rs = RenderSystem::Current();
   VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-  EntityPtr entity = new Entity;
-  entity->SetVertexBuffer(vb);
+  EntityPtr entity = new Entity(desc);
+  entity->SetVertexBuffer(vb, 0);
   return entity;
 }
 
@@ -44,9 +44,9 @@ EntityPtr CreateLineList(const Vector4* pos, int32 count, VertexDesc* desc) {
 
   RenderSystem* rs = RenderSystem::Current();
   VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-  EntityPtr entity = new Entity;
+  EntityPtr entity = new Entity(desc);
   entity->set_topology(kLineList);
-  entity->SetVertexBuffer(vb);
+  entity->SetVertexBuffer(vb, 0);
   return entity;
 }
 

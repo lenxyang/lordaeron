@@ -219,7 +219,7 @@ void SimpleRenderTreeRenderer::RenderNode(SceneRenderNode* node,
 MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
   Context* ctx = Context::instance();
   EffectPtr effect = ctx->GetEffect(DiffuseEffect::kEffectName);
-  BoxObject* objptr = new BoxObject(effect->GetVertexDesc());
+  BoxObject* objptr = new BoxObject(effect->vertex_desc());
   
   MeshPartPtr objpart = objptr->CreateObject(effect.get());
   BlendingPtr blending = ctx->GetDefaultBlending();

@@ -142,7 +142,7 @@ void ScaleAxisPlaneObject::InitPlane() {
     Vector4(0.0f, 0.0f, inner_ * axis_length_, 1.0f),
     Vector4(inner_ * axis_length_, 0.0f, 0.0f, 1.0f),
   };
-  plane_ = lord::CreatePlane(pos, effect_->GetVertexDesc());
+  plane_ = lord::CreatePlane(pos, effect_->vertex_desc());
 }
 
 void ScaleAxisPlaneObject::InitCenterPlane() {
@@ -152,7 +152,7 @@ void ScaleAxisPlaneObject::InitCenterPlane() {
     Vector4(inner_ * axis_length_, 0.0f, 0.0f, 1.0f),
     Vector4(0.0f, 0.0f, inner_ * axis_length_, 1.0f),
   };
-  center_plane_ = lord::CreatePlane(pos, effect_->GetVertexDesc());
+  center_plane_ = lord::CreatePlane(pos, effect_->vertex_desc());
 }
 
 void ScaleAxisPlaneObject::InitPlaneFrame() {
@@ -162,7 +162,7 @@ void ScaleAxisPlaneObject::InitPlaneFrame() {
     Vector4(0.0f, 0.0f, inner_ * axis_length_, 1.0f),
     Vector4(inner_ * axis_length_, 0.0f, 0.0f, 1.0f),
   };
-  plane_frame_ = CreateLineList(pos, (int32)arraysize(pos), effect_->GetVertexDesc());
+  plane_frame_ = CreateLineList(pos, (int32)arraysize(pos), effect_->vertex_desc());
 }
 
 void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {

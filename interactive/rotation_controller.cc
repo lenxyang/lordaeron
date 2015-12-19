@@ -179,7 +179,7 @@ CircleCoordinateObject::CircleCoordinateObject(DiffuseEffect* effect)
      effect_(effect) {
   set_radius(1.0f);
   
-  circle_ = new CircleObject(effect_->GetVertexDesc(), 1024);
+  circle_ = new CircleObject(effect_->vertex_desc(), 1024);
   reset_color();
 
   axis_world_[0] = std::move(RotateZ(Degree(90.0f)));
@@ -232,7 +232,7 @@ RotationControllerObject::RotationControllerObject()
   RenderSystem* rs = RenderSystem::Current();
   effect_ = CreateDiffuseEffect();
   sphere_color_ = Vector4(1.0f, 1.0f, 1.0f, 0.4f);
-  sphere_ = new SphereObject(effect_->GetVertexDesc(), 1.0f, 32, 32);
+  sphere_ = new SphereObject(effect_->vertex_desc(), 1.0f, 32, 32);
 
   circles_.reset(new CircleCoordinateObject(effect_));
 }

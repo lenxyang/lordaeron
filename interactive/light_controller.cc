@@ -55,7 +55,7 @@ void GenerateCircle(float radius, float y, int32 slice, VertexPack* vpack) {
 
 void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
                      Vector3* vmin, Vector3* vmax) {
-  VertexDesc* desc = vdata->desc();
+  VertexDesc* desc = vdata->vertex_desc();
   VertexPos posidx(0, 0);
   VertexPos normalidx;
   bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normalidx);
@@ -108,7 +108,7 @@ PointLightController::PointLightController(SceneRenderNode* node)
 }
 
 void PointLightController::InitMesh() {
-  GeometryObjectPtr obj = new SphereObject(effect_->GetVertexDesc(), 0.1f);
+  GeometryObjectPtr obj = new SphereObject(effect_->vertex_desc(), 0.1f);
   MeshPartPtr part = obj->CreateObject(effect_.get());
   light_mesh_->AddMeshPart(part.get());
 }
@@ -120,7 +120,7 @@ void PointLightController::InitControllerMesh() {
   float range = light->point_light().atten.range;
   Context* ctx = Context::instance();
   BlendingPtr blending = ctx->GetDefaultBlending();
-  GeometryObjectPtr obj = new SphereObject(effect_->GetVertexDesc(), range);
+  GeometryObjectPtr obj = new SphereObject(effect_->vertex_desc(), range);
   MeshPartPtr part = obj->CreateObject(effect_.get());
   part->SetBlending(blending.get());
   controller_mesh_->AddMeshPart(part);
@@ -169,7 +169,7 @@ void SpotLightController::InitMesh() {
   float kBaseRadius = 0.1f;
 
   RenderSystem* rs = RenderSystem::Current();
-  VertexDesc* desc = effect_->GetVertexDesc();
+  VertexDesc* desc = effect_->vertex_desc();
   // spot cylinder
   {
     // create VertexData
@@ -185,7 +185,7 @@ void SpotLightController::InitMesh() {
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
     MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(vb, ib));
+    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
@@ -206,7 +206,7 @@ void SpotLightController::InitMesh() {
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
     MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(vb, ib));
+    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
@@ -229,11 +229,11 @@ void SpotLightController::InitControllerMesh() {
   float outer_sine = std::sqrt(1 - spot.phi * spot.phi);
   float outer_radius = range * outer_sine / spot.phi;
   GeometryObjectPtr obj1 = new CylinderObject(
-      effect_->GetVertexDesc(), inner_radius, top_radius, range, 64, 64, false);
+      effect_->vertex_desc(), inner_radius, top_radius, range, 64, 64, false);
   MeshPartPtr inner_cone = obj1->CreateObject(effect_.get());
   inner_cone->SetBlending(blending.get());
   GeometryObjectPtr obj2 = new CylinderObject(
-      effect_->GetVertexDesc(), outer_radius, top_radius, range, 64, 64, false);
+      effect_->vertex_desc(), outer_radius, top_radius, range, 64, 64, false);
   MeshPartPtr outer_cone = obj2->CreateObject(effect_.get());
   outer_cone->SetBlending(blending.get());
   controller_mesh_->AddMeshPart(inner_cone);
@@ -270,7 +270,7 @@ void SpotLightController::CreateCrossCircle(float mid, Light* light) {
   float outer_top = kTopRadius * spot.phi / outer_sine;
   float mid_inner = kTopRadius * (mid + inner_top) / inner_top;
   float mid_outer = kTopRadius * (mid + outer_top) / outer_top;
-  VertexDesc* desc = effect_->GetVertexDesc();
+  VertexDesc* desc = effect_->vertex_desc();
   float y = range - mid;
 
   int32 kSlice = 64;
@@ -281,8 +281,8 @@ void SpotLightController::CreateCrossCircle(float mid, Light* light) {
   GenerateCircle(mid_inner, mid, kSlice, &vpack);
   GenerateCircle(mid_outer, mid, kSlice, &vpack);
   GenerateCrossLine(mid_outer, mid, &vpack);
-  EntityPtr entity(new Entity);
-  entity->SetVertexBuffer(rs->CreateVertexBuffer(VertexBuffer::Options(), vdata));
+  EntityPtr entity(new Entity(effect_->vertex_desc()));
+  entity->SetVertexBuffer(rs->CreateVertexBuffer(VertexBuffer::Options(), vdata), 0);
   entity->set_topology(kLineList);
   MeshPartPtr part(new MeshPart(effect_.get()));
   part->AddEntity(entity);
@@ -298,9 +298,9 @@ void SpotLightController::CreateBorderLine(Light* light) {
   float outer_radius = range * outer_sine / spot.phi;
   VertexPos npos;
   Vector4 normal(0.0f, 1.0f, 0.0f, 0.0f);
-  SlotVertexDataPtr vdata(new SlotVertexData(effect_->GetVertexDesc(), 8));
+  SlotVertexDataPtr vdata(new SlotVertexData(effect_->vertex_desc(), 8));
   VertexPack vpack(vdata.get());
-  CHECK(GetSemanticIndex("normal", 0, effect_->GetVertexDesc(), &npos));
+  CHECK(GetSemanticIndex("normal", 0, effect_->vertex_desc(), &npos));
   vpack.first();
 
   Vector4 pos[8] = {
@@ -319,8 +319,8 @@ void SpotLightController::CreateBorderLine(Light* light) {
     vpack.next(1);
   }
 
-  EntityPtr entity(new Entity);
-  entity->SetVertexBuffer(rs->CreateVertexBuffer(VertexBuffer::Options(), vdata));
+  EntityPtr entity(new Entity(effect_->vertex_desc()));
+  entity->SetVertexBuffer(rs->CreateVertexBuffer(VertexBuffer::Options(), vdata), 0);
   entity->set_topology(kLineList);
   MeshPartPtr part(new MeshPart(effect_.get()));
   part->AddEntity(entity);
@@ -345,7 +345,7 @@ void DirLightController::InitMesh() {
   const float kConeY = 0.8f;
   const float kCylinderRadius = 0.08f;
   RenderSystem* rs = RenderSystem::Current();
-  VertexDesc* desc = effect_->GetVertexDesc();
+  VertexDesc* desc = effect_->vertex_desc();
   {
     // create VertexData
     Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
@@ -359,7 +359,7 @@ void DirLightController::InitMesh() {
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
     MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(vb, ib));
+    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);
@@ -380,7 +380,7 @@ void DirLightController::InitMesh() {
     VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
     MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(vb, ib));
+    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
     *entity->mutable_vmin() = vmin;
     *entity->mutable_vmax() = vmax;
     part->AddEntity(entity);

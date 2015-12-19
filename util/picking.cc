@@ -55,8 +55,9 @@ PlanePickingHelper::PlanePickingHelper(const azer::Plane& plane)
     : show_picking_(false),
       plane_(plane) {
   effect_ = CreateDiffuseEffect();
-  GeometryObjectPtr ptr = new SphereObject(effect_->GetVertexDesc(), 32, 32);
-  sphere_ = new Entity(ptr->GetVertexBuffer(), ptr->GetIndicesBuffer());
+  GeometryObjectPtr ptr = new SphereObject(effect_->vertex_desc(), 32, 32);
+  sphere_ = new Entity(effect_->vertex_desc(), ptr->GetVertexBuffer(),
+                       ptr->GetIndicesBuffer());
   CreatePlane();
 }
 

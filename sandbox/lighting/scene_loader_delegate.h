@@ -43,10 +43,10 @@ class SimpleSceneNodeLoader : public SceneNodeLoader {
       
     ModelLoader loader(fsystem_);
     azer::MeshPtr obj = loader.Load(azer::ResPath(::base::UTF8ToUTF16(pathstr)), 
-                                      effect_->GetVertexDesc());
-	if (obj.get()) {
-	  InitMeshEffect(effect_, obj.get());
-	}
+                                      effect_->vertex_desc());
+    if (obj.get()) {
+      InitMeshEffect(effect_, obj.get());
+    }
     return obj;
   }
   

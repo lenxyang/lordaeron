@@ -54,7 +54,7 @@ void AxisObject::CreateCone(VertexDesc* desc) {
   RenderSystem* rs = RenderSystem::Current();
   VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
   IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-  cone_ = new Entity(vb, ib);
+  cone_ = new Entity(desc, vb, ib);
 }
 
 void AxisObject::CreateLine(VertexDesc* desc) {
@@ -68,7 +68,7 @@ void AxisObject::CreateLine(VertexDesc* desc) {
 // class XYZAxisObject
 XYZAxisObject::XYZAxisObject(DiffuseEffect* effect) 
     : effect_(effect) {
-  object_.reset(new AxisObject(effect->GetVertexDesc()));
+  object_.reset(new AxisObject(effect->vertex_desc()));
   SetPosition(Vector3(0.0f, 0.0f, 0.0f));
   rotation_[0] = std::move(RotateZ(Degree(90.0f)));
   rotation_[1] = Matrix4::kIdentity;
