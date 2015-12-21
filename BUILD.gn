@@ -48,6 +48,8 @@ static_library("lordaeron") {
     "mainframe_render_delegate.h",
     "render/camera_overlay.cc",
     "render/camera_overlay.h",
+    "resource/light_loader.cc",
+    "resource/light_loader.h",
     "resource/resource.h",
     "resource/resource_loader.cc",
     "resource/resource_loader.h",
