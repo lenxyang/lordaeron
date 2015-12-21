@@ -1,6 +1,7 @@
-#include "lordaeron/scene/scene_loader.h"
+#include "lordaeron/resource/scene_loader.h"
 
 #include "base/logging.h"
+#include "base/strings/utf_string_conversions.h"
 #include "azer/base/file_system.h"
 #include "lordaeron/util/xml_util.h"
 
@@ -23,12 +24,10 @@ bool LoadContents(const ResPath& path, FileContents* contents, FileSystem* fs) {
 }
 }
 
-SceneLoader::SceneLoader(FileSystem* fs)
-    : filesystem_(fs) {
-}
+const char SceneLoader::kSpecialLoaderName[] = "lord::SceneLoader";
 
-SceneLoader::~SceneLoader() {
-}
+SceneLoader::SceneLoader() {}
+SceneLoader::~SceneLoader() {}
 
 SceneNodeLoader* SceneLoader::GetLoader(const std::string& name) {
   auto iter = loader_map_.find(name);
@@ -39,44 +38,40 @@ SceneNodeLoader* SceneLoader::GetLoader(const std::string& name) {
   }
 }
 
+const char* SceneLoader::GetLoaderName() const {
+  return kSpecialLoaderName;
+}
+
+bool SceneLoader::CouldLoad(azer::ConfigNode* node) const {
+  const std::string attr = std::move(node->GetAttr("type"));
+  return node->tagname() == "node" && (attr.empty() || attr == "scene");
+}
+
+Resource SceneLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
+  SceneLoadContext context;
+  context.filesystem = ctx->filesystem;
+  context.loader = this;
+  Resource ret;
+  ret.scene = LoadNode(node, &context);
+  ret.retcode = (ret.scene.get() != NULL) ? 0 : -1;
+  return ret;
+}
+
 void SceneLoader::RegisterSceneNodeLoader(scoped_ptr<SceneNodeLoader> loader) {
   DCHECK(NULL == GetLoader(loader->node_type_name()));
   loader_map_.insert(std::make_pair(loader->node_type_name(), loader.Pass()));
 }
 
-SceneNodePtr SceneLoader::Load(const ResPath& path, const std::string& nodepath) {
-  SceneLoadContext context;
-  context.filesystem = filesystem_;
-  context.path = path;
-  context.loader = this;
-
+SceneNodePtr SceneLoader::LoadNode(const ConfigNode* cnode, SceneLoadContext* ctx) {
   SceneNodePtr root(new SceneNode);
-  FileContents contents;
-  if (!LoadContents(path, &contents, filesystem_)) {
-    LOG(ERROR) << "Failed to Load contents from file: " << path.fullpath();
-    return SceneNodePtr();
-  }
-  std::string strcontents((const char*)&(contents[0]), contents.size());
-  ConfigNodePtr croot = ConfigNode::InitFromXMLStr(strcontents);
-  if (!croot.get()) {
-    LOG(ERROR) << "Failed to Extract ConfigNodeTree from file: " << path.fullpath();
-    return SceneNodePtr();
-  }
-
-  ConfigNodePtr cnode = croot->GetNodeFromPath(nodepath);
-  if (!cnode.get()) {
-    LOG(ERROR) << "Failed to get CNode from path: \"" << nodepath << "\"";
-    return SceneNodePtr();
-  }
-
-  if (LoadChildrenNode(root, cnode, &context)) {
+  if (LoadChildrenNode(root, cnode, ctx)) {
     return root;
   } else {
     return SceneNodePtr();
   }
 }
 
-bool SceneLoader::LoadChildrenNode(SceneNode* node, ConfigNode* config,
+bool SceneLoader::LoadChildrenNode(SceneNode* node, const ConfigNode* config,
                                    SceneLoadContext* ctx) {
   ConfigNodes subnodes = config->GetTaggedChildren("node");
   for (auto iter = subnodes.begin(); iter != subnodes.end(); ++iter) {
@@ -92,7 +87,8 @@ bool SceneLoader::LoadChildrenNode(SceneNode* node, ConfigNode* config,
   return true;
 }
 
-bool SceneLoader::InitSceneNodeRecusive(SceneNode* node, ConfigNode* config_node,
+bool SceneLoader::InitSceneNodeRecusive(SceneNode* node,
+                                        const ConfigNode* config_node,
                                         SceneLoadContext* ctx) {
   if (!InitSceneNode(node, config_node, ctx)) {
     return false;
@@ -105,7 +101,8 @@ bool SceneLoader::InitSceneNodeRecusive(SceneNode* node, ConfigNode* config_node
   return true;
 }
 
-bool SceneLoader::LoadSceneLocation(SceneNode* node, ConfigNode* config,
+bool SceneLoader::LoadSceneLocation(SceneNode* node,
+                                    const ConfigNode* config,
                                     SceneLoadContext* ctx) {
   std::vector<ConfigNodePtr> location_children = std::move(
       config->GetTaggedChildren("location"));
@@ -155,7 +152,8 @@ bool SceneLoader::LoadSceneLocation(SceneNode* node, ConfigNode* config,
   return true;
 }
 
-bool SceneLoader::InitSceneNode(SceneNode* node, ConfigNode* config,
+bool SceneLoader::InitSceneNode(SceneNode* node,
+                                const ConfigNode* config,
                                 SceneLoadContext* ctx) {
   if (!LoadSceneLocation(node, config, ctx)) {
     LOG(ERROR) << "Failed to load node location information.";

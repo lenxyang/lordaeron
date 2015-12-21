@@ -67,11 +67,15 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   scoped_ptr<SceneNodeLoader> env_loader(new EnvNodeLoader());
   scoped_ptr<SimpleSceneNodeLoader> node_loader(new SimpleSceneNodeLoader(
       fsystem_.get(), effect_.get()));
-  SceneLoader loader(fsystem_.get());
-  loader.RegisterSceneNodeLoader(node_loader.Pass());
-  loader.RegisterSceneNodeLoader(env_loader.Pass());
-  loader.RegisterSceneNodeLoader(light_loader.Pass());
-  SceneNodePtr root = loader.Load(ResPath(UTF8ToUTF16("//sandbox/lighting/scene.xml")), "//");
+  scoped_refptr<SceneLoader> loader(new SceneLoader);
+  loader->RegisterSceneNodeLoader(node_loader.Pass());
+  loader->RegisterSceneNodeLoader(env_loader.Pass());
+  loader->RegisterSceneNodeLoader(light_loader.Pass());
+  ResourceLoader resloader(fsystem_.get());
+  resloader.RegisterSpecialLoader(loader.get());
+  ResPath respath(UTF8ToUTF16("//sandbox/lighting/scene.xml"));
+  Resource res = resloader.Load(respath);
+  SceneNodePtr root = res.scene;
 
   tree_render_.reset(new SimpleRenderTreeRenderer);
   LoadSceneRenderNodeDelegateFactory factory(tree_render_.get());

@@ -11,7 +11,7 @@
 
 #include "ui/base/models/tree_model.h"
 #include "ui/gfx/image/image_skia.h"
-#include "azer/resources/repository_node.h"
+#include "azer/base/repository_node.h"
 
 namespace lord {
 class RepositoryModelNode : public ui::TreeModelNode {

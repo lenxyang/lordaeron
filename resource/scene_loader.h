@@ -5,6 +5,7 @@
 #include "azer/render/render.h"
 #include "lordaeron/effect/light.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/resource/resource_loader.h"
 
 // xml
 // <scene name="scene_name">
@@ -42,7 +43,6 @@ namespace lord {
 class SceneNode;
 class SceneNodeData;
 class SceneLoader;
-
 struct SceneLoadContext {
   SceneLoader* loader;
   azer::FileSystem* filesystem;
@@ -52,33 +52,37 @@ struct SceneLoadContext {
 class SceneNodeLoader {
  public:
   virtual const char* node_type_name() const = 0;
-  virtual bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config, 
+  virtual bool LoadSceneNode(SceneNode* node, const azer::ConfigNode* config, 
                              SceneLoadContext* ctx) = 0;
 };
 
 // must be stateless class
-class SceneLoader {
+class SceneLoader : public ResourceSpecialLoader {
  public:
-  SceneLoader(azer::FileSystem* fs);
+  static const char kSpecialLoaderName[];
+  SceneLoader();
   ~SceneLoader();
 
   SceneNodeLoader* GetLoader(const std::string& name);
   void RegisterSceneNodeLoader(scoped_ptr<SceneNodeLoader> loader);
 
+  const char* GetLoaderName() const override;
+  Resource Load(const azer::ConfigNode* node, ResourceLoaderContext* ctx) override;
+  bool CouldLoad(azer::ConfigNode* node) const override;
+
   // Load Scene
-  SceneNodePtr Load(const azer::ResPath& path, const std::string& nodepath);
+  SceneNodePtr LoadNode(const azer::ConfigNode* node, SceneLoadContext* ctx);
  private:
-  bool InitSceneNodeRecusive(SceneNode* node, azer::ConfigNode* config_node,
+  bool InitSceneNodeRecusive(SceneNode* node, const azer::ConfigNode* config_node,
                              SceneLoadContext* ctx);
-  bool InitSceneNode(SceneNode* node, azer::ConfigNode* config, 
+  bool InitSceneNode(SceneNode* node, const azer::ConfigNode* config, 
                      SceneLoadContext* ctx);
-  bool LoadChildrenNode(SceneNode* node, azer::ConfigNode* config,
+  bool LoadChildrenNode(SceneNode* node, const azer::ConfigNode* config,
                         SceneLoadContext* ctx);
-  bool LoadSceneLocation(SceneNode* node, azer::ConfigNode* config,
+  bool LoadSceneLocation(SceneNode* node, const azer::ConfigNode* config,
                          SceneLoadContext* ctx);
 
   std::map<std::string, scoped_ptr<SceneNodeLoader> >loader_map_;
-  azer::FileSystem* filesystem_;
   DISALLOW_COPY_AND_ASSIGN(SceneLoader);
 };
 }

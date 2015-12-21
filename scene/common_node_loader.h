@@ -2,7 +2,7 @@
 
 #include "azer/base/config_node.h"
 #include "lordaeron/effect/light.h"
-#include "lordaeron/scene/scene_loader.h"
+#include "lordaeron/resource/scene_loader.h"
 #include "lordaeron/scene/scene_node.h"
 
 namespace lord {
@@ -22,7 +22,7 @@ class LightNodeLoader : public SceneNodeLoader {
   ~LightNodeLoader();
 
   const char* node_type_name() const override;
-  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
+  bool LoadSceneNode(SceneNode* node, const azer::ConfigNode* config,
                      SceneLoadContext* ctx) override;
  private:
   bool LoadAttenuation(Attenuation* atten, azer::ConfigNode* config);
@@ -36,7 +36,7 @@ class EnvNodeLoader : public SceneNodeLoader {
   ~EnvNodeLoader();
 
   const char* node_type_name() const override;
-  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
+  bool LoadSceneNode(SceneNode* node, const azer::ConfigNode* config,
                      SceneLoadContext* ctx) override;
  private:
   DISALLOW_COPY_AND_ASSIGN(EnvNodeLoader);

@@ -1,4 +1,4 @@
-#include "lordaeron/util/model_loader.h"
+#include "lordaeron/resource/mesh_loader.h"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -148,11 +148,11 @@ MeshData LoadMeshData(const aiMesh* paiMesh, VertexDescPtr desc) {
 }
 }  // namespace
   
-ModelLoader::ModelLoader(FileSystem* fs)
+MeshLoader::MeshLoader(FileSystem* fs)
     : fsystem_(fs) {
 }
 
-const aiScene* ModelLoader::LoadScene(const azer::ResPath& path, 
+const aiScene* MeshLoader::LoadScene(const azer::ResPath& path, 
                                       Assimp::Importer* importer, 
                                       uint32 flags) {
   std::vector<uint8> contents;
@@ -173,7 +173,7 @@ const aiScene* ModelLoader::LoadScene(const azer::ResPath& path,
   return scene;
 }
 
-EntityVecPtr ModelLoader::LoadVertexData(const ResPath& path, VertexDesc* desc) {
+EntityVecPtr MeshLoader::LoadVertexData(const ResPath& path, VertexDesc* desc) {
   RenderSystem* rs = RenderSystem::Current();
   uint32 flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals 
       | aiProcess_FlipUVs;
@@ -202,7 +202,7 @@ EntityVecPtr ModelLoader::LoadVertexData(const ResPath& path, VertexDesc* desc) 
   return vecptr;
 }
 
-MeshPtr ModelLoader::Load(const ResPath& path, VertexDesc* desc) {
+MeshPtr MeshLoader::Load(const ResPath& path, VertexDesc* desc) {
   RenderSystem* rs = RenderSystem::Current();
   uint32 flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals 
       | aiProcess_FlipUVs;

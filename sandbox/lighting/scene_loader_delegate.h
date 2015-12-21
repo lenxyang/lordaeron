@@ -2,9 +2,9 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "lordaeron/context.h"
-#include "lordaeron/util/model_loader.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_loader.h"
+#include "lordaeron/resource/mesh_loader.h"
+#include "lordaeron/resource/scene_loader.h"
 
 namespace lord {
 void InitMeshEffect(azer::Effect* effect, azer::Mesh* mesh) {
@@ -18,7 +18,7 @@ class SimpleSceneNodeLoader : public SceneNodeLoader {
   SimpleSceneNodeLoader(azer::FileSystem* fs, azer::Effect* effect)
       : fsystem_(fs), effect_(effect) {}
   virtual const char* node_type_name() const { return "mesh";}
-  bool LoadSceneNode(SceneNode* node, azer::ConfigNode* config,
+  bool LoadSceneNode(SceneNode* node, const azer::ConfigNode* config,
                      SceneLoadContext* lctx) override {
     using azer::ConfigNode;
     Context* ctx = Context::instance(); 
@@ -41,7 +41,7 @@ class SimpleSceneNodeLoader : public SceneNodeLoader {
       return azer::MeshPtr();
     }
       
-    ModelLoader loader(fsystem_);
+    MeshLoader loader(fsystem_);
     azer::MeshPtr obj = loader.Load(azer::ResPath(::base::UTF8ToUTF16(pathstr)), 
                                       effect_->vertex_desc());
     if (obj.get()) {
