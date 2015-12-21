@@ -48,11 +48,8 @@ bool SceneLoader::CouldLoad(azer::ConfigNode* node) const {
 }
 
 Resource SceneLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
-  SceneLoadContext context;
-  context.filesystem = ctx->filesystem;
-  context.loader = this;
   Resource ret;
-  ret.scene = LoadNode(node, &context);
+  ret.scene = LoadNode(node, ctx);
   ret.retcode = (ret.scene.get() != NULL) ? 0 : -1;
   return ret;
 }
@@ -62,7 +59,7 @@ void SceneLoader::RegisterSceneNodeLoader(scoped_ptr<SceneNodeLoader> loader) {
   loader_map_.insert(std::make_pair(loader->node_type_name(), loader.Pass()));
 }
 
-SceneNodePtr SceneLoader::LoadNode(const ConfigNode* cnode, SceneLoadContext* ctx) {
+SceneNodePtr SceneLoader::LoadNode(const ConfigNode* cnode, ResourceLoaderContext* ctx) {
   SceneNodePtr root(new SceneNode);
   if (LoadChildrenNode(root, cnode, ctx)) {
     return root;
@@ -72,7 +69,7 @@ SceneNodePtr SceneLoader::LoadNode(const ConfigNode* cnode, SceneLoadContext* ct
 }
 
 bool SceneLoader::LoadChildrenNode(SceneNode* node, const ConfigNode* config,
-                                   SceneLoadContext* ctx) {
+                                   ResourceLoaderContext* ctx) {
   ConfigNodes subnodes = config->GetTaggedChildren("node");
   for (auto iter = subnodes.begin(); iter != subnodes.end(); ++iter) {
     ConfigNode* child_config = iter->get();
@@ -89,7 +86,7 @@ bool SceneLoader::LoadChildrenNode(SceneNode* node, const ConfigNode* config,
 
 bool SceneLoader::InitSceneNodeRecusive(SceneNode* node,
                                         const ConfigNode* config_node,
-                                        SceneLoadContext* ctx) {
+                                        ResourceLoaderContext* ctx) {
   if (!InitSceneNode(node, config_node, ctx)) {
     return false;
   }
@@ -103,7 +100,7 @@ bool SceneLoader::InitSceneNodeRecusive(SceneNode* node,
 
 bool SceneLoader::LoadSceneLocation(SceneNode* node,
                                     const ConfigNode* config,
-                                    SceneLoadContext* ctx) {
+                                    ResourceLoaderContext* ctx) {
   std::vector<ConfigNodePtr> location_children = std::move(
       config->GetTaggedChildren("location"));
   int32 location_size = location_children.size();
@@ -154,7 +151,7 @@ bool SceneLoader::LoadSceneLocation(SceneNode* node,
 
 bool SceneLoader::InitSceneNode(SceneNode* node,
                                 const ConfigNode* config,
-                                SceneLoadContext* ctx) {
+                                ResourceLoaderContext* ctx) {
   if (!LoadSceneLocation(node, config, ctx)) {
     LOG(ERROR) << "Failed to load node location information.";
     return false;

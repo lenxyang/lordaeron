@@ -19,7 +19,7 @@ class SimpleSceneNodeLoader : public SceneNodeLoader {
       : fsystem_(fs), effect_(effect) {}
   virtual const char* node_type_name() const { return "mesh";}
   bool LoadSceneNode(SceneNode* node, const azer::ConfigNode* config,
-                     SceneLoadContext* lctx) override {
+                     ResourceLoaderContext* lctx) override {
     using azer::ConfigNode;
     Context* ctx = Context::instance(); 
     const std::string& type =  config->GetAttr("type");

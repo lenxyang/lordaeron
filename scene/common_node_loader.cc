@@ -30,7 +30,7 @@ const char* LightNodeLoader::node_type_name() const {
 
 bool LightNodeLoader::LoadSceneNode(SceneNode* node,
                                     const azer::ConfigNode* config,
-                                    SceneLoadContext* ctx) {
+                                    ResourceLoaderContext* ctx) {
   using namespace azer;
   const std::string& type =  config->GetAttr("type");
   DCHECK(type == "light");
@@ -127,7 +127,7 @@ const char* EnvNodeLoader::node_type_name() const {
 }
 
 bool EnvNodeLoader::LoadSceneNode(SceneNode* node, const azer::ConfigNode* config,
-                                  SceneLoadContext* ctx) {
+                                  ResourceLoaderContext* ctx) {
   node->SetNodeType(kEnvSceneNode);
   return true;
 }

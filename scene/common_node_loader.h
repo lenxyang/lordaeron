@@ -23,7 +23,7 @@ class LightNodeLoader : public SceneNodeLoader {
 
   const char* node_type_name() const override;
   bool LoadSceneNode(SceneNode* node, const azer::ConfigNode* config,
-                     SceneLoadContext* ctx) override;
+                     ResourceLoaderContext* ctx) override;
  private:
   bool LoadAttenuation(Attenuation* atten, azer::ConfigNode* config);
   DISALLOW_COPY_AND_ASSIGN(LightNodeLoader);
@@ -37,7 +37,7 @@ class EnvNodeLoader : public SceneNodeLoader {
 
   const char* node_type_name() const override;
   bool LoadSceneNode(SceneNode* node, const azer::ConfigNode* config,
-                     SceneLoadContext* ctx) override;
+                     ResourceLoaderContext* ctx) override;
  private:
   DISALLOW_COPY_AND_ASSIGN(EnvNodeLoader);
 };
