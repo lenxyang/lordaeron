@@ -20,7 +20,7 @@
 //       <orientation></orientation>
 //     </location>
 //     <mesh>
-//      <effect></effect>
+//      <effect path="//"/>
 //      <params>
 //      </params>
 //      <path></path>
