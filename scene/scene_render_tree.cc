@@ -120,8 +120,7 @@ void SceneRenderEnvNode::UpdateParams(const FrameArgs& args) {
     all_lights_ = parent()->all_lights_;
   }
 
-  auto iter = light_nodes_.begin();
-  for (; iter != light_nodes_.end(); ++iter) {
+  for (auto iter = light_nodes_.begin(); iter != light_nodes_.end(); ++iter) {
     SceneNode* node = iter->get();
     DCHECK(node->type() == kLampSceneNode);
     UpdateSceneNodeLight(node);

@@ -28,7 +28,6 @@ class ResourceSpecialLoader : public ::base::RefCounted<ResourceSpecialLoader> {
   virtual Resource Load(const azer::ConfigNode* node, ResourceLoaderContext* ctx) = 0;
 };
 
-
 class ResourceLoader {
  public:
   explicit ResourceLoader(azer::FileSystem* fs);

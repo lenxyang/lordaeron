@@ -2,41 +2,11 @@
 <root>
 <node name="scene">
   <node name="env" type="environment">
-    <node name="dir" type="light">
+    <node name="dir" type="light" refpath="//sandbox/lighting/light.xml:dir">
       <location><position>4.0f, 4.0f, 0.0f</position></location>
-      <light type="directional_light">
-        <ambient>1.0, 1.0, 1.0, 1.0</ambient>
-        <diffuse>0.5, 0.5, 0.4, 1.0</diffuse>
-        <specular>0.1, 0.1, 0.1, 1.0</specular>
-        <directional>0.0, -1.0, -1.0</directional>
-      </light>
-    </node>
-    <node name="point" type="light">
-      <location><position>0.0f, 2.0f, 2.0f</position></location>
-      <light type="point_light">
-        <ambient>1.0, 1.0, 1.0, 1.0</ambient>
-        <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>
-        <specular>0.1, 0.1, 0.1, 1.0</specular>
-        <attenuation>
-          <coefficient>0.0, 0.0, 1.0</coefficient>
-          <range>10</range>
-        </attenuation>
-      </light>
-    </node>
-    <node name="spot" type="light">
-      <location><position>0.0f, 4.0f, 4.0f</position></location>
-      <light type="spot_light">
-        <ambient>1.0, 1.0, 1.0, 1.0</ambient>
-        <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>
-        <specular>0.1, 0.1, 0.1, 1.0</specular>
-        <directional>0.0, 0.0, 1.0</directional>
-        <inner_angle>30</inner_angle>
-        <outer_angle>40</outer_angle>
-        <falloff>0.5</falloff>
-        <range>30</range>
-      </light>
     </node>
   </node>
+<!--
   <node name="teaport" type="mesh">
     <location><position>0.0f, 0.0f, 0.0f</position></location>
     <mesh>
@@ -57,7 +27,9 @@
       </provider>
     </mesh>
   </node>
+-->
 </node>
+
 <!--
     <node name="tree" type="mesh">
       <location>

@@ -59,7 +59,8 @@ void SceneLoader::RegisterSceneNodeLoader(scoped_ptr<SceneNodeLoader> loader) {
   loader_map_.insert(std::make_pair(loader->node_type_name(), loader.Pass()));
 }
 
-SceneNodePtr SceneLoader::LoadNode(const ConfigNode* cnode, ResourceLoaderContext* ctx) {
+SceneNodePtr SceneLoader::LoadNode(const ConfigNode* cnode, 
+                                   ResourceLoaderContext* ctx) {
   SceneNodePtr root(new SceneNode);
   if (LoadChildrenNode(root, cnode, ctx)) {
     return root;
@@ -158,13 +159,26 @@ bool SceneLoader::InitSceneNode(SceneNode* node,
   }
 
   const std::string& type_name = config->GetAttr("type");
-  if (!type_name.empty()) {
-    SceneNodeLoader* loader = GetLoader(type_name);
-    DCHECK(loader) << "no loader for type: " << type_name;
-    if (!loader->LoadSceneNode(node, config, ctx)) {
-      LOG(INFO) << "Failed to init childnode, parent[" << node->path() << "]";
+  if (config->HasAttr("refpath")) {
+    ResPath refpath(::base::UTF8ToUTF16(config->GetAttr("refpath")));
+    Resource ret = ctx->loader->Load(refpath);
+    if (ret.retcode != 0) {
+      LOG(ERROR) << "Failed to load node: \"" << refpath.fullpath() << "\"";
       return false;
     }
+    switch (ret.type) {
+      case kResTypeLight:
+        node->mutable_data()->AttachLight(ret.light);
+        break;
+      default:
+        CHECK(false) << "not support type: " << ret.type;
+        break;
+    }
+    return true;
+  }
+
+  if (type_name == "environment") {
+    node->SetNodeType(kEnvSceneNode);
   }
   return true;
 }

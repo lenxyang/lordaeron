@@ -52,6 +52,7 @@ Resource LightLoader::Load(const ConfigNode* config, ResourceLoaderContext* ctx)
 
   Resource resource;
   resource.type = kResTypeLight;
+  resource.retcode = 0;
   const std::string& light_type = light_node->GetAttr("type");
   if (light_type == "point_light") {
     PointLight light;
@@ -86,6 +87,7 @@ Resource LightLoader::Load(const ConfigNode* config, ResourceLoaderContext* ctx)
     resource.light = new Light(light);
   } else {
     CHECK(false) << "unknonw light type: " << light_type;
+    resource.retcode = -1;
   }
 
   return resource;

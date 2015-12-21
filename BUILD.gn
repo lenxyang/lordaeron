@@ -55,8 +55,6 @@ static_library("lordaeron") {
     "resource/resource_loader.h",
     "resource/scene_loader.cc",
     "resource/scene_loader.h",
-    "scene/common_node_loader.cc",
-    "scene/common_node_loader.h",
     "scene/lord_scene_render.cc",
     "scene/lord_scene_render.h",
     "scene/scene_node.cc",

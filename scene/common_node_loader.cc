@@ -53,7 +53,6 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node,
     light.diffuse = diffuse;
     light.ambient = ambient;
     light.specular = specular;
-    light.position = node->position();
     CHECK(LoadAttenuation(&light.atten, light_node));
     LightPtr ptr(new Light(light));
     node->mutable_data()->AttachLight(ptr);
@@ -62,7 +61,6 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node,
     light.diffuse = diffuse;
     light.ambient = ambient;
     light.specular = specular;
-    light.position = node->position();
     float inner_angle, outer_angle;
     CHECK(light_node->GetChildTextAsVec3("directional", &light.direction))
         << "light node has directional";
@@ -74,9 +72,6 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node,
     light.theta = cos(Degree(inner_angle));
     CHECK(light.theta > light.phi);
     LightPtr ptr(new Light(light));
-    Quaternion orient;
-    CalcSceneOrientForZDirection(light.direction, &orient);
-    node->set_orientation(orient);
     node->mutable_data()->AttachLight(ptr);
   } else if (light_type == "directional_light") {
     DirLight light;
@@ -86,9 +81,6 @@ bool LightNodeLoader::LoadSceneNode(SceneNode* node,
     CHECK(light_node->GetChildTextAsVec3("directional", &light.direction))
         << "light node has directional";
     LightPtr ptr(new Light(light));
-    Quaternion orient;
-    CalcSceneOrientForZDirection(light.direction, &orient);
-    node->set_orientation(orient);
     node->mutable_data()->AttachLight(ptr);
   } else {
     CHECK(false) << "unknonw light type: " << light_type;

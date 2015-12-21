@@ -12,6 +12,18 @@
 namespace lord {
 using namespace azer;
 
+namespace {
+void CalcSceneOrientForZDirection(const Vector3& d, Quaternion* orient) {
+  Camera camera;
+  Vector3 dir = d.NormalizeCopy();
+  Vector3 up = Vector3(dir.x, 10.0f, dir.z);
+  Vector3 newz = dir.NormalizeCopy();
+  Vector3 newx = std::move(up.cross(newz).NormalizeCopy());
+  Vector3 newy = std::move(newz.cross(newx).NormalizeCopy());
+  *orient = Quaternion::FromAxis(newx, newy, newz);
+}
+}
+
 // class SceneNodeData
 SceneNodeData::SceneNodeData(SceneNode* node)
     : node_(node) {
@@ -54,6 +66,16 @@ void SceneNodeData::AttachLight(Light* light) {
   DCHECK(light);
   light_ = light;
   node_->SetNodeType(kLampSceneNode);
+
+  if (light->type() == kDirectionalLight || light->type() == kSpotLight) {
+    Quaternion orient;
+    CalcSceneOrientForZDirection(light->directional(), &orient);
+    node_->set_orientation(orient);
+  }
+
+  if (light->type() == kPointLight || light->type() == kSpotLight) {
+    light->set_position(node_->position());
+  }
 }
 
 void SceneNodeData::OnSceneNodeLocationChanged(SceneNode* node, 

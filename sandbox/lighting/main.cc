@@ -63,16 +63,13 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   Context* ctx = Context::instance();
   fsystem_.reset(new azer::NativeFileSystem(FilePath(UTF8ToUTF16("lordaeron/"))));
 
-  scoped_ptr<SceneNodeLoader> light_loader(new LightNodeLoader());
-  scoped_ptr<SceneNodeLoader> env_loader(new EnvNodeLoader());
   scoped_ptr<SimpleSceneNodeLoader> node_loader(new SimpleSceneNodeLoader(
       fsystem_.get(), effect_.get()));
   scoped_refptr<SceneLoader> loader(new SceneLoader);
   loader->RegisterSceneNodeLoader(node_loader.Pass());
-  loader->RegisterSceneNodeLoader(env_loader.Pass());
-  loader->RegisterSceneNodeLoader(light_loader.Pass());
   ResourceLoader resloader(fsystem_.get());
   resloader.RegisterSpecialLoader(loader.get());
+  resloader.RegisterSpecialLoader(new LightLoader);
   ResPath respath(UTF8ToUTF16("//sandbox/lighting/scene.xml"));
   Resource res = resloader.Load(respath);
   SceneNodePtr root = res.scene;
