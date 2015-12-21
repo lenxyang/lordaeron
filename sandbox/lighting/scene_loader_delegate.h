@@ -3,7 +3,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "lordaeron/context.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/resource/mesh_loader.h"
+#include "lordaeron/resource/mesh_load_util.h"
 #include "lordaeron/resource/scene_loader.h"
 
 namespace lord {
@@ -41,7 +41,7 @@ class SimpleSceneNodeLoader : public SceneNodeLoader {
       return azer::MeshPtr();
     }
       
-    MeshLoader loader(fsystem_);
+    MeshLoadUtil loader(fsystem_);
     azer::MeshPtr obj = loader.Load(azer::ResPath(::base::UTF8ToUTF16(pathstr)), 
                                       effect_->vertex_desc());
     if (obj.get()) {

@@ -2,21 +2,12 @@
 <root>
 <node name="scene">
   <node name="env" type="environment">
-    <node name="dir" type="light" refpath="//sandbox/lighting/light.xml:dir">
+    <node name="dir" type="light" refpath="//sandbox/lighting/data.xml:dir">
       <location><position>4.0f, 4.0f, 0.0f</position></location>
     </node>
   </node>
+  <node name="teaport" refpath="//sandbox/lighting/data.xml:teaport"/>
 <!--
-  <node name="teaport" type="mesh">
-    <location><position>0.0f, 0.0f, 0.0f</position></location>
-    <mesh>
-      <path>//media/model/teapot.obj</path>
-      <effect name="DiffuseEffect"/>
-      <provider name="lord::DiffuseEffectProvider">
-        <color>0.3f, 0.3f, 0.3f, 1.0f</color>
-      </provider>
-    </mesh>
-  </node>
   <node name="plane" type="mesh">
     <location><position>0.0f, 0.0f, 0.0f</position></location>
     <mesh>

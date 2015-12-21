@@ -1,8 +1,8 @@
 
-source_set("mesh_loader") {
+source_set("mesh_load_util") {
   sources = [
-    "resource/mesh_loader.cc",
-    "resource/mesh_loader.h",
+    "resource/mesh_load_util.cc",
+    "resource/mesh_load_util.h",
   ]
 
   deps = [
@@ -119,7 +119,7 @@ static_library("lordaeron") {
     "util/xml_util.h",
   ]
   deps = [
-    ":mesh_loader",
+    ":mesh_load_util",
   ]
   public_deps = [
     "//skia",

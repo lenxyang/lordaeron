@@ -23,7 +23,7 @@
 #include "lordaeron/resource/resource_loader.h"
 #include "lordaeron/resource/light_loader.h"
 #include "lordaeron/resource/scene_loader.h"
-#include "lordaeron/resource/mesh_loader.h"
+#include "lordaeron/resource/mesh_load_util.h"
 #include "lordaeron/ui/light_property_pane.h"
 #include "lordaeron/ui/scene_node_inspector_pane.h"
 #include "lordaeron/ui/scene_render_window.h"
