@@ -42,4 +42,6 @@ class ResourceLoader {
   azer::FileSystem* filesystem_;
   DISALLOW_COPY_AND_ASSIGN(ResourceLoader);
 };
+
+void InitDefaultLoader(ResourceLoader* loder);
 }  // namespace lord

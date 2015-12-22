@@ -11,12 +11,14 @@ enum {
   kResTypeEffect,
   kResTypeLight,
   kResTypeScene,
+  kResTypeVertexDesc,
 };
 
 struct Resource {
   azer::MeshPtr mesh;
   azer::EffectParamsProviderPtr material;
   azer::EffectPtr effect;
+  azer::VertexDescPtr vertex_desc;
   LightPtr light;
   SceneNodePtr scene;
   int32 type;

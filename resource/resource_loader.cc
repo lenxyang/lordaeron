@@ -4,6 +4,10 @@
 #include "base/strings/utf_string_conversions.h"
 #include "azer/base/file_system.h"
 #include "lordaeron/util/xml_util.h"
+#include "lordaeron/resource/mesh_loader.h"
+#include "lordaeron/resource/light_loader.h"
+#include "lordaeron/resource/vertex_desc_loader.h"
+#include "lordaeron/resource/scene_loader.h"
 
 namespace lord {
 using namespace azer;
@@ -66,5 +70,12 @@ Resource ResourceLoader::Load(const azer::ResPath& path) {
   ConfigNodePtr cnode = croot->GetNodeFromPath(::base::UTF16ToUTF8(nodepath));
   ResourceSpecialLoader* loader = GetLoader(cnode);
   return loader->Load(cnode.get(), &ctx);
+}
+
+void InitDefaultLoader(ResourceLoader* loader) {
+  loader->RegisterSpecialLoader(new MeshLoader);
+  loader->RegisterSpecialLoader(new VertexDescLoader);
+  loader->RegisterSpecialLoader(new LightLoader);
+  loader->RegisterSpecialLoader(new SceneLoader);
 }
 }  // namespace lord

@@ -6,7 +6,7 @@ namespace lord {
 using namespace azer;
 
 namespace {
-bool LoadAttenuation(Attenuation* atten, ConfigNode* config) {
+bool LoadAttenuation(Attenuation* atten, const ConfigNode* config) {
   std::vector<ConfigNodePtr> children  =
       std::move(config->GetTaggedChildren("attenuation"));
   if (children.size() != 1u) {
@@ -31,35 +31,30 @@ const char* LightLoader::GetLoaderName() const {
 
 bool LightLoader::CouldLoad(azer::ConfigNode* node) const {
   const std::string attr = std::move(node->GetAttr("type"));
-  return node->tagname() == "node" && !attr.empty() && attr == "light";
+  return node->tagname() == "light";
 }
 
-Resource LightLoader::Load(const ConfigNode* config, ResourceLoaderContext* ctx) {
-  const std::string& type =  config->GetAttr("type");
-  DCHECK(type == "light");
-
+Resource LightLoader::Load(const ConfigNode* lnode, ResourceLoaderContext* ctx) {
   Vector4 diffuse;
   Vector4 ambient;
   Vector4 specular;
-  DCHECK(config->HasTaggedChild("light")) << "has no light node";
-  ConfigNode* light_node = config->GetTaggedChildren("light")[0];
-  CHECK(light_node->GetChildTextAsVec4("ambient", &ambient))
+  CHECK(lnode->GetChildTextAsVec4("ambient", &ambient))
       << "light node has ambient";
-  CHECK(light_node->GetChildTextAsVec4("diffuse", &diffuse))
+  CHECK(lnode->GetChildTextAsVec4("diffuse", &diffuse))
       << "light node has diffuse";
-  CHECK(light_node->GetChildTextAsVec4("specular", &specular))
+  CHECK(lnode->GetChildTextAsVec4("specular", &specular))
       << "light node has specular";
 
   Resource resource;
   resource.type = kResTypeLight;
   resource.retcode = 0;
-  const std::string& light_type = light_node->GetAttr("type");
+  const std::string& light_type = lnode->GetAttr("type");
   if (light_type == "point_light") {
     PointLight light;
     light.diffuse = diffuse;
     light.ambient = ambient;
     light.specular = specular;
-    CHECK(LoadAttenuation(&light.atten, light_node));
+    CHECK(LoadAttenuation(&light.atten, lnode));
     resource.light = new Light(light);
   } else if (light_type == "spot_light") {
     SpotLight light;
@@ -67,12 +62,12 @@ Resource LightLoader::Load(const ConfigNode* config, ResourceLoaderContext* ctx)
     light.ambient = ambient;
     light.specular = specular;
     float inner_angle, outer_angle;
-    CHECK(light_node->GetChildTextAsVec3("directional", &light.direction))
+    CHECK(lnode->GetChildTextAsVec3("directional", &light.direction))
         << "light node has directional";
-    CHECK(light_node->GetChildTextAsFloat("falloff", &light.falloff));
-    CHECK(light_node->GetChildTextAsFloat("range", &light.range));
-    CHECK(light_node->GetChildTextAsFloat("outer_angle", &outer_angle));
-    CHECK(light_node->GetChildTextAsFloat("inner_angle", &inner_angle));
+    CHECK(lnode->GetChildTextAsFloat("falloff", &light.falloff));
+    CHECK(lnode->GetChildTextAsFloat("range", &light.range));
+    CHECK(lnode->GetChildTextAsFloat("outer_angle", &outer_angle));
+    CHECK(lnode->GetChildTextAsFloat("inner_angle", &inner_angle));
     light.phi = cos(Degree(outer_angle));
     light.theta = cos(Degree(inner_angle));
     CHECK(light.theta > light.phi);
@@ -82,7 +77,7 @@ Resource LightLoader::Load(const ConfigNode* config, ResourceLoaderContext* ctx)
     light.diffuse = diffuse;
     light.ambient = ambient;
     light.specular = specular;
-    CHECK(light_node->GetChildTextAsVec3("directional", &light.direction))
+    CHECK(lnode->GetChildTextAsVec3("directional", &light.direction))
         << "light node has directional";
     resource.light = new Light(light);
   } else {
