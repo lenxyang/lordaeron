@@ -162,12 +162,10 @@ bool SceneLoader::InitSceneNode(SceneNode* node,
   }
 
   const std::string& type_name = config->GetAttr("type");
+  ConfigNodes nodes = std::move(config->GetTaggedChildren("refer"));
   if (type_name == "environment") {
     node->SetNodeType(kEnvSceneNode);
-  } else {
-    ConfigNodes nodes = std::move(config->GetTaggedChildren("refer"));
-    CHECK(nodes.size() == 0 || nodes.size() == 1u) 
-        << "scene node[" << config->GetNodePath() << "] take multiple referred node";
+  } else if (nodes.size() == 1u) {
     ConfigNode* cnode = nodes[0];
     int node_type = GetTypeFromString(cnode->GetAttr("type"));
     if (node_type == kResTypeMesh) {
@@ -182,6 +180,10 @@ bool SceneLoader::InitSceneNode(SceneNode* node,
       CHECK(false) << "not support type: " << type_name;
       return false;
     }
+  } else if (nodes.size() == 0) {
+  } else {
+    NOTREACHED() << "has multiple refer node";
+    return false;
   }
 
   return true;

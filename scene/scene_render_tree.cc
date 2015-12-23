@@ -31,10 +31,16 @@ using namespace azer;
 // class SceneRenderEnvNode
 SceneRenderEnvNode::SceneRenderEnvNode() 
     : parent_(NULL) {
+  LOG(ERROR) << "SceneRenderEnvNode(NULL) ctor: " << this;
 }
 
 SceneRenderEnvNode::SceneRenderEnvNode(SceneRenderEnvNode* parent) 
     : parent_(parent) {
+  LOG(ERROR) << "SceneRenderEnvNode ctor: " << this;
+}
+
+SceneRenderEnvNode::~SceneRenderEnvNode() {
+  LOG(ERROR) << "SceneRenderEnvNode dctor: " << this;
 }
 
 SceneRenderEnvNode* SceneRenderEnvNode::root() {
@@ -296,10 +302,9 @@ SceneRenderNodePtr SceneRenderTreeBuilder::Build(SceneNode* root,
                                                  const Camera* camera) {
   DCHECK(cur_ == NULL);
   DCHECK(factory_ != NULL);
-  SceneRenderEnvNode* rootenv = new SceneRenderEnvNode;
   SceneRenderNodePtr render_root = new SceneRenderNode(root);
   render_root->SetDelegate(factory_->CreateDelegate(render_root.get()).Pass());
-  render_root->SetEnvNode(rootenv);
+  render_root->SetEnvNode(NULL);
   render_root->SetCamera(camera);
   cur_ = render_root.get();
   SceneNodeTraverse traverser(this);
@@ -321,10 +326,10 @@ bool SceneRenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
 
   if (node->type() == kEnvSceneNode) {
     CHECK(node->parent() != NULL);
-    SceneRenderEnvNode* envnode = new SceneRenderEnvNode(cur_->GetEnvNode());
+    SceneRenderEnvNodePtr envnode = new SceneRenderEnvNode(cur_->GetEnvNode());
     cur_->SetEnvNode(envnode);
   } else {
-    SceneRenderNode* newnode = new SceneRenderNode(node);
+    SceneRenderNodePtr newnode = new SceneRenderNode(node);
     if (newnode) {
       newnode->SetEnvNode(cur_->GetEnvNode());
       newnode->SetDelegate(factory_->CreateDelegate(newnode).Pass());

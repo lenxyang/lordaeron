@@ -20,6 +20,7 @@ class SceneRenderEnvNode : public azer::EffectParamsProvider {
  public:
   SceneRenderEnvNode();
   explicit SceneRenderEnvNode(SceneRenderEnvNode* parent);
+  ~SceneRenderEnvNode();
 
   void AddLightNode(SceneNode* node);
   const Lights& lights() const { return all_lights_;}

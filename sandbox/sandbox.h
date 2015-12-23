@@ -16,7 +16,6 @@
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/mainframe_render_delegate.h"
-#include "lordaeron/scene/common_node_loader.h"
 #include "lordaeron/scene/lord_scene_render.h"
 #include "lordaeron/scene/scene_render_tree.h"
 #include "lordaeron/scene/scene_node.h"
