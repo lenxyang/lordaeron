@@ -2,6 +2,7 @@
 
 #include "azer/render/render.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/effect/light.h"
 #include "lordaeron/effect/material.h"
 
 namespace lord {

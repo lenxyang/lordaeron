@@ -43,18 +43,4 @@ class ResourceLoader {
   azer::FileSystem* filesystem_;
   DISALLOW_COPY_AND_ASSIGN(ResourceLoader);
 };
-
-azer::EffectPtr LoadReferEffect(const azer::ConfigNode* node,
-                                ResourceLoaderContext* ctx);
-azer::MeshPtr LoadReferMesh(const azer::ConfigNode* node, ResourceLoaderContext* ctx);
-Material LoadReferMaterial(const azer::ConfigNode* node, ResourceLoaderContext* ctx);
-Resource LoadReferResource(const azer::ResPath& path, int type,
-                      ResourceLoaderContext* ctx);
-Resource LoadResource(const azer::ResPath& path, int type,
-                      ResourceLoaderContext* ctx);
-Resource LoadReferResource(const azer::ConfigNode* node, ResourceLoaderContext* ctx);
-
-bool Repath(const azer::ResPath& path, azer::ResPath* apath,
-            ResourceLoaderContext* ctx);
-void InitDefaultLoader(ResourceLoader* loder);
 }  // namespace lord

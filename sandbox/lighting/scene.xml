@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
 <node name="scene">
-<!--
   <node name="env" type="environment">
-    <node type="light">
+    <node name="dir">
       <location><position>4.0f, 4.0f, 0.0f</position></location>
       <refer type="light" path="//sandbox/lighting/data.xml:dir" />
     </node>
   </node>
--->
   <node name="teaport">
-    <refer path="//sandbox/lighting/data.xml:teaport"/>
+    <refer type="mesh" path="//sandbox/lighting/data.xml:teaport"/>
   </node>
 <!--
   <node name="plane" type="mesh">

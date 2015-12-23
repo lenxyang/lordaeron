@@ -27,10 +27,12 @@
     <range>30</range>
   </light>
 
-  <mesh name="teaport" type="mesh" vertex_desc=":vertex_desc">
-    <refer type="model" path="//media/model/teapot.obj"/>
+  <mesh name="teaport">
+    <refer type="vertex_desc" path=":vertex_desc" />
+    
     <refer type="effect" path=":DiffuseEffect"/>
     <refer type="material" path=":mtrl"/>
+    <data path="//media/model/teapot.obj"/>
   </mesh>
 
   <material name="mtrl" provider_name="lord::ColorMaterial">

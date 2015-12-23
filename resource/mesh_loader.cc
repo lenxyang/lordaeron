@@ -2,9 +2,8 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "azer/render/render.h"
-#include "lordaeron/resource/effect_loader.h"
 #include "lordaeron/resource/mesh_load_util.h"
-#include "lordaeron/resource/vertex_desc_loader.h"
+#include "lordaeron/resource/resource_util.h"
 
 namespace lord {
 using namespace azer;
@@ -27,14 +26,13 @@ const char* MeshLoader::GetLoaderName() const {
   return kSpecialLoaderName;
 }
 Resource MeshLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
-  ResPath vertex_desc_path(::base::UTF8ToUTF16(node->GetAttr("vertex_desc")));
-  VertexDescPtr vertex_desc = LoadVertexDesc(vertex_desc_path, ctx);
-  if (!vertex_desc.get()) {
-    return Resource();
-  }
-
-  EffectPtr effect = this->LoadEffect(node, ctx);
-  if (!effect.get()) {
+  ConfigNode* vertex_desc_node = GetTypedReferNode("vertex_desc", node);
+  VertexDescPtr vertex_desc = LoadReferVertexDesc(vertex_desc_node, ctx);
+  ConfigNode* effect_node = GetTypedReferNode("effect", node);
+  EffectPtr effect = LoadReferEffect(effect_node, ctx);
+  ConfigNode* material_node = GetTypedReferNode("material", node);
+  MaterialPtr material = LoadReferMaterial(material_node, ctx);
+  if (!vertex_desc.get() || !effect.get() || !material.get()) {
     return Resource();
   }
 
@@ -42,6 +40,7 @@ Resource MeshLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
   resource.type = kResTypeMesh;
   resource.mesh = LoadMeshData(node, vertex_desc.get(), ctx);
   resource.retcode = (resource.mesh.get() != NULL) ? 0 : -1;
+  resource.mesh->AddProvider(material);
   InitMeshEffect(effect.get(), resource.mesh.get());
   return resource;
 }
@@ -49,7 +48,7 @@ Resource MeshLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
 MeshPtr MeshLoader::LoadMeshData(const ConfigNode* node, 
                                  VertexDesc* desc,
                                  ResourceLoaderContext* ctx) {
-  const ConfigNode* mesh_node = node->GetFirstChildTagged("model");
+  const ConfigNode* mesh_node = node->GetFirstChildTagged("data");
   if (!mesh_node || !mesh_node->HasAttr("path")) {
     LOG(ERROR) << "model[" << node->GetNodePath() << "] has no effect";
     return MeshPtr();
@@ -58,22 +57,6 @@ MeshPtr MeshLoader::LoadMeshData(const ConfigNode* node,
   ResPath mesh_path(::base::UTF8ToUTF16(mesh_node->GetAttr("path")));
   MeshLoadUtil loader(ctx->filesystem);
   return loader.Load(mesh_path, desc);
-}
-
-EffectPtr MeshLoader::LoadEffect(const ConfigNode* node, 
-                                 ResourceLoaderContext* ctx) {
-  const ConfigNode* effect_node = node->GetFirstChildTagged("effect");
-  if (!effect_node || !effect_node->HasAttr("refpath")) {
-    LOG(ERROR) << "effect[" << node->GetNodePath() << "] has no effect";
-    return EffectPtr();
-  }
-  ResPath effect_path(::base::UTF8ToUTF16(effect_node->GetAttr("refpath")));
-  EffectPtr effect = lord::LoadEffect(effect_path, ctx);
-  if (!effect.get()) {
-    return EffectPtr();
-  }
-
-  return effect;
 }
 
 bool MeshLoader::CouldLoad(ConfigNode* node) const {

@@ -21,6 +21,7 @@
 #include "lordaeron/scene/scene_render_tree.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/resource/resource_loader.h"
+#include "lordaeron/resource/resource_util.h"
 #include "lordaeron/resource/light_loader.h"
 #include "lordaeron/resource/scene_loader.h"
 #include "lordaeron/resource/mesh_load_util.h"

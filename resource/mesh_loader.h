@@ -15,8 +15,6 @@ class MeshLoader : public ResourceSpecialLoader {
   Resource Load(const azer::ConfigNode* node, ResourceLoaderContext* ctx) override;
   bool CouldLoad(azer::ConfigNode* node) const override;
  private:
-  azer::EffectPtr LoadEffect(const azer::ConfigNode* node, 
-                             ResourceLoaderContext* ctx);
   azer::MeshPtr LoadMeshData(const azer::ConfigNode* node,
                              azer::VertexDesc* desc,
                              ResourceLoaderContext* ctx);

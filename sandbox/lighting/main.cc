@@ -66,6 +66,7 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   ResPath respath(UTF8ToUTF16("//sandbox/lighting/scene.xml"));
   Resource res = resloader.Load(respath);
   SceneNodePtr root = res.scene;
+  CHECK(root.get()) << "Failed to init scene";
 
   tree_render_.reset(new SimpleRenderTreeRenderer);
   LoadSceneRenderNodeDelegateFactory factory(tree_render_.get());

@@ -11,6 +11,7 @@ namespace lord {
 namespace sandbox {
 class ColorMaterial : public Material {
  public:
+  ColorMaterial() {}
   static const char kEffectProviderName[];
   const char* name() const override { return kEffectProviderName;}
   bool Init(const azer::ConfigNode* node) override {
@@ -19,7 +20,7 @@ class ColorMaterial : public Material {
   }
 
   const azer::Vector4& color() const { return color_;}
-  static ColorMaterial* CreateObject() { return new ColorMaterial;}
+  static azer::EffectParamsProvider* CreateObject() { return new ColorMaterial;}
  private:
   azer::Vector4 color_;
   DECLARE_EFFECT_PROVIDER_DYNCREATE(ColorMaterial);

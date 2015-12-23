@@ -57,6 +57,8 @@ static_library("lordaeron") {
     "resource/mesh_loader.cc",
     "resource/mesh_loader.h",
     "resource/resource.h",
+    "resource/resource_util.cc",
+    "resource/resource_util.h",
     "resource/resource_loader.cc",
     "resource/resource_loader.h",
     "resource/scene_loader.cc",

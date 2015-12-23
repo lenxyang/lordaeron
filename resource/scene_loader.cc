@@ -5,6 +5,7 @@
 #include "azer/base/file_system.h"
 #include "lordaeron/context.h"
 #include "lordaeron/util/xml_util.h"
+#include "lordaeron/resource/resource_util.h"
 
 namespace lord {
 using namespace azer;
@@ -161,21 +162,28 @@ bool SceneLoader::InitSceneNode(SceneNode* node,
   }
 
   const std::string& type_name = config->GetAttr("type");
-  ConfigNodes nodes = config->GetTaggedChild("refer");
-  int node_type = GetTypeFromString(type_name);
-  if (node_type == kResTypeLight) {
-    MeshPtr mesh = 
-    node->mutable_data()->AttachMesh(ret.mesh);
-  } else if (node_type == kResTypeMesh) {
-    node->mutable_data()->AttachLight(ret.light);
-  } else {
-    CHECK(false) << "not support type: " << type_name;
-    return false;
-  }
-
   if (type_name == "environment") {
     node->SetNodeType(kEnvSceneNode);
+  } else {
+    ConfigNodes nodes = std::move(config->GetTaggedChildren("refer"));
+    CHECK(nodes.size() == 0 || nodes.size() == 1u) 
+        << "scene node[" << config->GetNodePath() << "] take multiple referred node";
+    ConfigNode* cnode = nodes[0];
+    int node_type = GetTypeFromString(cnode->GetAttr("type"));
+    if (node_type == kResTypeMesh) {
+      MeshPtr mesh = LoadReferMesh(cnode, ctx);
+      if (!mesh.get()) return false;
+      mesh->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
+      node->mutable_data()->AttachMesh(mesh);
+    } else if (node_type == kResTypeLight) {
+      LightPtr light = LoadReferLight(cnode, ctx);
+      node->mutable_data()->AttachLight(light);
+    } else {
+      CHECK(false) << "not support type: " << type_name;
+      return false;
+    }
   }
+
   return true;
 }
 }  // namespace lord
