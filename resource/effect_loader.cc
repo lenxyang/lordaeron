@@ -12,6 +12,22 @@ using namespace azer;
 using base::UTF8ToUTF16;
 using base::UTF16ToUTF8;
 
+namespace {
+bool LoadFile(const ResPath& path, FileContents* contents, FileSystem* fs) {
+  FilePtr file = fs->OpenFile(path);
+  if (!file.get()) {
+    LOG(ERROR) << "Failed to open file: " << path.fullpath();
+    return false;
+  }
+
+  if (!file->PRead(0, -1, contents)) {
+    LOG(ERROR) << "Failed to read file: " << path.fullpath();
+    return false;
+  }
+  return true;
+}
+}
+
 const char EffectLoader::kSpecialLoaderName[] = "lord::EffectLoader";
 EffectLoader::EffectLoader() {
 }
@@ -52,16 +68,16 @@ Resource EffectLoader::Load(const azer::ConfigNode* node,
     info.version = n->GetAttr("version");
     info.path = n->GetAttr("path");
     ResPath respath(UTF8ToUTF16(info.path));
-    if (!LoadFileContents(respath, &contents, ctx->filesystem)) {
+    if (!LoadFile(respath, &contents, ctx->filesystem)) {
       LOG(ERROR) << "Failed to loader path: " << info.path;
       return Resource();
     }
     info.code = std::string((const char*)&contents.front(), contents.size());
   }
 
-  azer::EffectPtr effect = CreateEffectByName(node->GetAttr("name"));
-  if (effect->Init(program)) {
-    LOG(ERROR) << "Failed to init effect \"" << node->GetAttr("name") << "\"";
+  azer::EffectPtr effect = CreateEffectByName(node->GetAttr("effect_name"));
+  if (!effect.get() && !effect->Init(program)) {
+    LOG(ERROR) << "Failed to init effect \"" << node->GetAttr("effect_name") << "\"";
     return Resource();
   }
 
@@ -74,5 +90,22 @@ Resource EffectLoader::Load(const azer::ConfigNode* node,
 
 bool EffectLoader::CouldLoad(azer::ConfigNode* node) const {
   return node->tagname() == "effect";
+}
+
+EffectPtr LoadEffect(const ResPath& path, ResourceLoaderContext* ctx) {
+  CHECK(!path.empty());
+  ResPath npath;
+  CHECK(Repath(path, &npath, ctx));
+  Resource ret = ctx->loader->Load(npath);
+  if (ret.retcode != 0) {
+    LOG(ERROR) << "Load Effect failed for path: " << npath.fullpath();
+    return EffectPtr();
+  }
+  if (ret.type != kResTypeEffect) {
+    LOG(ERROR) << "Not Effect for path: " << npath.fullpath();
+    return EffectPtr();
+  }
+
+  return ret.effect;
 }
 }  // namespace lord

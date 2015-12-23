@@ -13,10 +13,11 @@ using namespace azer;
 
 namespace lord {
 namespace sandbox {
+IMPLEMENT_EFFECT_DYNCREATE(MyEffect);
 const char MyEffect::kEffectName[] = "MyEffect";
-MyEffect::MyEffect(VertexDescPtr desc) 
+MyEffect::MyEffect() 
     : Effect(RenderSystem::Current()) {
-  vertex_desc_ptr_ = desc;
+  vertex_desc_ptr_ = PosNormalVertex::CreateVertexDesc();
 }
 
 MyEffect::~MyEffect() {
@@ -107,17 +108,5 @@ void MyEffect::ApplyGpuConstantTable(Renderer* renderer) {
   }
 }
 
-MyEffectPtr CreateMyEffect() {
-  Effect::ShaderPrograms shaders;
-  CHECK(LoadShaderAtStage(kVertexStage, 
-                          "lordaeron/sandbox/lighting/effect.hlsl.vs",
-                          &shaders));
-  CHECK(LoadShaderAtStage(kPixelStage, 
-                          "lordaeron/sandbox/lighting/effect.hlsl.ps",
-                          &shaders));
-  MyEffectPtr ptr(new MyEffect(PosNormalVertex::CreateVertexDesc()));
-  ptr->Init(shaders);
-  return ptr;
-}
 }  // namespace sandbox
 }  // namespace lord

@@ -3,6 +3,7 @@
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "azer/base/file_system.h"
+#include "lordaeron/context.h"
 #include "lordaeron/util/xml_util.h"
 
 namespace lord {
@@ -153,6 +154,7 @@ bool SceneLoader::LoadSceneLocation(SceneNode* node,
 bool SceneLoader::InitSceneNode(SceneNode* node,
                                 const ConfigNode* config,
                                 ResourceLoaderContext* ctx) {
+  Context* env = Context::instance(); 
   if (!LoadSceneLocation(node, config, ctx)) {
     LOG(ERROR) << "Failed to load node location information.";
     return false;
@@ -160,13 +162,20 @@ bool SceneLoader::InitSceneNode(SceneNode* node,
 
   const std::string& type_name = config->GetAttr("type");
   if (config->HasAttr("refpath")) {
+    ResPath npath;
     ResPath refpath(::base::UTF8ToUTF16(config->GetAttr("refpath")));
+    CHECK(!refpath.fullpath().empty());
+    Repath(refpath, &npath, ctx);
     Resource ret = ctx->loader->Load(refpath);
     if (ret.retcode != 0) {
       LOG(ERROR) << "Failed to load node: \"" << refpath.fullpath() << "\"";
       return false;
     }
     switch (ret.type) {
+      case kResTypeMesh:
+        ret.mesh->SetEffectAdapterContext(env->GetEffectAdapterContext());
+        node->mutable_data()->AttachMesh(ret.mesh);
+        break;
       case kResTypeLight:
         node->mutable_data()->AttachLight(ret.light);
         break;

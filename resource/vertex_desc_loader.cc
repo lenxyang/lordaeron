@@ -23,15 +23,19 @@ Resource VertexDescLoader::Load(const ConfigNode* node, ResourceLoaderContext* c
   ConfigNodes item = std::move(node->GetTaggedChildren("desc"));
   const int32 kVertexDescCount = static_cast<int32>(item.size());
   VertexDesc::Desc* desc = new VertexDesc::Desc[kVertexDescCount];
+  memset(desc, 0, sizeof(VertexDesc::Desc) * kVertexDescCount);
   VertexDesc::Desc* cur = desc;
   for (auto iter = item.begin(); iter != item.end(); ++iter) {
     ConfigNode* n = iter->get();
-    strncmp(cur->name, n->GetAttr("semantic").c_str(), 64);
-    if (::base::StringToInt(n->GetAttr("semindex"), &cur->semantic_index)) {
+    std::string name = n->GetAttr("semantic");
+    strncpy(cur->name, name.c_str(), 64);
+    if (!::base::StringToInt(n->GetAttr("semindex"), &cur->semantic_index)) {
+      LOG(ERROR) << "Invalid semindex: \"" << n->GetAttr("semindex");
       return Resource();
     }
 
-    if (::base::StringToInt(n->GetAttr("slot"), &cur->input_slot)) {
+    if (!::base::StringToInt(n->GetAttr("slot"), &cur->input_slot)) {
+      LOG(ERROR) << "Invalid semindex: \"" << n->GetAttr("slot");
       return Resource();
     }
 
@@ -63,13 +67,15 @@ bool VertexDescLoader::CouldLoad(ConfigNode* node) const {
 
 
 VertexDescPtr LoadVertexDesc(const ResPath& path, ResourceLoaderContext* ctx) {
-  Resource ret = ctx->loader->Load(path);
+  ResPath npath;
+  CHECK(Repath(path, &npath, ctx));
+  Resource ret = ctx->loader->Load(npath);
   if (ret.retcode != 0) {
-    LOG(ERROR) << "Load VertexDesc failed for path: " << path.fullpath();
+    LOG(ERROR) << "Load VertexDesc failed for path: " << npath.fullpath();
     return VertexDescPtr();
   }
   if (ret.type != kResTypeVertexDesc) {
-    LOG(ERROR) << "Not VertexDesc for path: " << path.fullpath();
+    LOG(ERROR) << "Not VertexDesc for path: " << npath.fullpath();
     return VertexDescPtr();
   }
 

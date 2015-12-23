@@ -17,6 +17,7 @@ typedef scoped_refptr<ResourceSpecialLoader> ResourceSpecialLoaderPtr;
 
 struct ResourceLoaderContext {
   ResourceLoader* loader;
+  azer::ResPath path;
   azer::RepositoryNodePtr* root;
   azer::FileSystem* filesystem;
 };
@@ -43,5 +44,7 @@ class ResourceLoader {
   DISALLOW_COPY_AND_ASSIGN(ResourceLoader);
 };
 
+bool Repath(const azer::ResPath& path, azer::ResPath* apath,
+            ResourceLoaderContext* ctx);
 void InitDefaultLoader(ResourceLoader* loder);
 }  // namespace lord

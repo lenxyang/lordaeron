@@ -27,21 +27,21 @@
     <range>30</range>
   </light>
 
-  <mesh name="teaport" type="mesh">
-    <path>//media/model/teapot.obj</path>
-    <effect name="DiffuseEffect"/>
+  <mesh name="teaport" type="mesh" vertex_desc=":vertex_desc">
+    <model path="//media/model/teapot.obj"/>
+    <effect refpath=":DiffuseEffect"/>
     <material name="lord::DiffuseEffectProvider">
       <color>0.3f, 0.3f, 0.3f, 1.0f</color>
     </material>
   </mesh>
 
   <vertex_desc name="vertex_desc">
-    <desc semantic="position" semindex="0" slot="0" data_type="float4" />
-    <desc semantic="normal" semindex="0" slot="0" data_type="float4" />
+    <desc semantic="position" semindex="0" slot="0" data_type="vector4" />
+    <desc semantic="normal" semindex="0" slot="0" data_type="vector4" />
   </vertex_desc>
 
-  <effect name="DiffuseEffect" vertex_desc=":vertex_desc">
-    <shader stage="vertex" entry="vsmain", path="//sandbox/lighting/effect.hlsl.vs" />
-    <shader stage="pixel" entry="psmain", path="//sandbox/lighting/effect.hlsl.ps" />
+  <effect name="DiffuseEffect" effect_name="MyEffect" vertex_desc=":vertex_desc">
+    <shader stage="vertex" entry="vsmain" path="//sandbox/lighting/effect.hlsl.vs" />
+    <shader stage="pixel" entry="psmain" path="//sandbox/lighting/effect.hlsl.ps" />
   </effect>
 </root>

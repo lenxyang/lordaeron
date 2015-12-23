@@ -1,7 +1,6 @@
 #include <memory>
 
 #include "lordaeron/sandbox/sandbox.h"
-#include "lordaeron/sandbox/lighting/scene_loader_delegate.h"
 #include "lordaeron/sandbox/lighting/effect.h"
 #include "lordaeron/sandbox/lighting/effect_adapter.h"
 
@@ -59,17 +58,11 @@ namespace lord {
 using namespace azer;
 
 SceneNodePtr MyRenderWindow::OnInitScene() {
-  effect_ = sandbox::CreateMyEffect();
   Context* ctx = Context::instance();
   fsystem_.reset(new azer::NativeFileSystem(FilePath(UTF8ToUTF16("lordaeron/"))));
 
-  scoped_ptr<SimpleSceneNodeLoader> node_loader(new SimpleSceneNodeLoader(
-      fsystem_.get(), effect_.get()));
-  scoped_refptr<SceneLoader> loader(new SceneLoader);
-  loader->RegisterSceneNodeLoader(node_loader.Pass());
   ResourceLoader resloader(fsystem_.get());
-  resloader.RegisterSpecialLoader(loader.get());
-  resloader.RegisterSpecialLoader(new LightLoader);
+  InitDefaultLoader(&resloader);
   ResPath respath(UTF8ToUTF16("//sandbox/lighting/scene.xml"));
   Resource res = resloader.Load(respath);
   SceneNodePtr root = res.scene;

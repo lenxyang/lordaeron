@@ -17,5 +17,7 @@ class EffectLoader : public ResourceSpecialLoader {
  private:
   DISALLOW_COPY_AND_ASSIGN(EffectLoader);
 };
+
+azer::EffectPtr LoadEffect(const azer::ResPath& path, ResourceLoaderContext* ctx);
 }  // namespace lord
 

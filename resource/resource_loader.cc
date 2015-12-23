@@ -4,6 +4,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "azer/base/file_system.h"
 #include "lordaeron/util/xml_util.h"
+#include "lordaeron/resource/effect_loader.h"
 #include "lordaeron/resource/mesh_loader.h"
 #include "lordaeron/resource/light_loader.h"
 #include "lordaeron/resource/vertex_desc_loader.h"
@@ -59,7 +60,9 @@ Resource ResourceLoader::Load(const azer::ResPath& path) {
     return Resource();
   }
 
+  CHECK(path.IsAbsolutePath());
   ResourceLoaderContext ctx;
+  ctx.path = path;
   ctx.loader = this;
   ctx.filesystem = filesystem_;
   std::string strcontents((const char*)&contents.front(), contents.size());
@@ -72,7 +75,24 @@ Resource ResourceLoader::Load(const azer::ResPath& path) {
   return loader->Load(cnode.get(), &ctx);
 }
 
+bool Repath(const azer::ResPath& path, azer::ResPath* apath,
+            ResourceLoaderContext* ctx) {
+  CHECK(!path.empty());
+  CHECK(!ctx->path.empty());
+  if (path.IsAbsolutePath()) {
+    *apath = path;
+  } else if (!path.component().empty() && path.filepath().empty()) {
+    *apath = ResPath(ctx->path.filepath().as_string());
+    CHECK(apath->Append(ResPath(path.component().as_string())));
+  } else {
+    *apath = ResPath(ctx->path.filepath().as_string());
+    CHECK(apath->Append(ResPath(path.fullpath())));
+  }
+  return !apath->empty();
+}
+
 void InitDefaultLoader(ResourceLoader* loader) {
+  loader->RegisterSpecialLoader(new EffectLoader);
   loader->RegisterSpecialLoader(new MeshLoader);
   loader->RegisterSpecialLoader(new VertexDescLoader);
   loader->RegisterSpecialLoader(new LightLoader);

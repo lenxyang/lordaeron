@@ -3,6 +3,7 @@
 #include "base/memory/ref_counted.h"
 #include "azer/math/math.h"
 #include "azer/render/render.h"
+#include "azer/render/effect_creator.h"
 #include "lordaeron/effect/light.h"
 
 namespace lord {
@@ -10,7 +11,7 @@ namespace sandbox {
 class MyEffect : public azer::Effect {
  public:
   static const char kEffectName[];
-  MyEffect(azer::VertexDescPtr desc);
+  MyEffect();
   ~MyEffect();
 
   const char* GetEffectName() const override;
@@ -38,6 +39,7 @@ class MyEffect : public azer::Effect {
   void SetDirLight(const DirLight& value);
   void SetPointLight(const PointLight& value);
   void SetSpotLight(const SpotLight& value);
+  static Effect* CreateObject() { return new MyEffect;}
  protected:
   void ApplyGpuConstantTable(azer::Renderer* renderer) override;
   void InitTechnique(const ShaderPrograms& source);
@@ -50,6 +52,8 @@ class MyEffect : public azer::Effect {
   DirLight dir_light_;
   PointLight point_light_;
   SpotLight spot_light_;
+
+  DECLARE_EFFECT_DYNCREATE(MyEffect);
   DISALLOW_COPY_AND_ASSIGN(MyEffect);
 };
 

@@ -123,9 +123,9 @@ MeshData LoadMeshData(const aiMesh* paiMesh, VertexDescPtr desc) {
 
     Vector3 pos(aipos.x, aipos.y, aipos.z);
     UpdateVMinAndVMax(pos, &vmin, &vmax);
-    vpack.WriteVector4(Vector4(pos, 1.0f), VertexPos(0, 0));
+    vpack.WriteVector3Or4(Vector4(pos, 1.0f), VertexPos(0, 0));
     vpack.WriteVector2(Vector2(texcoord.x, texcoord.y), tpos);
-    vpack.WriteVector4(Vector4(normal.x, normal.y, normal.z, 0.0), npos);
+    vpack.WriteVector3Or4(Vector4(normal.x, normal.y, normal.z, 0.0), npos);
     vpack.next(1);
   }
 
