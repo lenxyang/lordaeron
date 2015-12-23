@@ -57,6 +57,7 @@ int GetStageFromName(const std::string& name) {
 Resource EffectLoader::Load(const azer::ConfigNode* node, 
                             ResourceLoaderContext* ctx) {
   Effect::ShaderPrograms program;
+  program.resize(kRenderPipelineStageNum);
   ConfigNodes item = node->GetTaggedChildren("shader");
   FileContents contents;
   for (auto iter = item.begin(); iter != item.end(); ++iter) {
@@ -73,10 +74,11 @@ Resource EffectLoader::Load(const azer::ConfigNode* node,
       return Resource();
     }
     info.code = std::string((const char*)&contents.front(), contents.size());
+    program[info.stage] = info;
   }
 
   azer::EffectPtr effect = CreateEffectByName(node->GetAttr("effect_name"));
-  if (!effect.get() && !effect->Init(program)) {
+  if (!effect.get() || !effect->Init(program)) {
     LOG(ERROR) << "Failed to init effect \"" << node->GetAttr("effect_name") << "\"";
     return Resource();
   }

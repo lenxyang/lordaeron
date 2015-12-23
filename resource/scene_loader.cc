@@ -173,7 +173,7 @@ bool SceneLoader::InitSceneNode(SceneNode* node,
     if (node_type == kResTypeMesh) {
       MeshPtr mesh = LoadReferMesh(cnode, ctx);
       if (!mesh.get()) return false;
-      mesh->SetEffectAdapterContext(ctx->GetEffectAdapterContext());
+      mesh->SetEffectAdapterContext(env->GetEffectAdapterContext());
       node->mutable_data()->AttachMesh(mesh);
     } else if (node_type == kResTypeLight) {
       LightPtr light = LoadReferLight(cnode, ctx);
