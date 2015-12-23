@@ -19,7 +19,8 @@ const char* VertexDescLoader::GetLoaderName() const {
   return kSpecialLoaderName;
 }
 
-Resource VertexDescLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
+VariantResource VertexDescLoader::Load(const ConfigNode* node,
+                                       ResourceLoadContext* ctx) {
   ConfigNodes item = std::move(node->GetTaggedChildren("desc"));
   const int32 kVertexDescCount = static_cast<int32>(item.size());
   VertexDesc::Desc* desc = new VertexDesc::Desc[kVertexDescCount];
@@ -31,12 +32,12 @@ Resource VertexDescLoader::Load(const ConfigNode* node, ResourceLoaderContext* c
     strncpy(cur->name, name.c_str(), 64);
     if (!::base::StringToInt(n->GetAttr("semindex"), &cur->semantic_index)) {
       LOG(ERROR) << "Invalid semindex: \"" << n->GetAttr("semindex");
-      return Resource();
+      return VariantResource();
     }
 
     if (!::base::StringToInt(n->GetAttr("slot"), &cur->input_slot)) {
       LOG(ERROR) << "Invalid semindex: \"" << n->GetAttr("slot");
-      return Resource();
+      return VariantResource();
     }
 
     std::string type = n->GetAttr("data_type");
@@ -54,7 +55,7 @@ Resource VertexDescLoader::Load(const ConfigNode* node, ResourceLoaderContext* c
     cur++;
   }
 
-  Resource resource;
+  VariantResource resource;
   resource.type = kResTypeVertexDesc;
   resource.vertex_desc = new VertexDesc(desc, kVertexDescCount);
   resource.retcode = 0;

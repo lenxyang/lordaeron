@@ -64,7 +64,7 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
   ResourceLoader resloader(fsystem_.get());
   InitDefaultLoader(&resloader);
   ResPath respath(UTF8ToUTF16("//sandbox/lighting/scene.xml"));
-  Resource res = resloader.Load(respath);
+  VariantResource res = resloader.Load(respath);
   SceneNodePtr root = res.scene;
   CHECK(root.get()) << "Failed to init scene";
 

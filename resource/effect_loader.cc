@@ -12,22 +12,6 @@ using namespace azer;
 using base::UTF8ToUTF16;
 using base::UTF16ToUTF8;
 
-namespace {
-bool LoadFile(const ResPath& path, FileContents* contents, FileSystem* fs) {
-  FilePtr file = fs->OpenFile(path);
-  if (!file.get()) {
-    LOG(ERROR) << "Failed to open file: " << path.fullpath();
-    return false;
-  }
-
-  if (!file->PRead(0, -1, contents)) {
-    LOG(ERROR) << "Failed to read file: " << path.fullpath();
-    return false;
-  }
-  return true;
-}
-}
-
 const char EffectLoader::kSpecialLoaderName[] = "lord::EffectLoader";
 EffectLoader::EffectLoader() {
 }
@@ -54,8 +38,8 @@ int GetStageFromName(const std::string& name) {
 }
 }
 
-Resource EffectLoader::Load(const azer::ConfigNode* node, 
-                            ResourceLoaderContext* ctx) {
+VariantResource EffectLoader::Load(const azer::ConfigNode* node, 
+                                   ResourceLoadContext* ctx) {
   Effect::ShaderPrograms program;
   program.resize(kRenderPipelineStageNum);
   ConfigNodes item = node->GetTaggedChildren("shader");
@@ -69,9 +53,9 @@ Resource EffectLoader::Load(const azer::ConfigNode* node,
     info.version = n->GetAttr("version");
     info.path = n->GetAttr("path");
     ResPath respath(UTF8ToUTF16(info.path));
-    if (!LoadFile(respath, &contents, ctx->filesystem)) {
+    if (!LoadFileContents(respath, &contents, ctx->filesystem)) {
       LOG(ERROR) << "Failed to loader path: " << info.path;
-      return Resource();
+      return VariantResource();
     }
     info.code = std::string((const char*)&contents.front(), contents.size());
     program[info.stage] = info;
@@ -80,10 +64,10 @@ Resource EffectLoader::Load(const azer::ConfigNode* node,
   azer::EffectPtr effect = CreateEffectByName(node->GetAttr("effect_name"));
   if (!effect.get() || !effect->Init(program)) {
     LOG(ERROR) << "Failed to init effect \"" << node->GetAttr("effect_name") << "\"";
-    return Resource();
+    return VariantResource();
   }
 
-  Resource resource;
+  VariantResource resource;
   resource.type = kResTypeEffect;
   resource.effect = effect;
   resource.retcode = 0;

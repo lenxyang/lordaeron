@@ -13,7 +13,7 @@
 
 namespace lord {
 using namespace azer;
-bool Repath(const ResPath& path, ResPath* apath, ResourceLoaderContext* ctx) {
+bool Repath(const ResPath& path, ResPath* apath, ResourceLoadContext* ctx) {
   CHECK(!path.empty());
   CHECK(!ctx->path.empty());
   if (path.IsAbsolutePath()) {
@@ -37,8 +37,8 @@ void InitDefaultLoader(ResourceLoader* loader) {
   loader->RegisterSpecialLoader(new MaterialLoader);
 }
 
-MeshPtr LoadReferMesh(const ConfigNode* node, ResourceLoaderContext* ctx) {
-  Resource ret = LoadReferResource(node, ctx);
+MeshPtr LoadReferMesh(const ConfigNode* node, ResourceLoadContext* ctx) {
+  VariantResource ret = LoadReferResource(node, ctx);
   if (ret.type == kResTypeMesh) {
     return ret.mesh;
   } else {
@@ -46,8 +46,8 @@ MeshPtr LoadReferMesh(const ConfigNode* node, ResourceLoaderContext* ctx) {
   }
 }
 
-LightPtr LoadReferLight(const ConfigNode* node, ResourceLoaderContext* ctx) {
-  Resource ret = LoadReferResource(node, ctx);
+LightPtr LoadReferLight(const ConfigNode* node, ResourceLoadContext* ctx) {
+  VariantResource ret = LoadReferResource(node, ctx);
   if (ret.type == kResTypeLight) {
     return ret.light;
   } else {
@@ -55,8 +55,8 @@ LightPtr LoadReferLight(const ConfigNode* node, ResourceLoaderContext* ctx) {
   }
 }
 
-EffectPtr LoadReferEffect(const ConfigNode* node, ResourceLoaderContext* ctx) {
-  Resource ret = LoadReferResource(node, ctx);
+EffectPtr LoadReferEffect(const ConfigNode* node, ResourceLoadContext* ctx) {
+  VariantResource ret = LoadReferResource(node, ctx);
   if (ret.type == kResTypeEffect) {
     return ret.effect;
   } else {
@@ -65,8 +65,8 @@ EffectPtr LoadReferEffect(const ConfigNode* node, ResourceLoaderContext* ctx) {
 }
 
 VertexDescPtr LoadReferVertexDesc(const ConfigNode* node, 
-                                  ResourceLoaderContext* ctx) {
-  Resource ret = LoadReferResource(node, ctx);
+                                  ResourceLoadContext* ctx) {
+  VariantResource ret = LoadReferResource(node, ctx);
   if (ret.type == kResTypeVertexDesc) {
     return ret.vertex_desc;
   } else {
@@ -74,8 +74,8 @@ VertexDescPtr LoadReferVertexDesc(const ConfigNode* node,
   }
 }
 
-MaterialPtr LoadReferMaterial(const ConfigNode* node, ResourceLoaderContext* ctx) {
-  Resource ret = LoadReferResource(node, ctx);
+MaterialPtr LoadReferMaterial(const ConfigNode* node, ResourceLoadContext* ctx) {
+  VariantResource ret = LoadReferResource(node, ctx);
   if (ret.type == kResTypeMaterial) {
     return ret.material;
   } else {
@@ -83,18 +83,18 @@ MaterialPtr LoadReferMaterial(const ConfigNode* node, ResourceLoaderContext* ctx
   }
 }
 
-Resource LoadResource(const ResPath& path, int type, ResourceLoaderContext* ctx) {
+VariantResource LoadResource(const ResPath& path, int type, ResourceLoadContext* ctx) {
   CHECK(!path.empty());
   ResPath npath;
   CHECK(Repath(path, &npath, ctx));
-  Resource ret = ctx->loader->Load(npath);
+  VariantResource ret = ctx->loader->Load(npath);
   if (ret.retcode != 0) {
     LOG(ERROR) << "Load Effect failed for path: " << npath.fullpath();
-    return Resource();
+    return VariantResource();
   }
   if (ret.type != type) {
     LOG(ERROR) << "Not Effect for path: " << npath.fullpath();
-    return Resource();
+    return VariantResource();
   }
 
   return ret;
@@ -119,9 +119,9 @@ int32 GetTypeFromString(const std::string& str) {
   }
 }
 
-Resource LoadReferResource(const ConfigNode* node, ResourceLoaderContext* ctx) {
+VariantResource LoadReferResource(const ConfigNode* node, ResourceLoadContext* ctx) {
   if (!node) {
-    return Resource();
+    return VariantResource();
   }
   DCHECK(node->tagname() == "refer");
   ResPath path(::base::UTF8ToUTF16(node->GetAttr("path")));

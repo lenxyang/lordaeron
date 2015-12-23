@@ -25,7 +25,7 @@ MeshLoader::~MeshLoader() {
 const char* MeshLoader::GetLoaderName() const {
   return kSpecialLoaderName;
 }
-Resource MeshLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
+VariantResource MeshLoader::Load(const ConfigNode* node, ResourceLoadContext* ctx) {
   ConfigNode* vertex_desc_node = GetTypedReferNode("vertex_desc", node);
   VertexDescPtr vertex_desc = LoadReferVertexDesc(vertex_desc_node, ctx);
   ConfigNode* effect_node = GetTypedReferNode("effect", node);
@@ -33,10 +33,10 @@ Resource MeshLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
   ConfigNode* material_node = GetTypedReferNode("material", node);
   MaterialPtr material = LoadReferMaterial(material_node, ctx);
   if (!vertex_desc.get() || !effect.get() || !material.get()) {
-    return Resource();
+    return VariantResource();
   }
 
-  Resource resource;
+  VariantResource resource;
   resource.type = kResTypeMesh;
   resource.mesh = LoadMeshData(node, vertex_desc.get(), ctx);
   resource.retcode = (resource.mesh.get() != NULL) ? 0 : -1;
@@ -47,7 +47,7 @@ Resource MeshLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
 
 MeshPtr MeshLoader::LoadMeshData(const ConfigNode* node, 
                                  VertexDesc* desc,
-                                 ResourceLoaderContext* ctx) {
+                                 ResourceLoadContext* ctx) {
   const ConfigNode* mesh_node = node->GetFirstChildTagged("data");
   if (!mesh_node || !mesh_node->HasAttr("path")) {
     LOG(ERROR) << "model[" << node->GetNodePath() << "] has no effect";

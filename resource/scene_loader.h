@@ -48,7 +48,7 @@ class SceneNodeLoader {
  public:
   virtual const char* node_type_name() const = 0;
   virtual bool LoadSceneNode(SceneNode* node, const azer::ConfigNode* config, 
-                             ResourceLoaderContext* ctx) = 0;
+                             ResourceLoadContext* ctx) = 0;
 };
 
 // must be stateless class
@@ -62,20 +62,21 @@ class SceneLoader : public ResourceSpecialLoader {
   void RegisterSceneNodeLoader(scoped_ptr<SceneNodeLoader> loader);
 
   const char* GetLoaderName() const override;
-  Resource Load(const azer::ConfigNode* node, ResourceLoaderContext* ctx) override;
+  VariantResource Load(const azer::ConfigNode* node,
+                       ResourceLoadContext* ctx) override;
   bool CouldLoad(azer::ConfigNode* node) const override;
 
   // Load Scene
-  SceneNodePtr LoadNode(const azer::ConfigNode* node, ResourceLoaderContext* ctx);
+  SceneNodePtr LoadNode(const azer::ConfigNode* node, ResourceLoadContext* ctx);
  private:
   bool InitSceneNodeRecusive(SceneNode* node, const azer::ConfigNode* config_node,
-                             ResourceLoaderContext* ctx);
+                             ResourceLoadContext* ctx);
   bool InitSceneNode(SceneNode* node, const azer::ConfigNode* config, 
-                     ResourceLoaderContext* ctx);
+                     ResourceLoadContext* ctx);
   bool LoadChildrenNode(SceneNode* node, const azer::ConfigNode* config,
-                        ResourceLoaderContext* ctx);
+                        ResourceLoadContext* ctx);
   bool LoadSceneLocation(SceneNode* node, const azer::ConfigNode* config,
-                         ResourceLoaderContext* ctx);
+                         ResourceLoadContext* ctx);
 
   std::map<std::string, scoped_ptr<SceneNodeLoader> >loader_map_;
   DISALLOW_COPY_AND_ASSIGN(SceneLoader);

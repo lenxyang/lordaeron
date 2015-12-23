@@ -18,15 +18,17 @@ MaterialLoader::~MaterialLoader() {
 const char* MaterialLoader::GetLoaderName() const {
   return kSpecialLoaderName;
 }
-Resource MaterialLoader::Load(const ConfigNode* node, ResourceLoaderContext* ctx) {
+
+VariantResource MaterialLoader::Load(const ConfigNode* node,
+                                     ResourceLoadContext* ctx) {
   EffectParamsProviderPtr provider = 
       CreateEffectProviderByName(node->GetAttr("provider_name"));
   Material* mtrl = dynamic_cast<Material*>(provider.get());
   if (!mtrl || !mtrl->Init(node)) {
-    return Resource();
+    return VariantResource();
   }
 
-  Resource ret;
+  VariantResource ret;
   ret.type = kResTypeMaterial;
   ret.retcode = 0;
   ret.material = mtrl;

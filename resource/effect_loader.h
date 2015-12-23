@@ -5,6 +5,7 @@
 #include "lordaeron/resource/scene_loader.h"
 
 namespace lord {
+using azer::ConfigNode;
 class EffectLoader : public ResourceSpecialLoader {
  public:
   static const char kSpecialLoaderName[];
@@ -12,8 +13,8 @@ class EffectLoader : public ResourceSpecialLoader {
   ~EffectLoader();
 
   const char* GetLoaderName() const override;
-  Resource Load(const azer::ConfigNode* node, ResourceLoaderContext* ctx) override;
-  bool CouldLoad(azer::ConfigNode* node) const override;
+  VariantResource Load(const ConfigNode* node, ResourceLoadContext* ctx) override;
+  bool CouldLoad(ConfigNode* node) const override;
  private:
   DISALLOW_COPY_AND_ASSIGN(EffectLoader);
 };

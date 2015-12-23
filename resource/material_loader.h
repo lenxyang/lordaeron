@@ -12,7 +12,8 @@ class MaterialLoader : public ResourceSpecialLoader {
   ~MaterialLoader();
 
   const char* GetLoaderName() const override;
-  Resource Load(const azer::ConfigNode* node, ResourceLoaderContext* ctx) override;
+  VariantResource Load(const azer::ConfigNode* node,
+                       ResourceLoadContext* ctx) override;
   bool CouldLoad(azer::ConfigNode* node) const override;
  private:
   DISALLOW_COPY_AND_ASSIGN(MaterialLoader);

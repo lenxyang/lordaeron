@@ -5,6 +5,7 @@
 #include "lordaeron/resource/scene_loader.h"
 
 namespace lord {
+using azer::ConfigNode;
 class VertexDescLoader : public ResourceSpecialLoader {
  public:
   static const char kSpecialLoaderName[];
@@ -12,7 +13,7 @@ class VertexDescLoader : public ResourceSpecialLoader {
   ~VertexDescLoader();
 
   const char* GetLoaderName() const override;
-  Resource Load(const azer::ConfigNode* node, ResourceLoaderContext* ctx) override;
+  VariantResource Load(const ConfigNode* node, ResourceLoadContext* ctx) override;
   bool CouldLoad(azer::ConfigNode* node) const override;
  private:
   DISALLOW_COPY_AND_ASSIGN(VertexDescLoader);

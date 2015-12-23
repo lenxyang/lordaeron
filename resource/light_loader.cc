@@ -34,7 +34,8 @@ bool LightLoader::CouldLoad(azer::ConfigNode* node) const {
   return node->tagname() == "light";
 }
 
-Resource LightLoader::Load(const ConfigNode* lnode, ResourceLoaderContext* ctx) {
+VariantResource LightLoader::Load(const ConfigNode* lnode,
+                                  ResourceLoadContext* ctx) {
   Vector4 diffuse;
   Vector4 ambient;
   Vector4 specular;
@@ -45,7 +46,7 @@ Resource LightLoader::Load(const ConfigNode* lnode, ResourceLoaderContext* ctx) 
   CHECK(lnode->GetChildTextAsVec4("specular", &specular))
       << "light node has specular";
 
-  Resource resource;
+  VariantResource resource;
   resource.type = kResTypeLight;
   resource.retcode = 0;
   const std::string& light_type = lnode->GetAttr("type");

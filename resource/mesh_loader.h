@@ -12,12 +12,13 @@ class MeshLoader : public ResourceSpecialLoader {
   ~MeshLoader();
 
   const char* GetLoaderName() const override;
-  Resource Load(const azer::ConfigNode* node, ResourceLoaderContext* ctx) override;
+  VariantResource Load(const azer::ConfigNode* node,
+                       ResourceLoadContext* ctx) override;
   bool CouldLoad(azer::ConfigNode* node) const override;
  private:
   azer::MeshPtr LoadMeshData(const azer::ConfigNode* node,
                              azer::VertexDesc* desc,
-                             ResourceLoaderContext* ctx);
+                             ResourceLoadContext* ctx);
   DISALLOW_COPY_AND_ASSIGN(MeshLoader);
 };
 }  // namespace lord

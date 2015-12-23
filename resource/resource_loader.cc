@@ -53,15 +53,15 @@ ResourceSpecialLoader* ResourceLoader::GetLoader(azer::ConfigNode *node) {
   return NULL;
 }
 
-Resource ResourceLoader::Load(const azer::ResPath& path) {
+VariantResource ResourceLoader::Load(const azer::ResPath& path) {
   FileContents contents;
   if (!LoadContents(path, &contents, filesystem_)) {
     LOG(ERROR) << "Failed to Load contents from file: " << path.fullpath();
-    return Resource();
+    return VariantResource();
   }
 
   CHECK(path.IsAbsolutePath());
-  ResourceLoaderContext ctx;
+  ResourceLoadContext ctx;
   ctx.path = path;
   ctx.loader = this;
   ctx.filesystem = filesystem_;

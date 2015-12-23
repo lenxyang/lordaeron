@@ -16,7 +16,7 @@ enum {
   kResTypeVertexDesc,
 };
 
-struct Resource {
+struct VariantResource {
   azer::MeshPtr mesh;
   azer::EffectPtr effect;
   azer::VertexDescPtr vertex_desc;
@@ -26,7 +26,7 @@ struct Resource {
   int32 type;
   int32 retcode;
 
-  Resource() : type(kResTypeNone), retcode(-1) {}
+  VariantResource() : type(kResTypeNone), retcode(-1) {}
 };
 
 int32 GetTypeFromString(const std::string& str);
