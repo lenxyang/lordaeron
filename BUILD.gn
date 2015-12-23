@@ -52,6 +52,8 @@ static_library("lordaeron") {
     "resource/effect_loader.h",
     "resource/light_loader.cc",
     "resource/light_loader.h",
+    "resource/material_loader.cc",
+    "resource/material_loader.h",
     "resource/mesh_loader.cc",
     "resource/mesh_loader.h",
     "resource/resource.h",

@@ -65,20 +65,4 @@ bool VertexDescLoader::CouldLoad(ConfigNode* node) const {
   return node->tagname() == "vertex_desc";
 }
 
-
-VertexDescPtr LoadVertexDesc(const ResPath& path, ResourceLoaderContext* ctx) {
-  ResPath npath;
-  CHECK(Repath(path, &npath, ctx));
-  Resource ret = ctx->loader->Load(npath);
-  if (ret.retcode != 0) {
-    LOG(ERROR) << "Load VertexDesc failed for path: " << npath.fullpath();
-    return VertexDescPtr();
-  }
-  if (ret.type != kResTypeVertexDesc) {
-    LOG(ERROR) << "Not VertexDesc for path: " << npath.fullpath();
-    return VertexDescPtr();
-  }
-
-  return ret.vertex_desc;
-}
 }  // namespace lord

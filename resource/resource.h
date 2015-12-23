@@ -2,6 +2,7 @@
 
 #include "azer/render/render.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/effect/material.h"
 
 namespace lord {
 enum {
@@ -16,9 +17,9 @@ enum {
 
 struct Resource {
   azer::MeshPtr mesh;
-  azer::EffectParamsProviderPtr material;
   azer::EffectPtr effect;
   azer::VertexDescPtr vertex_desc;
+  MaterialPtr material;
   LightPtr light;
   SceneNodePtr scene;
   int32 type;
@@ -26,4 +27,6 @@ struct Resource {
 
   Resource() : type(kResTypeNone), retcode(-1) {}
 };
+
+int32 GetTypeFromString(const std::string& str);
 }  // namespace lord

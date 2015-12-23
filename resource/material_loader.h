@@ -5,18 +5,16 @@
 #include "lordaeron/resource/scene_loader.h"
 
 namespace lord {
-class EffectLoader : public ResourceSpecialLoader {
+class MaterialLoader : public ResourceSpecialLoader {
  public:
   static const char kSpecialLoaderName[];
-  EffectLoader();
-  ~EffectLoader();
+  MaterialLoader();
+  ~MaterialLoader();
 
   const char* GetLoaderName() const override;
   Resource Load(const azer::ConfigNode* node, ResourceLoaderContext* ctx) override;
   bool CouldLoad(azer::ConfigNode* node) const override;
  private:
-  DISALLOW_COPY_AND_ASSIGN(EffectLoader);
+  DISALLOW_COPY_AND_ASSIGN(MaterialLoader);
 };
-
 }  // namespace lord
-

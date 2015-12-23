@@ -92,20 +92,4 @@ bool EffectLoader::CouldLoad(azer::ConfigNode* node) const {
   return node->tagname() == "effect";
 }
 
-EffectPtr LoadEffect(const ResPath& path, ResourceLoaderContext* ctx) {
-  CHECK(!path.empty());
-  ResPath npath;
-  CHECK(Repath(path, &npath, ctx));
-  Resource ret = ctx->loader->Load(npath);
-  if (ret.retcode != 0) {
-    LOG(ERROR) << "Load Effect failed for path: " << npath.fullpath();
-    return EffectPtr();
-  }
-  if (ret.type != kResTypeEffect) {
-    LOG(ERROR) << "Not Effect for path: " << npath.fullpath();
-    return EffectPtr();
-  }
-
-  return ret.effect;
-}
 }  // namespace lord

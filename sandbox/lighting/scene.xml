@@ -3,12 +3,15 @@
 <node name="scene">
 <!--
   <node name="env" type="environment">
-    <node name="dir" type="light" refpath="//sandbox/lighting/data.xml:dir">
+    <node type="light">
       <location><position>4.0f, 4.0f, 0.0f</position></location>
+      <refer type="light" path="//sandbox/lighting/data.xml:dir" />
     </node>
   </node>
 -->
-  <node name="teaport" refpath="//sandbox/lighting/data.xml:teaport"/>
+  <node name="teaport">
+    <refer path="//sandbox/lighting/data.xml:teaport"/>
+  </node>
 <!--
   <node name="plane" type="mesh">
     <location><position>0.0f, 0.0f, 0.0f</position></location>

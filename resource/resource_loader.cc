@@ -98,4 +98,73 @@ void InitDefaultLoader(ResourceLoader* loader) {
   loader->RegisterSpecialLoader(new LightLoader);
   loader->RegisterSpecialLoader(new SceneLoader);
 }
+
+MeshPtr LoadReferMesh(const ConfigNode* node, ResourceLoaderContext* ctx) {
+  Resource ret = LoadReferResource(node, ctx);
+  CHECK(ret.type == kResTypeMesh);
+  return ret.effect;
+}
+
+EffectPtr LoadReferEffect(const ConfigNode* node, ResourceLoaderContext* ctx) {
+  Resource ret = LoadReferResource(node, ctx);
+  CHECK(ret.type == kResTypeEffect);
+  return ret.effect;
+}
+
+VertexDescPtr LoadReferVertexDesc(const ConfigNode* node, 
+                                  ResourceLoaderContext* ctx) {
+  Resource ret = LoadReferResource(node, ctx);
+  CHECK(ret.type == kResTypeVertexDesc);
+  return ret.vertex_desc;
+}
+
+Material LoadReferMaterial(const ConfigNode& node, ResourceLoaderContext* ctx) {
+  Resource ret = LoadReferResource(node, ctx);
+  CHECK(ret.type == kResTypeMaterial);
+  return ret.material;
+}
+
+Resource LoadResource(const ResPath& path, int type, ResourceLoaderContext* ctx) {
+  CHECK(!path.empty());
+  ResPath npath;
+  CHECK(Repath(path, &npath, ctx));
+  Resource ret = ctx->loader->Load(npath);
+  if (ret.retcode != 0) {
+    LOG(ERROR) << "Load Effect failed for path: " << npath.fullpath();
+    return Resource();
+  }
+  if (ret.type != type) {
+    LOG(ERROR) << "Not Effect for path: " << npath.fullpath();
+    return Resource();
+  }
+
+  return ret;
+}
+
+int32 GetTypeFromString(const std::string& str) {
+  if (str == "mesh") {
+    return kResTypeMesh;
+  } else if (str == "material") {
+    return kResTypeMaterial;
+  } else if (str == "effect") {
+    return kResTypeMaterial;
+  } else if (str == "light") {
+    return kResTypeLight;
+  } else if (str == "scene") {
+    return kResTypeScene;
+  } else if (str == "vertex_desc") {
+    return kResTypeVertexDesc;
+  } else {
+    NOTREACHED() << "unknown type: " << str;
+    return kResTypeNone;
+  }
+}
+
+Resource LoadReferResource(const ConfigNode* node, ResourceLoaderContext* ctx) {
+  DCHECK(node->tag_name() == "refer");
+  ResPath path(::base::UTF8ToUTF16(node->GetAttr("path")));
+  CHECK(!path.empty());
+  int type = GetTypeFromString(node->GetAttr("type"));
+  return LoadResource(path, type, ctx);
+}
 }  // namespace lord

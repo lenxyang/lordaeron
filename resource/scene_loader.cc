@@ -161,29 +161,16 @@ bool SceneLoader::InitSceneNode(SceneNode* node,
   }
 
   const std::string& type_name = config->GetAttr("type");
-  if (config->HasAttr("refpath")) {
-    ResPath npath;
-    ResPath refpath(::base::UTF8ToUTF16(config->GetAttr("refpath")));
-    CHECK(!refpath.fullpath().empty());
-    Repath(refpath, &npath, ctx);
-    Resource ret = ctx->loader->Load(refpath);
-    if (ret.retcode != 0) {
-      LOG(ERROR) << "Failed to load node: \"" << refpath.fullpath() << "\"";
-      return false;
-    }
-    switch (ret.type) {
-      case kResTypeMesh:
-        ret.mesh->SetEffectAdapterContext(env->GetEffectAdapterContext());
-        node->mutable_data()->AttachMesh(ret.mesh);
-        break;
-      case kResTypeLight:
-        node->mutable_data()->AttachLight(ret.light);
-        break;
-      default:
-        CHECK(false) << "not support type: " << ret.type;
-        break;
-    }
-    return true;
+  ConfigNodes nodes = config->GetTaggedChild("refer");
+  int node_type = GetTypeFromString(type_name);
+  if (node_type == kResTypeLight) {
+    MeshPtr mesh = 
+    node->mutable_data()->AttachMesh(ret.mesh);
+  } else if (node_type == kResTypeMesh) {
+    node->mutable_data()->AttachLight(ret.light);
+  } else {
+    CHECK(false) << "not support type: " << type_name;
+    return false;
   }
 
   if (type_name == "environment") {

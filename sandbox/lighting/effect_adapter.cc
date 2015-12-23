@@ -14,13 +14,13 @@ ColorEffectAdapter::ColorEffectAdapter() {
 
 EffectAdapterKey ColorEffectAdapter::key() const {
   return std::make_pair(typeid(MyEffect).name(),
-                        typeid(DiffuseColorProvider).name());
+                        typeid(ColorMaterial).name());
 }
 
 void ColorEffectAdapter::Apply(Effect* e, const EffectParamsProvider* params) const  {
   CHECK(typeid(*e) == typeid(MyEffect));
-  CHECK(typeid(*params) == typeid(DiffuseColorProvider));
-  DiffuseColorProvider* provider = (DiffuseColorProvider*)params;
+  CHECK(typeid(*params) == typeid(ColorMaterial));
+  ColorMaterial* provider = (ColorMaterial*)params;
   MyEffect* effect = dynamic_cast<MyEffect*>(e);
   effect->SetColor(provider->color());
 }

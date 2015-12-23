@@ -17,8 +17,5 @@ class VertexDescLoader : public ResourceSpecialLoader {
  private:
   DISALLOW_COPY_AND_ASSIGN(VertexDescLoader);
 };
-
-azer::VertexDescPtr LoadVertexDesc(const azer::ResPath& path, 
-                                   ResourceLoaderContext* ctx);
 }  // namespace lord
 

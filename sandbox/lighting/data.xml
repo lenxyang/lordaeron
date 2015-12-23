@@ -28,12 +28,14 @@
   </light>
 
   <mesh name="teaport" type="mesh" vertex_desc=":vertex_desc">
-    <model path="//media/model/teapot.obj"/>
-    <effect refpath=":DiffuseEffect"/>
-    <material name="lord::DiffuseEffectProvider">
-      <color>0.3f, 0.3f, 0.3f, 1.0f</color>
-    </material>
+    <refer type="model" path="//media/model/teapot.obj"/>
+    <refer type="effect" path=":DiffuseEffect"/>
+    <refer type="material" path=":mtrl"/>
   </mesh>
+
+  <material name="mtrl" provider_name="lord::ColorMaterial">
+    <color>0.3f, 0.3f, 0.3f, 1.0f</color>
+  </material>
 
   <vertex_desc name="vertex_desc">
     <desc semantic="position" semindex="0" slot="0" data_type="vector4" />

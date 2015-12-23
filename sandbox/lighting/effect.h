@@ -5,9 +5,27 @@
 #include "azer/render/render.h"
 #include "azer/render/effect_creator.h"
 #include "lordaeron/effect/light.h"
+#include "lordaeron/effect/material.h"
 
 namespace lord {
 namespace sandbox {
+class ColorMaterial : public Material {
+ public:
+  static const char kEffectProviderName[];
+  const char* name() const override { return kEffectProviderName;}
+  bool Init(const azer::ConfigNode* node) override {
+    CHECK(node->GetChildTextAsVec4("color", &color_));
+    return true;
+  }
+
+  const azer::Vector4& color() const { return color_;}
+  static ColorMaterial* CreateObject() { return new ColorMaterial;}
+ private:
+  azer::Vector4 color_;
+  DECLARE_EFFECT_PROVIDER_DYNCREATE(ColorMaterial);
+  DISALLOW_COPY_AND_ASSIGN(ColorMaterial);
+};
+
 class MyEffect : public azer::Effect {
  public:
   static const char kEffectName[];

@@ -13,6 +13,9 @@ using namespace azer;
 
 namespace lord {
 namespace sandbox {
+const char ColorMaterial::kEffectProviderName[] = "lord::ColorMaterial";
+IMPLEMENT_EFFECT_PROVIDER_DYNCREATE(ColorMaterial);
+// class MyEffect
 IMPLEMENT_EFFECT_DYNCREATE(MyEffect);
 const char MyEffect::kEffectName[] = "MyEffect";
 MyEffect::MyEffect() 
