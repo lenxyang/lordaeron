@@ -18,8 +18,7 @@ IMPLEMENT_EFFECT_PROVIDER_DYNCREATE(ColorMaterial);
 // class MyEffect
 IMPLEMENT_EFFECT_DYNCREATE(MyEffect);
 const char MyEffect::kEffectName[] = "MyEffect";
-MyEffect::MyEffect() 
-    : Effect(RenderSystem::Current()) {
+MyEffect::MyEffect() {
   vertex_desc_ptr_ = PosNormalVertex::CreateVertexDesc();
 }
 
@@ -39,6 +38,7 @@ bool MyEffect::Init(const ShaderPrograms& sources) {
 }
 
 void MyEffect::InitGpuConstantTable() {
+  RenderSystem* rs = RenderSystem::Current();
   // generate GpuTable init for stage kVertexStage
   GpuConstantsTable::Desc vs_table_desc[] = {
     GpuConstantsTable::Desc("pvw", GpuConstantsType::kMatrix4,
@@ -48,7 +48,7 @@ void MyEffect::InitGpuConstantTable() {
     GpuConstantsTable::Desc("camerapos", GpuConstantsType::kVector4,
                             offsetof(vs_cbuffer, camerapos), 1),
   };
-  gpu_table_[kVertexStage] = render_system_->CreateGpuConstantsTable(
+  gpu_table_[kVertexStage] = rs->CreateGpuConstantsTable(
       arraysize(vs_table_desc), vs_table_desc);
   // generate GpuTable init for stage kPixelStage
   GpuConstantsTable::Desc ps_table_desc[] = {
@@ -61,7 +61,7 @@ void MyEffect::InitGpuConstantTable() {
     GpuConstantsTable::Desc("color", GpuConstantsType::kVector4,
                             offsetof(ps_cbuffer, color), 1),
   };
-  gpu_table_[kPixelStage] = render_system_->CreateGpuConstantsTable(
+  gpu_table_[kPixelStage] = rs->CreateGpuConstantsTable(
       arraysize(ps_table_desc), ps_table_desc);
 }
 void MyEffect::InitTechnique(const ShaderPrograms& sources) {
