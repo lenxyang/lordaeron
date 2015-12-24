@@ -69,8 +69,8 @@ class SceneLoader : public ResourceSpecialLoader {
   // Load Scene
   SceneNodePtr LoadNode(const azer::ConfigNode* node, ResourceLoadContext* ctx);
  private:
-  bool InitSceneNodeRecusive(SceneNode* node, const azer::ConfigNode* config_node,
-                             ResourceLoadContext* ctx);
+  bool LoadNodeRecusive(SceneNode* node, const azer::ConfigNode* config_node,
+                        ResourceLoadContext* ctx);
   bool InitSceneNode(SceneNode* node, const azer::ConfigNode* config, 
                      ResourceLoadContext* ctx);
   bool LoadChildrenNode(SceneNode* node, const azer::ConfigNode* config,

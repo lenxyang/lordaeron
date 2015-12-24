@@ -71,6 +71,7 @@ VariantResource ResourceLoader::Load(const azer::ResPath& path) {
   base::string16 nodepath = ::base::UTF8ToUTF16("//");
   nodepath.append(path.component_name().as_string());
   ConfigNodePtr cnode = croot->GetNodeFromPath(::base::UTF16ToUTF8(nodepath));
+  CHECK(cnode.get()) << "cannot node: " << nodepath;
   ResourceSpecialLoader* loader = GetLoader(cnode);
   return loader->Load(cnode.get(), &ctx);
 }

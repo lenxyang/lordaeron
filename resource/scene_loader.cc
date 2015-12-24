@@ -63,8 +63,10 @@ void SceneLoader::RegisterSceneNodeLoader(scoped_ptr<SceneNodeLoader> loader) {
 
 SceneNodePtr SceneLoader::LoadNode(const ConfigNode* cnode, 
                                    ResourceLoadContext* ctx) {
-  SceneNodePtr root(new SceneNode);
-  if (LoadChildrenNode(root, cnode, ctx)) {
+  SceneNodePtr root(new SceneNode());
+  SceneNodePtr node(new SceneNode(cnode->GetAttr("name")));
+  root->AddChild(node);
+  if (LoadNodeRecusive(node, cnode, ctx)) {
     return root;
   } else {
     return SceneNodePtr();
@@ -76,9 +78,9 @@ bool SceneLoader::LoadChildrenNode(SceneNode* node, const ConfigNode* config,
   ConfigNodes subnodes = config->GetTaggedChildren("node");
   for (auto iter = subnodes.begin(); iter != subnodes.end(); ++iter) {
     ConfigNode* child_config = iter->get();
-    SceneNodePtr child_node(new SceneNode(child_config->GetAttr("name")));
+    SceneNodePtr child_node(new SceneNode);
     node->AddChild(child_node);
-    if (!InitSceneNodeRecusive(child_node, child_config, ctx)) {
+    if (!LoadNodeRecusive(child_node, child_config, ctx)) {
       LOG(INFO) << "Failed to init childnode, parent[" << node->path() << "]";
       return false;
     }
@@ -87,9 +89,9 @@ bool SceneLoader::LoadChildrenNode(SceneNode* node, const ConfigNode* config,
   return true;
 }
 
-bool SceneLoader::InitSceneNodeRecusive(SceneNode* node,
-                                        const ConfigNode* config_node,
-                                        ResourceLoadContext* ctx) {
+bool SceneLoader::LoadNodeRecusive(SceneNode* node, const ConfigNode* config_node,
+                                   ResourceLoadContext* ctx) {
+  node->set_name(config_node->GetAttr("name"));
   if (!InitSceneNode(node, config_node, ctx)) {
     return false;
   }

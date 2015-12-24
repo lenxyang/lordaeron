@@ -111,6 +111,7 @@ SceneNode::SceneNode(const std::string& name) {
 }
 
 SceneNode::SceneNode(const std::string& name, SceneNode* parent) {
+  DCHECK(parent != this);
   InitMember();
   name_ = name;
   parent->AddChild(this);
@@ -140,6 +141,7 @@ SceneNode::~SceneNode() {
 }
 
 void SceneNode::AddChild(SceneNode* child) {
+  DCHECK(child != this);
   DCHECK(child->parent() == NULL);
   child->parent_ = this;
   children_.push_back(child);
