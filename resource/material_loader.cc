@@ -24,7 +24,7 @@ VariantResource MaterialLoader::Load(const ConfigNode* node,
   EffectParamsProviderPtr provider = 
       CreateEffectProviderByName(node->GetAttr("provider_name"));
   Material* mtrl = dynamic_cast<Material*>(provider.get());
-  if (!mtrl || !mtrl->Init(node)) {
+  if (!mtrl || !mtrl->Init(node, ctx)) {
     return VariantResource();
   }
 

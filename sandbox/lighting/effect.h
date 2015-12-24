@@ -14,7 +14,7 @@ class ColorMaterial : public Material {
   ColorMaterial() {}
   static const char kEffectProviderName[];
   const char* name() const override { return kEffectProviderName;}
-  bool Init(const azer::ConfigNode* node) override {
+  bool Init(const azer::ConfigNode* node, ResourceLoadContext* ctx) override {
     CHECK(node->GetChildTextAsVec4("color", &color_));
     return true;
   }

@@ -15,9 +15,8 @@ using namespace azer;
 
 namespace lord {
 const char NormalLineEffect::kEffectName[] = "NormalLineEffect";
-NormalLineEffect::NormalLineEffect(VertexDescPtr desc) 
-    : Effect(RenderSystem::Current()),
-      line_length_(1.0f) {
+NormalLineEffect::NormalLineEffect(VertexDescPtr desc)
+    : line_length_(1.0f) {
   vertex_desc_ptr_ = desc;
 }
 
@@ -38,6 +37,7 @@ bool NormalLineEffect::Init(const ShaderPrograms& sources) {
 }
 
 void NormalLineEffect::InitGpuConstantTable() {
+  RenderSystem* rs = RenderSystem::Current();
   // generate GpuTable init for stage kVertexStage
   GpuConstantsTable::Desc vs_table_desc[] = {
     GpuConstantsTable::Desc("pvw", GpuConstantsType::kMatrix4,
@@ -47,7 +47,7 @@ void NormalLineEffect::InitGpuConstantTable() {
     GpuConstantsTable::Desc("linelength", GpuConstantsType::kFloat,
                             offsetof(vs_cbuffer, linelength), 1),
   };
-  gpu_table_[kVertexStage] = render_system_->CreateGpuConstantsTable(
+  gpu_table_[kVertexStage] = rs->CreateGpuConstantsTable(
       arraysize(vs_table_desc), vs_table_desc);
 
 
@@ -55,7 +55,7 @@ void NormalLineEffect::InitGpuConstantTable() {
   GpuConstantsTable::Desc ps_table_desc[] = {
     GpuConstantsTable::Desc("color", GpuConstantsType::kVector4, 0, 1),
   };
-  gpu_table_[kPixelStage] = render_system_->CreateGpuConstantsTable(
+  gpu_table_[kPixelStage] = rs->CreateGpuConstantsTable(
       arraysize(ps_table_desc), ps_table_desc);
 }
 void NormalLineEffect::InitTechnique(const ShaderPrograms& sources) {

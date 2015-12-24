@@ -14,8 +14,7 @@ using namespace azer;
 
 namespace lord {
 const char DiffuseEffect::kEffectName[] = "DiffuseEffect";
-DiffuseEffect::DiffuseEffect(VertexDescPtr desc) 
-    : Effect(RenderSystem::Current()) {
+DiffuseEffect::DiffuseEffect(VertexDescPtr desc) {
   vertex_desc_ptr_ = desc;
   emission_ = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -36,6 +35,7 @@ bool DiffuseEffect::Init(const ShaderPrograms& sources) {
 }
 
 void DiffuseEffect::InitGpuConstantTable() {
+  RenderSystem* rs = RenderSystem::Current();
   // generate GpuTable init for stage kVertexStage
   GpuConstantsTable::Desc vs_table_desc[] = {
     GpuConstantsTable::Desc("pvw", GpuConstantsType::kMatrix4,
@@ -43,7 +43,7 @@ void DiffuseEffect::InitGpuConstantTable() {
     GpuConstantsTable::Desc("world", GpuConstantsType::kMatrix4,
                             offsetof(vs_cbuffer, world), 1),
   };
-  gpu_table_[kVertexStage] = render_system_->CreateGpuConstantsTable(
+  gpu_table_[kVertexStage] = rs->CreateGpuConstantsTable(
       arraysize(vs_table_desc), vs_table_desc);
   // generate GpuTable init for stage kPixelStage
   GpuConstantsTable::Desc ps_table_desc[] = {
@@ -54,7 +54,7 @@ void DiffuseEffect::InitGpuConstantTable() {
     GpuConstantsTable::Desc("light", offsetof(ps_cbuffer, light),
                             sizeof(lord::DirLight), 1),
   };
-  gpu_table_[kPixelStage] = render_system_->CreateGpuConstantsTable(
+  gpu_table_[kPixelStage] = rs->CreateGpuConstantsTable(
       arraysize(ps_table_desc), ps_table_desc);
 }
 void DiffuseEffect::InitTechnique(const ShaderPrograms& sources) {
