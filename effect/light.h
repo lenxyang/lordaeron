@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "base/memory/ref_counted.h"
+#include "base/observer_list.h"
 #include "azer/math/math.h"
 #include "azer/render/render.h"
 #include "lordaeron/scene/scene_node_observer.h"
@@ -50,6 +51,14 @@ enum LightType {
   kSpotLight,
 };
 
+class Light;
+
+class LightObserver {
+ public:
+  virtual void OnLightPositionChanged(Light* light) {}
+  virtual void OnLightDirectionChanged(Light* light) {}
+};
+
 class Light : public ::base::RefCounted<Light> {
  public:
   explicit Light(const DirLight& light);
@@ -62,6 +71,8 @@ class Light : public ::base::RefCounted<Light> {
   const azer::Vector4& specular() const;
   const azer::Vector3& directional() const;
 
+  bool enable() const;
+  void set_enable(bool v);
   void set_diffuse(const azer::Vector4& color);
   void set_ambient(const azer::Vector4& color);
   void set_specular(const azer::Vector4& color);
@@ -69,18 +80,21 @@ class Light : public ::base::RefCounted<Light> {
   void set_directional(const azer::Vector3& dir);
 
   const DirLight& dir_light() const;
-  DirLight* mutable_dir_light();
-
   const PointLight& point_light() const;
-  PointLight* mutable_point_light();
-
   const SpotLight& spot_light() const;
-  SpotLight* mutable_spot_light();
+  void SetDirLight(const DirLight& l);
+  void SetPointLight(const PointLight& l);
+  void SetSpotLight(const SpotLight& l);
+
+  void AddObserver(LightObserver* observer);
+  void RemoveObserver(LightObserver* observer);
+  bool HasObserver(LightObserver* observer) const;
  private:
   LightType type_;
   DirLight dir_light_;
   PointLight point_light_;
   SpotLight spot_light_;
+  ObserverList<LightObserver> observers_;
   DISALLOW_COPY_AND_ASSIGN(Light);
 };
 

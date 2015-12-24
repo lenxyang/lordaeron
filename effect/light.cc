@@ -20,14 +20,24 @@ Light::Light(const SpotLight& light)
       spot_light_(light) {
 }
 
+void Light::SetDirLight(const DirLight& l) {
+  type_ = kDirectionalLight;
+  dir_light_ = l;
+}
+
+void Light::SetPointLight(const PointLight& l) {
+  type_ = kPointLight;
+  point_light_ = l;
+}
+
+void Light::SetSpotLight(const SpotLight& l) {
+  type_ = kSpotLight;
+  spot_light_ = l;
+}
+
 const DirLight& Light::dir_light() const {
   CHECK(type() == kDirectionalLight);
   return dir_light_;
-}
-
-DirLight* Light::mutable_dir_light() {
-  CHECK(type() == kDirectionalLight);
-  return &dir_light_;
 }
 
 const PointLight& Light::point_light() const {
@@ -35,24 +45,31 @@ const PointLight& Light::point_light() const {
   return point_light_;
 }
 
-PointLight* Light::mutable_point_light() {
-  CHECK(type() == kPointLight);
-  return &point_light_;
-}
-
 const SpotLight& Light::spot_light() const {
   CHECK(type() == kSpotLight);
   return spot_light_;
 }
 
-SpotLight* Light::mutable_spot_light() {
-  CHECK(type() == kSpotLight);
-  return &spot_light_;
-}
-
 namespace {
 const Vector4 none_color(0.0f, 0.0f, 0.0f, 0.0f);
 const Vector3 none_dir(0.0f, 0.0f, 0.0f);
+}
+
+void Light::set_enable(bool enable) {
+  float value = enable ? 1.0f : 0.0f;
+  switch (type()) {
+    case kDirectionalLight:
+      dir_light_.enable = value;
+      break;
+    case kPointLight:
+      point_light_.enable = value;
+      break;
+    case kSpotLight:
+      spot_light_.enable = value;
+      break;
+    default:
+      CHECK(false);
+  }
 }
 
 void Light::set_diffuse(const azer::Vector4& color) {
@@ -110,6 +127,7 @@ void Light::set_position(const azer::Vector3& pos) {
       break;
     case kPointLight:
       point_light_.position = pos;
+      
       break;
     case kSpotLight:
       spot_light_.position = pos;
@@ -133,6 +151,25 @@ void Light::set_directional(const azer::Vector3& dir) {
     default:
       CHECK(false);
   }
+}
+
+bool Light::enable() const {
+  float v = 0.0f;
+  switch (type()) {
+    case kDirectionalLight:
+      v = dir_light_.enable;
+      break;
+    case kPointLight:
+      v = point_light_.enable;
+      break;
+    case kSpotLight:
+      v = spot_light_.enable;
+      break;
+    default:
+      CHECK(false);
+      return false;
+  }
+  return std::abs(v - 1.0f) < 0.00001f;
 }
 
 const azer::Vector3& Light::directional() const {
@@ -190,5 +227,17 @@ const Vector4& Light::specular() const {
       CHECK(false);
       return none_color;
   }
+}
+
+void Light::AddObserver(LightObserver* observer) {
+  observers_.AddObserver(observer);
+}
+
+void Light::RemoveObserver(LightObserver* observer) {
+  observers_.RemoveObserver(observer);
+}
+
+bool Light::HasObserver(LightObserver* observer) const {
+  return observers_.HasObserver(observer);
 }
 }  // namespace lord

@@ -217,16 +217,17 @@ void SpotLightAttenuationPane::ContentsChanged(views::Textfield* sender,
                                                const base::string16& new_contents) {
   double v;
   CHECK(::base::StringToDouble(UTF16ToUTF8(new_contents), &v));
-  SpotLight* light = light_->mutable_spot_light();
+  SpotLight l = light_->spot_light();
   if (sender == theta_textfield_) {
-    light->theta = std::acos(v);
+    l.theta = std::acos(v);
   } else if (sender == phi_textfield_) {
-    light->phi = std::acos(v);
+    l.phi = std::acos(v);
   } else if (sender == falloff_textfield_) {
-    light->falloff = v;
+    l.falloff = v;
   } else if (sender == range_textfield_) {
-    light->range = v;
+    l.range = v;
   }
+  light_->SetSpotLight(l);
 }
 
 void SpotLightAttenuationPane::Layout() {
@@ -368,16 +369,17 @@ void PointLightAttenuationPane::ContentsChanged(views::Textfield* sender,
                                                 const base::string16& new_contents) {
   double v;
   CHECK(::base::StringToDouble(UTF16ToUTF8(new_contents), &v));
-  PointLight* light = light_->mutable_point_light();
+  PointLight l = light_->point_light();
   if (sender == quadratic_textfield_) {
-    light->atten.coefficient.x = v;
+    l.atten.coefficient.x = v;
   } else if (sender == linear_textfield_) {
-    light->atten.coefficient.y = v;
+    l.atten.coefficient.y = v;
   } else if (sender == const_textfield_) {
-    light->atten.coefficient.z = v;
+    l.atten.coefficient.z = v;
   } else if (sender == range_textfield_) {
-    light->atten.range = v;
+    l.atten.range = v;
   }
+  light_->SetPointLight(l);
 }
 
 gfx::Size PointLightAttenuationPane::GetPreferredSize() const {

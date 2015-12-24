@@ -13,13 +13,13 @@ void UpdateSceneNodeLight(SceneNode* node) {
     Light* light = node->mutable_data()->light();
     switch (light->type()) {
       case kDirectionalLight: 
-        light->mutable_dir_light()->enable = node->visible() ? 1.0f : 0.0f;
+        light->set_enable(node->visible());
         break;
       case kPointLight: 
-        light->mutable_point_light()->enable = node->visible() ? 1.0f : 0.0f;
+        light->set_enable(node->visible());
         break;
       case kSpotLight: 
-        light->mutable_spot_light()->enable = node->visible() ? 1.0f : 0.0f;
+        light->set_enable(node->visible());
         break;
       default:
         CHECK(false);

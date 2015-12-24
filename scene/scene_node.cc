@@ -81,10 +81,9 @@ void SceneNodeData::AttachLight(Light* light) {
 void SceneNodeData::OnSceneNodeLocationChanged(SceneNode* node, 
                                                const Vector3& prevpos) {
   if (node_->type() == kLampSceneNode) {
-    if (light_->type() == kPointLight) {
-      light_->mutable_point_light()->position = node->GetWorldPosition();
-    } else if (light_->type() == kSpotLight) {
-      light_->mutable_spot_light()->position = node->GetWorldPosition();
+    if (light_->type() == kPointLight
+        || light_->type() == kSpotLight) {
+      light_->set_position(node->GetWorldPosition());
     }
   }
 }
@@ -94,10 +93,9 @@ void SceneNodeData::OnSceneNodeOrientationChanged(
   if (node_->type() == kLampSceneNode) {
     Matrix4 rotation = std::move(node->orientation().ToMatrix());
     Vector4 dir = rotation * Vector4(0.0f, 0.0f, 1.0f, 0.0f);
-    if (light_->type() == kDirectionalLight) {
-      light_->mutable_dir_light()->direction = Vector3(dir.x, dir.y, dir.z);
-    } else if (light_->type() == kSpotLight) {
-      light_->mutable_spot_light()->direction = Vector3(dir.x, dir.y, dir.z);
+    if (light_->type() == kDirectionalLight
+        || light_->type() == kSpotLight) {
+      light_->set_directional(Vector3(dir.x, dir.y, dir.z));
     }
   }
 }
