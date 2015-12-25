@@ -31,8 +31,12 @@ VariantResource MeshLoader::Load(const ConfigNode* node, ResourceLoadContext* ct
   ConfigNode* effect_node = GetTypedReferNode("effect", node);
   EffectPtr effect = LoadReferEffect(effect_node, ctx);
   ConfigNode* material_node = GetTypedReferNode("material", node);
-  MaterialPtr material = LoadReferMaterial(material_node, ctx);
-  if (!vertex_desc.get() || !effect.get() || !material.get()) {
+  MaterialPtr material;
+  if (material_node) {
+    material = LoadReferMaterial(material_node, ctx);
+  }
+
+  if (!vertex_desc.get() || !effect.get()) {
     return VariantResource();
   }
 
@@ -40,7 +44,8 @@ VariantResource MeshLoader::Load(const ConfigNode* node, ResourceLoadContext* ct
   resource.type = kResTypeMesh;
   resource.mesh = LoadMeshData(node, vertex_desc.get(), ctx);
   resource.retcode = (resource.mesh.get() != NULL) ? 0 : -1;
-  resource.mesh->AddProvider(material);
+  if (material.get())
+    resource.mesh->AddProvider(material);
   InitMeshEffect(effect.get(), resource.mesh.get());
   return resource;
 }
