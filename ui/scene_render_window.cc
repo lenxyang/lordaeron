@@ -17,14 +17,16 @@ const Vector4 kRenderBgColor = Vector4(0.427f, 0.427f, 0.427f, 1.0f);
 }
 SceneRenderWindow::SceneRenderWindow(const gfx::Rect& init_bounds)
     : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
-      render_view_(NULL) {
+      render_view_(NULL),
+      draw_gridline_(false) {
 }
 
 SceneRenderWindow::SceneRenderWindow(const gfx::Rect& init_bounds, 
                                      nelf::RenderLoop* render_loop)
     : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
       render_view_(NULL),
-      render_loop_(render_loop) {
+      render_loop_(render_loop),
+      draw_gridline_(NULL) {
 }
 
 SceneRenderWindow::~SceneRenderWindow() {
@@ -88,7 +90,10 @@ void SceneRenderWindow::OnRender(const azer::FrameArgs& args) {
   renderer->ClearDepthAndStencil();
   renderer->SetCullingMode(azer::kCullBack);
   renderer->EnableDepthTest(true);
-  gridline_->Render(renderer);
+  if (draw_gridline_) {
+    gridline_->Render(renderer);
+  }
+
   OnRenderFrame(args, renderer);
 
   renderer->Use();

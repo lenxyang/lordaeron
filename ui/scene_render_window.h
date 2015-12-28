@@ -29,6 +29,8 @@ class SceneRenderWindow : public nelf::MainFrame,
   InteractiveContext* GetInteractive() { return  interactive_.get();}
   azer::Camera* mutable_camera() { return &camera_;}
   const azer::Camera& camera() const { return camera_;}
+  void set_draw_gridline(bool draw) { draw_gridline_ = draw;}
+  bool draw_gridline() const { return draw_gridline_;}
 
   nelf::RenderLoop* GetRenderLoop() { return render_loop_.get();}
  protected:
@@ -58,6 +60,7 @@ class SceneRenderWindow : public nelf::MainFrame,
   SceneNodePtr root_;
   scoped_ptr<CameraOverlay> camera_overlay_;
   scoped_ptr<azer::CoordinateGrid> gridline_;
+  bool draw_gridline_;
   scoped_ptr<InteractiveContext> interactive_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderWindow);
 };
