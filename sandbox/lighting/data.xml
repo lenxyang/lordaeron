@@ -29,7 +29,6 @@
 
   <mesh name="teaport">
     <refer type="vertex_desc" path=":vertex_desc" />
-    
     <refer type="effect" path=":DiffuseEffect"/>
     <refer type="material" path=":mtrl"/>
     <data path="//media/model/teapot.obj"/>

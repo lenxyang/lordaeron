@@ -1,4 +1,4 @@
-#include "lordaeron/scene/lord_scene_render.h"
+#include "lordaeron/scene/ui_scene_render.h"
 
 #include "azer/render/render.h"
 #include "lordaeron/env.h"
@@ -10,17 +10,17 @@
 
 namespace lord {
 using namespace azer;
-const azer::EffectAdapterKey LoadSceneBVParamsAdapter::kAdapterKey =
+const azer::EffectAdapterKey LordSceneBVParamsAdapter::kAdapterKey =
     std::make_pair(typeid(DiffuseEffect).name(),
-                   typeid(LoadSceneBVRenderProvider).name());
+                   typeid(LordSceneBVRenderProvider).name());
 
-azer::EffectAdapterKey LoadSceneBVParamsAdapter::key() const {
+azer::EffectAdapterKey LordSceneBVParamsAdapter::key() const {
   return kAdapterKey;
 }
-void LoadSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) const {
+void LordSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) const {
   LordEnv* ctx = LordEnv::instance();
-  const LoadSceneBVRenderProvider* provider =
-      dynamic_cast<const LoadSceneBVRenderProvider*>(p);
+  const LordSceneBVRenderProvider* provider =
+      dynamic_cast<const LordSceneBVRenderProvider*>(p);
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   DCHECK(provider && effect);
   effect->SetWorld(provider->GetWorld());
@@ -28,10 +28,10 @@ void LoadSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) co
   effect->SetPV(provider->GetPV());
   effect->SetDirLight(ctx->GetInternalLight());
 }
-LoadSceneBVRenderProvider::LoadSceneBVRenderProvider(SceneRenderNode* node)
+LordSceneBVRenderProvider::LordSceneBVRenderProvider(SceneRenderNode* node)
     : color_(Vector4(1.0f, 0.0f, 0.0f, 0.3f)), node_(node) {}
 
-void LoadSceneBVRenderProvider::UpdateParams(const azer::FrameArgs& args) {
+void LordSceneBVRenderProvider::UpdateParams(const azer::FrameArgs& args) {
   SceneNode* snode = node_->GetSceneNode();
   Vector3 vmin = snode->vmin();
   Vector3 vmax = snode->vmax();
@@ -42,13 +42,13 @@ void LoadSceneBVRenderProvider::UpdateParams(const azer::FrameArgs& args) {
                      * scale_);
 }
 
-const azer::Matrix4& LoadSceneBVRenderProvider::GetPV() const {
+const azer::Matrix4& LordSceneBVRenderProvider::GetPV() const {
   return node_->GetPV();
 }
 
 // class LordObjectNodeRenderDelegate
 LordObjectNodeRenderDelegate::LordObjectNodeRenderDelegate(
-    SceneRenderNode* node, SimpleRenderTreeRenderer* renderer)
+    SceneRenderNode* node, UISceneRenderer* renderer)
     : SceneRenderNodeDelegate(node),
       tree_renderer_(renderer) {
   Init();
@@ -67,7 +67,7 @@ bool LordObjectNodeRenderDelegate::Init() {
   }
 
   bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
-  EffectParamsProviderPtr provider(new LoadSceneBVRenderProvider(node_));
+  EffectParamsProviderPtr provider(new LordSceneBVRenderProvider(node_));
   bounding_mesh_->AddProvider(provider);
   normal_mesh_ = CreateNormalLineMeshForSceneNode(scene_node);
   if (normal_mesh_.get())
@@ -137,9 +137,17 @@ void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
   controller_->Render(renderer);
 }
 
-
+namespace {
+class SceneNodeDelegateFactory : public SceneRenderNodeDelegateFactory {
+ public:
+  SceneNodeDelegateFactory(UISceneRenderer* renderer)
+      : tree_renderer_(renderer) {}
+  scoped_ptr<SceneRenderNodeDelegate> CreateDelegate(SceneRenderNode* node) override;
+ private:
+  UISceneRenderer* tree_renderer_;
+};
 scoped_ptr<SceneRenderNodeDelegate>
-LoadSceneRenderNodeDelegateFactory::CreateDelegate(SceneRenderNode* node) {
+SceneNodeDelegateFactory::CreateDelegate(SceneRenderNode* node) {
   switch (node->GetSceneNode()->type()) {
     case kEnvSceneNode:
       return NULL;
@@ -155,25 +163,27 @@ LoadSceneRenderNodeDelegateFactory::CreateDelegate(SceneRenderNode* node) {
       return scoped_ptr<SceneRenderNodeDelegate>().Pass();
   }
 }
-
-// class SimpleRenderTreeRenderer
-SimpleRenderTreeRenderer::SimpleRenderTreeRenderer()
-    : root_(NULL) {
 }
 
-void SimpleRenderTreeRenderer::SetSceneNode(SceneRenderNode* root) {
-  DCHECK(NULL == root_);
-  root_ = root;
+// class UISceneRenderer
+UISceneRenderer::UISceneRenderer() {
 }
 
-void SimpleRenderTreeRenderer::Update(const FrameArgs& args) {
+void UISceneRenderer::Init(SceneNode* root, const Camera* camera) {
+  CHECK(root_ == NULL);
+  SceneNodeDelegateFactory factory(this);
+  SceneRenderTreeBuilder builder(&factory);
+  root_ = builder.Build(root, camera);
+}
+
+void UISceneRenderer::Update(const FrameArgs& args) {
   blending_node_.clear();
   bvmesh_.clear();
   normal_mesh_.clear();
   UpdateNode(root_, args);
 }
 
-void SimpleRenderTreeRenderer::Render(Renderer* renderer) {
+void UISceneRenderer::Render(Renderer* renderer) {
   RenderNode(root_, renderer);
   {
     ScopedDepthBuffer(false, renderer);
@@ -191,8 +201,7 @@ void SimpleRenderTreeRenderer::Render(Renderer* renderer) {
   }
 }
 
-void SimpleRenderTreeRenderer::UpdateNode(SceneRenderNode* node, 
-                                          const FrameArgs& args) {
+void UISceneRenderer::UpdateNode(SceneRenderNode* node, const FrameArgs& args) {
   node->Update(args);
   for (auto iter = node->children().begin(); 
        iter != node->children().end(); ++iter) {
@@ -200,8 +209,7 @@ void SimpleRenderTreeRenderer::UpdateNode(SceneRenderNode* node,
   }
 }
 
-void SimpleRenderTreeRenderer::RenderNode(SceneRenderNode* node, 
-                                          Renderer* renderer) {
+void UISceneRenderer::RenderNode(SceneRenderNode* node, Renderer* renderer) {
   if (!node->GetSceneNode()->visible()) {
     return;
   }

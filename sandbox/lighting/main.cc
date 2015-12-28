@@ -25,24 +25,24 @@ class MyRenderWindow : public lord::SceneRenderWindow {
 
   SceneRenderNodePtr render_root_;
   SceneRenderNodePtr bvolumn_root_;
-  scoped_ptr<SimpleRenderTreeRenderer> tree_render_;
+  scoped_ptr<UISceneRenderer> tree_render_;
   scoped_ptr<FileSystem> fsystem_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
 };
 }  // namespace lord
 
 int main(int argc, char* argv[]) {
-  CHECK(lord::Context::InitContext(argc, argv));
+  CHECK(lord::LordEnv::InitEnv(argc, argv));
 
-  lord::Context* ctx = lord::Context::instance();
-  azer::EffectAdapterContext* adapterctx = ctx->GetEffectAdapterContext();
+  lord::LordEnv* env = lord::LordEnv::instance();
+  azer::EffectAdapterContext* adapterctx = env->GetEffectAdapterContext();
   adapterctx->RegisteAdapter(new lord::sandbox::ColorEffectAdapter);
   adapterctx->RegisteAdapter(new lord::sandbox::SceneRenderNodeEffectAdapter);
   adapterctx->RegisteAdapter(new lord::sandbox::SceneRenderEnvNodeEffectAdapter);
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
-  nelf::ResourceBundle* bundle = lord::Context::instance()->resource_bundle();
+  nelf::ResourceBundle* bundle = lord::LordEnv::instance()->resource_bundle();
   window->SetWindowIcon(*bundle->GetImageSkiaNamed(IDR_ICON_CAPTION_RULE));
   window->SetShowIcon(true);
   window->Init();
@@ -58,21 +58,20 @@ namespace lord {
 using namespace azer;
 
 SceneNodePtr MyRenderWindow::OnInitScene() {
-  Context* ctx = Context::instance();
-  fsystem_.reset(new azer::NativeFileSystem(FilePath(UTF8ToUTF16("lordaeron/"))));
+  LordEnv* env = LordEnv::instance();
+  scoped_ptr<azer::FileSystem> fs(new azer::NativeFileSystem(
+      FilePath(UTF8ToUTF16("lordaeron/"))));
+  env->SetFileSystem(fs.Pass());
 
-  ResourceLoader resloader(fsystem_.get());
-  InitDefaultLoader(&resloader);
+  ResourceLoader* resloader = env->resource_loader();
+  InitDefaultLoader(resloader);
   ResPath respath(UTF8ToUTF16("//sandbox/lighting/scene.xml"));
-  VariantResource res = resloader.Load(respath);
+  VariantResource res = resloader->Load(respath);
   SceneNodePtr root = res.scene;
   CHECK(root.get()) << "Failed to init scene";
 
-  tree_render_.reset(new SimpleRenderTreeRenderer);
-  LoadSceneRenderNodeDelegateFactory factory(tree_render_.get());
-  SceneRenderTreeBuilder builder(&factory);
-  render_root_ = builder.Build(root.get(), &camera());
-  tree_render_->SetSceneNode(render_root_.get());
+  tree_render_.reset(new UISceneRenderer);
+  tree_render_->Init(root, &camera());
   LOG(ERROR) << "\n" << render_root_->DumpTree();
   
   return root;

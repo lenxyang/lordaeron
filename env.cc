@@ -8,7 +8,7 @@
 #include "lordaeron/effect/normal_line_effect.h"
 #include "lordaeron/resource/resource_loader.h"
 #include "lordaeron/interactive/light_controller.h"
-#include "lordaeron/scene/lord_scene_render.h"
+#include "lordaeron/scene/ui_scene_render.h"
 
 namespace lord {
 LordEnv* LordEnv::instance_ = NULL;;
@@ -93,7 +93,7 @@ void LordEnv::InitAdapterContext() {
   effect_context_.RegisteAdapter(new SceneRenderEnvNodeDiffuseEffectAdapter);
   effect_context_.RegisteAdapter(new LightControllerColorEffectAdapter);
   effect_context_.RegisteAdapter(new LightControllerEffectAdapter);
-  effect_context_.RegisteAdapter(new LoadSceneBVParamsAdapter);
+  effect_context_.RegisteAdapter(new LordSceneBVParamsAdapter);
   effect_context_.RegisteAdapter(new NormalLineEffectAdapter);
 }
 

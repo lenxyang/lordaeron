@@ -7,9 +7,10 @@
 namespace lord {
 class SceneNode;
 class LightController;
-class SimpleRenderTreeRenderer;
+class UISceneRenderer;
+typedef scoped_refptr<SceneNode> SceneNodePtr;
 
-class LoadSceneBVParamsAdapter : public azer::EffectParamsAdapter {
+class LordSceneBVParamsAdapter : public azer::EffectParamsAdapter {
  public:
   static const azer::EffectAdapterKey kAdapterKey;
   azer::EffectAdapterKey key() const override;
@@ -17,9 +18,9 @@ class LoadSceneBVParamsAdapter : public azer::EffectParamsAdapter {
              const azer::EffectParamsProvider* params) const override;
 };
 
-class LoadSceneBVRenderProvider : public azer::EffectParamsProvider {
+class LordSceneBVRenderProvider : public azer::EffectParamsProvider {
  public:
-  explicit LoadSceneBVRenderProvider(SceneRenderNode* node);
+  explicit LordSceneBVRenderProvider(SceneRenderNode* node);
   void UpdateParams(const azer::FrameArgs& args) override;
   const azer::Vector4& color() const { return color_;}
   const azer::Matrix4& GetWorld() const { return world_;}
@@ -29,13 +30,13 @@ class LoadSceneBVRenderProvider : public azer::EffectParamsProvider {
   azer::Matrix4 scale_;
   azer::Matrix4 world_;
   SceneRenderNode* node_;
-  DISALLOW_COPY_AND_ASSIGN(LoadSceneBVRenderProvider);
+  DISALLOW_COPY_AND_ASSIGN(LordSceneBVRenderProvider);
 };
 
 class LordObjectNodeRenderDelegate : public SceneRenderNodeDelegate {
  public:
   explicit LordObjectNodeRenderDelegate(SceneRenderNode* node,
-                                        SimpleRenderTreeRenderer* renderer);
+                                        UISceneRenderer* renderer);
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
@@ -43,7 +44,7 @@ class LordObjectNodeRenderDelegate : public SceneRenderNodeDelegate {
   azer::MeshPtr mesh_;
   azer::MeshPtr bounding_mesh_;
   azer::MeshPtr normal_mesh_;
-  SimpleRenderTreeRenderer* tree_renderer_;
+  UISceneRenderer* tree_renderer_;
   DISALLOW_COPY_AND_ASSIGN(LordObjectNodeRenderDelegate);
 };
 
@@ -58,30 +59,21 @@ class LordLampNodeRenderDelegate : public SceneRenderNodeDelegate {
   DISALLOW_COPY_AND_ASSIGN(LordLampNodeRenderDelegate);
 };
 
-class LoadSceneRenderNodeDelegateFactory : public SceneRenderNodeDelegateFactory {
+class UISceneRenderer {
  public:
-  LoadSceneRenderNodeDelegateFactory(SimpleRenderTreeRenderer* renderer)
-      : tree_renderer_(renderer) {}
-  scoped_ptr<SceneRenderNodeDelegate> CreateDelegate(SceneRenderNode* node) override;
- private:
-  SimpleRenderTreeRenderer* tree_renderer_;
-};
-
-class SimpleRenderTreeRenderer {
- public:
-  SimpleRenderTreeRenderer();
+  UISceneRenderer();
   void AddBoundingVolumnMesh(azer::MeshPtr mesh) { bvmesh_.push_back(mesh);}
-  void SetSceneNode(SceneRenderNode* root);
+  void Init(SceneNode* root, const azer::Camera* camera);
   void Update(const azer::FrameArgs& args);
   void Render(azer::Renderer* renderer);
  private:
   void UpdateNode(SceneRenderNode* node, const azer::FrameArgs& args);
   void RenderNode(SceneRenderNode* node, azer::Renderer* renderer);
-  SceneRenderNode* root_;
+  SceneRenderNodePtr root_;
   std::vector<SceneRenderNode*> blending_node_;
   std::vector<azer::MeshPtr> bvmesh_;
   std::vector<azer::MeshPtr> normal_mesh_;
-  DISALLOW_COPY_AND_ASSIGN(SimpleRenderTreeRenderer);
+  DISALLOW_COPY_AND_ASSIGN(UISceneRenderer);
 };
 
 azer::MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node);
