@@ -83,6 +83,16 @@ MaterialPtr LoadReferMaterial(const ConfigNode* node, ResourceLoadContext* ctx) 
   }
 }
 
+VariantResource LoadResource(const azer::ResPath& path, int type,
+                             ResourceLoader* loader) {
+  CHECK(path.IsAbsolutePath());
+  ResourceLoadContext ctx;
+  ctx.path = path;
+  ctx.loader = loader;
+  ctx.filesystem = loader->file_system();
+  return LoadResource(path, type, &ctx);
+}
+
 VariantResource LoadResource(const ResPath& path, int type, ResourceLoadContext* ctx) {
   CHECK(!path.empty());
   ResPath npath;

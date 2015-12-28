@@ -38,6 +38,7 @@ class ResourceLoader {
   void RegisterSpecialLoader(ResourceSpecialLoader* loader);
   ResourceSpecialLoader* GetLoader(azer::ConfigNode *node);
 
+  azer::FileSystem* file_system() { return filesystem_;}
   VariantResource Load(const azer::ResPath& path);
  private:
   std::map<std::string, ResourceSpecialLoaderPtr> dict_;

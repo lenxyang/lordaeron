@@ -18,7 +18,9 @@ azer::MeshPtr LoadReferMesh(const ConfigNode* node, ResourceLoadContext* ctx);
 MaterialPtr LoadReferMaterial(const ConfigNode* node, ResourceLoadContext* ctx);
 VariantResource LoadReferResource(const ConfigNode* node, ResourceLoadContext* ctx);
 VariantResource LoadResource(const azer::ResPath& path, int type,
-                      ResourceLoadContext* ctx);
+                             ResourceLoadContext* ctx);
+VariantResource LoadResource(const azer::ResPath& path, int type,
+                             ResourceLoader* loader);
 
 bool Repath(const azer::ResPath& path, azer::ResPath* apath,
             ResourceLoadContext* ctx);
