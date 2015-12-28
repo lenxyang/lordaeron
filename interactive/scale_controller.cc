@@ -1,7 +1,7 @@
 #include "lordaeron/interactive/scale_controller.h"
 
 #include "base/logging.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/interactive/axis_object.h"
 #include "lordaeron/interactive/constants.h"
 #include "lordaeron/interactive/controller_object.h"
@@ -166,7 +166,7 @@ void ScaleAxisPlaneObject::InitPlaneFrame() {
 }
 
 void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
-  Context* context = Context::instance();
+  LordEnv* context = LordEnv::instance();
   bool depth_enable = renderer->IsDepthTestEnable();
   CullingMode culling = renderer->GetCullingMode();
 

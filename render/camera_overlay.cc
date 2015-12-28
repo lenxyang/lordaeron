@@ -2,7 +2,7 @@
 
 #include "azer/math/math.h"
 #include "azer/render/render.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 
 namespace lord {
 using namespace azer;
@@ -47,7 +47,7 @@ void CameraOverlay::Update() {
 }
 
 void CameraOverlay::Render(Renderer* renderer) {
-  Context* context = Context::instance();
+  LordEnv* context = LordEnv::instance();
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
   overlay_->SetTexture(renderer_->GetRenderTarget(0)->GetTexture());

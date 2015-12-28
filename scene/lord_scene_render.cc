@@ -1,7 +1,7 @@
 #include "lordaeron/scene/lord_scene_render.h"
 
 #include "azer/render/render.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/effect/normal_line_effect.h"
 #include "lordaeron/interactive/light_controller.h"
@@ -18,7 +18,7 @@ azer::EffectAdapterKey LoadSceneBVParamsAdapter::key() const {
   return kAdapterKey;
 }
 void LoadSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) const {
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   const LoadSceneBVRenderProvider* provider =
       dynamic_cast<const LoadSceneBVRenderProvider*>(p);
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
@@ -62,7 +62,8 @@ bool LordObjectNodeRenderDelegate::Init() {
   if (scene_node->type() == kObjectSceneNode) {
     mesh_ = scene_node->mutable_data()->GetMesh();
     mesh_->AddProvider(node_);
-    mesh_->AddProvider(node_->GetEnvNode());
+    if (node_->GetEnvNode())
+      mesh_->AddProvider(node_->GetEnvNode());
   }
 
   bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
@@ -217,7 +218,7 @@ void SimpleRenderTreeRenderer::RenderNode(SceneRenderNode* node,
 }
 
 MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   EffectPtr effect = ctx->GetEffect(DiffuseEffect::kEffectName);
   BoxObject* objptr = new BoxObject(effect->vertex_desc());
   
@@ -237,7 +238,7 @@ MeshPtr CreateNormalLineMeshForSceneNode(SceneNode* node) {
     return MeshPtr();
   }
 
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   EffectPtr effect = ctx->GetEffect(NormalLineEffect::kEffectName);
   MeshPtr object_mesh = node->mutable_data()->GetMesh();
   MeshPtr normal_mesh(new Mesh(ctx->GetEffectAdapterContext()));

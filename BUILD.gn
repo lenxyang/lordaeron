@@ -16,8 +16,8 @@ static_library("lordaeron") {
   sources = [
     "config/project_config.cc",
     "config/project_config.h",
-    "context.cc",
-    "context.h",
+    "env.cc",
+    "env.h",
     "effect/light.cc",
     "effect/light.h",
     "effect/diffuse_effect.cc",

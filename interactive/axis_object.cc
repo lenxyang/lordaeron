@@ -1,7 +1,7 @@
 #include "lordaeron/interactive/axis_object.h"
 
 #include "azer/render/render.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/interactive/controller_object.h"
 #include "lordaeron/util/picking.h"
 
@@ -95,7 +95,7 @@ void XYZAxisObject::SetPosition(const azer::Vector3& pos) {
 }
 
 void XYZAxisObject::Render(const Matrix4& pv, Renderer* renderer) {
-  Context* context = Context::instance();
+  LordEnv* context = LordEnv::instance();
   Matrix4 world = std::move(Translate(position_));
   for (int32 i = 0; i < 3; ++i) {
     Matrix4 lworld = std::move(world * rotation_[i]);

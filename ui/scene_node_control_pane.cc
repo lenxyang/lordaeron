@@ -4,7 +4,7 @@
 #include "ui/views/view.h"
 #include "ui/views/layout/box_layout.h"
 #include "nelf/context.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/ui/iconset.h"
 #include "lordaeron/scene/scene_node.h"
 
@@ -15,7 +15,7 @@ SceneNodeControPane::SceneNodeControPane(SceneNode* node)
     : node_(node) {
   using views::BoxLayout;
   using views::Button;
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   SetLayoutManager(new BoxLayout(BoxLayout::kHorizontal, 0, 1, 0));
 
   gfx::ImageSkia ico_unlock = ctx->GetIcon(Iconset::kIconSceneUnlock);

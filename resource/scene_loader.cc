@@ -3,7 +3,7 @@
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "azer/base/file_system.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/util/xml_util.h"
 #include "lordaeron/resource/resource_util.h"
 
@@ -156,7 +156,7 @@ bool SceneLoader::LoadSceneLocation(SceneNode* node,
 
 bool SceneLoader::InitSceneNode(SceneNode* node, const ConfigNode* config,
                                 ResourceLoadContext* ctx) {
-  Context* env = Context::instance(); 
+  LordEnv* env = LordEnv::instance(); 
   if (!LoadSceneLocation(node, config, ctx)) {
     LOG(ERROR) << "Failed to load node location information.";
     return false;

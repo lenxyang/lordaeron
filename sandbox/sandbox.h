@@ -12,7 +12,7 @@
 #include "nelf/res/grit/common.h"
 
 #include "lordaeron/res/grit/common.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/mainframe_render_delegate.h"

@@ -3,7 +3,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/lazy_instance.h"
 #include "ui/views/layout/fill_layout.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/res/grit/common.h"
 #include "lordaeron/ui/iconset.h"
 #include "lordaeron/ui/scene_tree_view_lineitem.h"
@@ -31,7 +31,7 @@ const char* SceneTreeView::GetClassName() const {
 }
 
 void SceneTreeView::InitUI() {
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   tree_view_ = new nelf::CollapsedBasedTreeView;
   tree_view_->SetNodeCreator(node_creator.Pointer());
   tree_view_->set_closed_icon(ctx->GetIcon(Iconset::kIconCollapse));

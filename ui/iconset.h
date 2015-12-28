@@ -5,7 +5,7 @@
 #include "nelf/nelf.h"
 
 namespace lord {
-class Context;
+class LordEnv;
 
 class Iconset {
  public:
@@ -41,7 +41,7 @@ class Iconset {
     kIconWindowExpanded   = 0x0014001C,
     kIconWindowClose      = 0x0013001D,
   };
-  Iconset(Context* context);
+  Iconset(LordEnv* context);
 
   gfx::ImageSkia GetIcon(int32 id);
  private:

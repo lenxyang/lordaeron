@@ -2,7 +2,7 @@
 
 #include "ui/views/layout/layout_manager.h"
 
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/render/camera_overlay.h"
 #include "lordaeron/ui/renderer_info_pane.h"
 
@@ -14,13 +14,13 @@ const Vector4 kGridLineColor = Vector4(0.663f, 0.663f, 0.663f, 1.0f);
 const Vector4 kRenderBgColor = Vector4(0.427f, 0.427f, 0.427f, 1.0f);
 }
 SimpleRenderWindow::SimpleRenderWindow(const gfx::Rect& init_bounds)
-    : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
+    : nelf::MainFrame(init_bounds, LordEnv::instance()->GetNelfContext()),
       render_view_(NULL) {
 }
 
 SimpleRenderWindow::SimpleRenderWindow(const gfx::Rect& init_bounds, 
                                      nelf::RenderLoop* render_loop)
-    : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
+    : nelf::MainFrame(init_bounds, LordEnv::instance()->GetNelfContext()),
       render_view_(NULL),
       render_loop_(render_loop) {
 }

@@ -2,7 +2,7 @@
 
 #include "base/logging.h"
 #include "azer/render/render.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/effect/light.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/scene/scene_node.h"
@@ -97,7 +97,7 @@ void LightController::Render(azer::Renderer* renderer) {
 // class PointLightController
 PointLightController::PointLightController(SceneRenderNode* node)
     : LightController(node) {
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   effect_ = CreateDiffuseEffect();
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
@@ -118,7 +118,7 @@ void PointLightController::InitControllerMesh() {
   DCHECK(scene_node->type() == kLampSceneNode);
   Light* light = scene_node->mutable_data()->light();
   float range = light->point_light().atten.range;
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   BlendingPtr blending = ctx->GetDefaultBlending();
   GeometryObjectPtr obj = new SphereObject(effect_->vertex_desc(), range);
   MeshPartPtr part = obj->CreateObject(effect_.get());
@@ -141,7 +141,7 @@ void PointLightController::Render(azer::Renderer* renderer) {
 const float SpotLightController::kTopRadius = 0.2f;
 SpotLightController::SpotLightController(SceneRenderNode* node)
     : LightController(node) {
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
   effect_ = CreateDiffuseEffect();
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
@@ -215,7 +215,7 @@ void SpotLightController::InitMesh() {
 }
 
 void SpotLightController::InitControllerMesh() {
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   SceneNode* scene_node = node_->GetSceneNode();
   Light* light = scene_node->mutable_data()->light();
   DCHECK(scene_node->type() == kLampSceneNode);
@@ -330,7 +330,7 @@ void SpotLightController::CreateBorderLine(Light* light) {
 // class DirLightController
 DirLightController::DirLightController(SceneRenderNode* node)
     : LightController(node) {
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   effect_ = CreateDiffuseEffect();
   provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
@@ -434,7 +434,7 @@ const azer::EffectAdapterKey LightControllerEffectAdapter::kAdapterKey =
 
 void LightControllerEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const {
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   const LightControllerProvider* provider =
       dynamic_cast<const LightControllerProvider*>(params);
@@ -456,7 +456,7 @@ const azer::EffectAdapterKey LightControllerColorEffectAdapter::kAdapterKey =
 
 void LightControllerColorEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const {
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   const LightControllerColorProvider* provider =
       dynamic_cast<const LightControllerColorProvider*>(params);

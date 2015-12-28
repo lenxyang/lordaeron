@@ -3,7 +3,7 @@
 #include "base/logging.h"
 #include "azer/math/math.h"
 #include "azer/render/render.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/ui/scene_render_window.h"
 #include "lordaeron/interactive/interactive_context.h"
@@ -212,7 +212,7 @@ void CircleCoordinateObject::set_radius(float radius) {
 void CircleCoordinateObject::Render(const azer::Matrix4& world,
                                     const azer::Matrix4& pv, 
                                     azer::Renderer* renderer) {
-  Context* context = Context::instance();
+  LordEnv* context = LordEnv::instance();
   effect_->SetDirLight(context->GetInternalLight());
   renderer->SetPrimitiveTopology(kLineList);
   for (int i = 0; i < 3; ++i) {
@@ -276,7 +276,7 @@ void RotationControllerObject::Render(const azer::Matrix4& pv,
   Matrix4 world = Translate(position_);
   Matrix4 lworld = std::move(world * Scale(radius_, radius_, radius_));
   renderer->SetPrimitiveTopology(kTriangleList);
-  Context* context = Context::instance();
+  LordEnv* context = LordEnv::instance();
 
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);

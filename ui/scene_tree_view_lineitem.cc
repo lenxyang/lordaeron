@@ -10,7 +10,7 @@
 #include "nelf/controls/tree/collapsebased_tree_view_node.h"
 #include "nelf/theme/native_theme.h"
 #include "nelf/theme/theme.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/scene/scene_tree_model.h"
 #include "lordaeron/ui/iconset.h"
 #include "lordaeron/ui/scene_node_control_pane.h"
@@ -29,7 +29,7 @@ SceneTreeViewLineItemView::SceneTreeViewLineItemView(
     : node_(node) {
   line_height_ = (node->tree_view()->GetFontList().GetHeight()
                   + kTextVerticalPadding * 2);
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   SceneTreeModelNode* model_node =
       dynamic_cast<SceneTreeModelNode*>(node->model_node());
 

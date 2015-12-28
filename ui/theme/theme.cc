@@ -1,7 +1,7 @@
 #include "lordaeron/ui/theme/theme.h"
 
 #include "nelf/theme/five_pic_nonclient_frame_theme.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/res/grit/common.h"
 
 namespace lord {
@@ -16,7 +16,7 @@ class LordaeronWindowTheme : public nelf::FallbackWindowTheme {
     using namespace nelf;
     nelf::WindowNonClientFrame* frame = nelf::FallbackWindowTheme::
         CreateWindowNonClient(window);
-    lord::Context* ctx = lord::Context::instance();
+    lord::LordEnv* ctx = lord::LordEnv::instance();
     nelf::ResourceBundle* bundle = ctx->resource_bundle();
     ImageVector images;
     images.push_back(bundle->GetImageSkiaNamed(IDR_WINDOW_TOP));

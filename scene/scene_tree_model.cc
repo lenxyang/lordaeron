@@ -2,7 +2,7 @@
 
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/ui/iconset.h"
 
 namespace lord {
@@ -39,7 +39,7 @@ SceneTreeModel::SceneTreeModel(SceneNode* root)
     : root_(root) {
   BuildTree(root_);
   name_ = ::base::UTF8ToUTF16(root_->name());
-  Context* ctx = Context::instance();
+  LordEnv* ctx = LordEnv::instance();
   icons_.push_back(ctx->GetIcon(Iconset::kIconSceneNode));
   icons_.push_back(ctx->GetIcon(Iconset::kIconSceneCamera));
   icons_.push_back(ctx->GetIcon(Iconset::kIconSceneLamp));

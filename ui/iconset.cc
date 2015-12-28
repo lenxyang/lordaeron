@@ -1,11 +1,11 @@
 #include "lordaeron/ui/iconset.h"
 
 #include "nelf/nelf.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/res/grit/common.h"
 
 namespace lord {
-Iconset::Iconset(Context* context) {
+Iconset::Iconset(LordEnv* context) {
   nelf::IconsetPackage::Options opt;
   opt.margin = gfx::Insets(7, 4, 2, 51);
   opt.unit = 16;

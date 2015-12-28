@@ -1,12 +1,12 @@
 #include "lordaeron/ui/render_frame_window.h"
 
 #include "ui/views/layout/layout_manager.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 
 namespace lord {
 RenderFrameWindow::RenderFrameWindow(const gfx::Rect& init_bounds,
                                      scoped_ptr<nelf::RenderDelegate> delegate) 
-    : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
+    : nelf::MainFrame(init_bounds, LordEnv::instance()->GetNelfContext()),
       delegate_(delegate.Pass()),
       render_view_(NULL) {
   InitRenderView();
@@ -15,7 +15,7 @@ RenderFrameWindow::RenderFrameWindow(const gfx::Rect& init_bounds,
 RenderFrameWindow::RenderFrameWindow(const gfx::Rect& init_bounds, 
                                      scoped_ptr<nelf::RenderDelegate> delegate,
                                      nelf::RenderLoop* render_loop)
-    : nelf::MainFrame(init_bounds, Context::instance()->GetNelfContext()),
+    : nelf::MainFrame(init_bounds, LordEnv::instance()->GetNelfContext()),
       delegate_(delegate.Pass()),
       render_view_(NULL),
       render_loop_(render_loop) {

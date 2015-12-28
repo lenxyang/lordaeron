@@ -3,7 +3,7 @@
 #include "base/logging.h"
 #include "azer/render/render.h"
 #include "azer/render/util.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
 
 namespace lord {

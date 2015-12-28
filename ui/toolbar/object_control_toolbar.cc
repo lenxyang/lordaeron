@@ -2,7 +2,7 @@
 
 #include "ui/views/controls/button/label_button_border.h"
 #include "nelf/nelf.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/res/grit/common.h"
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/interactive/fps_camera_controller.h"
@@ -15,7 +15,7 @@ namespace lord {
 ObjectControlToolbar::ObjectControlToolbar(nelf::MainFrame* mainframe,
                                            InteractiveContext* ctx) 
     : interactive_(ctx) {
-  Context* context = Context::instance();
+  LordEnv* context = LordEnv::instance();
   int32 toolbar_id1[] = {
     IDR_ICON_TOOLBAR_PICKING,
     IDR_ICON_TOOLBAR_MOVE,

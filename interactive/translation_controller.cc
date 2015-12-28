@@ -3,7 +3,7 @@
 #include "base/logging.h"
 #include "azer/render/render.h"
 #include "azer/render/util.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/interactive/axis_object.h"
 #include "lordaeron/interactive/constants.h"
@@ -274,7 +274,7 @@ void TransformAxisObject::set_length(float length) {
 }
 
 void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
-  Context* context = Context::instance();
+  LordEnv* context = LordEnv::instance();
   bool depth_enable = renderer->IsDepthTestEnable();
   CullingMode culling = renderer->GetCullingMode();
   Matrix4 world = Translate(position_);
@@ -396,7 +396,7 @@ void TranslationControllerObject::set_length(float s) {
 }
 
 void TranslationControllerObject::Render(const Matrix4& pv, Renderer* renderer) {
-  Context* context = Context::instance();
+  LordEnv* context = LordEnv::instance();
   axis_->Render(pv, renderer);
   plane_->Render(pv, renderer);
 }

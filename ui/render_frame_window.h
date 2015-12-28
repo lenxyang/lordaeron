@@ -2,7 +2,7 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "nelf/nelf.h"
-#include "lordaeron/context.h"
+#include "lordaeron/env.h"
 
 namespace lord {
 class RenderFrameWindow : public nelf::MainFrame {
