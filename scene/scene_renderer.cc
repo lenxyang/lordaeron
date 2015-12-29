@@ -4,7 +4,7 @@
 
 namespace lord {
 using namespace azer;
-SceneRenderer::SceneRenderer() {
+SceneRenderer::SceneRenderer() : camera_(NULL) {
 }
 
 void SceneRenderer::SetDelegateFactory(
@@ -15,6 +15,7 @@ void SceneRenderer::SetDelegateFactory(
 void SceneRenderer::Init(SceneNode* root, const Camera* camera) {
   DCHECK(factory_.get());
   CHECK(root_ == NULL);
+  camera_ = camera;
   SceneRenderTreeBuilder builder(factory_.get());
   root_ = builder.Build(root, camera);
 }
@@ -29,6 +30,23 @@ void SceneRenderer::Render(azer::Renderer* renderer) {
   OnFrameRenderBegin(renderer);
   RenderNodeRecusive(root_, renderer);
   OnFrameRenderEnd(renderer);
+}
+
+bool SceneRenderer::UpdateNode(SceneRenderNode* node, const azer::FrameArgs& args) {
+  if (!node->GetSceneNode()->visible()) {
+    return false;
+  }
+  node->Update(args);
+  return true;
+}
+
+bool SceneRenderer::RenderNode(SceneRenderNode* node, azer::Renderer* renderer) {
+  if (!node->GetSceneNode()->visible()) {
+    return false;
+  }
+
+  node->Render(renderer);
+  return true;
 }
 
 void SceneRenderer::UpdateNodeRecusive(SceneRenderNode* node, 
