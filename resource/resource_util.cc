@@ -83,6 +83,16 @@ MaterialPtr LoadReferMaterial(const ConfigNode* node, ResourceLoadContext* ctx) 
   }
 }
 
+VertexDescPtr LoadVertexDesc(const ResPath& path, ResourceLoadContext* ctx) {
+  VariantResource res = LoadResource(path, kResTypeVertexDesc, ctx);
+  return res.vertex_desc;
+}
+
+EffectPtr LoadEffect(const ResPath& path, ResourceLoadContext* ctx) {
+  VariantResource res = LoadResource(path, kResTypeEffect, ctx);
+  return res.effect;
+}
+
 VariantResource LoadResource(const azer::ResPath& path, int type,
                              ResourceLoader* loader) {
   CHECK(path.IsAbsolutePath());

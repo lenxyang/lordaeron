@@ -14,8 +14,7 @@ using namespace azer;
 
 namespace lord {
 const char DiffuseEffect::kEffectName[] = "DiffuseEffect";
-DiffuseEffect::DiffuseEffect(VertexDescPtr desc) {
-  vertex_desc_ptr_ = desc;
+DiffuseEffect::DiffuseEffect() {
   emission_ = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
@@ -25,10 +24,12 @@ DiffuseEffect::~DiffuseEffect() {
 const char* DiffuseEffect::GetEffectName() const {
   return kEffectName;
 }
-bool DiffuseEffect::Init(const ShaderPrograms& sources) {
+bool DiffuseEffect::Init(azer::VertexDesc* desc, const ShaderPrograms& sources) {
   DCHECK(sources.size() == kRenderPipelineStageNum);
   DCHECK(!sources[kVertexStage].code.empty());
   DCHECK(!sources[kPixelStage].code.empty());
+  DCHECK(desc);
+  vertex_desc_ = desc;
   InitTechnique(sources);
   InitGpuConstantTable();
   return true;
@@ -101,9 +102,8 @@ DiffuseEffectPtr CreateDiffuseEffect() {
                           &shaders));
   CHECK(LoadShaderAtStage(kPixelStage, "lordaeron/effect/colored_diffuse.hlsl.ps",
                           &shaders));
-  DiffuseEffectPtr ptr(new DiffuseEffect(
-      PosNormalVertex::CreateVertexDesc()));
-  ptr->Init(shaders);
+  DiffuseEffectPtr ptr(new DiffuseEffect);
+  ptr->Init(PosNormalVertex::CreateVertexDesc(), shaders);
   return ptr;
 }
 

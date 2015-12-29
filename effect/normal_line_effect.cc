@@ -15,22 +15,20 @@ using namespace azer;
 
 namespace lord {
 const char NormalLineEffect::kEffectName[] = "NormalLineEffect";
-NormalLineEffect::NormalLineEffect(VertexDescPtr desc)
-    : line_length_(1.0f) {
-  vertex_desc_ptr_ = desc;
-}
+NormalLineEffect::NormalLineEffect() : line_length_(1.0f) {}
 
-NormalLineEffect::~NormalLineEffect() {
-}
+NormalLineEffect::~NormalLineEffect() {}
 
 const char* NormalLineEffect::GetEffectName() const {
   return kEffectName;
 }
-bool NormalLineEffect::Init(const ShaderPrograms& sources) {
+bool NormalLineEffect::Init(VertexDesc* desc, const ShaderPrograms& sources) {
+  DCHECK(desc);
   DCHECK(sources.size() == kRenderPipelineStageNum);
   DCHECK(!sources[kVertexStage].code.empty());
   DCHECK(!sources[kGeometryStage].code.empty());
   DCHECK(!sources[kPixelStage].code.empty());
+  vertex_desc_ = desc;
   InitTechnique(sources);
   InitGpuConstantTable();
   return true;
@@ -102,9 +100,8 @@ NormalLineEffectPtr CreateNormalLineEffect() {
   CHECK(LoadShaderAtStage(kPixelStage, 
                           "lordaeron/effect/normal_line.hlsl.ps",
                           &shaders));
-  NormalLineEffectPtr ptr(new NormalLineEffect(
-      PosNormalVertex::CreateVertexDesc()));
-  ptr->Init(shaders);
+  NormalLineEffectPtr ptr(new NormalLineEffect);
+  ptr->Init(PosNormalVertex::CreateVertexDesc(), shaders);
   return ptr;
 }
 

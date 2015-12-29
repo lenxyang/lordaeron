@@ -6,6 +6,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "azer/render/render.h"
 #include "azer/render/effect_creator.h"
+#include "lordaeron/resource/resource_util.h"
 
 namespace lord {
 using namespace azer;
@@ -38,7 +39,7 @@ int GetStageFromName(const std::string& name) {
 }
 }
 
-VariantResource EffectLoader::Load(const azer::ConfigNode* node, 
+VariantResource EffectLoader::Load(const ConfigNode* node,
                                    ResourceLoadContext* ctx) {
   Effect::ShaderPrograms program;
   program.resize(kRenderPipelineStageNum);
@@ -61,8 +62,14 @@ VariantResource EffectLoader::Load(const azer::ConfigNode* node,
     program[info.stage] = info;
   }
 
-  azer::EffectPtr effect = CreateEffectByName(node->GetAttr("effect_name"));
-  if (!effect.get() || !effect->Init(program)) {
+  azer::ResPath vertex_desc_path(UTF8ToUTF16(node->GetAttr("vertex_desc")));
+  DCHECK(!vertex_desc_path.empty());
+  VertexDescPtr vertex_desc = LoadVertexDesc(vertex_desc_path, ctx);
+  DCHECK(vertex_desc.get()) << "vertex desc no specified on effect \""
+                            << node->GetNodePath() << "\"";
+
+  EffectPtr effect = CreateEffectByName(node->GetAttr("effect_name"));
+  if (!effect.get() || !effect->Init(vertex_desc, program)) {
     LOG(ERROR) << "Failed to init effect \"" << node->GetAttr("effect_name") << "\"";
     return VariantResource();
   }
@@ -74,7 +81,7 @@ VariantResource EffectLoader::Load(const azer::ConfigNode* node,
   return resource;
 }
 
-bool EffectLoader::CouldLoad(azer::ConfigNode* node) const {
+bool EffectLoader::CouldLoad(ConfigNode* node) const {
   return node->tagname() == "effect";
 }
 
