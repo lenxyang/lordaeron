@@ -89,11 +89,15 @@ class Light : public ::base::RefCounted<Light> {
   void AddObserver(LightObserver* observer);
   void RemoveObserver(LightObserver* observer);
   bool HasObserver(LightObserver* observer) const;
+
+  azer::Texture* shadowmap() { return shadowmap_;}
+  void SetShadowMap(azer::Texture* tex) { shadowmap_ = tex;}
  private:
   LightType type_;
   DirLight dir_light_;
   PointLight point_light_;
   SpotLight spot_light_;
+  azer::TexturePtr shadowmap_;
   ObserverList<LightObserver> observers_;
   DISALLOW_COPY_AND_ASSIGN(Light);
 };

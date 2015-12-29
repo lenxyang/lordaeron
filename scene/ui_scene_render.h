@@ -66,6 +66,7 @@ class UISceneRenderer {
   void Init(SceneNode* root, const azer::Camera* camera);
   void Update(const azer::FrameArgs& args);
   void Render(azer::Renderer* renderer);
+  SceneRenderNode* root() { return root_.get();}
  private:
   void UpdateNode(SceneRenderNode* node, const azer::FrameArgs& args);
   void RenderNode(SceneRenderNode* node, azer::Renderer* renderer);
