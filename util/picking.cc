@@ -12,7 +12,7 @@ Vector4 CalcWorldPosFromScreen(const gfx::Point& pt, const gfx::Size& size,
   float y = -2 * (float)pt.y() / (float)size.height() + 1.0f;
   Vector4 pos(x, y, 0.0f, 1.0f);
 
-  const Matrix4& proj = camera->frustrum().projection();
+  const Matrix4& proj = camera->frustum().projection();
   const Matrix4& view = camera->GetViewMatrix();
   Matrix4 mat = std::move(view.InverseCopy() * proj.InverseCopy());
   

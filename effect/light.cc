@@ -240,4 +240,34 @@ void Light::RemoveObserver(LightObserver* observer) {
 bool Light::HasObserver(LightObserver* observer) const {
   return observers_.HasObserver(observer);
 }
+
+void Light::InitShadowmapRenderer(const gfx::Size& size) {
+  switch (type()) {
+    case kSpotLight:
+      InitSpotLightShadowmapRenderer(size);
+      break;
+    default:
+      CHECK(false);
+      break;
+  }
+}
+
+void Light::InitSpotLightShadowmapRenderer(const gfx::Size& size) {
+  RenderSystem* rs = RenderSystem::Current();
+  Texture::Options opt;
+  opt.target = (Texture::BindTarget)
+      (Texture::kShaderResource | Texture::kRenderTarget);
+  opt.size = size;
+  Viewport viewport(0, 0, opt.size.width(), opt.size.height());
+  shadowmap_renderer_ = rs->CreateRenderer(opt);
+  shadowmap_renderer_->SetViewport(viewport);
+  shadowmap_ = shadowmap_renderer_->GetRenderTarget(0)->GetTexture();
+}
+
+void InitShadowMapCamera(const Light* light, Camera* camera) {
+  DCHECK_EQ(light->type(), kSpotLight);
+  Radians rad(std::acos(light->spot_light().phi));
+  camera->mutable_frustum()->set_aspect(rad);
+  camera->mutable_frustum()->set_fovy(1.0f);
+}
 }  // namespace lord

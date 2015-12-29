@@ -40,7 +40,7 @@ struct SpotLight {
   azer::Vector3 direction;
   float enable;
   float phi;
-  float theta;  // inner corner
+  float theta;  // inner corner (cosine)
   float range;
   float falloff;
 };
@@ -65,6 +65,7 @@ class Light : public ::base::RefCounted<Light> {
   explicit Light(const PointLight& light);
   explicit Light(const SpotLight& light);
   LightType type() const { return type_;}
+  void InitShadowmapRenderer(const gfx::Size& size);
 
   const azer::Vector4& diffuse() const;
   const azer::Vector4& ambient() const;
@@ -90,18 +91,22 @@ class Light : public ::base::RefCounted<Light> {
   void RemoveObserver(LightObserver* observer);
   bool HasObserver(LightObserver* observer) const;
 
+  azer::Renderer* shadowmap_renderer() { return shadowmap_renderer_;}
   azer::Texture* shadowmap() { return shadowmap_;}
-  void SetShadowMap(azer::Texture* tex) { shadowmap_ = tex;}
  private:
+  void InitSpotLightShadowmapRenderer(const gfx::Size& size);
   LightType type_;
   DirLight dir_light_;
   PointLight point_light_;
   SpotLight spot_light_;
   azer::TexturePtr shadowmap_;
+  azer::RendererPtr shadowmap_renderer_;
   ObserverList<LightObserver> observers_;
   DISALLOW_COPY_AND_ASSIGN(Light);
 };
 
 typedef scoped_refptr<Light> LightPtr;
 typedef std::vector<LightPtr> Lights;
+
+void InitShadowMapCamera(const Light* light, azer::Camera* camera);
 }  // namespace lord

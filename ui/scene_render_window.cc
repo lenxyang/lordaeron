@@ -106,7 +106,7 @@ void SceneRenderWindow::OnWidgetBoundsChanged(views::Widget* widget,
                                               const gfx::Rect& new_bounds) {
   gfx::Rect rect = view()->GetContentsBounds();
   float aspect = (float)rect.width() / (float)rect.height();
-  camera_.frustrum().set_aspect(aspect);
+  camera_.mutable_frustum()->set_aspect(aspect);
   camera_.Update();
 }
 
