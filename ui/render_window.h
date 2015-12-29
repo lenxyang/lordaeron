@@ -12,8 +12,6 @@ class Renderer;
 }
 
 namespace lord {
-class CameraOverlay;
-class InteractiveContext;
 class RendererInfoPane;
 
 class RenderWindow : public nelf::MainFrame,
