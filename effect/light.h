@@ -93,12 +93,15 @@ class Light : public ::base::RefCounted<Light> {
 
   azer::Renderer* shadowmap_renderer() { return shadowmap_renderer_;}
   azer::Texture* shadowmap() { return shadowmap_;}
+  const azer::Camera& camera() const { return camera_;}
+  azer::Camera* mutable_camera() { return &camera_;}
  private:
   void InitSpotLightShadowmapRenderer(const gfx::Size& size);
   LightType type_;
   DirLight dir_light_;
   PointLight point_light_;
   SpotLight spot_light_;
+  azer::Camera camera_;
   azer::TexturePtr shadowmap_;
   azer::RendererPtr shadowmap_renderer_;
   ObserverList<LightObserver> observers_;
