@@ -10,7 +10,8 @@ class InteractiveController;
 class InteractiveContext;
 class SceneNode;
 class SceneNodePropertyPane;
-class SceneRenderWindow;
+class RenderWindow;
+typedef scoped_refptr<SceneNode> SceneNodePtr;
 
 class InteractiveContextObserver {
  public:
@@ -19,7 +20,7 @@ class InteractiveContextObserver {
 
 class InteractiveContext : public nelf::EventListener {
  public:
-  InteractiveContext(SceneRenderWindow* win);
+  InteractiveContext(RenderWindow* win, SceneNode* root);
   ~InteractiveContext();
   
   void ResetController();
@@ -29,7 +30,7 @@ class InteractiveContext : public nelf::EventListener {
   void Render(azer::Renderer* renderer);
 
   SceneNode* root();
-  SceneRenderWindow* window() { return window_;}
+  RenderWindow* window() { return window_;}
 
   void SetPickingNode(SceneNode* node);
   SceneNode* GetPickingNode() { return picking_node_;}
@@ -51,7 +52,8 @@ class InteractiveContext : public nelf::EventListener {
   void OnMouseCaptureLost() override;
   void OnLostFocus() override;
  private:
-  SceneRenderWindow* window_;
+  SceneNodePtr root_;
+  RenderWindow* window_;
   SceneNode* picking_node_;
   scoped_ptr<InteractiveController> controller_;
   ObserverList<InteractiveContextObserver> observers_;

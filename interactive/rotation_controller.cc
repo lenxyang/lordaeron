@@ -5,7 +5,7 @@
 #include "azer/render/render.h"
 #include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
-#include "lordaeron/ui/scene_render_window.h"
+#include "lordaeron/ui/render_window.h"
 #include "lordaeron/interactive/interactive_context.h"
 
 namespace lord {

@@ -4,15 +4,16 @@
 #include "lordaeron/interactive/interactive_controller.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_node_picking.h"
-#include "lordaeron/ui/scene_render_window.h"
+#include "lordaeron/ui/render_window.h"
 #include "lordaeron/util/picking.h"
 
 namespace lord {
 
 using namespace azer;
 
-InteractiveContext::InteractiveContext(SceneRenderWindow* window) 
-    : window_(window),
+InteractiveContext::InteractiveContext(RenderWindow* window, SceneNode* root)
+    : root_(root),
+      window_(window),
       picking_node_(NULL) {
 }
 
@@ -21,7 +22,7 @@ InteractiveContext::~InteractiveContext() {
 }
 
 SceneNode* InteractiveContext::root() {
-  return window_->root();
+  return root_;
 }
 
 void InteractiveContext::Update(const azer::FrameArgs& args) {

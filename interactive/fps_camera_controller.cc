@@ -3,7 +3,7 @@
 #include "azer/render/render.h"
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/ui/scene_render_window.h"
+#include "lordaeron/ui/render_window.h"
 
 namespace lord {
 using namespace azer;

@@ -16,26 +16,20 @@ class CameraOverlay;
 class InteractiveContext;
 class RendererInfoPane;
 
-class SceneRenderWindow : public nelf::MainFrame,
+class RenderWindow : public nelf::MainFrame,
                           public nelf::RenderDelegate,
                           public views::WidgetObserver {
  public:
-  SceneRenderWindow(const gfx::Rect& init_bounds);
-  SceneRenderWindow(const gfx::Rect& init_bounds,
+  RenderWindow(const gfx::Rect& init_bounds);
+  RenderWindow(const gfx::Rect& init_bounds,
                     nelf::RenderLoop* render_loop);
-  ~SceneRenderWindow();
+  ~RenderWindow();
 
-  SceneNode* root() { return root_.get();}
-  InteractiveContext* GetInteractive() { return  interactive_.get();}
   azer::Camera* mutable_camera() { return &camera_;}
   const azer::Camera& camera() const { return camera_;}
-  void set_draw_gridline(bool draw) { draw_gridline_ = draw;}
-  bool draw_gridline() const { return draw_gridline_;}
-
   nelf::RenderLoop* GetRenderLoop() { return render_loop_.get();}
  protected:
-  virtual SceneNodePtr OnInitScene() = 0;
-  virtual void OnInitUI() = 0;
+  virtual void OnInit() {}
   virtual void OnUpdateFrame(const azer::FrameArgs& args) = 0;
   virtual void OnRenderFrame(const azer::FrameArgs& args, 
                              azer::Renderer* renderer) = 0;
@@ -54,14 +48,8 @@ class SceneRenderWindow : public nelf::MainFrame,
   virtual void OnAfterWidgetInit() override;
   nelf::RenderView* render_view_;
   scoped_refptr<nelf::RenderLoop> render_loop_;
-
   azer::Camera camera_;
   RendererInfoPane* renderer_pane_;
-  SceneNodePtr root_;
-  scoped_ptr<CameraOverlay> camera_overlay_;
-  scoped_ptr<azer::CoordinateGrid> gridline_;
-  bool draw_gridline_;
-  scoped_ptr<InteractiveContext> interactive_;
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderWindow);
+  DISALLOW_COPY_AND_ASSIGN(RenderWindow);
 };
 }  // namespace lord
