@@ -4,6 +4,7 @@
 #include "base/logging.h"
 #include "lordaeron/interactive/light_controller.h"
 #include "lordaeron/scene/scene_node.h"
+#include "lordaeron/scene/scene_renderer.h"
 
 namespace lord {
 
@@ -284,7 +285,7 @@ void SceneRenderNode::CalcParams(const azer::FrameArgs& args) {
 }
 
 // class SceneRenderTreeBuilder
-SceneRenderTreeBuilder::SceneRenderTreeBuilder(SceneRenderNodeDelegateFactory* fa) 
+SceneRenderTreeBuilder::SceneRenderTreeBuilder(SceneNodeRenderDelegateFactory* fa) 
     : cur_(NULL),
       factory_(fa) {
 }

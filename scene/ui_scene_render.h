@@ -3,6 +3,7 @@
 #include "azer/render/render.h"
 #include "lordaeron/scene/scene_node_traverse.h"
 #include "lordaeron/scene/scene_render_tree.h"
+#include "lordaeron/scene/scene_renderer.h"
 
 namespace lord {
 class SceneNode;
@@ -59,18 +60,18 @@ class LordLampNodeRenderDelegate : public SceneRenderNodeDelegate {
   DISALLOW_COPY_AND_ASSIGN(LordLampNodeRenderDelegate);
 };
 
-class UISceneRenderer {
+class UISceneRenderer : public SceneRenderer {
  public:
   UISceneRenderer();
   void AddBoundingVolumnMesh(azer::MeshPtr mesh) { bvmesh_.push_back(mesh);}
-  void Init(SceneNode* root, const azer::Camera* camera);
-  void Update(const azer::FrameArgs& args);
-  void Render(azer::Renderer* renderer);
-  SceneRenderNode* root() { return root_.get();}
- private:
-  void UpdateNode(SceneRenderNode* node, const azer::FrameArgs& args);
-  void RenderNode(SceneRenderNode* node, azer::Renderer* renderer);
-  SceneRenderNodePtr root_;
+ protected:
+  void OnFrameUpdateBegin(const azer::FrameArgs& args) override;
+  void OnFrameRenderBegin(azer::Renderer* renderer) override;
+  bool UpdateNode(SceneRenderNode* node, const azer::FrameArgs& args) override;
+  bool RenderNode(SceneRenderNode* node, azer::Renderer* renderer) override;
+  void OnFrameUpdateEnd(const azer::FrameArgs& args) override;
+  void OnFrameRenderEnd(azer::Renderer* renderer) override;
+
   std::vector<SceneRenderNode*> blending_node_;
   std::vector<azer::MeshPtr> bvmesh_;
   std::vector<azer::MeshPtr> normal_mesh_;

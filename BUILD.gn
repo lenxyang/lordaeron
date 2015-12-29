@@ -75,6 +75,8 @@ static_library("lordaeron") {
     "scene/scene_node_picking.h",
     "scene/scene_render_tree.cc",
     "scene/scene_render_tree.h",
+    "scene/scene_renderer.cc",
+    "scene/scene_renderer.h",
     "scene/scene_tree_model.cc",
     "scene/scene_tree_model.h",
     "ui/camera_view.cc",

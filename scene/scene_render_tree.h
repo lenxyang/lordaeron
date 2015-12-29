@@ -123,28 +123,4 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   azer::Matrix4 pv_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderNode);
 };
-
-class SceneRenderNodeDelegateFactory {
- public:
-  virtual scoped_ptr<SceneRenderNodeDelegate> CreateDelegate(SceneRenderNode* n) = 0;
-};
-
-class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
- public:
-  explicit SceneRenderTreeBuilder(SceneRenderNodeDelegateFactory* factory);
-  ~SceneRenderTreeBuilder();
-
-  SceneRenderNodePtr Build(SceneNode* node, const azer::Camera* camera);
-
-  // override from SceneNodeTraverseDelegate
-  void OnTraverseBegin(SceneNode* root) override;
-  bool OnTraverseNodeEnter(SceneNode* node) override;
-  void OnTraverseNodeExit(SceneNode* node) override;
-  void OnTraverseEnd() override;
- private:
-  void UpdateNodeWorld(SceneNode* node);
-  SceneRenderNode* cur_;
-  SceneRenderNodeDelegateFactory* factory_;
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderTreeBuilder);
-};
 }  // namespace lord

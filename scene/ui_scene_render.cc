@@ -138,7 +138,7 @@ void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
 }
 
 namespace {
-class SceneNodeDelegateFactory : public SceneRenderNodeDelegateFactory {
+class SceneNodeDelegateFactory : public SceneNodeRenderDelegateFactory {
  public:
   SceneNodeDelegateFactory(UISceneRenderer* renderer)
       : tree_renderer_(renderer) {}
@@ -167,24 +167,23 @@ SceneNodeDelegateFactory::CreateDelegate(SceneRenderNode* node) {
 
 // class UISceneRenderer
 UISceneRenderer::UISceneRenderer() {
+  scoped_ptr<SceneNodeDelegateFactory> factory(new SceneNodeDelegateFactory(this));
+  SetDelegateFactory(factory.Pass());
 }
 
-void UISceneRenderer::Init(SceneNode* root, const Camera* camera) {
-  CHECK(root_ == NULL);
-  SceneNodeDelegateFactory factory(this);
-  SceneRenderTreeBuilder builder(&factory);
-  root_ = builder.Build(root, camera);
-}
-
-void UISceneRenderer::Update(const FrameArgs& args) {
+void UISceneRenderer::OnFrameUpdateBegin(const azer::FrameArgs& args) {
   blending_node_.clear();
   bvmesh_.clear();
   normal_mesh_.clear();
-  UpdateNode(root_, args);
 }
 
-void UISceneRenderer::Render(Renderer* renderer) {
-  RenderNode(root_, renderer);
+void UISceneRenderer::OnFrameRenderBegin(azer::Renderer* renderer) {
+}
+
+void UISceneRenderer::OnFrameUpdateEnd(const azer::FrameArgs& args) {
+}
+
+void UISceneRenderer::OnFrameRenderEnd(azer::Renderer* renderer) {
   {
     ScopedDepthBuffer(false, renderer);
     for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
@@ -201,17 +200,14 @@ void UISceneRenderer::Render(Renderer* renderer) {
   }
 }
 
-void UISceneRenderer::UpdateNode(SceneRenderNode* node, const FrameArgs& args) {
+bool UISceneRenderer::UpdateNode(SceneRenderNode* node, const FrameArgs& args) {
   node->Update(args);
-  for (auto iter = node->children().begin(); 
-       iter != node->children().end(); ++iter) {
-    UpdateNode(iter->get(), args);
-  }
+  return true;
 }
 
-void UISceneRenderer::RenderNode(SceneRenderNode* node, Renderer* renderer) {
+bool UISceneRenderer::RenderNode(SceneRenderNode* node, Renderer* renderer) {
   if (!node->GetSceneNode()->visible()) {
-    return;
+    return false;
   }
 
   if (node->GetSceneNode()->type() != kLampSceneNode) {
@@ -223,6 +219,8 @@ void UISceneRenderer::RenderNode(SceneRenderNode* node, Renderer* renderer) {
        iter != node->children().end(); ++iter) {
     RenderNode(iter->get(), renderer);
   }
+
+  return true;
 }
 
 MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
