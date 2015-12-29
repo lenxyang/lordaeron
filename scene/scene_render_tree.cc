@@ -29,19 +29,13 @@ void UpdateSceneNodeLight(SceneNode* node) {
 }
 using namespace azer;
 // class SceneRenderEnvNode
-SceneRenderEnvNode::SceneRenderEnvNode() 
-    : parent_(NULL) {
-  LOG(ERROR) << "SceneRenderEnvNode(NULL) ctor: " << this;
-}
+SceneRenderEnvNode::SceneRenderEnvNode() : parent_(NULL) {}
 
 SceneRenderEnvNode::SceneRenderEnvNode(SceneRenderEnvNode* parent) 
     : parent_(parent) {
-  LOG(ERROR) << "SceneRenderEnvNode ctor: " << this;
 }
 
-SceneRenderEnvNode::~SceneRenderEnvNode() {
-  LOG(ERROR) << "SceneRenderEnvNode dctor: " << this;
-}
+SceneRenderEnvNode::~SceneRenderEnvNode() {}
 
 SceneRenderEnvNode* SceneRenderEnvNode::root() {
   SceneRenderEnvNode* cur = this;

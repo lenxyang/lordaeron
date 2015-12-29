@@ -14,11 +14,8 @@ using base::UTF8ToUTF16;
 using base::UTF16ToUTF8;
 
 const char EffectLoader::kSpecialLoaderName[] = "lord::EffectLoader";
-EffectLoader::EffectLoader() {
-}
-
-EffectLoader::~EffectLoader() {
-}
+EffectLoader::EffectLoader() {}
+EffectLoader::~EffectLoader() {}
 
 const char* EffectLoader::GetLoaderName() const {
   return kSpecialLoaderName;

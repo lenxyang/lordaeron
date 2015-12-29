@@ -257,6 +257,7 @@ void Light::InitSpotLightShadowmapRenderer(const gfx::Size& size) {
   Texture::Options opt;
   opt.target = (Texture::BindTarget)
       (Texture::kShaderResource | Texture::kRenderTarget);
+  opt.format = kRGBAf;
   opt.size = size;
   Viewport viewport(0, 0, opt.size.width(), opt.size.height());
   shadowmap_renderer_ = rs->CreateRenderer(opt);
