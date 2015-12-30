@@ -15,7 +15,7 @@ using namespace azer;
 namespace {
 void CalcSceneOrientForZDirection(const Vector3& d, Quaternion* orient) {
   Camera camera;
-  Vector3 dir = d.NormalizeCopy();
+  Vector3 dir = -d.NormalizeCopy();
   Vector3 up = Vector3(dir.x, 10.0f, dir.z);
   Vector3 newz = dir.NormalizeCopy();
   Vector3 newx = std::move(up.cross(newz).NormalizeCopy());

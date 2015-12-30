@@ -6,6 +6,7 @@
 #include "lordaeron/ui/scene_node_property_pane.h"
 #include "lordaeron/ui/scene_node_inspector_pane.h"
 #include "lordaeron/ui/toolbar/object_control_toolbar.h"
+#include "lordaeron/ui/toolbar/renderer_control_toolbar.h"
 
 namespace lord {
 using azer::Vector3;
@@ -17,13 +18,13 @@ const Vector4 kRenderBgColor = Vector4(0.427f, 0.427f, 0.427f, 1.0f);
 
 FrameWindow::FrameWindow(const gfx::Rect& init_bounds)
     : RenderWindow(init_bounds),
-      draw_gridline_(false) {
+      draw_gridline_(true) {
 }
 
 FrameWindow::FrameWindow(const gfx::Rect& init_bounds, 
                          nelf::RenderLoop* render_loop)
     : RenderWindow(init_bounds, render_loop),
-      draw_gridline_(false) {
+      draw_gridline_(true) {
 }
 
 bool FrameWindow::Initialize() {
@@ -55,7 +56,7 @@ void FrameWindow::OnRender(const azer::FrameArgs& args) {
   renderer->ClearDepthAndStencil();
   renderer->SetCullingMode(azer::kCullBack);
   renderer->EnableDepthTest(true);
-  RenderWindow::OnRender(args);
+  OnRenderFrame(args, renderer);
   renderer->Use();
   if (draw_gridline_) {
     gridline_->Render(renderer);
@@ -76,6 +77,7 @@ void FrameWindow::OnInitUI() {
   mutable_camera()->reset(Vector3(0.0f, 8.0f, 12.0f), Vector3(0.0f, 0.0f, 0.0f),
                           Vector3(0.0f, 1.0f, 0.0f));
   inspector->Dock(nelf::kDockLeft);
-  ObjectControlToolbar* toolbar = new ObjectControlToolbar(this, GetInteractive());
+  ObjectControlToolbar* toolbar1 = new ObjectControlToolbar(this, GetInteractive());
+  RendererControlToolbar* toolbar2 = new RendererControlToolbar(this);
 }
 }  // namespace lord

@@ -1,32 +1,4 @@
 <root>
-  <light name="dir" type="directional_light">
-    <ambient>1.0, 1.0, 1.0, 1.0</ambient>
-    <diffuse>0.5, 0.5, 0.4, 1.0</diffuse>
-    <specular>0.1, 0.1, 0.1, 1.0</specular>
-    <directional>0.0, -1.0, -1.0</directional>
-  </light>
-
-  <light name="point" type="point_light">
-    <ambient>1.0, 1.0, 1.0, 1.0</ambient>
-    <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>
-    <specular>0.1, 0.1, 0.1, 1.0</specular>
-    <attenuation>
-      <coefficient>0.0, 0.0, 1.0</coefficient>
-      <range>10</range>
-    </attenuation>
-  </light>
-
-  <light name="spot" type="spot_light">
-    <ambient>1.0, 1.0, 1.0, 1.0</ambient>
-    <diffuse>0.8, 0.8, 0.8, 1.0</diffuse>
-    <specular>0.1, 0.1, 0.1, 1.0</specular>
-    <directional>0.0, 0.0, 1.0</directional>
-    <inner_angle>30</inner_angle>
-    <outer_angle>40</outer_angle>
-    <falloff>0.5</falloff>
-    <range>30</range>
-  </light>
-
   <mesh name="teaport">
     <refer type="vertex_desc" path=":vertex_desc" />
     <refer type="effect" path=":DiffuseEffect"/>

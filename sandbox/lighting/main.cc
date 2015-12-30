@@ -13,17 +13,14 @@ using namespace azer;
 
 namespace lord {
 class RendererInfoPane;
-class MyRenderWindow : public lord::SceneRenderWindow {
+class MyRenderWindow : public lord::FrameWindow {
  public:
-  MyRenderWindow(const gfx::Rect& rect) : lord::SceneRenderWindow(rect) {}
-  SceneNodePtr OnInitScene() override;
-  void OnInitUI() override;
+  MyRenderWindow(const gfx::Rect& rect) : lord::FrameWindow(rect) {}
+  SceneNodePtr InitScene() override;
   void OnUpdateFrame(const azer::FrameArgs& args) override;
   void OnRenderFrame(const azer::FrameArgs& args, Renderer* renderer) override;
  private:
   sandbox::MyEffectPtr effect_;
-
-  SceneRenderNodePtr render_root_;
   SceneRenderNodePtr bvolumn_root_;
   scoped_ptr<UISceneRenderer> tree_render_;
   scoped_ptr<FileSystem> fsystem_;
@@ -55,7 +52,7 @@ int main(int argc, char* argv[]) {
 namespace lord {
 using namespace azer;
 
-SceneNodePtr MyRenderWindow::OnInitScene() {
+SceneNodePtr MyRenderWindow::InitScene() {
   LordEnv* env = LordEnv::instance();
   scoped_ptr<azer::FileSystem> fs(new azer::NativeFileSystem(
       FilePath(UTF8ToUTF16("lordaeron/"))));
@@ -70,8 +67,6 @@ SceneNodePtr MyRenderWindow::OnInitScene() {
 
   tree_render_.reset(new UISceneRenderer);
   tree_render_->Init(root, &camera());
-  LOG(ERROR) << "\n" << render_root_->DumpTree();
-  
   return root;
 }
 

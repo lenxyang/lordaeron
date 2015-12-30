@@ -24,6 +24,18 @@
                  file="icon/toolbar/fps-camera.png"/>
       <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_LAMP" 
                  file="icon/toolbar/lamp.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_DIAMOND" 
+                 file="icon/toolbar/diamond.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_LAYERS" 
+                 file="icon/toolbar/layers.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_MESH" 
+                 file="icon/toolbar/mesh.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_EXPLORER" 
+                 file="icon/toolbar/explorer.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_TREE" 
+                 file="icon/toolbar/tree.png"/>
+      <structure type="chrome_scaled_image" name="IDR_ICON_TOOLBAR_MATERIAL" 
+                 file="icon/toolbar/material.png"/>
     </structures>
     <structures fallback_to_low_resolution="true" first_id="40000">
       <structure type="chrome_scaled_image" name="IDR_WINDOW_TOP" 

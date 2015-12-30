@@ -123,6 +123,8 @@ static_library("lordaeron") {
     "ui/toolbar/camera_control_toolbar.h",
     "ui/toolbar/object_control_toolbar.cc",
     "ui/toolbar/object_control_toolbar.h",
+    "ui/toolbar/renderer_control_toolbar.cc",
+    "ui/toolbar/renderer_control_toolbar.h",
     "ui/window.cc",
     "ui/window.h",
     "util/axis_aligned_bounding_box.h",

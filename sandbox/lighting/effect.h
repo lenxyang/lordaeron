@@ -34,7 +34,7 @@ class MyEffect : public azer::Effect {
   ~MyEffect();
 
   const char* GetEffectName() const override;
-  bool Init(const ShaderPrograms& source) override;
+  bool Init(azer::VertexDesc* desc, const ShaderPrograms& source) override;
 
 #pragma pack(push, 4)
   struct vs_cbuffer {

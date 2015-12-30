@@ -19,7 +19,6 @@ IMPLEMENT_EFFECT_PROVIDER_DYNCREATE(ColorMaterial);
 IMPLEMENT_EFFECT_DYNCREATE(MyEffect);
 const char MyEffect::kEffectName[] = "MyEffect";
 MyEffect::MyEffect() {
-  vertex_desc_ptr_ = PosNormalVertex::CreateVertexDesc();
 }
 
 MyEffect::~MyEffect() {
@@ -28,10 +27,11 @@ MyEffect::~MyEffect() {
 const char* MyEffect::GetEffectName() const {
   return kEffectName;
 }
-bool MyEffect::Init(const ShaderPrograms& sources) {
+bool MyEffect::Init(VertexDesc* desc, const ShaderPrograms& sources) {
   DCHECK(sources.size() == kRenderPipelineStageNum);
   DCHECK(!sources[kVertexStage].code.empty());
   DCHECK(!sources[kPixelStage].code.empty());
+  vertex_desc_ = PosNormalVertex::CreateVertexDesc();
   InitTechnique(sources);
   InitGpuConstantTable();
   return true;
