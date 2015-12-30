@@ -106,6 +106,9 @@ ScaleAxisPlaneObject::ScaleAxisPlaneObject(DiffuseEffect* effect)
       std::move(RotateX(Degree(-90.0f)));
   reset_color();
   set_length(1.0f);
+
+  render_state_ = RenderSystem::Current()->CreateRenderState();
+  render_state_->SetCullingMode(kCullNone);
 }
 
 ScaleAxisPlaneObject::~ScaleAxisPlaneObject() {
@@ -168,12 +171,11 @@ void ScaleAxisPlaneObject::InitPlaneFrame() {
 void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
   bool depth_enable = renderer->IsDepthTestEnable();
-  CullingMode culling = renderer->GetCullingMode();
 
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
   renderer->EnableDepthTest(false);
-  renderer->SetCullingMode(kCullNone);
+  ScopedRenderState scoped_render_state(renderer, render_state_);
   for (int32 i = 0; i < 3; ++i) {
     Matrix4 lworld = std::move(world_ * rotation_[i]);
     effect_->SetDirLight(context->GetInternalLight());
@@ -203,7 +205,6 @@ void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
   }
 
   renderer->EnableDepthTest(depth_enable);
-  renderer->SetCullingMode(culling);
 }
 
 

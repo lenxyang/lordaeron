@@ -178,7 +178,6 @@ CircleCoordinateObject::CircleCoordinateObject(DiffuseEffect* effect)
     :radius_(1.0f),
      effect_(effect) {
   set_radius(1.0f);
-  
   circle_ = new CircleObject(effect_->vertex_desc(), 1024);
   reset_color();
 
@@ -233,8 +232,10 @@ RotationControllerObject::RotationControllerObject()
   effect_ = CreateDiffuseEffect();
   sphere_color_ = Vector4(1.0f, 1.0f, 1.0f, 0.4f);
   sphere_ = new SphereObject(effect_->vertex_desc(), 1.0f, 32, 32);
-
   circles_.reset(new CircleCoordinateObject(effect_));
+
+  render_state_ = rs->CreateRenderState();
+  render_state_->SetCullingMode(kCullNone);
 }
 
 RotationControllerObject::~RotationControllerObject() {
@@ -272,7 +273,7 @@ void RotationControllerObject::SetSelectedAxis(int32 axis) {
 
 void RotationControllerObject::Render(const azer::Matrix4& pv, 
                                       azer::Renderer* renderer) {
-  ScopedCullingMode scoped_culling(kCullNone, renderer);
+  ScopedRenderState scoped_culling(renderer, render_state_);
   Matrix4 world = Translate(position_);
   Matrix4 lworld = std::move(world * Scale(radius_, radius_, radius_));
   renderer->SetPrimitiveTopology(kTriangleList);

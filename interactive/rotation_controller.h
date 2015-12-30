@@ -95,6 +95,7 @@ class RotationControllerObject {
   azer::Vector3 position_;
   azer::Vector4 selected_color_;
   azer::Vector4 sphere_color_;
+  azer::RenderStatePtr render_state_;
   DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(RotationControllerObject);
 };

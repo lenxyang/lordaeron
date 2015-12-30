@@ -141,6 +141,9 @@ void PointLightController::Render(azer::Renderer* renderer) {
 const float SpotLightController::kTopRadius = 0.2f;
 SpotLightController::SpotLightController(SceneRenderNode* node)
     : LightController(node) {
+  render_state_ = RenderSystem::Current()->CreateRenderState();
+  render_state_->SetCullingMode(kCullNone);
+  
   LordEnv* ctx = LordEnv::instance();
   provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
   effect_ = CreateDiffuseEffect();
@@ -246,7 +249,7 @@ void SpotLightController::Update(const azer::FrameArgs& args) {
 
 void SpotLightController::Render(azer::Renderer* renderer) {
   {
-    ScopedCullingMode scoped_cull(kCullNone, renderer);
+    ScopedRenderState scoped_cull(renderer, render_state_);
     LightController::Render(renderer);
   }
 

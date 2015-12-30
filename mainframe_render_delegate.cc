@@ -50,7 +50,6 @@ void MainframeRenderDelegate::OnRender(const FrameArgs& args) {
   renderer->Use();
   renderer->Clear(kRenderBgColor);
   renderer->ClearDepthAndStencil();
-  renderer->SetCullingMode(kCullBack);
   renderer->EnableDepthTest(true);
   gridline_->Render(renderer);
 
