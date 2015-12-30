@@ -12,7 +12,8 @@
 #include "lordaeron/interactive/translation_controller.h"
 
 namespace lord {
-RendererControlToolbar::RendererControlToolbar(nelf::MainFrame* mainframe) {
+RendererControlToolbar::RendererControlToolbar(nelf::MainFrame* mainframe) 
+    : nelf::Toolbar(mainframe) {
   LordEnv* context = LordEnv::instance();
   int32 toolbar_id1[] = {
     IDR_ICON_TOOLBAR_TREE,
@@ -39,9 +40,7 @@ RendererControlToolbar::RendererControlToolbar(nelf::MainFrame* mainframe) {
     btn->SetTooltipText(::base::UTF8ToUTF16("This is tooltip"));
     contents->AddChildView(btn);
   }
-  toolbar_ = new nelf::Toolbar(mainframe);
-  toolbar_->SetContents(contents);
-  toolbar_->Float();
+  SetContents(contents);
 }
 
 RendererControlToolbar::~RendererControlToolbar() {

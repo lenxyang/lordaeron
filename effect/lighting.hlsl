@@ -30,7 +30,7 @@ struct SpotLight {
   float4      specular;
   float3      position;
   float       pad1;
-  float3      direction;
+  float3      directional;
   float       enable;
   float       phi;
   float       theta;
@@ -97,7 +97,7 @@ float3 CalcSpotLightColor(SpotLight light, float3 pos, float3 normal,
   float spot_atten = 0.0f;
   float3 ldir = normalize(pos - light.position);
   float dist = distance(pos, light.position);
-  float cosalpha = max(0.0f, dot(ldir, -light.direction));
+  float cosalpha = max(0.0f, dot(ldir, -light.directional));
   if (cosalpha > light.theta) {
     spot_atten = 1.0f;
   } else if (cosalpha > light.phi) {
@@ -107,8 +107,7 @@ float3 CalcSpotLightColor(SpotLight light, float3 pos, float3 normal,
 
   float linear_atten = lerp(1.0f, 0.0f, dist / light.range);
   float atten = linear_atten * spot_atten;
-  float3 diffuse = max(0.0,dot(normal, -light.direction))
-                   * light.diffuse.xyz * m.diffuse.xyz;
+  float3 diffuse = max(0.0, dot(normal, -ldir)) * light.diffuse.xyz * m.diffuse.xyz;
   float3 ambient = m.ambient.xyz * light.ambient.xyz;
   float3 specular = pow(m.power, blinn_phong(ldir, normal, viewin))
                         * light.specular.xyz * m.specular.xyz;

@@ -78,6 +78,11 @@ void FrameWindow::OnInitUI() {
                           Vector3(0.0f, 1.0f, 0.0f));
   inspector->Dock(nelf::kDockLeft);
   ObjectControlToolbar* toolbar1 = new ObjectControlToolbar(this, GetInteractive());
+  toolbar1->Float();
+  toolbar1->Dock(0, 0);
+
   RendererControlToolbar* toolbar2 = new RendererControlToolbar(this);
+  toolbar2->Float();
+  toolbar2->Dock(0, 1);
 }
 }  // namespace lord

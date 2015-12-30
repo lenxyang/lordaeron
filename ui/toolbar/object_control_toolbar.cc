@@ -14,7 +14,8 @@
 namespace lord {
 ObjectControlToolbar::ObjectControlToolbar(nelf::MainFrame* mainframe,
                                            InteractiveContext* ctx) 
-    : interactive_(ctx) {
+    : nelf::Toolbar(mainframe),
+      interactive_(ctx) {
   LordEnv* context = LordEnv::instance();
   int32 toolbar_id1[] = {
     IDR_ICON_TOOLBAR_PICKING,
@@ -39,10 +40,7 @@ ObjectControlToolbar::ObjectControlToolbar(nelf::MainFrame* mainframe,
     btn->SetTooltipText(::base::UTF8ToUTF16("This is tooltip"));
     contents->AddToggleButton(btn);
   }
-  toolbar_ = new nelf::Toolbar(mainframe);
-  toolbar_->SetContents(contents);
-  toolbar_->Float();
-  toolbar_->Dock(0, 0);
+  SetContents(contents);
 }
 
 ObjectControlToolbar::~ObjectControlToolbar() {
