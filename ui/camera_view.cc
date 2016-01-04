@@ -16,7 +16,7 @@ void CameraView::Render() {
   Renderer* renderer = GetRenderer().get();
   object_->Update(overlay_camera_);
   renderer->Use();
-  renderer->Clear(Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+  renderer->Clear(Vector4(0.0f, 0.0f, 0.0f, 0.0f));
   renderer->ClearDepthAndStencil();
   object_->Render(renderer);
 }

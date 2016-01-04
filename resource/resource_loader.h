@@ -18,7 +18,7 @@ typedef scoped_refptr<ResourceSpecialLoader> ResourceSpecialLoaderPtr;
 struct ResourceLoadContext {
   ResourceLoader* loader;
   azer::ResPath path;
-  azer::RepositoryNodePtr* root;
+  azer::RepositoryNodePtr root;
   azer::FileSystem* filesystem;
 };
 

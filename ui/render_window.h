@@ -15,12 +15,12 @@ namespace lord {
 class RendererInfoPane;
 
 class RenderWindow : public nelf::MainFrame,
-                          public nelf::RenderDelegate,
-                          public views::WidgetObserver {
+                     public nelf::RenderDelegate,
+                     public views::WidgetObserver {
  public:
   RenderWindow(const gfx::Rect& init_bounds);
   RenderWindow(const gfx::Rect& init_bounds,
-                    nelf::RenderLoop* render_loop);
+               nelf::RenderLoop* render_loop);
   ~RenderWindow();
 
   azer::Camera* mutable_camera() { return &camera_;}

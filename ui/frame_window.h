@@ -3,6 +3,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "nelf/nelf.h"
 #include "lordaeron/env.h"
+#include "lordaeron/render/camera_overlay.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/ui/render_window.h"
 
