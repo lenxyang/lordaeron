@@ -39,6 +39,7 @@ class FrameWindow : public RenderWindow {
   bool draw_gridline_;
   scoped_ptr<InteractiveContext> interactive_;
   SceneNodePtr root_;
+  azer::RenderStatePtr render_state_;
   DISALLOW_COPY_AND_ASSIGN(FrameWindow);
 };
 }  // namespace lord

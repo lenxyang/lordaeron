@@ -38,6 +38,9 @@ bool FrameWindow::Initialize() {
   OnInitUI();
   view()->AddEventListener(GetInteractive());
   RenderWindow::Initialize();
+  azer::RenderSystem* rs = azer::RenderSystem::Current();
+  render_state_ = rs->CreateRenderState();
+  render_state_->SetCullingMode(azer::kCullBack);
   return true;
 }
 
@@ -54,8 +57,8 @@ void FrameWindow::OnRender(const azer::FrameArgs& args) {
   renderer->Use();
   renderer->Clear(kRenderBgColor);
   renderer->ClearDepthAndStencil();
-  renderer->SetCullingMode(azer::kCullBack);
   renderer->EnableDepthTest(true);
+  azer::ScopedRenderState scoped_render_state(renderer, render_state_);
   OnRenderFrame(args, renderer);
   renderer->Use();
   if (draw_gridline_) {

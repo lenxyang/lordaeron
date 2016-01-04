@@ -65,6 +65,9 @@ bool SimpleRenderWindow::Initialize() {
 
   OnInitScene();
   OnInitUI();
+
+  render_state_ = azer::RenderSystem::Current()->CreateRenderState();
+  render_state_->SetCullingMode(azer::kCullBack);
   return true;
 }
 
@@ -81,7 +84,7 @@ void SimpleRenderWindow::OnRender(const azer::FrameArgs& args) {
   renderer->Use();
   renderer->Clear(kRenderBgColor);
   renderer->ClearDepthAndStencil();
-  renderer->SetCullingMode(azer::kCullBack);
+  azer::ScopedRenderState scoped_render_state(renderer, render_state_);
   renderer->EnableDepthTest(true);
   gridline_->Render(renderer);
 

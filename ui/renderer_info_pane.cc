@@ -69,10 +69,6 @@ void RendererInfoPane::Update(azer::Renderer* renderer,
         "Average FPS: %f/s", args.total_average_fps())));
     cur_fps_label_->SetText(UTF8ToUTF16(StringPrintf(
         "Recent FPS: %f/s", args.recent_average_fps())));
-    cull_mode_->SetText(UTF8ToUTF16(StringPrintf(
-        "Cull Mode: %s", CullModeName(renderer->GetCullingMode()))));
-    depth_mode_->SetText(UTF8ToUTF16(StringPrintf(
-        "Depth Test: %s", (renderer->IsDepthTestEnable() ? "enabled" : "disabled"))));
     last_update_time_ = args.time();
   }
 }

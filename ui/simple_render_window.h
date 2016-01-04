@@ -48,7 +48,7 @@ class SimpleRenderWindow : public nelf::MainFrame,
   virtual void OnAfterWidgetInit() override;
   nelf::RenderView* render_view_;
   scoped_refptr<nelf::RenderLoop> render_loop_;
-
+  azer::RenderStatePtr render_state_;
   azer::Camera camera_;
   RendererInfoPane* renderer_pane_;
   scoped_ptr<CameraOverlay> camera_overlay_;

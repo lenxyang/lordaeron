@@ -185,10 +185,12 @@ void UISceneRenderer::OnFrameUpdateEnd(const azer::FrameArgs& args) {
 
 void UISceneRenderer::OnFrameRenderEnd(azer::Renderer* renderer) {
   {
-    ScopedDepthBuffer scoped_depth(false, renderer);
+    bool depth_enable = renderer->IsDepthTestEnable();
+    renderer->EnableDepthTest(false);
     for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
       (*iter)->Render(renderer);
     }
+    renderer->EnableDepthTest(depth_enable);
   }
 
   for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
