@@ -84,8 +84,10 @@ void FrameWindow::OnInitUI() {
   toolbar1->Float();
   toolbar1->Dock(0, 0);
 
+  /*
   RendererControlToolbar* toolbar2 = new RendererControlToolbar(this);
   toolbar2->Float();
   toolbar2->Dock(0, 1);
+  */
 }
 }  // namespace lord
