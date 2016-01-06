@@ -238,12 +238,19 @@ std::string SceneRenderNode::DumpTree() const {
 }
 
 std::string SceneRenderNode::DumpNode(const SceneRenderNode* node, int depth) const {
+  SceneNode* snode = const_cast<SceneNode*>(node->GetSceneNode());
   std::stringstream ss;
   ss << std::string(depth, ' ') << "SceneRenderNode[" << (void*)node << "]"
-     << " SceneNode=" << node->GetSceneNode()->name() << ", "
-     << " type=" << SceneNodeName(node->GetSceneNode()->type()) << ", "
-     << " envnode[" << (void*)node->envnode_.get() << "]"
-     << std::endl;
+     << " SceneNode=" << snode->name() << ", "
+     << " type=" << SceneNodeName(snode->type()) << ", "
+     << " envnode[" << (void*)node->envnode_.get() << "]";
+  if (snode->type() == kObjectSceneNode) {
+    Mesh* mesh = snode->mutable_data()->GetMesh();
+    Effect* effect = mesh->part_at(0)->effect();
+    ss << " Object Effect: " << effect->GetEffectName();
+  }
+  ss << std::endl;
+
   for (auto iter = node->children_.begin(); iter != node->children_.end(); ++iter) {
     ss << std::move(DumpNode(iter->get(), depth + 2));
   }

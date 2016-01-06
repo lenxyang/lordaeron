@@ -270,5 +270,8 @@ void InitShadowMapCamera(const Light* light, Camera* camera) {
   Radians rad(std::acos(light->spot_light().phi));
   camera->mutable_frustum()->set_aspect(rad);
   camera->mutable_frustum()->set_fovy(1.0f);
+  Vector3 pos = light->spot_light().position;
+  Vector3 dir = light->spot_light().direction;
+  camera->reset(pos, pos + dir * 1.0f, pos + Vector3(0.0f, 1.0f, 0.0f));
 }
 }  // namespace lord
