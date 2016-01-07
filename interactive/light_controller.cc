@@ -5,8 +5,8 @@
 #include "lordaeron/env.h"
 #include "lordaeron/effect/light.h"
 #include "lordaeron/effect/diffuse_effect.h"
+#include "lordaeron/scene/render_node.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_render_tree.h"
 
 
 namespace lord {
@@ -80,7 +80,7 @@ void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
 }  // namespace
 
 // class LightController
-LightController::LightController(SceneRenderNode* node)
+LightController::LightController(RenderNode* node)
     : node_(node) {
   DCHECK(node->GetSceneNode()->type() == kLampSceneNode);
   provider_ = new LightControllerProvider(node);
@@ -95,7 +95,7 @@ void LightController::Render(azer::Renderer* renderer) {
 }
 
 // class PointLightController
-PointLightController::PointLightController(SceneRenderNode* node)
+PointLightController::PointLightController(RenderNode* node)
     : LightController(node) {
   LordEnv* ctx = LordEnv::instance();
   effect_ = CreateDiffuseEffect();
@@ -139,7 +139,7 @@ void PointLightController::Render(azer::Renderer* renderer) {
 
 // class SpotLightController
 const float SpotLightController::kTopRadius = 0.2f;
-SpotLightController::SpotLightController(SceneRenderNode* node)
+SpotLightController::SpotLightController(RenderNode* node)
     : LightController(node) {
   render_state_ = RenderSystem::Current()->CreateRenderState();
   render_state_->SetCullingMode(kCullNone);
@@ -331,7 +331,7 @@ void SpotLightController::CreateBorderLine(Light* light) {
 }
 
 // class DirLightController
-DirLightController::DirLightController(SceneRenderNode* node)
+DirLightController::DirLightController(RenderNode* node)
     : LightController(node) {
   LordEnv* ctx = LordEnv::instance();
   effect_ = CreateDiffuseEffect();
@@ -404,7 +404,7 @@ void DirLightController::Render(azer::Renderer* renderer) {
 
 
 
-LightControllerProvider::LightControllerProvider(SceneRenderNode* node) 
+LightControllerProvider::LightControllerProvider(RenderNode* node) 
     : node_(node) {
   Light* light = node->GetSceneNode()->mutable_data()->light();
   emission_ = light->diffuse() * 0.5f;

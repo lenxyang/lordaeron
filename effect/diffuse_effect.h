@@ -75,24 +75,24 @@ class DiffuseColorEffectAdapter : public EffectParamsAdapter {
   DISALLOW_COPY_AND_ASSIGN(DiffuseColorEffectAdapter);
 };
 
-class SceneRenderNodeDiffuseEffectAdapter : public EffectParamsAdapter {
+class RenderNodeDiffuseEffectAdapter : public EffectParamsAdapter {
  public:
-  SceneRenderNodeDiffuseEffectAdapter();
+  RenderNodeDiffuseEffectAdapter();
 
   EffectAdapterKey key() const override;
   void Apply(Effect* e, const EffectParamsProvider* params) const override;
  private:
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderNodeDiffuseEffectAdapter);
+  DISALLOW_COPY_AND_ASSIGN(RenderNodeDiffuseEffectAdapter);
 };
 
-class SceneRenderEnvNodeDiffuseEffectAdapter : public EffectParamsAdapter {
+class RenderEnvNodeDiffuseEffectAdapter : public EffectParamsAdapter {
  public:
-  SceneRenderEnvNodeDiffuseEffectAdapter();
+  RenderEnvNodeDiffuseEffectAdapter();
 
   EffectAdapterKey key() const override;
   void Apply(Effect* e, const EffectParamsProvider* params) const override;
  private:
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderEnvNodeDiffuseEffectAdapter);
+  DISALLOW_COPY_AND_ASSIGN(RenderEnvNodeDiffuseEffectAdapter);
 };
 
 

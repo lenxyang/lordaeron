@@ -7,9 +7,9 @@
 
 #include "azer/render/render.h"
 #include "azer/render/util/effects/vertex_desc.h"
+#include "lordaeron/scene/render_env_node.h"
+#include "lordaeron/scene/render_node.h"
 #include "azer/render/util/shader_util.h"
-#include "lordaeron/scene/scene_render_tree.h"
-#include "lordaeron/scene/scene_env_tree.h"
 
 using namespace azer;
 
@@ -133,36 +133,36 @@ void DiffuseColorEffectAdapter::Apply(
   effect->SetEmission(Vector4(0.0f, 0.0f, 0.0f, 0.0f));
 }
 
-// class SceneRenderNodeDiffuseEffectAdapter
-SceneRenderNodeDiffuseEffectAdapter::SceneRenderNodeDiffuseEffectAdapter() {}
-EffectAdapterKey SceneRenderNodeDiffuseEffectAdapter::key() const {
+// class RenderNodeDiffuseEffectAdapter
+RenderNodeDiffuseEffectAdapter::RenderNodeDiffuseEffectAdapter() {}
+EffectAdapterKey RenderNodeDiffuseEffectAdapter::key() const {
   return std::make_pair(typeid(DiffuseEffect).name(),
-                        typeid(SceneRenderNode).name());
+                        typeid(RenderNode).name());
 }
 
-void SceneRenderNodeDiffuseEffectAdapter::Apply(
+void RenderNodeDiffuseEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const  {
   CHECK(typeid(*e) == typeid(DiffuseEffect));
-  CHECK(typeid(*params) == typeid(SceneRenderNode));
-  const SceneRenderNode* provider = (const SceneRenderNode*)params;
+  CHECK(typeid(*params) == typeid(RenderNode));
+  const RenderNode* provider = (const RenderNode*)params;
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   effect->SetWorld(provider->GetWorld());
   effect->SetPV(provider->camera()->GetProjViewMatrix());
 }
 
-SceneRenderEnvNodeDiffuseEffectAdapter::SceneRenderEnvNodeDiffuseEffectAdapter() {
+RenderEnvNodeDiffuseEffectAdapter::RenderEnvNodeDiffuseEffectAdapter() {
 }
 
-EffectAdapterKey SceneRenderEnvNodeDiffuseEffectAdapter::key() const {
+EffectAdapterKey RenderEnvNodeDiffuseEffectAdapter::key() const {
   return std::make_pair(typeid(DiffuseEffect).name(),
-                        typeid(SceneRenderEnvNode).name());
+                        typeid(RenderEnvNode).name());
 }
 
-void SceneRenderEnvNodeDiffuseEffectAdapter::Apply(
+void RenderEnvNodeDiffuseEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const  {
   CHECK(typeid(*e) == typeid(DiffuseEffect));
-  CHECK(typeid(*params) == typeid(SceneRenderEnvNode));
-  const SceneRenderEnvNode* provider = (const SceneRenderEnvNode*)params;
+  CHECK(typeid(*params) == typeid(RenderEnvNode));
+  const RenderEnvNode* provider = (const RenderEnvNode*)params;
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   for (auto iter = provider->lights().begin(); 
        iter != provider->lights().end();

@@ -89,8 +89,8 @@ gfx::ImageSkia LordEnv::GetIcon(int32 id) {
 
 void LordEnv::InitAdapterContext() {
   effect_context_.RegisteAdapter(new DiffuseColorEffectAdapter);
-  effect_context_.RegisteAdapter(new SceneRenderNodeDiffuseEffectAdapter);
-  effect_context_.RegisteAdapter(new SceneRenderEnvNodeDiffuseEffectAdapter);
+  effect_context_.RegisteAdapter(new RenderNodeDiffuseEffectAdapter);
+  effect_context_.RegisteAdapter(new RenderEnvNodeDiffuseEffectAdapter);
   effect_context_.RegisteAdapter(new LightControllerColorEffectAdapter);
   effect_context_.RegisteAdapter(new LightControllerEffectAdapter);
   effect_context_.RegisteAdapter(new LordSceneBVParamsAdapter);

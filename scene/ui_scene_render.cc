@@ -5,9 +5,10 @@
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/effect/normal_line_effect.h"
 #include "lordaeron/interactive/light_controller.h"
+#include "lordaeron/scene/render_node.h"
+#include "lordaeron/scene/render_env_node.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_render_tree.h"
-#include "lordaeron/scene/scene_env_tree.h"
+
 
 namespace lord {
 using namespace azer;
@@ -29,7 +30,7 @@ void LordSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) co
   effect->SetPV(provider->GetPV());
   effect->SetDirLight(ctx->GetInternalLight());
 }
-LordSceneBVRenderProvider::LordSceneBVRenderProvider(SceneRenderNode* node)
+LordSceneBVRenderProvider::LordSceneBVRenderProvider(RenderNode* node)
     : color_(Vector4(1.0f, 0.0f, 0.0f, 0.3f)), node_(node) {}
 
 void LordSceneBVRenderProvider::UpdateParams(const azer::FrameArgs& args) {
@@ -49,8 +50,8 @@ const azer::Matrix4& LordSceneBVRenderProvider::GetPV() const {
 
 // class LordObjectNodeRenderDelegate
 LordObjectNodeRenderDelegate::LordObjectNodeRenderDelegate(
-    SceneRenderNode* node, UISceneRenderer* renderer)
-    : SceneRenderNodeDelegate(node),
+    RenderNode* node, UISceneRenderer* renderer)
+    : RenderNodeDelegate(node),
       tree_renderer_(renderer) {
   Init();
 }
@@ -99,8 +100,8 @@ void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
 }
 
 // class LordLampNodeRenderDelegate
-LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(SceneRenderNode* node)
-    : SceneRenderNodeDelegate(node),
+LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(RenderNode* node)
+    : RenderNodeDelegate(node),
       controller_(NULL) {
   SceneNode* scene_node = GetSceneNode();
   CHECK(scene_node->type() == kLampSceneNode);
@@ -139,29 +140,29 @@ void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
 }
 
 namespace {
-class SceneNodeDelegateFactory : public SceneNodeRenderDelegateFactory {
+class SceneNodeDelegateFactory : public RenderNodeDelegateFactory {
  public:
   SceneNodeDelegateFactory(UISceneRenderer* renderer)
       : tree_renderer_(renderer) {}
-  scoped_ptr<SceneRenderNodeDelegate> CreateDelegate(SceneRenderNode* node) override;
+  scoped_ptr<RenderNodeDelegate> CreateDelegate(RenderNode* node) override;
  private:
   UISceneRenderer* tree_renderer_;
 };
-scoped_ptr<SceneRenderNodeDelegate>
-SceneNodeDelegateFactory::CreateDelegate(SceneRenderNode* node) {
+scoped_ptr<RenderNodeDelegate>
+SceneNodeDelegateFactory::CreateDelegate(RenderNode* node) {
   switch (node->GetSceneNode()->type()) {
     case kEnvSceneNode:
       return NULL;
     case kSceneNode:
     case kObjectSceneNode:
-      return scoped_ptr<SceneRenderNodeDelegate>(
+      return scoped_ptr<RenderNodeDelegate>(
           new LordObjectNodeRenderDelegate(node, tree_renderer_)).Pass();
     case kLampSceneNode:
-      return scoped_ptr<SceneRenderNodeDelegate>(
+      return scoped_ptr<RenderNodeDelegate>(
           new LordLampNodeRenderDelegate(node)).Pass();
     default:
       NOTREACHED() << "no such type supported: " << node->GetSceneNode()->type();
-      return scoped_ptr<SceneRenderNodeDelegate>().Pass();
+      return scoped_ptr<RenderNodeDelegate>().Pass();
   }
 }
 }
@@ -203,12 +204,12 @@ void UISceneRenderer::OnFrameRenderEnd(azer::Renderer* renderer) {
   }
 }
 
-bool UISceneRenderer::UpdateNode(SceneRenderNode* node, const FrameArgs& args) {
+bool UISceneRenderer::OnUpdateNode(RenderNode* node, const FrameArgs& args) {
   node->Update(args);
   return true;
 }
 
-bool UISceneRenderer::RenderNode(SceneRenderNode* node, Renderer* renderer) {
+bool UISceneRenderer::OnRenderNode(RenderNode* node, Renderer* renderer) {
   if (!node->GetSceneNode()->visible()) {
     return false;
   }
@@ -220,7 +221,7 @@ bool UISceneRenderer::RenderNode(SceneRenderNode* node, Renderer* renderer) {
   }
   for (auto iter = node->children().begin(); 
        iter != node->children().end(); ++iter) {
-    RenderNode(iter->get(), renderer);
+    OnRenderNode(iter->get(), renderer);
   }
 
   return true;

@@ -8,8 +8,8 @@
 #include "azer/render/render.h"
 #include "azer/render/util/effects/vertex_desc.h"
 #include "azer/render/util/shader_util.h"
+#include "lordaeron/scene/render_node.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_render_tree.h"
 
 using namespace azer;
 
@@ -111,14 +111,14 @@ NormalLineEffectAdapter::NormalLineEffectAdapter() {
 
 EffectAdapterKey NormalLineEffectAdapter::key() const {
   return std::make_pair(typeid(NormalLineEffect).name(),
-                        typeid(SceneRenderNode).name());
+                        typeid(RenderNode).name());
 }
 
 void NormalLineEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const {
   CHECK(typeid(*e) == typeid(NormalLineEffect));
-  CHECK(typeid(*params) == typeid(SceneRenderNode));
-  const SceneRenderNode* provider = (const SceneRenderNode*)params;
+  CHECK(typeid(*params) == typeid(RenderNode));
+  const RenderNode* provider = (const RenderNode*)params;
   NormalLineEffect* effect = dynamic_cast<NormalLineEffect*>(e);
   effect->SetWorld(provider->GetWorld());
   effect->SetPV(provider->camera()->GetProjViewMatrix());

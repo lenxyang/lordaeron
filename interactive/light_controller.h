@@ -8,28 +8,28 @@ class DiffuseEffect;
 class Light;
 class LightControllerProvider;
 class SceneNode;
-class SceneRenderNode;
+class RenderNode;
 typedef scoped_refptr<Light> LightPtr;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
 typedef scoped_refptr<DiffuseEffect> DiffuseEffectPtr;
 
 class LightController : public ::base::RefCounted<LightController> {
  public:
-  explicit LightController(SceneRenderNode* node);
+  explicit LightController(RenderNode* node);
   azer::Mesh* GetLightMesh() { return light_mesh_.get();}
   virtual void Update(const azer::FrameArgs& args) = 0;
   virtual void Render(azer::Renderer* renderer) = 0;
  protected:
   azer::MeshPtr light_mesh_;
   DiffuseEffectPtr effect_;
-  SceneRenderNode* node_;
+  RenderNode* node_;
   scoped_refptr<LightControllerProvider> provider_;
   DISALLOW_COPY_AND_ASSIGN(LightController);
 };
 
 class PointLightController : public LightController {
  public:
-  explicit PointLightController(SceneRenderNode* node);
+  explicit PointLightController(RenderNode* node);
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
@@ -41,7 +41,7 @@ class PointLightController : public LightController {
 
 class SpotLightController : public LightController {
  public:
-  explicit SpotLightController(SceneRenderNode* node);
+  explicit SpotLightController(RenderNode* node);
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
@@ -59,7 +59,7 @@ class SpotLightController : public LightController {
 
 class DirLightController : public LightController {
  public:
-  explicit DirLightController(SceneRenderNode* node);
+  explicit DirLightController(RenderNode* node);
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
@@ -70,7 +70,7 @@ class DirLightController : public LightController {
 
 class LightControllerProvider : public azer::EffectParamsProvider {
  public:
-  LightControllerProvider(SceneRenderNode* node);
+  LightControllerProvider(RenderNode* node);
   void SetLocalTransform(const azer::Matrix4& local);
 
   // override from EffectParamsProvider
@@ -84,7 +84,7 @@ class LightControllerProvider : public azer::EffectParamsProvider {
   azer::Vector4 emission_;
   azer::Matrix4 world_;
   azer::Matrix4 local_transform_;
-  SceneRenderNode* node_;
+  RenderNode* node_;
   DISALLOW_COPY_AND_ASSIGN(LightControllerProvider);
 };
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "base/memory/scoped_ptr.h"
+#include "lordaeron/scene/render_node.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_render_tree.h"
 #include "lordaeron/scene/scene_renderer.h"
 #include "lordaeron/ui/render_window.h"
 

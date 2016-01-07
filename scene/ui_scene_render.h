@@ -2,7 +2,7 @@
 
 #include "azer/render/render.h"
 #include "lordaeron/scene/scene_node_traverse.h"
-#include "lordaeron/scene/scene_render_tree.h"
+#include "lordaeron/scene/render_node.h"
 #include "lordaeron/scene/scene_renderer.h"
 
 namespace lord {
@@ -21,7 +21,7 @@ class LordSceneBVParamsAdapter : public azer::EffectParamsAdapter {
 
 class LordSceneBVRenderProvider : public azer::EffectParamsProvider {
  public:
-  explicit LordSceneBVRenderProvider(SceneRenderNode* node);
+  explicit LordSceneBVRenderProvider(RenderNode* node);
   void UpdateParams(const azer::FrameArgs& args) override;
   const azer::Vector4& color() const { return color_;}
   const azer::Matrix4& GetWorld() const { return world_;}
@@ -30,13 +30,13 @@ class LordSceneBVRenderProvider : public azer::EffectParamsProvider {
   azer::Vector4 color_;
   azer::Matrix4 scale_;
   azer::Matrix4 world_;
-  SceneRenderNode* node_;
+  RenderNode* node_;
   DISALLOW_COPY_AND_ASSIGN(LordSceneBVRenderProvider);
 };
 
-class LordObjectNodeRenderDelegate : public SceneRenderNodeDelegate {
+class LordObjectNodeRenderDelegate : public RenderNodeDelegate {
  public:
-  explicit LordObjectNodeRenderDelegate(SceneRenderNode* node,
+  explicit LordObjectNodeRenderDelegate(RenderNode* node,
                                         UISceneRenderer* renderer);
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
@@ -49,9 +49,9 @@ class LordObjectNodeRenderDelegate : public SceneRenderNodeDelegate {
   DISALLOW_COPY_AND_ASSIGN(LordObjectNodeRenderDelegate);
 };
 
-class LordLampNodeRenderDelegate : public SceneRenderNodeDelegate {
+class LordLampNodeRenderDelegate : public RenderNodeDelegate {
  public:
-  explicit LordLampNodeRenderDelegate(SceneRenderNode* node);
+  explicit LordLampNodeRenderDelegate(RenderNode* node);
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
@@ -67,12 +67,12 @@ class UISceneRenderer : public SceneRenderer {
  protected:
   void OnFrameUpdateBegin(const azer::FrameArgs& args) override;
   void OnFrameRenderBegin(azer::Renderer* renderer) override;
-  bool UpdateNode(SceneRenderNode* node, const azer::FrameArgs& args) override;
-  bool RenderNode(SceneRenderNode* node, azer::Renderer* renderer) override;
+  bool OnUpdateNode(RenderNode* node, const azer::FrameArgs& args) override;
+  bool OnRenderNode(RenderNode* node, azer::Renderer* renderer) override;
   void OnFrameUpdateEnd(const azer::FrameArgs& args) override;
   void OnFrameRenderEnd(azer::Renderer* renderer) override;
 
-  std::vector<SceneRenderNode*> blending_node_;
+  std::vector<RenderNode*> blending_node_;
   std::vector<azer::MeshPtr> bvmesh_;
   std::vector<azer::MeshPtr> normal_mesh_;
   DISALLOW_COPY_AND_ASSIGN(UISceneRenderer);
