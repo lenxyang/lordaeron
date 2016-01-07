@@ -16,42 +16,6 @@ class SceneRenderNode;
 typedef scoped_refptr<SceneRenderEnvNode> SceneRenderEnvNodePtr;
 typedef scoped_refptr<SceneRenderNode> SceneRenderNodePtr;
 
-class SceneRenderEnvNode : public azer::EffectParamsProvider {
- public:
-  SceneRenderEnvNode();
-  explicit SceneRenderEnvNode(SceneRenderEnvNode* parent);
-  ~SceneRenderEnvNode();
-
-  void AddLightNode(SceneNode* node);
-  const Lights& lights() const { return all_lights_;}
-  void UpdateParams(const azer::FrameArgs& args) override;
-  
-  SceneRenderEnvNode* root();
-  const SceneRenderEnvNode* root() const {
-    return const_cast<const SceneRenderEnvNode*>(
-        const_cast<SceneRenderEnvNode*>(this)->root());
-  }
-  SceneRenderEnvNode* parent();
-  const SceneRenderEnvNode* parent() const {
-    return const_cast<const SceneRenderEnvNode*>(
-        const_cast<SceneRenderEnvNode*>(this)->parent());
-  }
-  int32 child_count() const;
-  SceneRenderEnvNode* child_at(int32 index);
-  void AddChild(SceneRenderEnvNode* child);
-  bool RemoveChild(SceneRenderEnvNode* child);
-  bool Contains(SceneRenderEnvNode* child) const;
-  int32 GetIndexOf(SceneRenderEnvNode* child) const;
-  std::string DumpTree() const;
-  std::string DumpNode(const SceneRenderEnvNode* node, int32 dump) const;
- private:
-  SceneNodes light_nodes_;
-  SceneRenderEnvNode* parent_;
-  Lights all_lights_;
-  std::vector<SceneRenderEnvNodePtr> children_;
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderEnvNode);
-};
-
 class SceneRenderNodeDelegate {
  public:
   explicit SceneRenderNodeDelegate(SceneRenderNode* node);
@@ -122,5 +86,29 @@ class SceneRenderNode : public azer::EffectParamsProvider {
   azer::Matrix4 pvw_;
   azer::Matrix4 pv_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderNode);
+};
+
+class SceneNodeRenderDelegateFactory {
+ public:
+  virtual scoped_ptr<SceneRenderNodeDelegate> CreateDelegate(SceneRenderNode* n) = 0;
+};
+
+class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
+ public:
+  explicit SceneRenderTreeBuilder(SceneNodeRenderDelegateFactory* factory);
+  ~SceneRenderTreeBuilder();
+
+  SceneRenderNodePtr Build(SceneNode* node, const azer::Camera* camera);
+
+  // override from SceneNodeTraverseDelegate
+  void OnTraverseBegin(SceneNode* root) override;
+  bool OnTraverseNodeEnter(SceneNode* node) override;
+  void OnTraverseNodeExit(SceneNode* node) override;
+  void OnTraverseEnd() override;
+ private:
+  void UpdateNodeWorld(SceneNode* node);
+  SceneRenderNode* cur_;
+  SceneNodeRenderDelegateFactory* factory_;
+  DISALLOW_COPY_AND_ASSIGN(SceneRenderTreeBuilder);
 };
 }  // namespace lord

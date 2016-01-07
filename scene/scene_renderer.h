@@ -4,29 +4,6 @@
 #include "lordaeron/scene/scene_render_tree.h"
 
 namespace lord {
-class SceneNodeRenderDelegateFactory {
- public:
-  virtual scoped_ptr<SceneRenderNodeDelegate> CreateDelegate(SceneRenderNode* n) = 0;
-};
-
-class SceneRenderTreeBuilder : public SceneNodeTraverseDelegate {
- public:
-  explicit SceneRenderTreeBuilder(SceneNodeRenderDelegateFactory* factory);
-  ~SceneRenderTreeBuilder();
-
-  SceneRenderNodePtr Build(SceneNode* node, const azer::Camera* camera);
-
-  // override from SceneNodeTraverseDelegate
-  void OnTraverseBegin(SceneNode* root) override;
-  bool OnTraverseNodeEnter(SceneNode* node) override;
-  void OnTraverseNodeExit(SceneNode* node) override;
-  void OnTraverseEnd() override;
- private:
-  void UpdateNodeWorld(SceneNode* node);
-  SceneRenderNode* cur_;
-  SceneNodeRenderDelegateFactory* factory_;
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderTreeBuilder);
-};
 
 class SceneRenderer {
  public:

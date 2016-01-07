@@ -9,6 +9,7 @@
 #include "azer/render/util/effects/vertex_desc.h"
 #include "azer/render/util/shader_util.h"
 #include "lordaeron/scene/scene_render_tree.h"
+#include "lordaeron/scene/scene_env_tree.h"
 
 using namespace azer;
 

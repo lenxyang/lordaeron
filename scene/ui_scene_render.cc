@@ -7,6 +7,7 @@
 #include "lordaeron/interactive/light_controller.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_render_tree.h"
+#include "lordaeron/scene/scene_env_tree.h"
 
 namespace lord {
 using namespace azer;
