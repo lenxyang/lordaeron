@@ -10,35 +10,30 @@
 namespace lord {
 using namespace azer;
 
-namespace {
-void UpdateSceneNodeLight(SceneNode* node) {
-  if (node->type() == kLampSceneNode) {
-    Light* light = node->mutable_data()->light();
-    switch (light->type()) {
-      case kDirectionalLight: 
-        light->set_enable(node->visible());
-        break;
-      case kPointLight: 
-        light->set_enable(node->visible());
-        break;
-      case kSpotLight: 
-        light->set_enable(node->visible());
-        break;
-      default:
-        CHECK(false);
-    }
-  }
+// class
+RenderEnvNodeDelegate::RenderEnvNodeDelegate(RenderEnvNode* envnode)
+    : envnode_(envnode) {
 }
+
+void RenderEnvNodeDelegate::UpdateParams(const azer::FrameArgs& args) {
 }
 
 // class RenderEnvNode
-RenderEnvNode::RenderEnvNode() : parent_(NULL) {}
+RenderEnvNode::RenderEnvNode() 
+    : parent_(NULL),
+      delegate_(NULL) {
+}
 
 RenderEnvNode::RenderEnvNode(RenderEnvNode* parent) 
-    : parent_(parent) {
+    : parent_(parent),
+      delegate_(NULL) {
 }
 
 RenderEnvNode::~RenderEnvNode() {}
+void RenderEnvNode::set_delegate(RenderEnvNodeDelegate* delegate) {
+  DCHECK(NULL == delegate_);
+  delegate_ = delegate;
+}
 
 RenderEnvNode* RenderEnvNode::root() {
   RenderEnvNode* cur = this;
@@ -110,24 +105,5 @@ std::string RenderEnvNode::DumpNode(const RenderEnvNode* node,
     ss << std::move(DumpNode(iter->get(), depth + 2));
   }
   return ss.str();
-}
-
-void RenderEnvNode::AddLightNode(SceneNode* node) {
-  DCHECK(node->type() == kLampSceneNode);
-  light_nodes_.push_back(node);
-}
-
-void RenderEnvNode::UpdateParams(const FrameArgs& args) {
-  all_lights_.clear();
-  if (parent()) {
-    all_lights_ = parent()->all_lights_;
-  }
-
-  for (auto iter = light_nodes_.begin(); iter != light_nodes_.end(); ++iter) {
-    SceneNode* node = iter->get();
-    DCHECK(node->type() == kLampSceneNode);
-    UpdateSceneNodeLight(node);
-    all_lights_.push_back(node->mutable_data()->light());
-  }
 }
 }  // namespace lord

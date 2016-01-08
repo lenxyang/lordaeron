@@ -3,8 +3,10 @@
 #include "azer/render/util.h"
 #include "lordaeron/sandbox/lighting/effect.h"
 #include "lordaeron/effect/diffuse_effect.h"
+#include "lordaeron/scene/render_node.h"
+#include "lordaeron/scene/render_env_node.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_render_tree.h"
+#include "lordaeron/scene/ui_scene_render.h"
 
 namespace lord {
 namespace sandbox {
@@ -25,37 +27,37 @@ void ColorEffectAdapter::Apply(Effect* e, const EffectParamsProvider* params) co
   effect->SetColor(provider->color());
 }
 
-// class SceneRenderNodeMyEffectAdapter
-SceneRenderNodeEffectAdapter::SceneRenderNodeEffectAdapter() {}
-EffectAdapterKey SceneRenderNodeEffectAdapter::key() const {
+// class RenderNodeMyEffectAdapter
+RenderNodeEffectAdapter::RenderNodeEffectAdapter() {}
+EffectAdapterKey RenderNodeEffectAdapter::key() const {
   return std::make_pair(typeid(MyEffect).name(),
-                        typeid(SceneRenderNode).name());
+                        typeid(RenderNode).name());
 }
 
-void SceneRenderNodeEffectAdapter::Apply(
+void RenderNodeEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const  {
   CHECK(typeid(*e) == typeid(MyEffect));
-  CHECK(typeid(*params) == typeid(SceneRenderNode));
-  const SceneRenderNode* provider = (const SceneRenderNode*)params;
+  CHECK(typeid(*params) == typeid(RenderNode));
+  const RenderNode* provider = (const RenderNode*)params;
   MyEffect* effect = dynamic_cast<MyEffect*>(e);
   effect->SetWorld(provider->GetWorld());
   effect->SetPV(provider->camera()->GetProjViewMatrix());
   effect->SetCameraPos(Vector4(provider->camera()->position(), 1.0f));
 }
 
-SceneRenderEnvNodeEffectAdapter::SceneRenderEnvNodeEffectAdapter() {
+LordEnvNodeDelegateEffectAdapter::LordEnvNodeDelegateEffectAdapter() {
 }
 
-EffectAdapterKey SceneRenderEnvNodeEffectAdapter::key() const {
+EffectAdapterKey LordEnvNodeDelegateEffectAdapter::key() const {
   return std::make_pair(typeid(MyEffect).name(),
-                        typeid(SceneRenderEnvNode).name());
+                        typeid(LordEnvNodeDelegate).name());
 }
 
-void SceneRenderEnvNodeEffectAdapter::Apply(
+void LordEnvNodeDelegateEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const  {
   CHECK(typeid(*e) == typeid(MyEffect));
-  CHECK(typeid(*params) == typeid(SceneRenderEnvNode));
-  const SceneRenderEnvNode* provider = (const SceneRenderEnvNode*)params;
+  CHECK(typeid(*params) == typeid(LordEnvNodeDelegate));
+  const LordEnvNodeDelegate* provider = (const LordEnvNodeDelegate*)params;
   MyEffect* effect = dynamic_cast<MyEffect*>(e);
   for (auto iter = provider->lights().begin(); 
        iter != provider->lights().end();

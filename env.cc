@@ -25,7 +25,7 @@ bool LordEnv::InitEnv(int argc, char* argv[]) {
 }
 
 LordEnv::LordEnv() {
-  internal_light_.direction = azer::Vector3(-0.6f, -0.6f, -0.2f);
+  internal_light_.directional = azer::Vector3(-0.6f, -0.6f, -0.2f);
   internal_light_.diffuse = azer::Vector4(0.4f, 0.4f, 0.4f, 1.0f);
   internal_light_.ambient = azer::Vector4(0.2f, 0.2f, 0.2f, 1.0f);
   internal_light_.specular = azer::Vector4(0.1f, 0.1f, 0.1f, 1.0f);
@@ -90,7 +90,7 @@ gfx::ImageSkia LordEnv::GetIcon(int32 id) {
 void LordEnv::InitAdapterContext() {
   effect_context_.RegisteAdapter(new DiffuseColorEffectAdapter);
   effect_context_.RegisteAdapter(new RenderNodeDiffuseEffectAdapter);
-  effect_context_.RegisteAdapter(new RenderEnvNodeDiffuseEffectAdapter);
+  effect_context_.RegisteAdapter(new LordEnvNodeDiffuseEffectAdapter);
   effect_context_.RegisteAdapter(new LightControllerColorEffectAdapter);
   effect_context_.RegisteAdapter(new LightControllerEffectAdapter);
   effect_context_.RegisteAdapter(new LordSceneBVParamsAdapter);

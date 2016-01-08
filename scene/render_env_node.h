@@ -11,22 +11,42 @@
 #include "lordaeron/scene/scene_node.h"
 
 namespace lord {
+class RenderNode;
 class RenderEnvNode;
+class RenderEnvNodeDelegate;
 typedef scoped_refptr<RenderEnvNode> RenderEnvNodePtr;
+typedef scoped_refptr<RenderEnvNodeDelegate> RenderEnvNodeDelegatePtr;
 
-class RenderEnvNodeDelegate {
+class RenderEnvNodeDelegate : public azer::EffectParamsProvider {
  public:
+  explicit RenderEnvNodeDelegate(RenderEnvNode* envnode);
+
+  RenderEnvNode* node() { return envnode_;}
+  const RenderEnvNode* node() const { return envnode_;}
+
+  virtual void Reset() = 0;
+  virtual void VisitSceneNode(SceneNode* node, RenderNode* render_node) = 0;
+  virtual void OnUpdateNode(const azer::FrameArgs& args) = 0;
+
+  // override form azer::EffectParamsProvider
+  // should not update there, because the object will shared by many
+  // SceneNode, so it neednot update for every one,
+  // we will update the params from OnUpdateNode
+  void UpdateParams(const azer::FrameArgs& args) override;
+ private:
+  RenderEnvNode* envnode_;
+  DISALLOW_COPY_AND_ASSIGN(RenderEnvNodeDelegate);
 };
 
-class RenderEnvNode : public azer::EffectParamsProvider {
+class RenderEnvNode : public ::base::RefCounted<RenderEnvNode> {
  public:
   RenderEnvNode();
   explicit RenderEnvNode(RenderEnvNode* parent);
   ~RenderEnvNode();
 
-  void AddLightNode(SceneNode* node);
-  const Lights& lights() const { return all_lights_;}
-  void UpdateParams(const azer::FrameArgs& args) override;
+  void set_delegate(RenderEnvNodeDelegate* delegate);
+  RenderEnvNodeDelegate* delegate() { return delegate_.get();}
+  const RenderEnvNodeDelegate* delegate() const { return delegate_.get();}
   
   RenderEnvNode* root();
   const RenderEnvNode* root() const {
@@ -47,10 +67,9 @@ class RenderEnvNode : public azer::EffectParamsProvider {
   std::string DumpTree() const;
   std::string DumpNode(const RenderEnvNode* node, int32 dump) const;
  private:
-  SceneNodes light_nodes_;
   RenderEnvNode* parent_;
-  Lights all_lights_;
   std::vector<RenderEnvNodePtr> children_;
+  RenderEnvNodeDelegatePtr delegate_;
   DISALLOW_COPY_AND_ASSIGN(RenderEnvNode);
 };
 

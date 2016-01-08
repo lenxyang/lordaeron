@@ -18,7 +18,7 @@ struct DirLight {
   azer::Vector4 diffuse;
   azer::Vector4 ambient;
   azer::Vector4 specular;
-  azer::Vector3 direction;
+  azer::Vector3 directional;
   float enable;
 };
 
@@ -37,7 +37,7 @@ struct SpotLight {
   azer::Vector4 specular;
   azer::Vector3 position;
   float pad1;
-  azer::Vector3 direction;
+  azer::Vector3 directional;
   float enable;
   float phi;
   float theta;  // inner corner (cosine)
@@ -67,10 +67,11 @@ class Light : public ::base::RefCounted<Light> {
   LightType type() const { return type_;}
   void InitShadowmapRenderer(const gfx::Size& size);
 
+  const azer::Vector3& position() const;
+  const azer::Vector3& directional() const;
   const azer::Vector4& diffuse() const;
   const azer::Vector4& ambient() const;
   const azer::Vector4& specular() const;
-  const azer::Vector3& directional() const;
 
   bool enable() const;
   void set_enable(bool v);

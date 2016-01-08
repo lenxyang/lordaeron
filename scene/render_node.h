@@ -15,6 +15,7 @@ class RenderEnvNodeDelegate;
 class RenderEnvNode;
 class RenderNode;
 typedef scoped_refptr<RenderEnvNode> RenderEnvNodePtr;
+typedef scoped_refptr<RenderEnvNodeDelegate> RenderEnvNodeDelegatePtr;
 typedef scoped_refptr<RenderNode> RenderNodePtr;
 
 class RenderNodeDelegate {
@@ -91,7 +92,8 @@ class RenderNode : public azer::EffectParamsProvider {
 
 class RenderNodeDelegateFactory {
  public:
-  virtual scoped_ptr<RenderNodeDelegate> CreateDelegate(RenderNode* n) = 0;
+  virtual scoped_ptr<RenderNodeDelegate> CreateRenderDelegate(RenderNode* n) = 0;
+  virtual RenderEnvNodeDelegatePtr CreateEnvDelegate(RenderEnvNode* n) = 0;
 };
 
 class RenderTreeBuilder : public SceneNodeTraverseDelegate {

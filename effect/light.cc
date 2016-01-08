@@ -72,7 +72,7 @@ void Light::set_enable(bool enable) {
   }
 }
 
-void Light::set_diffuse(const azer::Vector4& color) {
+void Light::set_diffuse(const Vector4& color) {
   switch (type()) {
     case kDirectionalLight:
       dir_light_.diffuse = color;
@@ -88,7 +88,7 @@ void Light::set_diffuse(const azer::Vector4& color) {
   }
 }
 
-void Light::set_ambient(const azer::Vector4& color) {
+void Light::set_ambient(const Vector4& color) {
   switch (type()) {
     case kDirectionalLight:
       dir_light_.ambient = color;
@@ -104,7 +104,7 @@ void Light::set_ambient(const azer::Vector4& color) {
   }
 }
 
-void Light::set_specular(const azer::Vector4& color) {
+void Light::set_specular(const Vector4& color) {
   switch (type()) {
     case kDirectionalLight:
       dir_light_.specular = color;
@@ -120,7 +120,7 @@ void Light::set_specular(const azer::Vector4& color) {
   }
 }
 
-void Light::set_position(const azer::Vector3& pos) {
+void Light::set_position(const Vector3& pos) {
   switch (type()) {
     case kDirectionalLight:
       CHECK(false) << "DirLight has no position";
@@ -137,16 +137,16 @@ void Light::set_position(const azer::Vector3& pos) {
   }
 }
 
-void Light::set_directional(const azer::Vector3& dir) {
+void Light::set_directional(const Vector3& dir) {
   switch (type()) {
     case kDirectionalLight:
-      dir_light_.direction = dir;
+      dir_light_.directional = dir;
       break;
     case kPointLight:
       CHECK(false) << "Point Light has no dir";
       break;
     case kSpotLight:
-      spot_light_.direction = dir;
+      spot_light_.directional = dir;
       break;
     default:
       CHECK(false);
@@ -172,15 +172,30 @@ bool Light::enable() const {
   return std::abs(v - 1.0f) < 0.00001f;
 }
 
-const azer::Vector3& Light::directional() const {
+const Vector3& Light::position() const {
   switch (type()) {
     case kDirectionalLight:
-      return dir_light_.direction;
+      CHECK(false) << " no position for DirLight";
+      return none_dir;
+    case kPointLight:
+      return point_light_.position;
+    case kSpotLight:
+      return spot_light_.position;
+    default:
+      CHECK(false);
+      return none_dir;
+  }
+}
+
+const Vector3& Light::directional() const {
+  switch (type()) {
+    case kDirectionalLight:
+      return dir_light_.directional;
     case kPointLight:
       CHECK(false) << " no directional for Point Light";
       return none_dir;
     case kSpotLight:
-      return spot_light_.direction;
+      return spot_light_.directional;
     default:
       CHECK(false);
       return none_dir;
@@ -271,7 +286,7 @@ void InitShadowMapCamera(const Light* light, Camera* camera) {
   camera->mutable_frustum()->set_aspect(rad);
   camera->mutable_frustum()->set_fovy(1.0f);
   Vector3 pos = light->spot_light().position;
-  Vector3 dir = light->spot_light().direction;
+  Vector3 dir = light->spot_light().directional;
   camera->reset(pos, pos + dir * 1.0f, pos + Vector3(0.0f, 1.0f, 0.0f));
 }
 }  // namespace lord

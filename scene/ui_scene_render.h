@@ -3,6 +3,7 @@
 #include "azer/render/render.h"
 #include "lordaeron/scene/scene_node_traverse.h"
 #include "lordaeron/scene/render_node.h"
+#include "lordaeron/scene/render_env_node.h"
 #include "lordaeron/scene/scene_renderer.h"
 
 namespace lord {
@@ -10,6 +11,21 @@ class SceneNode;
 class LightController;
 class UISceneRenderer;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
+
+class LordEnvNodeDelegate : public RenderEnvNodeDelegate {
+ public:
+  explicit LordEnvNodeDelegate(RenderEnvNode* envnode);
+  const Lights& lights() const { return all_lights_;}
+
+  void Reset() override;
+  void VisitSceneNode(SceneNode* render_node, RenderNode* node) override;
+  void OnUpdateNode(const azer::FrameArgs& args) override;
+  void UpdateParams(const azer::FrameArgs& args) override;
+ private:
+  SceneNodes light_nodes_;
+  Lights all_lights_;
+  DISALLOW_COPY_AND_ASSIGN(LordEnvNodeDelegate);
+};
 
 class LordSceneBVParamsAdapter : public azer::EffectParamsAdapter {
  public:

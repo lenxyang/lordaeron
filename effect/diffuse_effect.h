@@ -85,14 +85,14 @@ class RenderNodeDiffuseEffectAdapter : public EffectParamsAdapter {
   DISALLOW_COPY_AND_ASSIGN(RenderNodeDiffuseEffectAdapter);
 };
 
-class RenderEnvNodeDiffuseEffectAdapter : public EffectParamsAdapter {
+class LordEnvNodeDiffuseEffectAdapter : public EffectParamsAdapter {
  public:
-  RenderEnvNodeDiffuseEffectAdapter();
+  LordEnvNodeDiffuseEffectAdapter();
 
   EffectAdapterKey key() const override;
   void Apply(Effect* e, const EffectParamsProvider* params) const override;
  private:
-  DISALLOW_COPY_AND_ASSIGN(RenderEnvNodeDiffuseEffectAdapter);
+  DISALLOW_COPY_AND_ASSIGN(LordEnvNodeDiffuseEffectAdapter);
 };
 
 

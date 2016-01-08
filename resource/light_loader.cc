@@ -63,7 +63,7 @@ VariantResource LightLoader::Load(const ConfigNode* lnode,
     light.ambient = ambient;
     light.specular = specular;
     float inner_angle, outer_angle;
-    CHECK(lnode->GetChildTextAsVec3("directional", &light.direction))
+    CHECK(lnode->GetChildTextAsVec3("directional", &light.directional))
         << "light node has directional";
     CHECK(lnode->GetChildTextAsFloat("falloff", &light.falloff));
     CHECK(lnode->GetChildTextAsFloat("range", &light.range));
@@ -78,7 +78,7 @@ VariantResource LightLoader::Load(const ConfigNode* lnode,
     light.diffuse = diffuse;
     light.ambient = ambient;
     light.specular = specular;
-    CHECK(lnode->GetChildTextAsVec3("directional", &light.direction))
+    CHECK(lnode->GetChildTextAsVec3("directional", &light.directional))
         << "light node has directional";
     resource.light = new Light(light);
   } else {

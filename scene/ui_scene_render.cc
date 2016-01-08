@@ -64,8 +64,9 @@ bool LordObjectNodeRenderDelegate::Init() {
   if (scene_node->type() == kObjectSceneNode) {
     mesh_ = scene_node->mutable_data()->GetMesh();
     mesh_->AddProvider(node_);
-    if (node_->GetEnvNode())
-      mesh_->AddProvider(node_->GetEnvNode());
+    if (node_->GetEnvNode()) {
+      mesh_->AddProvider(node_->GetEnvNode()->delegate());
+    }
   }
 
   bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
@@ -144,12 +145,16 @@ class SceneNodeDelegateFactory : public RenderNodeDelegateFactory {
  public:
   SceneNodeDelegateFactory(UISceneRenderer* renderer)
       : tree_renderer_(renderer) {}
-  scoped_ptr<RenderNodeDelegate> CreateDelegate(RenderNode* node) override;
+  scoped_ptr<RenderNodeDelegate> CreateRenderDelegate(RenderNode* node) override;
+
+  RenderEnvNodeDelegatePtr CreateEnvDelegate(RenderEnvNode* n) override {
+    return RenderEnvNodeDelegatePtr(new LordEnvNodeDelegate(n));
+  }
  private:
   UISceneRenderer* tree_renderer_;
 };
 scoped_ptr<RenderNodeDelegate>
-SceneNodeDelegateFactory::CreateDelegate(RenderNode* node) {
+SceneNodeDelegateFactory::CreateRenderDelegate(RenderNode* node) {
   switch (node->GetSceneNode()->type()) {
     case kEnvSceneNode:
       return NULL;
@@ -259,5 +264,39 @@ MeshPtr CreateNormalLineMeshForSceneNode(SceneNode* node) {
   }
   
   return normal_mesh;
+}
+
+// class LordEnvNodeDelegate
+LordEnvNodeDelegate::LordEnvNodeDelegate(RenderEnvNode* envnode)
+    : RenderEnvNodeDelegate(envnode) {
+}
+
+void LordEnvNodeDelegate::Reset() {
+}
+
+void LordEnvNodeDelegate::VisitSceneNode(SceneNode* scene_node, RenderNode* node) {
+  if (scene_node->type() == kLampSceneNode) {
+    light_nodes_.push_back(scene_node);
+  }
+}
+
+void LordEnvNodeDelegate::OnUpdateNode(const azer::FrameArgs& args) {
+}
+
+void LordEnvNodeDelegate::UpdateParams(const FrameArgs& args) {
+  all_lights_.clear();
+  RenderEnvNode* parent = node()->parent();
+  if (parent) {
+    LordEnvNodeDelegate* pdel = static_cast<LordEnvNodeDelegate*>(parent->delegate());
+    all_lights_ = pdel->all_lights_;
+  }
+
+  for (auto iter = light_nodes_.begin(); iter != light_nodes_.end(); ++iter) {
+    SceneNode* node = iter->get();
+    DCHECK(node->type() == kLampSceneNode);
+    Light* light = node->mutable_data()->light();
+    light->set_enable(node->visible());
+    all_lights_.push_back(node->mutable_data()->light());
+  }
 }
 }  // namespace lord

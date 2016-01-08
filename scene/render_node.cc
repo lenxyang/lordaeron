@@ -141,10 +141,6 @@ void RenderNode::UpdateParams(const azer::FrameArgs& args) {
 }
 
 bool RenderNode::Init() {
-  if (node_->type() == kLampSceneNode) {
-    GetEnvNode()->AddLightNode(node_);
-  }
-
   return true;
 }
 
@@ -180,12 +176,11 @@ RenderTreeBuilder::RenderTreeBuilder(RenderNodeDelegateFactory* fa)
 RenderTreeBuilder::~RenderTreeBuilder() {
 }
 
-RenderNodePtr RenderTreeBuilder::Build(SceneNode* root, 
-                                                 const Camera* camera) {
+RenderNodePtr RenderTreeBuilder::Build(SceneNode* root, const Camera* camera) {
   DCHECK(cur_ == NULL);
   DCHECK(factory_ != NULL);
   RenderNodePtr render_root = new RenderNode(root);
-  render_root->SetDelegate(factory_->CreateDelegate(render_root.get()).Pass());
+  render_root->SetDelegate(factory_->CreateRenderDelegate(render_root.get()).Pass());
   render_root->SetEnvNode(NULL);
   render_root->SetCamera(camera);
   cur_ = render_root.get();
@@ -209,13 +204,18 @@ bool RenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
   if (node->type() == kEnvSceneNode) {
     CHECK(node->parent() != NULL);
     RenderEnvNodePtr envnode = new RenderEnvNode(cur_->GetEnvNode());
+    envnode->set_delegate(factory_->CreateEnvDelegate(envnode));
     cur_->SetEnvNode(envnode);
   } else {
     RenderNodePtr newnode = new RenderNode(node);
     if (newnode) {
-      newnode->SetEnvNode(cur_->GetEnvNode());
-      newnode->SetDelegate(factory_->CreateDelegate(newnode).Pass());
+      RenderEnvNode* envnode = cur_->GetEnvNode();
+      newnode->SetEnvNode(envnode);
+      newnode->SetDelegate(factory_->CreateRenderDelegate(newnode).Pass());
       newnode->Init();
+      if (envnode) {
+        envnode->delegate()->VisitSceneNode(node, newnode);
+      }
       cur_->AddChild(newnode);
       cur_ = newnode;
     }

@@ -21,24 +21,24 @@ class ColorEffectAdapter : public EffectParamsAdapter {
   DISALLOW_COPY_AND_ASSIGN(ColorEffectAdapter);
 };
 
-class SceneRenderNodeEffectAdapter : public EffectParamsAdapter {
+class RenderNodeEffectAdapter : public EffectParamsAdapter {
  public:
-  SceneRenderNodeEffectAdapter();
+  RenderNodeEffectAdapter();
 
   EffectAdapterKey key() const override;
   void Apply(Effect* e, const EffectParamsProvider* params) const override;
  private:
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderNodeEffectAdapter);
+  DISALLOW_COPY_AND_ASSIGN(RenderNodeEffectAdapter);
 };
 
-class SceneRenderEnvNodeEffectAdapter : public EffectParamsAdapter {
+class LordEnvNodeDelegateEffectAdapter : public EffectParamsAdapter {
  public:
-  SceneRenderEnvNodeEffectAdapter();
+  LordEnvNodeDelegateEffectAdapter();
 
   EffectAdapterKey key() const override;
   void Apply(Effect* e, const EffectParamsProvider* params) const override;
  private:
-  DISALLOW_COPY_AND_ASSIGN(SceneRenderEnvNodeEffectAdapter);
+  DISALLOW_COPY_AND_ASSIGN(LordEnvNodeDelegateEffectAdapter);
 };
 }  // namespace sandbox
 }  // namespace lord

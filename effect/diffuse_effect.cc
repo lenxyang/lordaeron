@@ -9,6 +9,7 @@
 #include "azer/render/util/effects/vertex_desc.h"
 #include "lordaeron/scene/render_env_node.h"
 #include "lordaeron/scene/render_node.h"
+#include "lordaeron/scene/ui_scene_render.h"
 #include "azer/render/util/shader_util.h"
 
 using namespace azer;
@@ -150,19 +151,19 @@ void RenderNodeDiffuseEffectAdapter::Apply(
   effect->SetPV(provider->camera()->GetProjViewMatrix());
 }
 
-RenderEnvNodeDiffuseEffectAdapter::RenderEnvNodeDiffuseEffectAdapter() {
+LordEnvNodeDiffuseEffectAdapter::LordEnvNodeDiffuseEffectAdapter() {
 }
 
-EffectAdapterKey RenderEnvNodeDiffuseEffectAdapter::key() const {
+EffectAdapterKey LordEnvNodeDiffuseEffectAdapter::key() const {
   return std::make_pair(typeid(DiffuseEffect).name(),
-                        typeid(RenderEnvNode).name());
+                        typeid(LordEnvNodeDelegate).name());
 }
 
-void RenderEnvNodeDiffuseEffectAdapter::Apply(
+void LordEnvNodeDiffuseEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const  {
   CHECK(typeid(*e) == typeid(DiffuseEffect));
-  CHECK(typeid(*params) == typeid(RenderEnvNode));
-  const RenderEnvNode* provider = (const RenderEnvNode*)params;
+  CHECK(typeid(*params) == typeid(LordEnvNodeDelegate));
+  const LordEnvNodeDelegate* provider = (const LordEnvNodeDelegate*)params;
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   for (auto iter = provider->lights().begin(); 
        iter != provider->lights().end();

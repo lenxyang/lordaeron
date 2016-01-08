@@ -21,7 +21,7 @@ class MyRenderWindow : public lord::FrameWindow {
   void OnRenderFrame(const azer::FrameArgs& args, Renderer* renderer) override;
  private:
   sandbox::MyEffectPtr effect_;
-  SceneRenderNodePtr bvolumn_root_;
+  RenderNodePtr bvolumn_root_;
   scoped_ptr<UISceneRenderer> tree_render_;
   scoped_ptr<FileSystem> fsystem_;
   DISALLOW_COPY_AND_ASSIGN(MyRenderWindow);
@@ -34,8 +34,8 @@ int main(int argc, char* argv[]) {
   lord::LordEnv* env = lord::LordEnv::instance();
   azer::EffectAdapterContext* adapterctx = env->GetEffectAdapterContext();
   adapterctx->RegisteAdapter(new lord::sandbox::ColorEffectAdapter);
-  adapterctx->RegisteAdapter(new lord::sandbox::SceneRenderNodeEffectAdapter);
-  adapterctx->RegisteAdapter(new lord::sandbox::SceneRenderEnvNodeEffectAdapter);
+  adapterctx->RegisteAdapter(new lord::sandbox::RenderNodeEffectAdapter);
+  adapterctx->RegisteAdapter(new lord::sandbox::LordEnvNodeDelegateEffectAdapter);
 
   gfx::Rect init_bounds(0, 0, 800, 600);
   lord::MyRenderWindow* window(new lord::MyRenderWindow(init_bounds));
