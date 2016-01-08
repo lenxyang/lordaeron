@@ -17,8 +17,7 @@ class LordEnvNodeDelegate : public RenderEnvNodeDelegate {
   explicit LordEnvNodeDelegate(RenderEnvNode* envnode);
   const Lights& lights() const { return all_lights_;}
 
-  void Reset() override;
-  void VisitSceneNode(SceneNode* render_node, RenderNode* node) override;
+  void Init(SceneNode* render_node, RenderNode* node) override;
   void OnUpdateNode(const azer::FrameArgs& args) override;
   void UpdateParams(const azer::FrameArgs& args) override;
  private:

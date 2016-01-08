@@ -271,19 +271,17 @@ LordEnvNodeDelegate::LordEnvNodeDelegate(RenderEnvNode* envnode)
     : RenderEnvNodeDelegate(envnode) {
 }
 
-void LordEnvNodeDelegate::Reset() {
-}
-
-void LordEnvNodeDelegate::VisitSceneNode(SceneNode* scene_node, RenderNode* node) {
-  if (scene_node->type() == kLampSceneNode) {
-    light_nodes_.push_back(scene_node);
+void LordEnvNodeDelegate::Init(SceneNode* scene_node, RenderNode* node) {
+  int32 child_count = scene_node->child_count();
+  for (int32 i = 0; i < child_count; ++i) {
+    SceneNode* child = scene_node->child_at(i);
+    if (child->type() == kLampSceneNode) {
+      light_nodes_.push_back(child);
+    }
   }
 }
 
 void LordEnvNodeDelegate::OnUpdateNode(const azer::FrameArgs& args) {
-}
-
-void LordEnvNodeDelegate::UpdateParams(const FrameArgs& args) {
   all_lights_.clear();
   RenderEnvNode* parent = node()->parent();
   if (parent) {
@@ -298,5 +296,8 @@ void LordEnvNodeDelegate::UpdateParams(const FrameArgs& args) {
     light->set_enable(node->visible());
     all_lights_.push_back(node->mutable_data()->light());
   }
+}
+
+void LordEnvNodeDelegate::UpdateParams(const FrameArgs& args) {
 }
 }  // namespace lord

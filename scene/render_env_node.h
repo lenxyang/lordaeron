@@ -24,8 +24,7 @@ class RenderEnvNodeDelegate : public azer::EffectParamsProvider {
   RenderEnvNode* node() { return envnode_;}
   const RenderEnvNode* node() const { return envnode_;}
 
-  virtual void Reset() = 0;
-  virtual void VisitSceneNode(SceneNode* node, RenderNode* render_node) = 0;
+  virtual void Init(SceneNode* node, RenderNode* render_node) = 0;
   virtual void OnUpdateNode(const azer::FrameArgs& args) = 0;
 
   // override form azer::EffectParamsProvider

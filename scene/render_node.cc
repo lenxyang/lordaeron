@@ -195,33 +195,28 @@ RenderNodePtr RenderTreeBuilder::Build(SceneNode* root, const Camera* camera) {
 void RenderTreeBuilder::OnTraverseBegin(SceneNode* root) {
 }
 
-bool RenderTreeBuilder::OnTraverseNodeEnter(SceneNode* node) {
-  if (!node->visible()) {
-    return false;
-  }
-
-  if (!node->parent())
+bool RenderTreeBuilder::OnTraverseNodeEnter(SceneNode* scene_node) {
+  if (!scene_node->parent())
     return true;
 
-  if (node->type() == kEnvSceneNode) {
-    CHECK(node->parent() != NULL);
-    RenderEnvNodePtr envnode = new RenderEnvNode(cur_->GetEnvNode());
-    envnode->set_delegate(factory_->CreateEnvDelegate(envnode));
+  RenderNodePtr render_node = new RenderNode(scene_node);
+  RenderEnvNode* envnode = cur_->GetEnvNode();
+  if (scene_node->type() == kEnvSceneNode) {
+    CHECK(scene_node->parent() != NULL);
+    RenderEnvNode* parent = cur_->GetEnvNode();
+    envnode = new RenderEnvNode(NULL);
+    parent->AddChild(envnode);
+    RenderEnvNodeDelegatePtr delegate = factory_->CreateEnvDelegate(envnode);
+    delegate->Init(scene_node, render_node);
+    envnode->set_delegate(delegate);
     cur_->SetEnvNode(envnode);
-  } else {
-    RenderNodePtr newnode = new RenderNode(node);
-    if (newnode) {
-      RenderEnvNode* envnode = cur_->GetEnvNode();
-      newnode->SetEnvNode(envnode);
-      newnode->SetDelegate(factory_->CreateRenderDelegate(newnode).Pass());
-      newnode->Init();
-      if (envnode) {
-        envnode->delegate()->VisitSceneNode(node, newnode);
-      }
-      cur_->AddChild(newnode);
-      cur_ = newnode;
-    }
   }
+
+  render_node->SetEnvNode(envnode);
+  render_node->SetDelegate(factory_->CreateRenderDelegate(render_node).Pass());
+  render_node->Init();
+  cur_->AddChild(render_node);
+  cur_ = render_node;
   return true;
 }
 

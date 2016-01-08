@@ -3,6 +3,7 @@
 #include "base/logging.h"
 #include "azer/render/render.h"
 #include "lordaeron/scene/render_node.h"
+#include "lordaeron/scene/render_env_node.h"
 #include "lordaeron/scene/scene_node.h"
 
 namespace lord {
@@ -24,6 +25,7 @@ void SceneRenderer::Init(SceneNode* root, const Camera* camera) {
 }
 
 void SceneRenderer::Update(const FrameArgs& args) {
+  root_->GetEnvNode()->UpdateRecusive(args);
   OnFrameUpdateBegin(args);
   UpdateNodeRecusive(root_, args);
   OnFrameUpdateEnd(args);
