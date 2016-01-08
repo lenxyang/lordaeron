@@ -67,6 +67,11 @@ SceneNodePtr MyRenderWindow::InitScene() {
 
   tree_render_.reset(new UISceneRenderer);
   tree_render_->Init(root, &camera());
+
+  LOG(ERROR) << "Render Tree:\n"
+             << tree_render_->root()->DumpTree();
+  LOG(ERROR) << "Render Env Tree:\n"
+             << tree_render_->root()->GetEnvNode()->DumpTree();
   return root;
 }
 

@@ -58,6 +58,8 @@ class RenderEnvNode : public ::base::RefCounted<RenderEnvNode> {
     return const_cast<const RenderEnvNode*>(
         const_cast<RenderEnvNode*>(this)->parent());
   }
+
+  void UpdateRecusive(const azer::FrameArgs& args);
   int32 child_count() const;
   RenderEnvNode* child_at(int32 index);
   void AddChild(RenderEnvNode* child);
@@ -72,5 +74,4 @@ class RenderEnvNode : public ::base::RefCounted<RenderEnvNode> {
   RenderEnvNodeDelegatePtr delegate_;
   DISALLOW_COPY_AND_ASSIGN(RenderEnvNode);
 };
-
 }  // namespace lord

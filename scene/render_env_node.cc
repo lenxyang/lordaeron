@@ -106,4 +106,12 @@ std::string RenderEnvNode::DumpNode(const RenderEnvNode* node,
   }
   return ss.str();
 }
+
+void RenderEnvNode::UpdateRecusive(const FrameArgs& args) {
+  delegate()->OnUpdateNode(args);
+  for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
+    (*iter)->UpdateRecusive(args);
+  }
+}
+
 }  // namespace lord

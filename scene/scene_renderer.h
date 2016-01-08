@@ -7,6 +7,7 @@ namespace lord {
 
 class RenderNodeDelegateFactory;
 class RenderNode;
+class RenderEnvNode;
 typedef scoped_refptr<RenderNode> RenderNodePtr;
 class SceneNode;
 

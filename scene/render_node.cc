@@ -181,7 +181,9 @@ RenderNodePtr RenderTreeBuilder::Build(SceneNode* root, const Camera* camera) {
   DCHECK(factory_ != NULL);
   RenderNodePtr render_root = new RenderNode(root);
   render_root->SetDelegate(factory_->CreateRenderDelegate(render_root.get()).Pass());
-  render_root->SetEnvNode(NULL);
+  RenderEnvNodePtr envnode = new RenderEnvNode(NULL);
+  envnode->set_delegate(factory_->CreateEnvDelegate(envnode));
+  render_root->SetEnvNode(envnode);
   render_root->SetCamera(camera);
   cur_ = render_root.get();
   SceneNodeTraverse traverser(this);
