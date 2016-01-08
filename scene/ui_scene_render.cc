@@ -141,12 +141,12 @@ void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
 }
 
 namespace {
-class SceneNodeDelegateFactory : public RenderNodeDelegateFactory {
+class TreeBuildDelegate : public RenderTreeBuilderDelegate {
  public:
-  SceneNodeDelegateFactory(UISceneRenderer* renderer)
+  TreeBuildDelegate(UISceneRenderer* renderer)
       : tree_renderer_(renderer) {}
+  bool NeedRenderNode(SceneNode* node) override { return true;}
   scoped_ptr<RenderNodeDelegate> CreateRenderDelegate(RenderNode* node) override;
-
   RenderEnvNodeDelegatePtr CreateEnvDelegate(RenderEnvNode* n) override {
     return RenderEnvNodeDelegatePtr(new LordEnvNodeDelegate(n));
   }
@@ -154,7 +154,7 @@ class SceneNodeDelegateFactory : public RenderNodeDelegateFactory {
   UISceneRenderer* tree_renderer_;
 };
 scoped_ptr<RenderNodeDelegate>
-SceneNodeDelegateFactory::CreateRenderDelegate(RenderNode* node) {
+TreeBuildDelegate::CreateRenderDelegate(RenderNode* node) {
   switch (node->GetSceneNode()->type()) {
     case kEnvSceneNode:
       return NULL;
@@ -174,8 +174,8 @@ SceneNodeDelegateFactory::CreateRenderDelegate(RenderNode* node) {
 
 // class UISceneRenderer
 UISceneRenderer::UISceneRenderer() {
-  scoped_ptr<SceneNodeDelegateFactory> factory(new SceneNodeDelegateFactory(this));
-  SetDelegateFactory(factory.Pass());
+  scoped_ptr<TreeBuildDelegate> delegate(new TreeBuildDelegate(this));
+  SetTreeBuildDelegate(delegate.Pass());
 }
 
 void UISceneRenderer::OnFrameUpdateBegin(const azer::FrameArgs& args) {

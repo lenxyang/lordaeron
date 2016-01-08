@@ -167,10 +167,19 @@ void RenderNode::CalcParams(const azer::FrameArgs& args) {
   pvw_ = std::move(pv_ * world_);
 }
 
+// class RenderTreeBuilderDelegate
+bool RenderTreeBuilderDelegate::NeedRenderEnvNode(SceneNode* node) {
+  if (node->type() != kEnvSceneNode) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 // class RenderTreeBuilder
-RenderTreeBuilder::RenderTreeBuilder(RenderNodeDelegateFactory* fa) 
+RenderTreeBuilder::RenderTreeBuilder(RenderTreeBuilderDelegate* delegate) 
     : cur_(NULL),
-      factory_(fa) {
+      delegate_(delegate) {
 }
 
 RenderTreeBuilder::~RenderTreeBuilder() {
@@ -178,11 +187,12 @@ RenderTreeBuilder::~RenderTreeBuilder() {
 
 RenderNodePtr RenderTreeBuilder::Build(SceneNode* root, const Camera* camera) {
   DCHECK(cur_ == NULL);
-  DCHECK(factory_ != NULL);
+  DCHECK(delegate_ != NULL);
   RenderNodePtr render_root = new RenderNode(root);
-  render_root->SetDelegate(factory_->CreateRenderDelegate(render_root.get()).Pass());
+  render_root->SetDelegate(delegate_->CreateRenderDelegate(
+      render_root.get()).Pass());
   RenderEnvNodePtr envnode = new RenderEnvNode(NULL);
-  envnode->set_delegate(factory_->CreateEnvDelegate(envnode));
+  envnode->set_delegate(delegate_->CreateEnvDelegate(envnode));
   render_root->SetEnvNode(envnode);
   render_root->SetCamera(camera);
   cur_ = render_root.get();
@@ -206,18 +216,22 @@ bool RenderTreeBuilder::OnTraverseNodeEnter(SceneNode* scene_node) {
     RenderEnvNode* parent = cur_->GetEnvNode();
     envnode = new RenderEnvNode(NULL);
     parent->AddChild(envnode);
-    RenderEnvNodeDelegatePtr delegate = factory_->CreateEnvDelegate(envnode);
+    RenderEnvNodeDelegatePtr delegate = delegate_->CreateEnvDelegate(envnode);
     delegate->Init(scene_node, render_node);
     envnode->set_delegate(delegate);
     cur_->SetEnvNode(envnode);
   }
 
   render_node->SetEnvNode(envnode);
-  render_node->SetDelegate(factory_->CreateRenderDelegate(render_node).Pass());
+  render_node->SetDelegate(delegate_->CreateRenderDelegate(render_node).Pass());
   render_node->Init();
-  cur_->AddChild(render_node);
-  cur_ = render_node;
-  return true;
+  if (delegate_->NeedRenderNode(scene_node)) {
+    cur_->AddChild(render_node);
+    cur_ = render_node;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void RenderTreeBuilder::OnTraverseNodeExit(SceneNode* node) {

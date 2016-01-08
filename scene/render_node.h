@@ -90,15 +90,17 @@ class RenderNode : public azer::EffectParamsProvider {
   DISALLOW_COPY_AND_ASSIGN(RenderNode);
 };
 
-class RenderNodeDelegateFactory {
+class RenderTreeBuilderDelegate {
  public:
+  virtual bool NeedRenderNode(SceneNode* node) = 0;
+  virtual bool NeedRenderEnvNode(SceneNode* node);
   virtual scoped_ptr<RenderNodeDelegate> CreateRenderDelegate(RenderNode* n) = 0;
   virtual RenderEnvNodeDelegatePtr CreateEnvDelegate(RenderEnvNode* n) = 0;
 };
 
 class RenderTreeBuilder : public SceneNodeTraverseDelegate {
  public:
-  explicit RenderTreeBuilder(RenderNodeDelegateFactory* factory);
+  explicit RenderTreeBuilder(RenderTreeBuilderDelegate* delegate);
   ~RenderTreeBuilder();
 
   RenderNodePtr Build(SceneNode* node, const azer::Camera* camera);
@@ -111,7 +113,7 @@ class RenderTreeBuilder : public SceneNodeTraverseDelegate {
  private:
   void UpdateNodeWorld(SceneNode* node);
   RenderNode* cur_;
-  RenderNodeDelegateFactory* factory_;
+  RenderTreeBuilderDelegate* delegate_;
   DISALLOW_COPY_AND_ASSIGN(RenderTreeBuilder);
 };
 }  // namespace lord

@@ -11,16 +11,15 @@ using namespace azer;
 SceneRenderer::SceneRenderer() : camera_(NULL) {
 }
 
-void SceneRenderer::SetDelegateFactory(
-    scoped_ptr<RenderNodeDelegateFactory> factory) {
-  factory_ = factory.Pass();
+void SceneRenderer::SetTreeBuildDelegate(scoped_ptr<RenderTreeBuilderDelegate> delegate) {
+  delegate_ = delegate.Pass();
 }
 
 void SceneRenderer::Init(SceneNode* root, const Camera* camera) {
-  DCHECK(factory_.get());
+  DCHECK(delegate_.get());
   CHECK(root_ == NULL);
   camera_ = camera;
-  RenderTreeBuilder builder(factory_.get());
+  RenderTreeBuilder builder(delegate_.get());
   root_ = builder.Build(root, camera);
 }
 

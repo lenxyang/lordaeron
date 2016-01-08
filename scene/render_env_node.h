@@ -37,6 +37,13 @@ class RenderEnvNodeDelegate : public azer::EffectParamsProvider {
   DISALLOW_COPY_AND_ASSIGN(RenderEnvNodeDelegate);
 };
 
+class FakeEnvNode : RenderEnvNodeDelegate {
+ public:
+  FakeEnvNode(RenderEnvNode* envnode) :  RenderEnvNodeDelegate(envnode) {}
+  void Init(SceneNode* node, RenderNode* render_node) override {}
+  void OnUpdateNode(const azer::FrameArgs& args) override {}
+};
+
 class RenderEnvNode : public ::base::RefCounted<RenderEnvNode> {
  public:
   RenderEnvNode();
@@ -73,4 +80,5 @@ class RenderEnvNode : public ::base::RefCounted<RenderEnvNode> {
   RenderEnvNodeDelegatePtr delegate_;
   DISALLOW_COPY_AND_ASSIGN(RenderEnvNode);
 };
+
 }  // namespace lord

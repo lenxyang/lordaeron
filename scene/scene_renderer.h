@@ -4,8 +4,7 @@
 #include "azer/render/render.h"
 
 namespace lord {
-
-class RenderNodeDelegateFactory;
+class RenderTreeBuilderDelegate;
 class RenderNode;
 class RenderEnvNode;
 typedef scoped_refptr<RenderNode> RenderNodePtr;
@@ -17,7 +16,7 @@ class SceneRenderer {
 
   RenderNode* root() { return root_.get();}
   const azer::Camera* camera() const { return camera_;}
-  void SetDelegateFactory(scoped_ptr<RenderNodeDelegateFactory> factory);
+  void SetTreeBuildDelegate(scoped_ptr<RenderTreeBuilderDelegate> delegate);
   void Init(SceneNode* root, const azer::Camera* camera);
   void Update(const azer::FrameArgs& args);
   void Render(azer::Renderer* renderer);
@@ -32,7 +31,7 @@ class SceneRenderer {
   void UpdateNodeRecusive(lord::RenderNode* node, const azer::FrameArgs& args);
   void RenderNodeRecusive(lord::RenderNode* node, azer::Renderer* renderer);
   RenderNodePtr root_;
-  scoped_ptr<RenderNodeDelegateFactory> factory_;
+  scoped_ptr<RenderTreeBuilderDelegate> delegate_;
   const azer::Camera* camera_;
   DISALLOW_COPY_AND_ASSIGN(SceneRenderer);
 };
