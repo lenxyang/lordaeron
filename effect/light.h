@@ -65,7 +65,6 @@ class Light : public ::base::RefCounted<Light> {
   explicit Light(const PointLight& light);
   explicit Light(const SpotLight& light);
   LightType type() const { return type_;}
-  void InitShadowmapRenderer(const gfx::Size& size);
 
   const azer::Vector3& position() const;
   const azer::Vector3& directional() const;
@@ -91,20 +90,11 @@ class Light : public ::base::RefCounted<Light> {
   void AddObserver(LightObserver* observer);
   void RemoveObserver(LightObserver* observer);
   bool HasObserver(LightObserver* observer) const;
-
-  azer::Renderer* shadowmap_renderer() { return shadowmap_renderer_;}
-  azer::Texture* shadowmap() { return shadowmap_;}
-  const azer::Camera& camera() const { return camera_;}
-  azer::Camera* mutable_camera() { return &camera_;}
  private:
-  void InitSpotLightShadowmapRenderer(const gfx::Size& size);
   LightType type_;
   DirLight dir_light_;
   PointLight point_light_;
   SpotLight spot_light_;
-  azer::Camera camera_;
-  azer::TexturePtr shadowmap_;
-  azer::RendererPtr shadowmap_renderer_;
   ObserverList<LightObserver> observers_;
   DISALLOW_COPY_AND_ASSIGN(Light);
 };
