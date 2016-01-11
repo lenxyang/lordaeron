@@ -114,7 +114,6 @@ DiffuseColorProvider::DiffuseColorProvider() {
   color_ = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 }
 DiffuseColorProvider::~DiffuseColorProvider() {}
-void DiffuseColorProvider::UpdateParams(const FrameArgs& args) {}
 
 // class DiffuseColorEffectAdapter
 DiffuseColorEffectAdapter::DiffuseColorEffectAdapter() {}

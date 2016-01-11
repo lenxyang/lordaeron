@@ -22,10 +22,11 @@ class SceneRenderer {
   void Render(azer::Renderer* renderer);
 
   virtual void OnFrameUpdateBegin(const azer::FrameArgs& args) {}
-  virtual void OnFrameRenderBegin(azer::Renderer* renderer) {}
   virtual bool OnUpdateNode(RenderNode* node, const azer::FrameArgs& args);
-  virtual bool OnRenderNode(RenderNode* node, azer::Renderer* renderer);
   virtual void OnFrameUpdateEnd(const azer::FrameArgs& args) {}
+
+  virtual void OnFrameRenderBegin(azer::Renderer* renderer) {}
+  virtual bool OnRenderNode(RenderNode* node, azer::Renderer* renderer);
   virtual void OnFrameRenderEnd(azer::Renderer* renderer) {}
  protected:
   void UpdateNodeRecusive(lord::RenderNode* node, const azer::FrameArgs& args);

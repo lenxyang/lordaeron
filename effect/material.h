@@ -11,7 +11,6 @@ class Material : public azer::EffectParamsProvider {
   ~Material() {}
 
   virtual bool Init(const azer::ConfigNode* node, ResourceLoadContext* ctx) = 0;
-  void UpdateParams(const azer::FrameArgs& args) override {}
  private:
   DISALLOW_COPY_AND_ASSIGN(Material);
 };

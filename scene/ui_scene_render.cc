@@ -33,6 +33,7 @@ void LordSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) co
 LordSceneBVRenderProvider::LordSceneBVRenderProvider(RenderNode* node)
     : color_(Vector4(1.0f, 0.0f, 0.0f, 0.3f)), node_(node) {}
 
+/*
 void LordSceneBVRenderProvider::UpdateParams(const azer::FrameArgs& args) {
   SceneNode* snode = node_->GetSceneNode();
   Vector3 vmin = snode->vmin();
@@ -43,6 +44,7 @@ void LordSceneBVRenderProvider::UpdateParams(const azer::FrameArgs& args) {
   world_ = std::move(node_->GetWorld() * Translate(center)
                      * scale_);
 }
+*/
 
 const azer::Matrix4& LordSceneBVRenderProvider::GetPV() const {
   return node_->GetPV();
@@ -79,12 +81,6 @@ bool LordObjectNodeRenderDelegate::Init() {
 }
 
 void LordObjectNodeRenderDelegate::Update(const FrameArgs& args) {
-  if (mesh_.get()) {
-    mesh_->UpdateProviderParams(args);
-  }
-  if (normal_mesh_.get())
-    normal_mesh_->UpdateProviderParams(args);
-  bounding_mesh_->UpdateProviderParams(args);
 }
 
 void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
@@ -296,8 +292,5 @@ void LordEnvNodeDelegate::OnUpdateNode(const azer::FrameArgs& args) {
     light->set_enable(node->visible());
     all_lights_.push_back(node->mutable_data()->light());
   }
-}
-
-void LordEnvNodeDelegate::UpdateParams(const FrameArgs& args) {
 }
 }  // namespace lord

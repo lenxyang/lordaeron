@@ -17,8 +17,8 @@ class LightController : public ::base::RefCounted<LightController> {
  public:
   explicit LightController(RenderNode* node);
   azer::Mesh* GetLightMesh() { return light_mesh_.get();}
-  virtual void Update(const azer::FrameArgs& args) = 0;
-  virtual void Render(azer::Renderer* renderer) = 0;
+  virtual void Update(const azer::FrameArgs& args);
+  virtual void Render(azer::Renderer* renderer);
  protected:
   azer::MeshPtr light_mesh_;
   DiffuseEffectPtr effect_;
@@ -74,7 +74,6 @@ class LightControllerProvider : public azer::EffectParamsProvider {
   void SetLocalTransform(const azer::Matrix4& local);
 
   // override from EffectParamsProvider
-  void UpdateParams(const azer::FrameArgs& args) override;
   const azer::Vector4& color() const { return color_;}
   const azer::Vector4& emission() const { return emission_;}
   const azer::Matrix4& GetWorld() const { return world_;}
@@ -93,7 +92,6 @@ class LightControllerColorProvider : public azer::EffectParamsProvider {
   explicit LightControllerColorProvider(const azer::Vector4& color);
   LightControllerColorProvider();
   // override from EffectParamsProvider
-  void UpdateParams(const azer::FrameArgs& args) override {}
   const azer::Vector4& color() const { return color_;}
  private:
   azer::Vector4 color_;

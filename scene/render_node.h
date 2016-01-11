@@ -44,7 +44,6 @@ class RenderNode : public azer::EffectParamsProvider {
   const RenderEnvNode* GetEnvNode() const { return envnode_;}
   void  SetEnvNode(RenderEnvNode* node);
 
-  void UpdateParams(const azer::FrameArgs& args) override;
   const azer::Matrix4& GetWorld() const { return world_;}
   const azer::Matrix4& GetPVW() const { return pvw_;}
   const azer::Matrix4& GetPV() const { return pv_;}

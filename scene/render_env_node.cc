@@ -15,9 +15,6 @@ RenderEnvNodeDelegate::RenderEnvNodeDelegate(RenderEnvNode* envnode)
     : envnode_(envnode) {
 }
 
-void RenderEnvNodeDelegate::UpdateParams(const azer::FrameArgs& args) {
-}
-
 // class RenderEnvNode
 RenderEnvNode::RenderEnvNode() 
     : parent_(NULL),

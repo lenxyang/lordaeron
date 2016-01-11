@@ -26,12 +26,6 @@ class RenderEnvNodeDelegate : public azer::EffectParamsProvider {
 
   virtual void Init(SceneNode* node, RenderNode* render_node) = 0;
   virtual void OnUpdateNode(const azer::FrameArgs& args) = 0;
-
-  // override form azer::EffectParamsProvider
-  // should not update there, because the object will shared by many
-  // SceneNode, so it neednot update for every one,
-  // we will update the params from OnUpdateNode
-  void UpdateParams(const azer::FrameArgs& args) override;
  private:
   RenderEnvNode* envnode_;
   DISALLOW_COPY_AND_ASSIGN(RenderEnvNodeDelegate);

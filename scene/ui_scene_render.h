@@ -19,7 +19,6 @@ class LordEnvNodeDelegate : public RenderEnvNodeDelegate {
 
   void Init(SceneNode* render_node, RenderNode* node) override;
   void OnUpdateNode(const azer::FrameArgs& args) override;
-  void UpdateParams(const azer::FrameArgs& args) override;
  private:
   SceneNodes light_nodes_;
   Lights all_lights_;
@@ -37,7 +36,6 @@ class LordSceneBVParamsAdapter : public azer::EffectParamsAdapter {
 class LordSceneBVRenderProvider : public azer::EffectParamsProvider {
  public:
   explicit LordSceneBVRenderProvider(RenderNode* node);
-  void UpdateParams(const azer::FrameArgs& args) override;
   const azer::Vector4& color() const { return color_;}
   const azer::Matrix4& GetWorld() const { return world_;}
   const azer::Matrix4& GetPV() const;

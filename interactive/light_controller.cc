@@ -86,11 +86,10 @@ LightController::LightController(RenderNode* node)
   provider_ = new LightControllerProvider(node);
 }
 
-void LightController::Update(const azer::FrameArgs& args) {
-  light_mesh_->UpdateProviderParams(args);
+void LightController::Update(const FrameArgs& args) {
 }
 
-void LightController::Render(azer::Renderer* renderer) {
+void LightController::Render(Renderer* renderer) {
   light_mesh_->Render(renderer);
 }
 
@@ -126,11 +125,11 @@ void PointLightController::InitControllerMesh() {
   controller_mesh_->AddMeshPart(part);
 }
 
-void PointLightController::Update(const azer::FrameArgs& args) {
+void PointLightController::Update(const FrameArgs& args) {
   LightController::Update(args);
 }
 
-void PointLightController::Render(azer::Renderer* renderer) {
+void PointLightController::Render(Renderer* renderer) {
   LightController::Render(renderer);
   if (node_->GetSceneNode()->picked()) {
     controller_mesh_->Render(renderer);
@@ -243,11 +242,11 @@ void SpotLightController::InitControllerMesh() {
   controller_mesh_->AddMeshPart(outer_cone);
 }
 
-void SpotLightController::Update(const azer::FrameArgs& args) {
+void SpotLightController::Update(const FrameArgs& args) {
   LightController::Update(args);
 }
 
-void SpotLightController::Render(azer::Renderer* renderer) {
+void SpotLightController::Render(Renderer* renderer) {
   {
     ScopedRenderState scoped_cull(renderer, render_state_);
     LightController::Render(renderer);
@@ -394,15 +393,13 @@ void DirLightController::InitMesh() {
 void DirLightController::InitControllerMesh() {
 }
 
-void DirLightController::Update(const azer::FrameArgs& args) {
+void DirLightController::Update(const FrameArgs& args) {
   LightController::Update(args);
 }
 
-void DirLightController::Render(azer::Renderer* renderer) {
+void DirLightController::Render(Renderer* renderer) {
   LightController::Render(renderer);
 }
-
-
 
 LightControllerProvider::LightControllerProvider(RenderNode* node) 
     : node_(node) {
@@ -412,16 +409,13 @@ LightControllerProvider::LightControllerProvider(RenderNode* node)
   local_transform_ = Matrix4::kIdentity;
 }
 
-const azer::Matrix4& LightControllerProvider::GetPV() const {
+const Matrix4& LightControllerProvider::GetPV() const {
   return node_->GetPV();
 }
 
-void LightControllerProvider::UpdateParams(const azer::FrameArgs& args) {
-  world_ = node_->GetWorld() * local_transform_;
-}
-
-void LightControllerProvider::SetLocalTransform(const azer::Matrix4& local) {
+void LightControllerProvider::SetLocalTransform(const Matrix4& local) {
   local_transform_ = local;
+  world_ = node_->GetWorld() * local_transform_;
 }
 
 LightControllerColorProvider::LightControllerColorProvider(const Vector4& c) 
@@ -431,7 +425,7 @@ LightControllerColorProvider::LightControllerColorProvider()
 
 // class LightControllerEffectAdapter
 LightControllerEffectAdapter::LightControllerEffectAdapter() {}
-const azer::EffectAdapterKey LightControllerEffectAdapter::kAdapterKey =
+const EffectAdapterKey LightControllerEffectAdapter::kAdapterKey =
     std::make_pair(typeid(DiffuseEffect).name(),
                    typeid(LightControllerProvider).name());
 
@@ -453,7 +447,7 @@ void LightControllerEffectAdapter::Apply(
 
 // class LightControllerColorEffectAdapter
 LightControllerColorEffectAdapter::LightControllerColorEffectAdapter() {}
-const azer::EffectAdapterKey LightControllerColorEffectAdapter::kAdapterKey =
+const EffectAdapterKey LightControllerColorEffectAdapter::kAdapterKey =
     std::make_pair(typeid(DiffuseEffect).name(),
                    typeid(LightControllerColorProvider).name());
 

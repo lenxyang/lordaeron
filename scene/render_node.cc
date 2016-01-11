@@ -137,9 +137,6 @@ std::string RenderNode::DumpNode(const RenderNode* node, int depth) const {
   return ss.str();
 }
 
-void RenderNode::UpdateParams(const azer::FrameArgs& args) {
-}
-
 bool RenderNode::Init() {
   return true;
 }
