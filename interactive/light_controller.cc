@@ -112,7 +112,7 @@ void LightController::Update(const FrameArgs& args) {
 }
 
 void LightController::Render(Renderer* renderer) {
-  // light_mesh_->Render(renderer);
+  light_mesh_->Render(renderer);
 }
 
 // class PointLightController
