@@ -79,31 +79,40 @@ void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
 }
 }  // namespace
 
-// class LightController
-LightController::LightController(RenderNode* node)
+// LightControllerProvider
+LightControllerProvider::LightControllerProvider(RenderNode* node)
     : node_(node) {
-  DCHECK(node->GetSceneNode()->type() == kLampSceneNode);
-
   Light* light = node->GetSceneNode()->mutable_data()->light();
   emission_ = light->diffuse() * 0.5f;
   color_ = light->diffuse();
   local_transform_ = Matrix4::kIdentity;
 }
 
-const azer::Matrix4& LightController::GetPV() const {
-  return node_->GetPV();
-}
-
-void LightController::Update(const FrameArgs& args) {
+void LightControllerProvider::Update() {
   world_ = node_->GetWorld() * local_transform_;
 }
 
-void LightController::Render(Renderer* renderer) {
-  light_mesh_->Render(renderer);
+void LightControllerProvider::SetLocalTransform(const Matrix4& local) {
+  local_transform_ = local;
 }
 
-void LightController::SetLocalTransform(const Matrix4& local) {
-  local_transform_ = local;
+const Matrix4& LightControllerProvider::GetPV() const {
+  return node_->GetPV();
+}
+
+// class LightController
+LightController::LightController(RenderNode* node)
+    : node_(node) {
+  DCHECK(node->GetSceneNode()->type() == kLampSceneNode);
+  provider_ = new LightControllerProvider(node);
+}
+
+void LightController::Update(const FrameArgs& args) {
+  provider_->Update();
+}
+
+void LightController::Render(Renderer* renderer) {
+  // light_mesh_->Render(renderer);
 }
 
 // class PointLightController
@@ -115,8 +124,8 @@ PointLightController::PointLightController(RenderNode* node)
   controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   InitMesh();
   InitControllerMesh();
-  light_mesh_->AddProvider(this);
-  controller_mesh_->AddProvider(this);
+  light_mesh_->AddProvider(provider_);
+  controller_mesh_->AddProvider(provider_);
 }
 
 void PointLightController::InitMesh() {
@@ -157,7 +166,7 @@ SpotLightController::SpotLightController(RenderNode* node)
   render_state_->SetCullingMode(kCullNone);
   
   LordEnv* ctx = LordEnv::instance();
-  SetLocalTransform(std::move(RotateX(Degree(90.0f))));
+  provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
   effect_ = CreateDiffuseEffect();
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
@@ -171,9 +180,9 @@ SpotLightController::SpotLightController(RenderNode* node)
   CreateCrossCircle(light->spot_light().range, light);
   CreateBorderLine(light);
 
-  light_mesh_->AddProvider(this);
-  controller_mesh_->AddProvider(this);
-  line_mesh_->AddProvider(this);
+  light_mesh_->AddProvider(provider_);
+  controller_mesh_->AddProvider(provider_);
+  line_mesh_->AddProvider(provider_);
 }
 
 void SpotLightController::InitMesh() {
@@ -346,11 +355,11 @@ DirLightController::DirLightController(RenderNode* node)
     : LightController(node) {
   LordEnv* ctx = LordEnv::instance();
   effect_ = CreateDiffuseEffect();
-  SetLocalTransform(std::move(RotateX(Degree(90.0f))));
+  provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   InitMesh();
   InitControllerMesh();
-  light_mesh_->AddProvider(this);
+  light_mesh_->AddProvider(provider_);
 }
 
 void DirLightController::InitMesh() {
@@ -417,13 +426,14 @@ void DirLightController::Render(Renderer* renderer) {
 LightControllerEffectAdapter::LightControllerEffectAdapter() {}
 const EffectAdapterKey LightControllerEffectAdapter::kAdapterKey =
     std::make_pair(typeid(DiffuseEffect).name(),
-                   typeid(LightController).name());
+                   typeid(LightControllerProvider).name());
 
 void LightControllerEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const {
   LordEnv* ctx = LordEnv::instance();
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
-  const LightController* provider = dynamic_cast<const LightController*>(params);
+  const LightControllerProvider* provider = 
+      dynamic_cast<const LightControllerProvider*>(params);
   DCHECK(provider && effect);
   Vector4 color = provider->color();
   color.w = 0.3f;

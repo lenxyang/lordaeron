@@ -91,8 +91,8 @@ void LordEnv::InitAdapterContext() {
   effect_context_.RegisteAdapter(new DiffuseColorEffectAdapter);
   effect_context_.RegisteAdapter(new RenderNodeDiffuseEffectAdapter);
   effect_context_.RegisteAdapter(new LordEnvNodeDiffuseEffectAdapter);
-  effect_context_.RegisteAdapter(new LightControllerEffectAdapter);
   effect_context_.RegisteAdapter(new LordSceneBVParamsAdapter);
+  effect_context_.RegisteAdapter(new LightControllerEffectAdapter);
   effect_context_.RegisteAdapter(new NormalLineEffectAdapter);
 }
 
