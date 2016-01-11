@@ -83,14 +83,27 @@ void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
 LightController::LightController(RenderNode* node)
     : node_(node) {
   DCHECK(node->GetSceneNode()->type() == kLampSceneNode);
-  provider_ = new LightControllerProvider(node);
+
+  Light* light = node->GetSceneNode()->mutable_data()->light();
+  emission_ = light->diffuse() * 0.5f;
+  color_ = light->diffuse();
+  local_transform_ = Matrix4::kIdentity;
+}
+
+const azer::Matrix4& LightController::GetPV() const {
+  return node_->GetPV();
 }
 
 void LightController::Update(const FrameArgs& args) {
+  world_ = node_->GetWorld() * local_transform_;
 }
 
 void LightController::Render(Renderer* renderer) {
   light_mesh_->Render(renderer);
+}
+
+void LightController::SetLocalTransform(const Matrix4& local) {
+  local_transform_ = local;
 }
 
 // class PointLightController
@@ -102,8 +115,8 @@ PointLightController::PointLightController(RenderNode* node)
   controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   InitMesh();
   InitControllerMesh();
-  light_mesh_->AddProvider(provider_.get());
-  controller_mesh_->AddProvider(provider_.get());
+  light_mesh_->AddProvider(this);
+  controller_mesh_->AddProvider(this);
 }
 
 void PointLightController::InitMesh() {
@@ -144,7 +157,7 @@ SpotLightController::SpotLightController(RenderNode* node)
   render_state_->SetCullingMode(kCullNone);
   
   LordEnv* ctx = LordEnv::instance();
-  provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
+  SetLocalTransform(std::move(RotateX(Degree(90.0f))));
   effect_ = CreateDiffuseEffect();
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
@@ -158,10 +171,9 @@ SpotLightController::SpotLightController(RenderNode* node)
   CreateCrossCircle(light->spot_light().range, light);
   CreateBorderLine(light);
 
-  light_mesh_->AddProvider(provider_.get());
-  controller_mesh_->AddProvider(provider_.get());
-  line_mesh_->AddProvider(provider_.get());
-  line_mesh_->AddProvider(new LightControllerColorProvider());
+  light_mesh_->AddProvider(this);
+  controller_mesh_->AddProvider(this);
+  line_mesh_->AddProvider(this);
 }
 
 void SpotLightController::InitMesh() {
@@ -334,11 +346,11 @@ DirLightController::DirLightController(RenderNode* node)
     : LightController(node) {
   LordEnv* ctx = LordEnv::instance();
   effect_ = CreateDiffuseEffect();
-  provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
+  SetLocalTransform(std::move(RotateX(Degree(90.0f))));
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   InitMesh();
   InitControllerMesh();
-  light_mesh_->AddProvider(provider_.get());
+  light_mesh_->AddProvider(this);
 }
 
 void DirLightController::InitMesh() {
@@ -401,40 +413,17 @@ void DirLightController::Render(Renderer* renderer) {
   LightController::Render(renderer);
 }
 
-LightControllerProvider::LightControllerProvider(RenderNode* node) 
-    : node_(node) {
-  Light* light = node->GetSceneNode()->mutable_data()->light();
-  emission_ = light->diffuse() * 0.5f;
-  color_ = light->diffuse();
-  local_transform_ = Matrix4::kIdentity;
-}
-
-const Matrix4& LightControllerProvider::GetPV() const {
-  return node_->GetPV();
-}
-
-void LightControllerProvider::SetLocalTransform(const Matrix4& local) {
-  local_transform_ = local;
-  world_ = node_->GetWorld() * local_transform_;
-}
-
-LightControllerColorProvider::LightControllerColorProvider(const Vector4& c) 
-    : color_(c) {}
-LightControllerColorProvider::LightControllerColorProvider() 
-    : color_(Vector4(0.0f, 1.0f, 1.0f, 1.0f)) {}
-
 // class LightControllerEffectAdapter
 LightControllerEffectAdapter::LightControllerEffectAdapter() {}
 const EffectAdapterKey LightControllerEffectAdapter::kAdapterKey =
     std::make_pair(typeid(DiffuseEffect).name(),
-                   typeid(LightControllerProvider).name());
+                   typeid(LightController).name());
 
 void LightControllerEffectAdapter::Apply(
     Effect* e, const EffectParamsProvider* params) const {
   LordEnv* ctx = LordEnv::instance();
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
-  const LightControllerProvider* provider =
-      dynamic_cast<const LightControllerProvider*>(params);
+  const LightController* provider = dynamic_cast<const LightController*>(params);
   DCHECK(provider && effect);
   Vector4 color = provider->color();
   color.w = 0.3f;
@@ -443,21 +432,6 @@ void LightControllerEffectAdapter::Apply(
   effect->SetWorld(provider->GetWorld());
   effect->SetPV(provider->GetPV());
   effect->SetDirLight(ctx->GetInternalLight());
-}
-
-// class LightControllerColorEffectAdapter
-LightControllerColorEffectAdapter::LightControllerColorEffectAdapter() {}
-const EffectAdapterKey LightControllerColorEffectAdapter::kAdapterKey =
-    std::make_pair(typeid(DiffuseEffect).name(),
-                   typeid(LightControllerColorProvider).name());
-
-void LightControllerColorEffectAdapter::Apply(
-    Effect* e, const EffectParamsProvider* params) const {
-  LordEnv* ctx = LordEnv::instance();
-  DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
-  const LightControllerColorProvider* provider =
-      dynamic_cast<const LightControllerColorProvider*>(params);
-  DCHECK(provider && effect);
   effect->SetColor(provider->color());
 }
 }  // namespace lord

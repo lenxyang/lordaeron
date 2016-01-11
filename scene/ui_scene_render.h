@@ -33,28 +33,34 @@ class LordSceneBVParamsAdapter : public azer::EffectParamsAdapter {
              const azer::EffectParamsProvider* params) const override;
 };
 
-class LordObjectNodeRenderDelegate : public RenderNodeDelegate,
-                                     public azer::EffectParamsProvider {
+class LordSceneBVRenderProvider : public azer::EffectParamsProvider {
+ public:
+  explicit LordSceneBVRenderProvider(RenderNode* node);
+  void Update();
+  const azer::Vector4& color() const { return color_;}
+  const azer::Matrix4& GetWorld() const { return world_;}
+  const azer::Matrix4& GetPV() const;
+ private:
+  azer::Vector4 color_;
+  azer::Matrix4 scale_;
+  azer::Matrix4 world_;
+  RenderNode* node_;
+  DISALLOW_COPY_AND_ASSIGN(LordSceneBVRenderProvider);
+};
+
+class LordObjectNodeRenderDelegate : public RenderNodeDelegate {
  public:
   explicit LordObjectNodeRenderDelegate(RenderNode* node,
                                         UISceneRenderer* renderer);
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
-
-  const azer::Vector4& color() const { return color_;}
-  const azer::Matrix4& GetWorld() const { return world_;}
-  const azer::Matrix4& GetPV() const;
  private:
   bool Init();
   azer::MeshPtr mesh_;
   azer::MeshPtr bounding_mesh_;
   azer::MeshPtr normal_mesh_;
   UISceneRenderer* tree_renderer_;
-
-  // provider
-  azer::Vector4 color_;
-  azer::Matrix4 scale_;
-  azer::Matrix4 world_;
+  scoped_refptr<LordSceneBVRenderProvider> bvprovider_;
   DISALLOW_COPY_AND_ASSIGN(LordObjectNodeRenderDelegate);
 };
 

@@ -14,15 +14,15 @@ namespace lord {
 using namespace azer;
 const azer::EffectAdapterKey LordSceneBVParamsAdapter::kAdapterKey =
     std::make_pair(typeid(DiffuseEffect).name(),
-                   typeid(LordObjectNodeRenderDelegate).name());
+                   typeid(LordSceneBVRenderProvider).name());
 
 azer::EffectAdapterKey LordSceneBVParamsAdapter::key() const {
   return kAdapterKey;
 }
 void LordSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) const {
   LordEnv* ctx = LordEnv::instance();
-  const LordObjectNodeRenderDelegate* provider =
-      dynamic_cast<const LordObjectNodeRenderDelegate*>(p);
+  const LordSceneBVRenderProvider* provider =
+      dynamic_cast<const LordSceneBVRenderProvider*>(p);
   DiffuseEffect* effect = dynamic_cast<DiffuseEffect*>(e);
   DCHECK(provider && effect);
   effect->SetWorld(provider->GetWorld());
@@ -30,13 +30,29 @@ void LordSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) co
   effect->SetPV(provider->GetPV());
   effect->SetDirLight(ctx->GetInternalLight());
 }
+LordSceneBVRenderProvider::LordSceneBVRenderProvider(RenderNode* node)
+    : color_(Vector4(1.0f, 0.0f, 0.0f, 0.3f)), node_(node) {}
+
+void LordSceneBVRenderProvider::Update() {
+  SceneNode* snode = node_->GetSceneNode();
+  Vector3 vmin = snode->vmin();
+  Vector3 vmax = snode->vmax();
+  Vector3 center = (vmin + vmax) * 0.5f;
+  Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
+  scale_ = std::move(Scale(scale));
+  world_ = std::move(node_->GetWorld() * Translate(center)
+                     * scale_);
+}
+
+const azer::Matrix4& LordSceneBVRenderProvider::GetPV() const {
+  return node_->GetPV();
+}
 
 // class LordObjectNodeRenderDelegate
 LordObjectNodeRenderDelegate::LordObjectNodeRenderDelegate(
     RenderNode* node, UISceneRenderer* renderer)
     : RenderNodeDelegate(node),
-      tree_renderer_(renderer),
-      color_(Vector4(1.0f, 0.0f, 0.0f, 0.3f)) {
+      tree_renderer_(renderer) {
   Init();
 }
 
@@ -54,27 +70,16 @@ bool LordObjectNodeRenderDelegate::Init() {
   }
 
   bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
-  EffectParamsProviderPtr provider(new LordSceneBVRenderProvider(node_));
-  bounding_mesh_->AddProvider(this);
+  bvprovider_ = new LordSceneBVRenderProvider(node_);
+  bounding_mesh_->AddProvider(bvprovider_);
   normal_mesh_ = CreateNormalLineMeshForSceneNode(scene_node);
   if (normal_mesh_.get())
     normal_mesh_->AddProvider(node_);
   return true;
 }
 
-const azer::Matrix4& LordObjectNodeRenderDelegate::GetPV() const {
-  return node_->GetPV();
-}
-
 void LordObjectNodeRenderDelegate::Update(const FrameArgs& args) {
-  SceneNode* snode = node_->GetSceneNode();
-  Vector3 vmin = snode->vmin();
-  Vector3 vmax = snode->vmax();
-  Vector3 center = (vmin + vmax) * 0.5f;
-  Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
-  scale_ = std::move(Scale(scale));
-  world_ = std::move(node_->GetWorld() * Translate(center)
-                     * scale_);
+  bvprovider_->Update();
 }
 
 void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
