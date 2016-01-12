@@ -12,11 +12,11 @@
 
 namespace lord {
 using namespace azer;
-const azer::EffectAdapterKey LordSceneBVParamsAdapter::kAdapterKey =
+const EffectAdapterKey LordSceneBVParamsAdapter::kAdapterKey =
     std::make_pair(typeid(DiffuseEffect).name(),
                    typeid(LordSceneBVRenderProvider).name());
 
-azer::EffectAdapterKey LordSceneBVParamsAdapter::key() const {
+EffectAdapterKey LordSceneBVParamsAdapter::key() const {
   return kAdapterKey;
 }
 void LordSceneBVParamsAdapter::Apply(Effect* e,const EffectParamsProvider* p) const {
@@ -44,7 +44,7 @@ void LordSceneBVRenderProvider::Update() {
                      * scale_);
 }
 
-const azer::Matrix4& LordSceneBVRenderProvider::GetPV() const {
+const Matrix4& LordSceneBVRenderProvider::GetPV() const {
   return node_->GetPV();
 }
 
@@ -171,28 +171,28 @@ TreeBuildDelegate::CreateRenderDelegate(RenderNode* node) {
 UISceneRender::UISceneRender() {
   scoped_ptr<TreeBuildDelegate> delegate(new TreeBuildDelegate(this));
   SetTreeBuildDelegate(delegate.Pass());
+  render_state_ = RenderSystem::Current()->CreateRenderState();
+  render_state_->EnableDepthTest(false);
 }
 
-void UISceneRender::OnFrameUpdateBegin(const azer::FrameArgs& args) {
+void UISceneRender::OnFrameUpdateBegin(const FrameArgs& args) {
   blending_node_.clear();
   bvmesh_.clear();
   normal_mesh_.clear();
 }
 
-void UISceneRender::OnFrameRenderBegin(azer::Renderer* renderer) {
+void UISceneRender::OnFrameRenderBegin(Renderer* renderer) {
 }
 
-void UISceneRender::OnFrameUpdateEnd(const azer::FrameArgs& args) {
+void UISceneRender::OnFrameUpdateEnd(const FrameArgs& args) {
 }
 
-void UISceneRender::OnFrameRenderEnd(azer::Renderer* renderer) {
+void UISceneRender::OnFrameRenderEnd(Renderer* renderer) {
   {
-    bool depth_enable = renderer->IsDepthTestEnable();
-    renderer->EnableDepthTest(false);
+    ScopedRenderState scoped_render_state(renderer, render_state_);
     for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
       (*iter)->Render(renderer);
     }
-    renderer->EnableDepthTest(depth_enable);
   }
 
   for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
@@ -276,7 +276,7 @@ void LordEnvNodeDelegate::Init(SceneNode* scene_node, RenderNode* node) {
   }
 }
 
-void LordEnvNodeDelegate::OnUpdateNode(const azer::FrameArgs& args) {
+void LordEnvNodeDelegate::OnUpdateNode(const FrameArgs& args) {
   all_lights_.clear();
   RenderEnvNode* parent = node()->parent();
   if (parent) {

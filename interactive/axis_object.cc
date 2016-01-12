@@ -27,11 +27,7 @@ void AxisObject::set_length(float length) {
 
 void AxisObject::Render(Renderer* renderer) {
   cone_->DrawIndex(renderer);
-
-  bool depth_enable = renderer->IsDepthTestEnable();
-  renderer->EnableDepthTest(false);
   line_->Draw(renderer);
-  renderer->EnableDepthTest(depth_enable);
 }
 
 void AxisObject::CreateCone(VertexDesc* desc) {
@@ -74,6 +70,9 @@ XYZAxisObject::XYZAxisObject(DiffuseEffect* effect)
   rotation_[1] = Matrix4::kIdentity;
   rotation_[2] = std::move(RotateX(Degree(-90.0f)));
   reset_color();
+
+  render_state_ = RenderSystem::Current()->CreateRenderState();
+  render_state_->EnableDepthTest(false);
 }
 
 void XYZAxisObject::set_color(const azer::Vector4& col, int32 index) {
@@ -95,6 +94,7 @@ void XYZAxisObject::SetPosition(const azer::Vector3& pos) {
 }
 
 void XYZAxisObject::Render(const Matrix4& pv, Renderer* renderer) {
+  ScopedRenderState scoped_render_state(renderer, render_state_);
   LordEnv* context = LordEnv::instance();
   Matrix4 world = std::move(Translate(position_));
   for (int32 i = 0; i < 3; ++i) {

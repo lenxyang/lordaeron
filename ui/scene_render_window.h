@@ -3,7 +3,6 @@
 #include "base/memory/scoped_ptr.h"
 #include "lordaeron/scene/render_node.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/scene/scene_render.h"
 #include "lordaeron/ui/render_window.h"
 
 namespace lord {

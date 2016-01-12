@@ -233,6 +233,7 @@ TransformAxisObject::TransformAxisObject(DiffuseEffect* effect)
 
   render_state_ = RenderSystem::Current()->CreateRenderState();
   render_state_->SetCullingMode(kCullNone);
+  render_state_->EnableDepthTest(false);
 }
 
 TransformAxisObject::~TransformAxisObject() {
@@ -278,13 +279,11 @@ void TransformAxisObject::set_length(float length) {
 
 void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
-  bool depth_enable = renderer->IsDepthTestEnable();
   Matrix4 world = Translate(position_);
 
   int32 count = static_cast<int32>(arraysize(rotation_));
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
-  renderer->EnableDepthTest(false);
   ScopedRenderState scoped_render_state(renderer, render_state_);
   for (int32 i = 0; i < count; ++i) {
     Matrix4 lworld = std::move(world * rotation_[i]);
@@ -307,8 +306,6 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
     renderer->UseEffect(effect_.get());
     plane_frame_->Draw(renderer);
   }
-
-  renderer->EnableDepthTest(depth_enable);
 }
 
 int32 TransformAxisObject::Picking(const azer::Ray& ray, const Camera& camera) const {

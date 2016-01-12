@@ -87,6 +87,7 @@ class UISceneRender : public SceneRender {
   void OnFrameUpdateEnd(const azer::FrameArgs& args) override;
   void OnFrameRenderEnd(azer::Renderer* renderer) override;
 
+  azer::RenderStatePtr render_state_;
   std::vector<RenderNode*> blending_node_;
   std::vector<azer::MeshPtr> bvmesh_;
   std::vector<azer::MeshPtr> normal_mesh_;

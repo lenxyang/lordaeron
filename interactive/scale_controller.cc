@@ -109,6 +109,7 @@ ScaleAxisPlaneObject::ScaleAxisPlaneObject(DiffuseEffect* effect)
 
   render_state_ = RenderSystem::Current()->CreateRenderState();
   render_state_->SetCullingMode(kCullNone);
+  render_state_->EnableDepthTest(false);
 }
 
 ScaleAxisPlaneObject::~ScaleAxisPlaneObject() {
@@ -170,11 +171,8 @@ void ScaleAxisPlaneObject::InitPlaneFrame() {
 
 void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
-  bool depth_enable = renderer->IsDepthTestEnable();
-
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
-  renderer->EnableDepthTest(false);
   ScopedRenderState scoped_render_state(renderer, render_state_);
   for (int32 i = 0; i < 3; ++i) {
     Matrix4 lworld = std::move(world_ * rotation_[i]);
@@ -203,8 +201,6 @@ void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
     renderer->UseEffect(effect_.get());
     plane_frame_->Render(renderer);
   }
-
-  renderer->EnableDepthTest(depth_enable);
 }
 
 
