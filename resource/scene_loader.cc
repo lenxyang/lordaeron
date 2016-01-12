@@ -162,6 +162,12 @@ bool SceneLoader::InitSceneNode(SceneNode* node, const ConfigNode* config,
     return false;
   }
 
+  if (config->GetAttr("cast_shadow") == "false") {
+    node->set_shadow_caster(false);
+  } else {
+    node->set_shadow_caster(true);
+  }
+
   const std::string& type_name = config->GetAttr("type");
   ConfigNodes nodes = std::move(config->GetTaggedChildren("refer"));
   if (type_name == "environment") {

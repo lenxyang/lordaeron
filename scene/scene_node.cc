@@ -130,7 +130,7 @@ void SceneNode::InitMember() {
   visible_ = true;
   pickable_ = false;
   picked_ = false;
-  shadow_caster_ = false;
+  shadow_caster_ = true;
   parent_ = NULL;
   type_ = kSceneNode;
   user_data_ = NULL;
