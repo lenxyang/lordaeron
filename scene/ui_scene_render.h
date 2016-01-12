@@ -4,12 +4,12 @@
 #include "lordaeron/scene/scene_node_traverse.h"
 #include "lordaeron/scene/render_node.h"
 #include "lordaeron/scene/render_env_node.h"
-#include "lordaeron/scene/scene_renderer.h"
+#include "lordaeron/scene/scene_render.h"
 
 namespace lord {
 class SceneNode;
 class LightController;
-class UISceneRenderer;
+class UISceneRender;
 typedef scoped_refptr<SceneNode> SceneNodePtr;
 
 class LordEnvNodeDelegate : public RenderEnvNodeDelegate {
@@ -51,7 +51,7 @@ class LordSceneBVRenderProvider : public azer::EffectParamsProvider {
 class LordObjectNodeRenderDelegate : public RenderNodeDelegate {
  public:
   explicit LordObjectNodeRenderDelegate(RenderNode* node,
-                                        UISceneRenderer* renderer);
+                                        UISceneRender* renderer);
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
@@ -59,7 +59,7 @@ class LordObjectNodeRenderDelegate : public RenderNodeDelegate {
   azer::MeshPtr mesh_;
   azer::MeshPtr bounding_mesh_;
   azer::MeshPtr normal_mesh_;
-  UISceneRenderer* tree_renderer_;
+  UISceneRender* tree_renderer_;
   scoped_refptr<LordSceneBVRenderProvider> bvprovider_;
   DISALLOW_COPY_AND_ASSIGN(LordObjectNodeRenderDelegate);
 };
@@ -75,9 +75,9 @@ class LordLampNodeRenderDelegate : public RenderNodeDelegate {
   DISALLOW_COPY_AND_ASSIGN(LordLampNodeRenderDelegate);
 };
 
-class UISceneRenderer : public SceneRenderer {
+class UISceneRender : public SceneRender {
  public:
-  UISceneRenderer();
+  UISceneRender();
   void AddBoundingVolumnMesh(azer::MeshPtr mesh) { bvmesh_.push_back(mesh);}
  protected:
   void OnFrameUpdateBegin(const azer::FrameArgs& args) override;
@@ -90,7 +90,7 @@ class UISceneRenderer : public SceneRenderer {
   std::vector<RenderNode*> blending_node_;
   std::vector<azer::MeshPtr> bvmesh_;
   std::vector<azer::MeshPtr> normal_mesh_;
-  DISALLOW_COPY_AND_ASSIGN(UISceneRenderer);
+  DISALLOW_COPY_AND_ASSIGN(UISceneRender);
 };
 
 azer::MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node);

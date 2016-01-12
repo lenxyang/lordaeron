@@ -50,7 +50,7 @@ const azer::Matrix4& LordSceneBVRenderProvider::GetPV() const {
 
 // class LordObjectNodeRenderDelegate
 LordObjectNodeRenderDelegate::LordObjectNodeRenderDelegate(
-    RenderNode* node, UISceneRenderer* renderer)
+    RenderNode* node, UISceneRender* renderer)
     : RenderNodeDelegate(node),
       tree_renderer_(renderer) {
   Init();
@@ -138,7 +138,7 @@ void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
 namespace {
 class TreeBuildDelegate : public RenderTreeBuilderDelegate {
  public:
-  TreeBuildDelegate(UISceneRenderer* renderer)
+  TreeBuildDelegate(UISceneRender* renderer)
       : tree_renderer_(renderer) {}
   bool NeedRenderNode(SceneNode* node) override { return true;}
   scoped_ptr<RenderNodeDelegate> CreateRenderDelegate(RenderNode* node) override;
@@ -146,7 +146,7 @@ class TreeBuildDelegate : public RenderTreeBuilderDelegate {
     return RenderEnvNodeDelegatePtr(new LordEnvNodeDelegate(n));
   }
  private:
-  UISceneRenderer* tree_renderer_;
+  UISceneRender* tree_renderer_;
 };
 scoped_ptr<RenderNodeDelegate>
 TreeBuildDelegate::CreateRenderDelegate(RenderNode* node) {
@@ -167,25 +167,25 @@ TreeBuildDelegate::CreateRenderDelegate(RenderNode* node) {
 }
 }
 
-// class UISceneRenderer
-UISceneRenderer::UISceneRenderer() {
+// class UISceneRender
+UISceneRender::UISceneRender() {
   scoped_ptr<TreeBuildDelegate> delegate(new TreeBuildDelegate(this));
   SetTreeBuildDelegate(delegate.Pass());
 }
 
-void UISceneRenderer::OnFrameUpdateBegin(const azer::FrameArgs& args) {
+void UISceneRender::OnFrameUpdateBegin(const azer::FrameArgs& args) {
   blending_node_.clear();
   bvmesh_.clear();
   normal_mesh_.clear();
 }
 
-void UISceneRenderer::OnFrameRenderBegin(azer::Renderer* renderer) {
+void UISceneRender::OnFrameRenderBegin(azer::Renderer* renderer) {
 }
 
-void UISceneRenderer::OnFrameUpdateEnd(const azer::FrameArgs& args) {
+void UISceneRender::OnFrameUpdateEnd(const azer::FrameArgs& args) {
 }
 
-void UISceneRenderer::OnFrameRenderEnd(azer::Renderer* renderer) {
+void UISceneRender::OnFrameRenderEnd(azer::Renderer* renderer) {
   {
     bool depth_enable = renderer->IsDepthTestEnable();
     renderer->EnableDepthTest(false);
@@ -204,12 +204,12 @@ void UISceneRenderer::OnFrameRenderEnd(azer::Renderer* renderer) {
   }
 }
 
-bool UISceneRenderer::OnUpdateNode(RenderNode* node, const FrameArgs& args) {
+bool UISceneRender::OnUpdateNode(RenderNode* node, const FrameArgs& args) {
   node->Update(args);
   return true;
 }
 
-bool UISceneRenderer::OnRenderNode(RenderNode* node, Renderer* renderer) {
+bool UISceneRender::OnRenderNode(RenderNode* node, Renderer* renderer) {
   if (!node->GetSceneNode()->visible()) {
     return false;
   }

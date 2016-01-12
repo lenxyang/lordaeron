@@ -1,8 +1,10 @@
 #include "lordaeron/ui/scene_render_window.h"
+
 #include "ui/views/layout/layout_manager.h"
 #include "azer/render/render.h"
 #include "lordaeron/env.h"
 #include "lordaeron/interactive/fps_camera_controller.h"
+#include "lordaeron/ui/render_window.h"
 #include "lordaeron/ui/renderer_info_pane.h"
 
 namespace lord {
@@ -24,7 +26,7 @@ void SceneRenderWindow::SetSceneNode(SceneNodePtr node) {
   root_ = node;
 }
 
-void SceneRenderWindow::SetSceneRenderer(scoped_ptr<SceneRenderer> scene_renderer) {
+void SceneRenderWindow::SetSceneRender(scoped_ptr<SceneRender> scene_renderer) {
   DCHECK(!scene_renderer_.get());
   scene_renderer_ = scene_renderer.Pass();
 }
