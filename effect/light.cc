@@ -262,7 +262,9 @@ void InitShadowMapCamera(const Light* light, Camera* camera) {
   camera->mutable_frustum()->set_aspect(rad);
   camera->mutable_frustum()->set_fovy(1.0f);
   Vector3 pos = light->spot_light().position;
-  Vector3 dir = light->spot_light().directional;
-  camera->reset(pos, pos + dir * 1.0f, dir + Vector3(0.0f, 1.0f, 0.0f));
+  Vector3 dir = light->spot_light().directional.NormalizeCopy();
+  Vector3 up(dir.x * 0.07, dir.y * 0.2 + 1.0f, dir.z * 0.05);
+  Vector3 lookat(pos + dir);
+  camera->reset(pos, lookat, up);
 }
 }  // namespace lord

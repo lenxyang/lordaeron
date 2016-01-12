@@ -166,7 +166,7 @@ SpotLightController::SpotLightController(RenderNode* node)
   render_state_->SetCullingMode(kCullNone);
   
   LordEnv* ctx = LordEnv::instance();
-  provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
+  provider_->SetLocalTransform(std::move(RotateX(Degree(-90.0f))));
   effect_ = CreateDiffuseEffect();
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
@@ -355,7 +355,7 @@ DirLightController::DirLightController(RenderNode* node)
     : LightController(node) {
   LordEnv* ctx = LordEnv::instance();
   effect_ = CreateDiffuseEffect();
-  provider_->SetLocalTransform(std::move(RotateX(Degree(90.0f))));
+  provider_->SetLocalTransform(std::move(RotateX(Degree(-90.0f))));
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   InitMesh();
   InitControllerMesh();
