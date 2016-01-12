@@ -9,6 +9,8 @@
 namespace lord {
 using namespace azer;
 SceneRender::SceneRender() : camera_(NULL) {
+  render_state_ = RenderSystem::Current()->CreateRenderState();
+  render_state_->EnableDepthTest(true);
 }
 
 void SceneRender::SetTreeBuildDelegate(scoped_ptr<RenderTreeBuilderDelegate> delegate) {
@@ -32,6 +34,7 @@ void SceneRender::Update(const FrameArgs& args) {
 
 void SceneRender::Render(Renderer* renderer) {
   DoFrameRenderBegin(renderer);
+  ScopedRenderState scoped_render_state(renderer, render_state_);
   RenderNodeRecusive(root_, renderer);
   DoFrameRenderEnd(renderer);
 }
