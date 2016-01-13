@@ -97,7 +97,7 @@ float3 CalcSpotLightColor(SpotLight light, float3 pos, float3 normal,
   float spot_atten = 0.0f;
   float3 ldir = normalize(pos - light.position);
   float dist = distance(pos, light.position);
-  float cosalpha = max(0.0f, dot(ldir, -light.directional));
+  float cosalpha = max(0.0f, dot(ldir, light.directional));
   if (cosalpha > light.theta) {
     spot_atten = 1.0f;
   } else if (cosalpha > light.phi) {
