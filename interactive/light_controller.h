@@ -69,7 +69,7 @@ class SpotLightController : public LightController {
   void CreateCrossCircle(float mid, Light* light);
   void CreateBorderLine(Light* light);
 
-  azer::RenderStatePtr render_state_;
+  azer::RasterizerStatePtr rasterizer_state_;
   azer::MeshPtr controller_mesh_;
   azer::MeshPtr line_mesh_;
   static const float kTopRadius;

@@ -71,8 +71,8 @@ XYZAxisObject::XYZAxisObject(DiffuseEffect* effect)
   rotation_[2] = std::move(RotateX(Degree(-90.0f)));
   reset_color();
 
-  render_state_ = RenderSystem::Current()->CreateRenderState();
-  render_state_->EnableDepthTest(false);
+  depth_state_ = RenderSystem::Current()->CreateDepthStencilState();
+  depth_state_->EnableDepthTest(false);
 }
 
 void XYZAxisObject::set_color(const azer::Vector4& col, int32 index) {
@@ -94,7 +94,7 @@ void XYZAxisObject::SetPosition(const azer::Vector3& pos) {
 }
 
 void XYZAxisObject::Render(const Matrix4& pv, Renderer* renderer) {
-  ScopedRenderState scoped_render_state(renderer, render_state_);
+  ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
   LordEnv* context = LordEnv::instance();
   Matrix4 world = std::move(Translate(position_));
   for (int32 i = 0; i < 3; ++i) {

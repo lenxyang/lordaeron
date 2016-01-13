@@ -45,7 +45,7 @@ class XYZAxisObject {
   azer::Vector3 position_;
   DiffuseEffectPtr effect_;
   scoped_ptr<AxisObject> object_;
-  azer::RenderStatePtr render_state_;
+  azer::DepthStencilStatePtr depth_state_;
   DISALLOW_COPY_AND_ASSIGN(XYZAxisObject);
 };
 }  // namespace lord

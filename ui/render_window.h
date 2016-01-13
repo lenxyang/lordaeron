@@ -45,7 +45,7 @@ class RenderWindow : public nelf::MainFrame,
   void InitRenderView();
   virtual void OnAfterWidgetInit() override;
   nelf::RenderView* render_view_;
-  azer::RenderStatePtr render_state_;
+  azer::DepthStencilStatePtr depth_state_;
   scoped_refptr<nelf::RenderLoop> render_loop_;
   azer::Camera camera_;
   RendererInfoPane* renderer_pane_;

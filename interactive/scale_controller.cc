@@ -107,9 +107,10 @@ ScaleAxisPlaneObject::ScaleAxisPlaneObject(DiffuseEffect* effect)
   reset_color();
   set_length(1.0f);
 
-  render_state_ = RenderSystem::Current()->CreateRenderState();
-  render_state_->SetCullingMode(kCullNone);
-  render_state_->EnableDepthTest(false);
+  rasterizer_state_ = RenderSystem::Current()->CreateRasterizerState();
+  rasterizer_state_->SetCullingMode(kCullNone);
+  depth_state_ = RenderSystem::Current()->CreateDepthStencilState();
+  depth_state_->EnableDepthTest(false);
 }
 
 ScaleAxisPlaneObject::~ScaleAxisPlaneObject() {
@@ -173,7 +174,8 @@ void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
-  ScopedRenderState scoped_render_state(renderer, render_state_);
+  ScopedRasterizerState scoped_render_state(renderer, rasterizer_state_);
+  ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
   for (int32 i = 0; i < 3; ++i) {
     Matrix4 lworld = std::move(world_ * rotation_[i]);
     effect_->SetDirLight(context->GetInternalLight());

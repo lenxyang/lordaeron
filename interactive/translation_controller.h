@@ -58,7 +58,8 @@ class TransformAxisObject {
   azer::Vector3 position_;
   azer::Matrix4 rotation_[3];
   azer::Vector4 color_[3];
-  azer::RenderStatePtr render_state_;
+  azer::DepthStencilStatePtr depth_state_;
+  azer::RasterizerStatePtr rasterizer_state_;
   DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(TransformAxisObject);
 };

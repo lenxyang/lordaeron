@@ -58,9 +58,8 @@ bool RenderWindow::Initialize() {
   OnInit();
 
   RenderSystem* rs = RenderSystem::Current();
-  render_state_ = rs->CreateRenderState();
-  render_state_->SetCullingMode(kCullBack);
-  render_state_->EnableDepthTest(true);
+  depth_state_ = rs->CreateDepthStencilState();
+  depth_state_->EnableDepthTest(true);
   return true;
 }
 
@@ -72,10 +71,10 @@ void RenderWindow::OnUpdate(const FrameArgs& args) {
 
 void RenderWindow::OnRender(const FrameArgs& args) {
   Renderer* renderer = window()->GetRenderer().get();
+  ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
   renderer->Use();
   renderer->Clear(kRenderBgColor);
   renderer->ClearDepthAndStencil();
-  ScopedRenderState scoped_render_state(renderer, render_state_);
   OnRenderFrame(args, renderer);
 }
 

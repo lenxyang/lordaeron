@@ -234,8 +234,8 @@ RotationControllerObject::RotationControllerObject()
   sphere_ = new SphereObject(effect_->vertex_desc(), 1.0f, 32, 32);
   circles_.reset(new CircleCoordinateObject(effect_));
 
-  render_state_ = rs->CreateRenderState();
-  render_state_->SetCullingMode(kCullNone);
+  rasterizer_state_ = rs->CreateRasterizerState();
+  rasterizer_state_->SetCullingMode(kCullNone);
 }
 
 RotationControllerObject::~RotationControllerObject() {
@@ -273,7 +273,7 @@ void RotationControllerObject::SetSelectedAxis(int32 axis) {
 
 void RotationControllerObject::Render(const azer::Matrix4& pv, 
                                       azer::Renderer* renderer) {
-  ScopedRenderState scoped_culling(renderer, render_state_);
+  ScopedRasterizerState scoped_culling(renderer, rasterizer_state_);
   Matrix4 world = Translate(position_);
   Matrix4 lworld = std::move(world * Scale(radius_, radius_, radius_));
   renderer->SetPrimitiveTopology(kTriangleList);

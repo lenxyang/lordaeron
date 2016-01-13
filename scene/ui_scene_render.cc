@@ -171,8 +171,8 @@ TreeBuildDelegate::CreateRenderDelegate(RenderNode* node) {
 UISceneRender::UISceneRender() {
   scoped_ptr<TreeBuildDelegate> delegate(new TreeBuildDelegate(this));
   SetTreeBuildDelegate(delegate.Pass());
-  render_state_ = RenderSystem::Current()->CreateRenderState();
-  render_state_->EnableDepthTest(false);
+  depth_state_ = RenderSystem::Current()->CreateDepthStencilState();
+  depth_state_->EnableDepthTest(false);
 }
 
 void UISceneRender::OnFrameUpdateBegin(const FrameArgs& args) {
@@ -189,7 +189,7 @@ void UISceneRender::OnFrameUpdateEnd(const FrameArgs& args) {
 
 void UISceneRender::OnFrameRenderEnd(Renderer* renderer) {
   {
-    ScopedRenderState scoped_render_state(renderer, render_state_);
+    ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
     for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
       (*iter)->Render(renderer);
     }

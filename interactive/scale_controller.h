@@ -60,7 +60,8 @@ class ScaleAxisPlaneObject {
   azer::EntityPtr plane_;
   azer::EntityPtr center_plane_;
   azer::EntityPtr plane_frame_;
-  azer::RenderStatePtr render_state_;
+  azer::RasterizerStatePtr rasterizer_state_;
+  azer::DepthStencilStatePtr depth_state_;
   DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(ScaleAxisPlaneObject);
 };

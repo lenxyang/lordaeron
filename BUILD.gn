@@ -109,8 +109,6 @@ static_library("lordaeron") {
     "ui/scene_tree_view.h",
     "ui/scene_tree_view_lineitem.cc",
     "ui/scene_tree_view_lineitem.h",
-    "ui/simple_render_window.cc",
-    "ui/simple_render_window.h",
     "ui/theme/theme.cc",
     "ui/theme/theme.h",
     "ui/transform_property_pane.cc",

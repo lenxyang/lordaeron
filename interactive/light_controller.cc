@@ -162,8 +162,8 @@ void PointLightController::Render(Renderer* renderer) {
 const float SpotLightController::kTopRadius = 0.2f;
 SpotLightController::SpotLightController(RenderNode* node)
     : LightController(node) {
-  render_state_ = RenderSystem::Current()->CreateRenderState();
-  render_state_->SetCullingMode(kCullNone);
+  rasterizer_state_ = RenderSystem::Current()->CreateRasterizerState();
+  rasterizer_state_->SetCullingMode(kCullNone);
   
   LordEnv* ctx = LordEnv::instance();
   provider_->SetLocalTransform(std::move(RotateX(Degree(-90.0f))));
@@ -269,7 +269,7 @@ void SpotLightController::Update(const FrameArgs& args) {
 
 void SpotLightController::Render(Renderer* renderer) {
   {
-    ScopedRenderState scoped_cull(renderer, render_state_);
+    ScopedRasterizerState scoped_cull(renderer, rasterizer_state_);
     LightController::Render(renderer);
   }
 

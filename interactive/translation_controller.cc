@@ -231,9 +231,10 @@ TransformAxisObject::TransformAxisObject(DiffuseEffect* effect)
   CreatePlane(effect_->vertex_desc());
   CreatePlaneFrame(effect_->vertex_desc());
 
-  render_state_ = RenderSystem::Current()->CreateRenderState();
-  render_state_->SetCullingMode(kCullNone);
-  render_state_->EnableDepthTest(false);
+  rasterizer_state_ = RenderSystem::Current()->CreateRasterizerState();
+  rasterizer_state_->SetCullingMode(kCullNone);
+  depth_state_ = RenderSystem::Current()->CreateDepthStencilState();
+  depth_state_->EnableDepthTest(false);
 }
 
 TransformAxisObject::~TransformAxisObject() {
@@ -284,7 +285,8 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
   int32 count = static_cast<int32>(arraysize(rotation_));
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
-  ScopedRenderState scoped_render_state(renderer, render_state_);
+  ScopedRasterizerState scoped_render_state(renderer, rasterizer_state_);
+  ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
   for (int32 i = 0; i < count; ++i) {
     Matrix4 lworld = std::move(world * rotation_[i]);
     effect_->SetDirLight(context->GetInternalLight());
