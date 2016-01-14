@@ -194,8 +194,8 @@ EntityVecPtr MeshLoadUtil::LoadVertexData(const ResPath& path, VertexDesc* desc)
     VertexBufferGroupPtr vbg = CreateVertexBufferGroupWithDefaultOpt(data.vdata);
     IndicesBufferPtr ib = CreateIndicesBufferWithDefaultOpt(data.idata);
     EntityPtr entity(new Entity(vbg.get(), ib.get()));
-    *entity->mutable_vmin() = data.vmin;
-    *entity->mutable_vmax() = data.vmax;
+    entity->set_vmin(data.vmin);
+    entity->set_vmax(data.vmax);
     vecptr->AddEntity(entity);
   }
 
@@ -224,8 +224,8 @@ MeshPtr MeshLoadUtil::Load(const ResPath& path, VertexDesc* desc) {
     VertexBufferGroupPtr vbg = CreateVertexBufferGroupWithDefaultOpt(data.vdata);
     IndicesBufferPtr ib = CreateIndicesBufferWithDefaultOpt(data.idata);
     EntityPtr entity(new Entity(vbg.get(), ib.get()));
-    *entity->mutable_vmin() = data.vmin;
-    *entity->mutable_vmax() = data.vmax;
+    entity->set_vmin(data.vmin);
+    entity->set_vmax(data.vmax);
     mtrl_index.push_back(paiMesh->mMaterialIndex);
     part->AddEntity(entity);
     mesh->AddMeshPart(part);

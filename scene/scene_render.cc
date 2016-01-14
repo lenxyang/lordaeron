@@ -8,10 +8,7 @@
 
 namespace lord {
 using namespace azer;
-SceneRender::SceneRender() : camera_(NULL) {
-  depth_state_ = RenderSystem::Current()->CreateDepthStencilState();
-  depth_state_->EnableDepthTest(true);
-}
+SceneRender::SceneRender() : camera_(NULL) {}
 
 void SceneRender::SetTreeBuildDelegate(scoped_ptr<RenderTreeBuilderDelegate> delegate) {
   delegate_ = delegate.Pass();
@@ -34,7 +31,6 @@ void SceneRender::Update(const FrameArgs& args) {
 
 void SceneRender::Render(Renderer* renderer) {
   DoFrameRenderBegin(renderer);
-  ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
   RenderNodeRecusive(root_, renderer);
   DoFrameRenderEnd(renderer);
 }

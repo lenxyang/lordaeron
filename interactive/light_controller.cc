@@ -209,8 +209,8 @@ void SpotLightController::InitMesh() {
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
     MeshPartPtr part = new MeshPart(effect_.get());
     EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    *entity->mutable_vmin() = vmin;
-    *entity->mutable_vmax() = vmax;
+    entity->set_vmin(vmin);
+    entity->set_vmax(vmax);
     part->AddEntity(entity);
     light_mesh_->AddMeshPart(part);
   }
@@ -230,8 +230,8 @@ void SpotLightController::InitMesh() {
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
     MeshPartPtr part = new MeshPart(effect_.get());
     EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    *entity->mutable_vmin() = vmin;
-    *entity->mutable_vmax() = vmax;
+    entity->set_vmin(vmin);
+    entity->set_vmax(vmax);
     part->AddEntity(entity);
     light_mesh_->AddMeshPart(part);
   }
@@ -383,8 +383,8 @@ void DirLightController::InitMesh() {
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
     MeshPartPtr part = new MeshPart(effect_.get());
     EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    *entity->mutable_vmin() = vmin;
-    *entity->mutable_vmax() = vmax;
+    entity->set_vmin(vmin);
+    entity->set_vmax(vmax);
     part->AddEntity(entity);
     light_mesh_->AddMeshPart(part);
   }
@@ -404,8 +404,8 @@ void DirLightController::InitMesh() {
     IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
     MeshPartPtr part = new MeshPart(effect_.get());
     EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    *entity->mutable_vmin() = vmin;
-    *entity->mutable_vmax() = vmax;
+    entity->set_vmin(vmin);
+    entity->set_vmax(vmax);
     part->AddEntity(entity);
     light_mesh_->AddMeshPart(part);
   }

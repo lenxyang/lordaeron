@@ -54,7 +54,6 @@ class SceneRender {
   RenderNodePtr root_;
   scoped_ptr<RenderTreeBuilderDelegate> delegate_;
   const azer::Camera* camera_;
-  azer::DepthStencilStatePtr depth_state_;
   ObserverList<SceneRenderObserver> observers_;
   DISALLOW_COPY_AND_ASSIGN(SceneRender);
 };

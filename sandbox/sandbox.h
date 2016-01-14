@@ -29,7 +29,6 @@
 #include "lordaeron/ui/scene_node_inspector_pane.h"
 #include "lordaeron/ui/render_window.h"
 #include "lordaeron/ui/scene_tree_view.h"
-#include "lordaeron/ui/simple_render_window.h"
 #include "lordaeron/ui/toolbar/object_control_toolbar.h"
 #include "lordaeron/ui/renderer_info_pane.h"
 

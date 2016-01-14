@@ -56,10 +56,6 @@ bool RenderWindow::Initialize() {
   Vector3 up(0.0f, 1.0f, 0.0f);
   camera_.reset(camera_pos, lookat, up);
   OnInit();
-
-  RenderSystem* rs = RenderSystem::Current();
-  depth_state_ = rs->CreateDepthStencilState();
-  depth_state_->EnableDepthTest(true);
   return true;
 }
 
@@ -71,7 +67,6 @@ void RenderWindow::OnUpdate(const FrameArgs& args) {
 
 void RenderWindow::OnRender(const FrameArgs& args) {
   Renderer* renderer = window()->GetRenderer().get();
-  ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
   renderer->Use();
   renderer->Clear(kRenderBgColor);
   renderer->ClearDepthAndStencil();
