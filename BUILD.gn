@@ -48,6 +48,8 @@ static_library("lordaeron") {
     "render/camera_overlay.h",
     "resource/effect_loader.cc",
     "resource/effect_loader.h",
+    "resource/geometry_loader.cc",
+    "resource/geometry_loader.h",
     "resource/light_loader.cc",
     "resource/light_loader.h",
     "resource/material_loader.cc",
