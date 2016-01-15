@@ -372,46 +372,15 @@ void DirLightController::InitMesh() {
   const float kCylinderRadius = 0.08f;
   RenderSystem* rs = RenderSystem::Current();
   VertexDesc* desc = effect_->vertex_desc();
-  {
-    // create VertexData
-    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
-    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
-    SlotVertexDataPtr vdata = InitConeVertexData(32, desc);
-    IndicesDataPtr idata = InitConeIndicesData(32);
-    VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(Translate(0.0f, kConeY - 0.5f, 0.0f)) 
-        * std::move(Scale(kConeRadius, kConeHeight, kConeRadius));
-    TransformVertex(trans, vdata.get(), &vmin, &vmax);
-    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    entity->set_vmin(vmin);
-    entity->set_vmax(vmax);
-    part->AddEntity(entity);
-    light_mesh_->AddMeshPart(part);
-  }
-
-  {
-    // create VertexData
-    const int32 kStack = 10, kSlice = 32;
-    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
-    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
-    SlotVertexDataPtr vdata = InitCylinderVertexData(
-        kCylinderRadius, kCylinderRadius, kConeY, kStack, kSlice, false, desc);
-    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
-    VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(Translate(0.0f, -0.5, 0.0f));
-    TransformVertex(trans, vdata.get(), &vmin, &vmax);
-    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    entity->set_vmin(vmin);
-    entity->set_vmax(vmax);
-    part->AddEntity(entity);
-    light_mesh_->AddMeshPart(part);
-  }
+  GeoAxisParams params;
+  params.axis_length = 0.8f;
+  params.axis_radius = 0.08f;
+  params.cone_radius = 0.2f;
+  params.cone_height = 0.3f;
+  params.slice = 24;
+  MeshPartPtr part = CreateAxisMeshPart(desc, params);
+  part->SetEffect(effect_);
+  light_mesh_->AddMeshPart(part);
 }
 
 void DirLightController::InitControllerMesh() {
