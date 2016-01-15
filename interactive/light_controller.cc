@@ -2,6 +2,7 @@
 
 #include "base/logging.h"
 #include "azer/render/render.h"
+#include "azer/render/geometry.h"
 #include "lordaeron/env.h"
 #include "lordaeron/effect/light.h"
 #include "lordaeron/effect/diffuse_effect.h"
@@ -14,6 +15,11 @@ using namespace azer;
 const float kControllerObjectAlpha = 0.8f;
 
 namespace {
+void MergeMeshPart(MeshPart* merge_to, MeshPart* part) {
+  for (int32 i = 0; i < part->entity_count(); ++i) {
+    merge_to->AddEntity(part->entity_at(i));
+  }
+}
 void GenerateCrossLine(float radius, float y, VertexPack* vpack) {
   VertexPos npos;
   CHECK(GetSemanticIndex("normal", 0, vpack->desc(), &npos));
@@ -129,8 +135,12 @@ PointLightController::PointLightController(RenderNode* node)
 }
 
 void PointLightController::InitMesh() {
-  GeometryObjectPtr obj = new SphereObject(effect_->vertex_desc(), 0.1f);
-  MeshPartPtr part = obj->CreateObject(effect_.get());
+  GeoSphereParams param;
+  param.radius = 0.1f;
+  param.slice = 24;
+  param.stack = 24;
+  MeshPartPtr part = CreateSphereMeshPart(effect_->vertex_desc(), param);
+  part->SetEffect(effect_);
   light_mesh_->AddMeshPart(part.get());
 }
 
@@ -141,9 +151,15 @@ void PointLightController::InitControllerMesh() {
   float range = light->point_light().atten.range;
   LordEnv* ctx = LordEnv::instance();
   BlendingPtr blending = ctx->GetDefaultBlending();
-  GeometryObjectPtr obj = new SphereObject(effect_->vertex_desc(), range);
-  MeshPartPtr part = obj->CreateObject(effect_.get());
+
+  GeoSphereParams param;
+  param.radius = range;
+  param.slice = 24;
+  param.stack = 24;
+  MeshPartPtr part = CreateSphereMeshPart(effect_->vertex_desc(), param);
+  light_mesh_->AddMeshPart(part.get());
   part->SetBlending(blending.get());
+  part->SetEffect(effect_);
   controller_mesh_->AddMeshPart(part);
 }
 
@@ -193,47 +209,34 @@ void SpotLightController::InitMesh() {
 
   RenderSystem* rs = RenderSystem::Current();
   VertexDesc* desc = effect_->vertex_desc();
+  const int32 kStack = 10, kSlice = 32;
   // spot cylinder
+  MeshPartPtr part(new MeshPart(effect_));
+  light_mesh_->AddMeshPart(part);
   {
     // create VertexData
-    const int32 kStack = 10, kSlice = 32;
-    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
-    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
-    SlotVertexDataPtr vdata = InitCylinderVertexData(
-        kSpotRadius, kBaseRadius, kSpotHeight, kStack, kSlice, false, desc);
-    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
-    VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f));
-    TransformVertex(trans, vdata.get(), &vmin, &vmax);
-    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    entity->set_vmin(vmin);
-    entity->set_vmax(vmax);
-    part->AddEntity(entity);
-    light_mesh_->AddMeshPart(part);
+    GeoBarrelParams params;
+    params.slice = kSlice;
+    params.stack = kStack;
+    params.height = kSpotHeight;
+    params.top_radius = kSpotRadius;
+    params.bottom_radius = kBaseRadius;
+    Matrix4 mat = std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f));
+    MeshPartPtr ptr = CreateCylinderMeshPart(effect_->vertex_desc(), mat, params);
+    MergeMeshPart(part, ptr);
   }
 
   {
     // create VertexData
-    const int32 kStack = 10, kSlice = 32;
-    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
-    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
-    SlotVertexDataPtr vdata = InitCylinderVertexData(
-        kBaseRadius, kBaseRadius, kBaseHeight, kStack, kSlice, false, desc);
-    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
-    VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(Translate(0.0f, -0.5f, 0.0f));
-    TransformVertex(trans, vdata.get(), &vmin, &vmax);
-    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    entity->set_vmin(vmin);
-    entity->set_vmax(vmax);
-    part->AddEntity(entity);
-    light_mesh_->AddMeshPart(part);
+    Matrix4 mat = std::move(Translate(0.0f, -0.5f, 0.0f));
+    GeoBarrelParams params;
+    params.slice = kSlice;
+    params.stack = kStack;
+    params.height = kSpotHeight;
+    params.top_radius = kBaseRadius;
+    params.bottom_radius = kBaseRadius;
+    MeshPartPtr ptr = CreateCylinderMeshPart(effect_->vertex_desc(), mat, params);
+    MergeMeshPart(part, ptr);
   }
 }
 

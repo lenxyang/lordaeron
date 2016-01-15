@@ -148,7 +148,7 @@ MeshPartPtr GeometryLoader::CreateRound(const ConfigNode* node,
   if (node->GetAttr("wireframe") == "true") {
     return CreateRoundMeshPart(desc, radius, slice);
   } else {
-    return CreateRoundFrameMeshPart(desc, radius, slice);
+    return CreateCircleMeshPart(desc, radius, slice);
   }
 }
 

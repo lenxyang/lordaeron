@@ -3,6 +3,7 @@
 #include "base/logging.h"
 #include "azer/math/math.h"
 #include "azer/render/render.h"
+#include "azer/render/geometry.h"
 #include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/ui/render_window.h"
@@ -178,7 +179,9 @@ CircleCoordinateObject::CircleCoordinateObject(DiffuseEffect* effect)
     :radius_(1.0f),
      effect_(effect) {
   set_radius(1.0f);
-  circle_ = new CircleObject(effect_->vertex_desc(), 1024);
+  MeshPartPtr part = CreateCircleMeshPart(effect->vertex_desc(), radius_, 128);
+  DCHECK(part->entity_count() == 1);
+  circle_ = part->entity_at(0);
   reset_color();
 
   axis_world_[0] = std::move(RotateZ(Degree(90.0f)));
@@ -213,7 +216,6 @@ void CircleCoordinateObject::Render(const azer::Matrix4& world,
                                     azer::Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
   effect_->SetDirLight(context->GetInternalLight());
-  renderer->SetPrimitiveTopology(kLineList);
   for (int i = 0; i < 3; ++i) {
     Matrix4 w = std::move(world * world_[i]);
     effect_->SetColor(axis_color_[i]);
@@ -231,7 +233,14 @@ RotationControllerObject::RotationControllerObject()
   RenderSystem* rs = RenderSystem::Current();
   effect_ = CreateDiffuseEffect();
   sphere_color_ = Vector4(1.0f, 1.0f, 1.0f, 0.4f);
-  sphere_ = new SphereObject(effect_->vertex_desc(), 1.0f, 32, 32);
+
+  GeoSphereParams param;
+  param.slice = 24;
+  param.stack = 24;
+  param.radius = 1.0f;
+  MeshPartPtr part = CreateSphereMeshPart(effect_->vertex_desc(), param);
+  DCHECK(part->entity_count() == 1);
+  sphere_ = part->entity_at(0);
   circles_.reset(new CircleCoordinateObject(effect_));
 
   rasterizer_state_ = rs->CreateRasterizerState();

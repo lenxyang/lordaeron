@@ -67,7 +67,7 @@ class CircleCoordinateObject {
   azer::Matrix4 world_[3];
   azer::Vector4 axis_color_[3];
   azer::Matrix4 scale_;
-  azer::GeometryObjectPtr circle_;
+  azer::EntityPtr circle_;
   DiffuseEffectPtr effect_;
   DISALLOW_COPY_AND_ASSIGN(CircleCoordinateObject);
 };
@@ -87,7 +87,7 @@ class RotationControllerObject {
   void set_radius(float r);
   void Render(const azer::Matrix4& pv, azer::Renderer* renderer);
  private:
-  azer::GeometryObjectPtr sphere_;
+  azer::EntityPtr sphere_;
   scoped_ptr<CircleCoordinateObject> circles_;
 
   int32 selected_axis_;
