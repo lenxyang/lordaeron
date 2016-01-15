@@ -129,9 +129,7 @@ SpotLightController::SpotLightController(RenderNode* node)
   Light* light = scene_node->mutable_data()->light();
   InitMesh();
   InitControllerMesh();
-  // CreateCrossCircle(10.0f, light);
-  CreateCrossCircle(light->spot_light().range, light);
-  CreateBorderLine(light);
+  CreateFrameLine(light->spot_light().range, light);
 
   light_mesh_->AddProvider(provider_);
   controller_mesh_->AddProvider(provider_);
@@ -225,7 +223,7 @@ void SpotLightController::Render(Renderer* renderer) {
   }
 }
 
-void SpotLightController::CreateCrossCircle(float mid, Light* light) {
+void SpotLightController::CreateFrameLine(float mid, Light* light) {
   RenderSystem* rs = RenderSystem::Current();
   const SpotLight& spot = light->spot_light();
   float range = spot.range;
@@ -245,56 +243,26 @@ void SpotLightController::CreateCrossCircle(float mid, Light* light) {
   Matrix4 circle_mat = Translate(0.0f, mid, 0.0f);
   MeshPartPtr part1 = CreateCircleMeshPart(desc, circle_mat, mid_inner, kSlice);
   MeshPartPtr part2 = CreateCircleMeshPart(desc, circle_mat, mid_outer, kSlice);
-  Vector3 cross_line[] = {
+  Vector3 points[] = {
     Vector3(-mid_outer, mid, 0.0f),
     Vector3( mid_outer, mid, 0.0f),
     Vector3(0.0f, mid, -mid_outer),
     Vector3(0.0f, mid,  mid_outer),
+    Vector3(-top_radius, 0.0f, 0.0f),
+    Vector3(-outer_radius, spot.range, 0.0f),
+    Vector3( top_radius, 0.0f, 0.0f),
+    Vector3( outer_radius, spot.range, 0.0f),
+    Vector3(0.0f, 0.0f,       -top_radius),
+    Vector3(0.0f, spot.range, -outer_radius),
+    Vector3(0.0f, 0.0f,        top_radius),
+    Vector3(0.0f, spot.range,  outer_radius),
   };
-  EntityPtr cross_entity = CreateGeoPointsList(cross_line, 4, desc);
+  EntityPtr cross_entity = CreateGeoPointsList(points, arraysize(points), desc);
   cross_entity->set_topology(kLineList);
   MergeMeshPart(part1, part2);
   part1->AddEntity(cross_entity);
   part1->SetEffect(effect_);
   line_mesh_->AddMeshPart(part1);
-}
-
-void SpotLightController::CreateBorderLine(Light* light) {
-  RenderSystem* rs = RenderSystem::Current();
-  const SpotLight& spot = light->spot_light();
-  float range = spot.range;
-  float top_radius = kTopRadius;
-  float outer_sine = std::sqrt(1 - spot.phi * spot.phi);
-  float outer_radius = range * outer_sine / spot.phi;
-  VertexPos npos;
-  Vector4 normal(0.0f, 1.0f, 0.0f, 0.0f);
-  SlotVertexDataPtr vdata(new SlotVertexData(effect_->vertex_desc(), 8));
-  VertexPack vpack(vdata.get());
-  CHECK(GetSemanticIndex("normal", 0, effect_->vertex_desc(), &npos));
-  vpack.first();
-
-  Vector4 pos[8] = {
-    Vector4(-top_radius, 0.0f, 0.0f, 1.0f),
-    Vector4(-outer_radius, spot.range, 0.0f, 1.0f),
-    Vector4( top_radius, 0.0f, 0.0f, 1.0f),
-    Vector4( outer_radius, spot.range, 0.0f, 1.0f),
-    Vector4(0.0f, 0.0f,       -top_radius,   1.0f),
-    Vector4(0.0f, spot.range, -outer_radius, 1.0f),
-    Vector4(0.0f, 0.0f,        top_radius,   1.0f),
-    Vector4(0.0f, spot.range,  outer_radius, 1.0f),
-  };
-  for (uint32 i = 0; i < arraysize(pos); ++i) {
-    vpack.WriteVector4(pos[i], VertexPos(0, 0));
-    vpack.WriteVector4(normal, npos);
-    vpack.next(1);
-  }
-
-  EntityPtr entity(new Entity(effect_->vertex_desc()));
-  entity->SetVertexBuffer(rs->CreateVertexBuffer(VertexBuffer::Options(), vdata), 0);
-  entity->set_topology(kLineList);
-  MeshPartPtr part(new MeshPart(effect_.get()));
-  part->AddEntity(entity);
-  line_mesh_->AddMeshPart(part);
 }
 
 // class DirLightController

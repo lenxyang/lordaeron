@@ -66,7 +66,7 @@ class SpotLightController : public LightController {
  private:
   void InitMesh();
   void InitControllerMesh();
-  void CreateCrossCircle(float mid, Light* light);
+  void CreateFrameLine(float mid, Light* light);
   void CreateBorderLine(Light* light);
 
   azer::RasterizerStatePtr rasterizer_state_;
