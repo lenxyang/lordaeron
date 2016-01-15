@@ -12,7 +12,7 @@
 
 namespace lord {
 using namespace azer;
-const float kControllerObjectAlpha = 0.8f;
+const float kControllerObjectAlpha = 0.18f;
 
 namespace {
 void MergeMeshPart(MeshPart* merge_to, MeshPart* part) {
@@ -28,6 +28,7 @@ LightControllerProvider::LightControllerProvider(RenderNode* node)
   Light* light = node->GetSceneNode()->mutable_data()->light();
   emission_ = light->diffuse() * 0.5f;
   color_ = light->diffuse();
+  color_.w = kControllerObjectAlpha;
   local_transform_ = Matrix4::kIdentity;
 }
 
@@ -215,11 +216,10 @@ void SpotLightController::Render(Renderer* renderer) {
   {
     ScopedRasterizerState scoped_cull(renderer, rasterizer_state_);
     LightController::Render(renderer);
-  }
-
-  if (node_->GetSceneNode()->picked()) {
-    line_mesh_->Render(renderer);
-    controller_mesh_->Render(renderer);
+    if (node_->GetSceneNode()->picked()) {
+      line_mesh_->Render(renderer);
+      controller_mesh_->Render(renderer);
+    }
   }
 }
 
