@@ -57,7 +57,6 @@ void XYZAxisObject::Render(const Matrix4& pv, Renderer* renderer) {
     effect_->SetColor(color_[i]);
     effect_->SetPV(pv);
     effect_->SetWorld(lworld);
-    // renderer->UseEffect(effect_.get());
     axis_->Render(renderer);
   }
 }

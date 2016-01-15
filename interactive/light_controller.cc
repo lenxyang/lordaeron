@@ -20,69 +20,6 @@ void MergeMeshPart(MeshPart* merge_to, MeshPart* part) {
     merge_to->AddEntity(part->entity_at(i));
   }
 }
-void GenerateCrossLine(float radius, float y, VertexPack* vpack) {
-  VertexPos npos;
-  CHECK(GetSemanticIndex("normal", 0, vpack->desc(), &npos));
-  Vector4 normal(0.0f, 1.0f, 0.0f, 0.0f);
-
-  vpack->WriteVector4(Vector4(-radius, y, 0.0f, 1.0f), VertexPos(0, 0));
-  vpack->WriteVector4(normal, npos);
-  vpack->next(1);
-  vpack->WriteVector4(Vector4( radius, y, 0.0f, 1.0f), VertexPos(0, 0));
-  vpack->WriteVector4(normal, npos);
-  vpack->next(1);
-  vpack->WriteVector4(Vector4(0.0f, y, -radius, 1.0f), VertexPos(0, 0));
-  vpack->WriteVector4(normal, npos);
-  vpack->next(1);
-  vpack->WriteVector4(Vector4(0.0f, y,  radius, 1.0f), VertexPos(0, 0));
-  vpack->WriteVector4(normal, npos);
-  vpack->next(1);
-}
-
-void GenerateCircle(float radius, float y, int32 slice, VertexPack* vpack) {
-  VertexPos npos;
-  CHECK(GetSemanticIndex("normal", 0, vpack->desc(), &npos));
-  float degree = 360.0f / (float)slice;
-  Vector4 normal(0.0f, 1.0f, 0.0f, 0.0f);
-  for (int32 i = 0; i < slice + 1; ++i) {
-    int index = i % slice;
-    float x = cos(Degree(i * degree)) * radius;
-    float z = sin(Degree(i * degree)) * radius;
-    Vector4 pos(x, y, z, 1.0f);
-    for (int j = 0; j < 2; ++j) {
-      vpack->WriteVector4(pos, VertexPos(0, 0));
-      vpack->WriteVector4(normal, npos);
-      vpack->next(1);
-      if (i == 0 || i == slice)
-        break;
-    }
-  }
-}
-
-void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
-                     Vector3* vmin, Vector3* vmax) {
-  VertexDesc* desc = vdata->vertex_desc();
-  VertexPos posidx(0, 0);
-  VertexPos normalidx;
-  bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normalidx);
-  Vector4 pos, normal;
-  VertexPack vpack(vdata);
-  vpack.first();
-  while (!vpack.end()) {
-    vpack.ReadVector4(&pos, posidx);
-    pos = trans * pos;
-    vpack.WriteVector4(pos, posidx);
-    UpdateVMinAndVMax(Vector3(pos.x, pos.y, pos.z), vmin, vmax);
-    if (kHasNormal0Idx) {
-      vpack.ReadVector4(&normal, normalidx);
-      normal = trans * normal;
-      normal.Normalize();
-      vpack.WriteVector4(normal, normalidx);
-    }
-
-    vpack.next(1);
-  }
-}
 }  // namespace
 
 // LightControllerProvider
@@ -212,7 +149,6 @@ void SpotLightController::InitMesh() {
   const int32 kStack = 10, kSlice = 32;
   // spot cylinder
   MeshPartPtr part(new MeshPart(effect_));
-  light_mesh_->AddMeshPart(part);
   {
     // create VertexData
     GeoBarrelParams params;
@@ -238,6 +174,7 @@ void SpotLightController::InitMesh() {
     MeshPartPtr ptr = CreateCylinderMeshPart(effect_->vertex_desc(), mat, params);
     MergeMeshPart(part, ptr);
   }
+  light_mesh_->AddMeshPart(part);
 }
 
 void SpotLightController::InitControllerMesh() {
@@ -254,16 +191,22 @@ void SpotLightController::InitControllerMesh() {
   float inner_radius = range * inner_sine / spot.theta;
   float outer_sine = std::sqrt(1 - spot.phi * spot.phi);
   float outer_radius = range * outer_sine / spot.phi;
-  GeometryObjectPtr obj1 = new CylinderObject(
-      effect_->vertex_desc(), inner_radius, top_radius, range, 64, 64, false);
-  MeshPartPtr inner_cone = obj1->CreateObject(effect_.get());
-  inner_cone->SetBlending(blending.get());
-  GeometryObjectPtr obj2 = new CylinderObject(
-      effect_->vertex_desc(), outer_radius, top_radius, range, 64, 64, false);
-  MeshPartPtr outer_cone = obj2->CreateObject(effect_.get());
-  outer_cone->SetBlending(blending.get());
-  controller_mesh_->AddMeshPart(inner_cone);
-  controller_mesh_->AddMeshPart(outer_cone);
+
+  GeoBarrelParams params;
+  params.slice = 64;
+  params.stack = 64;
+  params.height = range;
+  params.top_radius = inner_radius;
+  params.bottom_radius = top_radius;
+  MeshPartPtr ptr1 = CreateBarrelMeshPart(effect_->vertex_desc(), params);
+  params.top_radius = outer_radius;
+  params.bottom_radius = top_radius;
+  MeshPartPtr ptr2 = CreateBarrelMeshPart(effect_->vertex_desc(), params);
+  MergeMeshPart(ptr1, ptr2);
+ 
+  ptr1->SetEffect(effect_);
+  ptr1->SetBlending(blending.get());
+  controller_mesh_->AddMeshPart(ptr1);
 }
 
 void SpotLightController::Update(const FrameArgs& args) {
@@ -298,21 +241,22 @@ void SpotLightController::CreateCrossCircle(float mid, Light* light) {
   float mid_outer = kTopRadius * (mid + outer_top) / outer_top;
   VertexDesc* desc = effect_->vertex_desc();
   float y = range - mid;
-
   int32 kSlice = 64;
-  int32 kVertexNum = kSlice * 4 + 4;
-  SlotVertexDataPtr vdata(new SlotVertexData(desc, kVertexNum));
-  VertexPack vpack(vdata.get());
-  vpack.first();
-  GenerateCircle(mid_inner, mid, kSlice, &vpack);
-  GenerateCircle(mid_outer, mid, kSlice, &vpack);
-  GenerateCrossLine(mid_outer, mid, &vpack);
-  EntityPtr entity(new Entity(effect_->vertex_desc()));
-  entity->SetVertexBuffer(rs->CreateVertexBuffer(VertexBuffer::Options(), vdata), 0);
-  entity->set_topology(kLineList);
-  MeshPartPtr part(new MeshPart(effect_.get()));
-  part->AddEntity(entity);
-  line_mesh_->AddMeshPart(part);
+  Matrix4 circle_mat = Translate(0.0f, mid, 0.0f);
+  MeshPartPtr part1 = CreateCircleMeshPart(desc, circle_mat, mid_inner, kSlice);
+  MeshPartPtr part2 = CreateCircleMeshPart(desc, circle_mat, mid_outer, kSlice);
+  Vector3 cross_line[] = {
+    Vector3(-mid_outer, mid, 0.0f),
+    Vector3( mid_outer, mid, 0.0f),
+    Vector3(0.0f, mid, -mid_outer),
+    Vector3(0.0f, mid,  mid_outer),
+  };
+  EntityPtr cross_entity = CreateGeoPointsList(cross_line, 4, desc);
+  cross_entity->set_topology(kLineList);
+  MergeMeshPart(part1, part2);
+  part1->AddEntity(cross_entity);
+  part1->SetEffect(effect_);
+  line_mesh_->AddMeshPart(part1);
 }
 
 void SpotLightController::CreateBorderLine(Light* light) {
@@ -372,46 +316,15 @@ void DirLightController::InitMesh() {
   const float kCylinderRadius = 0.08f;
   RenderSystem* rs = RenderSystem::Current();
   VertexDesc* desc = effect_->vertex_desc();
-  {
-    // create VertexData
-    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
-    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
-    SlotVertexDataPtr vdata = InitConeVertexData(32, desc);
-    IndicesDataPtr idata = InitConeIndicesData(32);
-    VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(Translate(0.0f, kConeY - 0.5f, 0.0f)) 
-        * std::move(Scale(kConeRadius, kConeHeight, kConeRadius));
-    TransformVertex(trans, vdata.get(), &vmin, &vmax);
-    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    entity->set_vmin(vmin);
-    entity->set_vmax(vmax);
-    part->AddEntity(entity);
-    light_mesh_->AddMeshPart(part);
-  }
-
-  {
-    // create VertexData
-    const int32 kStack = 10, kSlice = 32;
-    Vector3 vmin(99999.0f, 99999.0f, 99999.0f);
-    Vector3 vmax(-99999.0f, -99999.0f, -99999.0f);
-    SlotVertexDataPtr vdata = InitCylinderVertexData(
-        kCylinderRadius, kCylinderRadius, kConeY, kStack, kSlice, false, desc);
-    IndicesDataPtr idata = InitCylinderIndicesData(kStack, kSlice, false);
-    VertexPack vpack(vdata.get());
-    Matrix4 trans = std::move(Translate(0.0f, -0.5, 0.0f));
-    TransformVertex(trans, vdata.get(), &vmin, &vmax);
-    VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
-    IndicesBufferPtr ib = rs->CreateIndicesBuffer(IndicesBuffer::Options(), idata);
-    MeshPartPtr part = new MeshPart(effect_.get());
-    EntityPtr entity(new Entity(effect_->vertex_desc(), vb, ib));
-    entity->set_vmin(vmin);
-    entity->set_vmax(vmax);
-    part->AddEntity(entity);
-    light_mesh_->AddMeshPart(part);
-  }
+  GeoAxisParams params;
+  params.axis_length = 0.8f;
+  params.axis_radius = 0.08f;
+  params.cone_radius = 0.2f;
+  params.cone_height = 0.3f;
+  params.slice = 24;
+  MeshPartPtr part = CreateAxisMeshPart(desc, params);
+  part->SetEffect(effect_);
+  light_mesh_->AddMeshPart(part);
 }
 
 void DirLightController::InitControllerMesh() {
