@@ -1,6 +1,7 @@
 #include "lordaeron/scene/ui_scene_render.h"
 
 #include "azer/render/render.h"
+#include "azer/render/geometry.h"
 #include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/effect/normal_line_effect.h"
@@ -230,12 +231,12 @@ bool UISceneRender::OnRenderNode(RenderNode* node, Renderer* renderer) {
 MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
   LordEnv* ctx = LordEnv::instance();
   EffectPtr effect = ctx->GetEffect(DiffuseEffect::kEffectName);
-  BoxObject* objptr = new BoxObject(effect->vertex_desc());
-  
-  MeshPartPtr objpart = objptr->CreateObject(effect.get());
+  MeshPartPtr objpart = CreateBoxMeshPart(effect->vertex_desc());
+  objpart->SetEffect(effect);
   BlendingPtr blending = ctx->GetDefaultBlending();
   objpart->SetBlending(blending);
-  MeshPartPtr framepart = objptr->CreateFrameObject(effect.get());
+  MeshPartPtr framepart = CreateBoxFrameMeshPart(effect->vertex_desc());
+  framepart->SetEffect(effect);
   MeshPtr mesh(new Mesh(ctx->GetEffectAdapterContext()));
   mesh->AddMeshPart(framepart);
   mesh->AddMeshPart(objpart);

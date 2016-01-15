@@ -3,7 +3,6 @@
 #include "base/memory/scoped_ptr.h"
 #include "nelf/nelf.h"
 #include "lordaeron/env.h"
-#include "lordaeron/render/camera_overlay.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/ui/render_window.h"
 
@@ -35,8 +34,8 @@ class FrameWindow : public RenderWindow {
   void OnRender(const azer::FrameArgs& args) override;
  private:
   void OnInitUI();
-  scoped_ptr<CameraOverlay> camera_overlay_;
-  scoped_ptr<azer::CoordinateGrid> gridline_;
+  // scoped_ptr<CameraOverlay> camera_overlay_;
+  // scoped_ptr<azer::CoordinateGrid> gridline_;
   bool draw_gridline_;
   scoped_ptr<InteractiveContext> interactive_;
   SceneNodePtr root_;
