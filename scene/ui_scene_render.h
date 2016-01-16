@@ -66,12 +66,15 @@ class LordObjectNodeRenderDelegate : public RenderNodeDelegate {
 
 class LordLampNodeRenderDelegate : public RenderNodeDelegate {
  public:
-  explicit LordLampNodeRenderDelegate(RenderNode* node);
+  explicit LordLampNodeRenderDelegate(RenderNode* node, UISceneRender* renderer);
   void Update(const azer::FrameArgs& args) override;
   void Render(azer::Renderer* renderer) override;
  private:
   bool Init();
   LightController* controller_;
+  azer::MeshPtr bounding_mesh_;
+  UISceneRender* tree_renderer_;
+  scoped_refptr<LordSceneBVRenderProvider> bvprovider_;
   DISALLOW_COPY_AND_ASSIGN(LordLampNodeRenderDelegate);
 };
 

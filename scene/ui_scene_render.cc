@@ -70,8 +70,8 @@ bool LordObjectNodeRenderDelegate::Init() {
     }
   }
 
-  bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
   bvprovider_ = new LordSceneBVRenderProvider(node_);
+  bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
   bounding_mesh_->AddProvider(bvprovider_);
   normal_mesh_ = CreateNormalLineMeshForSceneNode(scene_node);
   if (normal_mesh_.get())
@@ -97,9 +97,11 @@ void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
 }
 
 // class LordLampNodeRenderDelegate
-LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(RenderNode* node)
+LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(RenderNode* node,
+                                                       UISceneRender* renderer)
     : RenderNodeDelegate(node),
-      controller_(NULL) {
+      controller_(NULL),
+      tree_renderer_(renderer) {
   SceneNode* scene_node = GetSceneNode();
   CHECK(scene_node->type() == kLampSceneNode);
   CHECK(scene_node->parent() && scene_node->parent()->type() == kEnvSceneNode);
@@ -125,6 +127,9 @@ bool LordLampNodeRenderDelegate::Init() {
 
   scene_node->SetMin(controller_->GetLightMesh()->vmin());
   scene_node->SetMax(controller_->GetLightMesh()->vmax());
+  bvprovider_ = new LordSceneBVRenderProvider(node_);
+  bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
+  bounding_mesh_->AddProvider(bvprovider_);
   return true;
 }
 
@@ -133,9 +138,14 @@ void LordLampNodeRenderDelegate::Update(const FrameArgs& args) {
 }
 
 void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
-  controller_->Render(renderer);
-}
+  SceneNode* scene_node = GetSceneNode();
+  if (scene_node->is_draw_bounding_volumn()) {
+    tree_renderer_->AddBoundingVolumnMesh(bounding_mesh_);
 
+    controller_->Render(renderer);
+  }
+}
+  
 namespace {
 class TreeBuildDelegate : public RenderTreeBuilderDelegate {
  public:
@@ -160,7 +170,7 @@ TreeBuildDelegate::CreateRenderDelegate(RenderNode* node) {
           new LordObjectNodeRenderDelegate(node, tree_renderer_)).Pass();
     case kLampSceneNode:
       return scoped_ptr<RenderNodeDelegate>(
-          new LordLampNodeRenderDelegate(node)).Pass();
+          new LordLampNodeRenderDelegate(node, tree_renderer_)).Pass();
     default:
       NOTREACHED() << "no such type supported: " << node->GetSceneNode()->type();
       return scoped_ptr<RenderNodeDelegate>().Pass();
@@ -189,13 +199,6 @@ void UISceneRender::OnFrameUpdateEnd(const FrameArgs& args) {
 }
 
 void UISceneRender::OnFrameRenderEnd(Renderer* renderer) {
-  {
-    ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
-    for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
-      (*iter)->Render(renderer);
-    }
-  }
-
   for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
     (*iter)->Render(renderer);
   }
@@ -215,11 +218,7 @@ bool UISceneRender::OnRenderNode(RenderNode* node, Renderer* renderer) {
     return false;
   }
 
-  if (node->GetSceneNode()->type() != kLampSceneNode) {
-    node->Render(renderer);
-  } else {
-    blending_node_.push_back(node);
-  }
+  node->Render(renderer);
   for (auto iter = node->children().begin(); 
        iter != node->children().end(); ++iter) {
     OnRenderNode(iter->get(), renderer);
