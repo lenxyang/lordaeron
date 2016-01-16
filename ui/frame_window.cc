@@ -1,8 +1,8 @@
 #include "lordaeron/ui/frame_window.h"
 
 #include "lordaeron/interactive/interactive_context.h"
-// #include "lordaeron/render/camera_overlay.h"
 #include "lordaeron/render/coordinate.h"
+#include "lordaeron/render/camera_overlay.h"
 #include "lordaeron/ui/scene_tree_view.h"
 #include "lordaeron/ui/scene_node_property_pane.h"
 #include "lordaeron/ui/scene_node_inspector_pane.h"
@@ -32,7 +32,7 @@ FrameWindow::~FrameWindow() {
 }
 
 bool FrameWindow::Initialize() {
-  // camera_overlay_.reset(new CameraOverlay(&camera()));
+  camera_overlay_.reset(new CameraOverlay(&camera()));
   gridline_.reset(new lord::CoordinateGrid(1.0f, 1.0f, 30));
   gridline_->SetColor(kGridLineColor);
   root_ = InitScene();
@@ -50,7 +50,7 @@ void FrameWindow::OnUpdate(const azer::FrameArgs& args) {
   interactive_->Update(args);
   RenderWindow::OnUpdate(args);
   gridline_->SetProjView(camera().GetProjViewMatrix());
-  // camera_overlay_->Update();
+  camera_overlay_->Update();
 }
 
 void FrameWindow::OnRender(const azer::FrameArgs& args) {
@@ -64,7 +64,7 @@ void FrameWindow::OnRender(const azer::FrameArgs& args) {
     gridline_->Render(renderer);
   }
   interactive_->Render(renderer);
-  // camera_overlay_->Render(renderer);
+  camera_overlay_->Render(renderer);
 }
 
 void FrameWindow::OnInitUI() {

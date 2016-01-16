@@ -3,6 +3,7 @@
 #include "azer/math/math.h"
 #include "azer/render/render.h"
 #include "lordaeron/env.h"
+#include "lordaeron/render/coordinate.h"
 
 namespace lord {
 using namespace azer;
@@ -20,8 +21,10 @@ CameraOverlay::CameraOverlay(const Camera* camera)
   overlay_ = rs->CreateOverlay();
   overlay_->SetBounds(gfx::RectF(0.75f, 0.75f, 0.25f, 0.25f));
   overlay_->SetTexCoord(gfx::PointF(0.0f, 0.0f), gfx::PointF(1.0f, 1.0f));
-  object_.reset(new AxesFrames);
+  object_.reset(new AxesFrame);
 }
+
+CameraOverlay::~CameraOverlay() {}
 
 void CameraOverlay::SetShowBounds(const gfx::RectF& bounds) {
   overlay_->SetBounds(bounds);
@@ -37,13 +40,14 @@ void CameraOverlay::Update() {
   camera.reset(position, lookat, up);
   camera.mutable_frustum()->set_aspect(1.0f);
   world_ = Matrix4::kIdentity;
-  pvw_ = camera.GetProjViewMatrix();
 
   Renderer* texrd = renderer_.get();
   texrd->Use();
   texrd->Clear(azer::Vector4(0.0f, 0.0f, 0.0f, 0.0f));
   texrd->ClearDepthAndStencil();
-  object_->Render(world_, pvw_, texrd);
+  object_->SetWorld(world_);
+  object_->SetProjView(camera.GetProjViewMatrix());
+  object_->Render(texrd);
 }
 
 void CameraOverlay::Render(Renderer* renderer) {

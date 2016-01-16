@@ -35,7 +35,7 @@ class FrameWindow : public RenderWindow {
   void OnRender(const azer::FrameArgs& args) override;
  private:
   void OnInitUI();
-  // scoped_ptr<CameraOverlay> camera_overlay_;
+  scoped_ptr<CameraOverlay> camera_overlay_;
   scoped_ptr<CoordinateGrid> gridline_;
   bool draw_gridline_;
   scoped_ptr<InteractiveContext> interactive_;
