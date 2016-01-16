@@ -231,11 +231,11 @@ bool UISceneRender::OnRenderNode(RenderNode* node, Renderer* renderer) {
 MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
   LordEnv* ctx = LordEnv::instance();
   EffectPtr effect = ctx->GetEffect(DiffuseEffect::kEffectName);
-  MeshPartPtr objpart = CreateBoxMeshPart(effect->vertex_desc());
+  MeshPartPtr objpart = CreateBoxMeshPart(effect, Matrix4::kIdentity);
   objpart->SetEffect(effect);
   BlendingPtr blending = ctx->GetDefaultBlending();
   objpart->SetBlending(blending);
-  MeshPartPtr framepart = CreateBoxFrameMeshPart(effect->vertex_desc());
+  MeshPartPtr framepart = CreateBoxFrameMeshPart(effect, Matrix4::kIdentity);
   framepart->SetEffect(effect);
   MeshPtr mesh(new Mesh(ctx->GetEffectAdapterContext()));
   mesh->AddMeshPart(framepart);

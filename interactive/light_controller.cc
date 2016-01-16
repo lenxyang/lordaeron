@@ -77,8 +77,7 @@ void PointLightController::InitMesh() {
   param.radius = 0.1f;
   param.slice = 24;
   param.stack = 24;
-  MeshPartPtr part = CreateSphereMeshPart(effect_->vertex_desc(), param);
-  part->SetEffect(effect_);
+  MeshPartPtr part = CreateSphereMeshPart(effect_, param, Matrix4::kIdentity);
   light_mesh_->AddMeshPart(part.get());
 }
 
@@ -94,7 +93,7 @@ void PointLightController::InitControllerMesh() {
   param.radius = range;
   param.slice = 24;
   param.stack = 24;
-  MeshPartPtr part = CreateSphereMeshPart(effect_->vertex_desc(), param);
+  MeshPartPtr part = CreateSphereMeshPart(effect_, param, Matrix4::kIdentity);
   light_mesh_->AddMeshPart(part.get());
   part->SetBlending(blending.get());
   part->SetEffect(effect_);
@@ -157,7 +156,7 @@ void SpotLightController::InitMesh() {
     params.top_radius = kSpotRadius;
     params.bottom_radius = kBaseRadius;
     Matrix4 mat = std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f));
-    MeshPartPtr ptr = CreateCylinderMeshPart(effect_->vertex_desc(), mat, params);
+    MeshPartPtr ptr = CreateCylinderMeshPart(effect_, params, mat);
     MergeMeshPart(part, ptr);
   }
 
@@ -170,7 +169,7 @@ void SpotLightController::InitMesh() {
     params.height = kSpotHeight;
     params.top_radius = kBaseRadius;
     params.bottom_radius = kBaseRadius;
-    MeshPartPtr ptr = CreateCylinderMeshPart(effect_->vertex_desc(), mat, params);
+    MeshPartPtr ptr = CreateCylinderMeshPart(effect_, params, mat);
     MergeMeshPart(part, ptr);
   }
   light_mesh_->AddMeshPart(part);
@@ -197,10 +196,10 @@ void SpotLightController::InitControllerMesh() {
   params.height = range;
   params.top_radius = inner_radius;
   params.bottom_radius = top_radius;
-  MeshPartPtr ptr1 = CreateBarrelMeshPart(effect_->vertex_desc(), params);
+  MeshPartPtr ptr1 = CreateBarrelMeshPart(effect_, params, Matrix4::kIdentity);
   params.top_radius = outer_radius;
   params.bottom_radius = top_radius;
-  MeshPartPtr ptr2 = CreateBarrelMeshPart(effect_->vertex_desc(), params);
+  MeshPartPtr ptr2 = CreateBarrelMeshPart(effect_, params, Matrix4::kIdentity);
   MergeMeshPart(ptr1, ptr2);
  
   ptr1->SetEffect(effect_);
@@ -241,8 +240,8 @@ void SpotLightController::CreateFrameLine(float mid, Light* light) {
   float y = range - mid;
   int32 kSlice = 64;
   Matrix4 circle_mat = Translate(0.0f, mid, 0.0f);
-  MeshPartPtr part1 = CreateCircleMeshPart(desc, circle_mat, mid_inner, kSlice);
-  MeshPartPtr part2 = CreateCircleMeshPart(desc, circle_mat, mid_outer, kSlice);
+  EntityPtr entity1 = CreateCircleEntity(desc, mid_inner, kSlice, circle_mat);
+  EntityPtr entity2 = CreateCircleEntity(desc, mid_outer, kSlice, circle_mat);
   Vector3 points[] = {
     Vector3(-mid_outer, mid, 0.0f),
     Vector3( mid_outer, mid, 0.0f),
@@ -257,12 +256,14 @@ void SpotLightController::CreateFrameLine(float mid, Light* light) {
     Vector3(0.0f, 0.0f,        top_radius),
     Vector3(0.0f, spot.range,  outer_radius),
   };
-  EntityPtr cross_entity = CreateGeoPointsList(points, arraysize(points), desc);
+  EntityPtr cross_entity = CreateGeoPointsList(points, arraysize(points), desc,
+                                               Matrix4::kIdentity);
   cross_entity->set_topology(kLineList);
-  MergeMeshPart(part1, part2);
-  part1->AddEntity(cross_entity);
-  part1->SetEffect(effect_);
-  line_mesh_->AddMeshPart(part1);
+  MeshPartPtr part(new MeshPart(effect_));
+  part->AddEntity(cross_entity);
+  part->AddEntity(entity1);
+  part->AddEntity(entity2);
+  line_mesh_->AddMeshPart(part);
 }
 
 // class DirLightController
@@ -290,8 +291,7 @@ void DirLightController::InitMesh() {
   params.cone_radius = 0.2f;
   params.cone_height = 0.3f;
   params.slice = 24;
-  MeshPartPtr part = CreateAxisMeshPart(desc, params);
-  part->SetEffect(effect_);
+  MeshPartPtr part = CreateAxisMeshPart(effect_, params, Matrix4::kIdentity);
   light_mesh_->AddMeshPart(part);
 }
 

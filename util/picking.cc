@@ -57,10 +57,7 @@ PlanePickingHelper::PlanePickingHelper(const azer::Plane& plane)
       plane_(plane) {
   effect_ = CreateDiffuseEffect();
   GeoSphereParams param;
-  param.slice = param.stack = 32;
-  param.radius = 1.0f;
-  MeshPartPtr ptr = CreateSphereMeshPart(effect_->vertex_desc(), param);
-  sphere_ = ptr->entity_at(0);
+  sphere_ = CreateSphereEntity(effect_->vertex_desc(), param, Matrix4::kIdentity);
   CreatePlane();
 }
 

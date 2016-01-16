@@ -29,7 +29,8 @@ CoordinateGrid::CoordinateGrid(float width, float height, int num)
     *cur++ = Vector3(x, 0.0f,  total_height / 2.0f);
   }
 
-  EntityPtr entity = CreateGeoPointsList(ptr.get(), kCount, effect_->vertex_desc());
+  EntityPtr entity = CreateGeoPointsList(ptr.get(), kCount, effect_->vertex_desc(),
+                                         Matrix4::kIdentity);
   entity->set_topology(kLineList);
   part_ = new MeshPart(effect_);
   part_->AddEntity(entity);
@@ -61,8 +62,7 @@ AxesFrame::AxesFrame() {
   GeoAxisParams axis_params;
   sphere_params.slice = sphere_params.stack = 64;
   sphere_params.radius = 0.1f;
-  sphere_ = CreateSphereMeshPart(effect_->vertex_desc(), sphere_params);
-  sphere_->SetEffect(effect_);
+  sphere_ = CreateSphereMeshPart(effect_, sphere_params, Matrix4::kIdentity);
   axis_params.cone_radius = 0.06f;
   axis_params.cone_height = 0.2f;
   axis_params.axis_length = 0.8f;
@@ -71,12 +71,9 @@ AxesFrame::AxesFrame() {
 
   Matrix4 matx = RotateZ(Degree(90.0f));
   Matrix4 matz = RotateX(Degree(-90.0f));
-  axisx_ = CreateAxisMeshPart(effect_->vertex_desc(), matx, axis_params);
-  axisy_ = CreateAxisMeshPart(effect_->vertex_desc(), axis_params);
-  axisz_ = CreateAxisMeshPart(effect_->vertex_desc(), matz, axis_params);
-  axisx_->SetEffect(effect_);
-  axisy_->SetEffect(effect_);
-  axisz_->SetEffect(effect_);
+  axisx_ = CreateAxisMeshPart(effect_, axis_params, matx);
+  axisy_ = CreateAxisMeshPart(effect_, axis_params, Matrix4::kIdentity);
+  axisz_ = CreateAxisMeshPart(effect_, axis_params, matz);
 }
 
 AxesFrame::~AxesFrame() {}

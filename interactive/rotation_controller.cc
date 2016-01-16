@@ -179,9 +179,8 @@ CircleCoordinateObject::CircleCoordinateObject(DiffuseEffect* effect)
     :radius_(1.0f),
      effect_(effect) {
   set_radius(1.0f);
-  MeshPartPtr part = CreateCircleMeshPart(effect->vertex_desc(), radius_, 128);
-  DCHECK(part->entity_count() == 1);
-  circle_ = part->entity_at(0);
+  circle_ = CreateCircleEntity(effect->vertex_desc(), radius_, 128,
+                               Matrix4::kIdentity);
   reset_color();
 
   axis_world_[0] = std::move(RotateZ(Degree(90.0f)));
@@ -238,9 +237,7 @@ RotationControllerObject::RotationControllerObject()
   param.slice = 24;
   param.stack = 24;
   param.radius = 1.0f;
-  MeshPartPtr part = CreateSphereMeshPart(effect_->vertex_desc(), param);
-  DCHECK(part->entity_count() == 1);
-  sphere_ = part->entity_at(0);
+  sphere_ = CreateSphereEntity(effect_->vertex_desc(), param, Matrix4::kIdentity);
   circles_.reset(new CircleCoordinateObject(effect_));
 
   rasterizer_state_ = rs->CreateRasterizerState();

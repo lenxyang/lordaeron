@@ -17,21 +17,21 @@ class GeometryLoader : public ResourceSpecialLoader {
   bool CouldLoad(azer::ConfigNode* node) const override;
  private:
   azer::MeshPartPtr CreateSphere(const azer::ConfigNode* node, 
-                                 azer::VertexDesc* desc, ResourceLoadContext* ctx);
+                                 azer::Effect*, ResourceLoadContext* ctx);
   azer::MeshPartPtr CreateBox(const azer::ConfigNode* node,
-                              azer::VertexDesc* desc, ResourceLoadContext* ctx);
+                              azer::Effect*, ResourceLoadContext* ctx);
   azer::MeshPartPtr CreatePlane(const azer::ConfigNode* node,
-                               azer::VertexDesc* desc, ResourceLoadContext* ctx);
+                               azer::Effect*, ResourceLoadContext* ctx);
   azer::MeshPartPtr CreateCone(const azer::ConfigNode* node,
-                               azer::VertexDesc* desc, ResourceLoadContext* ctx);
+                               azer::Effect*, ResourceLoadContext* ctx);
   azer::MeshPartPtr CreateRound(const azer::ConfigNode* node,
-                                azer::VertexDesc* desc, ResourceLoadContext* ctx);
+                                azer::Effect*, ResourceLoadContext* ctx);
   azer::MeshPartPtr CreateCylinder(const azer::ConfigNode* node,
-                                   azer::VertexDesc* desc, ResourceLoadContext* ctx);
+                                   azer::Effect*, ResourceLoadContext* ctx);
   azer::MeshPartPtr CreateBarrel(const azer::ConfigNode* node,
-                                 azer::VertexDesc* desc, ResourceLoadContext* ctx);
+                                 azer::Effect*, ResourceLoadContext* ctx);
   azer::MeshPartPtr CreateTour(const azer::ConfigNode* node,
-                               azer::VertexDesc* desc, ResourceLoadContext* ctx);
+                               azer::Effect*, ResourceLoadContext* ctx);
   DISALLOW_COPY_AND_ASSIGN(GeometryLoader);
 };
 }  // namespace lord
