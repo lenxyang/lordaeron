@@ -36,13 +36,12 @@ LordSceneBVRenderProvider::LordSceneBVRenderProvider(RenderNode* node)
 
 void LordSceneBVRenderProvider::Update() {
   SceneNode* snode = node_->GetSceneNode();
-  Vector3 vmin = snode->vmin();
-  Vector3 vmax = snode->vmax();
+  Vector3 vmin, vmax;
+  GetSceneNodeBounds(snode, &vmin, &vmax);
   Vector3 center = (vmin + vmax) * 0.5f;
   Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
   scale_ = std::move(Scale(scale));
-  world_ = std::move(node_->GetWorld() * Translate(center)
-                     * scale_);
+  world_ = std::move(Translate(center) * scale_);
 }
 
 const Matrix4& LordSceneBVRenderProvider::GetPV() const {
@@ -125,8 +124,9 @@ bool LordLampNodeRenderDelegate::Init() {
       CHECK(false);
   }
 
-  scene_node->SetMin(controller_->GetLightMesh()->vmin());
-  scene_node->SetMax(controller_->GetLightMesh()->vmax());
+  Vector3 vmin = controller_->GetLightMesh()->vmin();
+  Vector3 vmax = controller_->GetLightMesh()->vmax();
+  scene_node->SetLocalBounds(vmin, vmax);
   bvprovider_ = new LordSceneBVRenderProvider(node_);
   bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
   bounding_mesh_->AddProvider(bvprovider_);
@@ -135,14 +135,14 @@ bool LordLampNodeRenderDelegate::Init() {
 
 void LordLampNodeRenderDelegate::Update(const FrameArgs& args) {
   controller_->Update(args);
+  bvprovider_->Update();
 }
 
 void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
   SceneNode* scene_node = GetSceneNode();
+  controller_->Render(renderer);
   if (scene_node->is_draw_bounding_volumn()) {
     tree_renderer_->AddBoundingVolumnMesh(bounding_mesh_);
-
-    controller_->Render(renderer);
   }
 }
   
@@ -199,9 +199,18 @@ void UISceneRender::OnFrameUpdateEnd(const FrameArgs& args) {
 }
 
 void UISceneRender::OnFrameRenderEnd(Renderer* renderer) {
+	/*
+  {
+    ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
+    for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
+      (*iter)->Render(renderer);
+    }
+  }
+
   for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
     (*iter)->Render(renderer);
   }
+  */
 
   for (auto iter = bvmesh_.begin(); iter != bvmesh_.end(); ++iter) {
     (*iter)->Render(renderer);

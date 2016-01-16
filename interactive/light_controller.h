@@ -19,7 +19,6 @@ class LightControllerProvider : public azer::EffectParamsProvider {
  public:
   explicit LightControllerProvider(RenderNode* node);
   void Update();
-  void SetLocalTransform(const azer::Matrix4& local);
   const azer::Vector4& color() const { return color_;}
   const azer::Vector4& emission() const { return emission_;}
   const azer::Matrix4& GetWorld() const { return world_;}
@@ -28,7 +27,6 @@ class LightControllerProvider : public azer::EffectParamsProvider {
   azer::Vector4 color_;
   azer::Vector4 emission_;
   azer::Matrix4 world_;
-  azer::Matrix4 local_transform_;
   RenderNode* node_;
   DISALLOW_COPY_AND_ASSIGN(LightControllerProvider);
 };

@@ -47,9 +47,10 @@ void SceneNodeData::reset() {
   }
 
   mesh_ = NULL;
+  Vector3 vmin(0.0f, 0.0f, 0.0f);
+  Vector3 vmax(0.01f, 0.01f, 0.01f);
   node_->SetNodeType(kSceneNode);
-  node_->SetMin(Vector3(0.0f, 0.0f, 0.0f));
-  node_->SetMax(Vector3(0.0f, 0.0f, 0.0f));
+  node_->SetLocalBounds(vmin, vmax);
 }
 
 Light* SceneNodeData::light() { 
@@ -59,8 +60,7 @@ Light* SceneNodeData::light() {
 void SceneNodeData::AttachMesh(MeshPtr mesh) {
   mesh_ = mesh;
   node_->SetNodeType(kObjectSceneNode);
-  node_->SetMin(mesh->vmin());
-  node_->SetMax(mesh->vmax());
+  node_->SetLocalBounds(mesh->vmin(), mesh->vmax());
 }
 
 void SceneNodeData::AttachLight(Light* light) {
@@ -79,8 +79,7 @@ void SceneNodeData::AttachLight(Light* light) {
   }
 }
 
-void SceneNodeData::OnSceneNodeLocationChanged(SceneNode* node, 
-                                               const Vector3& prevpos) {
+void SceneNodeData::OnNodeLocationChanged(SceneNode* node, const Vector3& prevpos) {
   if (node_->type() == kLampSceneNode) {
     if (light_->type() == kPointLight
         || light_->type() == kSpotLight) {
@@ -89,8 +88,7 @@ void SceneNodeData::OnSceneNodeLocationChanged(SceneNode* node,
   }
 }
 
-void SceneNodeData::OnSceneNodeOrientationChanged(
-    SceneNode* node, const azer::Quaternion& prev_orient) {
+void SceneNodeData::OnNodeOrientChanged(SceneNode* node, const Quaternion& prev) {
   if (node_->type() == kLampSceneNode) {
     Matrix4 rotation = std::move(node->orientation().ToMatrix());
     Vector4 dir = rotation * Vector4(0.0f, 0.0f, 1.0f, 0.0f);
@@ -290,98 +288,40 @@ void SceneNode::print_info(std::string* str, int depth, SceneNode* node) {
   }
 }
 
-void SceneNode::CalcChildrenBoundingVector() {
+void SceneNode::UpdateBoundsByChildren() {
   Vector3 vmin = Vector3(99999.0f, 99999.0f, 99999.0f);
   Vector3 vmax = Vector3(-99999.0f, -99999.0f, -99999.0f);
   for (auto iter = children_.begin(); iter != children_.end(); ++iter) {
     SceneNode* child = (*iter).get();
-    UpdateVMinAndVMax(child->vmin(), &vmin, &vmax);
-    UpdateVMinAndVMax(child->vmax(), &vmin, &vmax);
+    Matrix4 mat = std::move(child->holder().GenWorldMatrix());
+    Vector3 child_vmin = mat * Vector4(child->local_vmin(), 1.0);
+    Vector3 child_vmax = mat * Vector4(child->local_vmax(), 1.0);
+    UpdateVMinAndVMax(child_vmin, &vmin, &vmax);
+    UpdateVMinAndVMax(child_vmax, &vmin, &vmax);
   }
 
-  SetMin(vmin);
-  SetMax(vmax);
-}
-
-void SceneNode::UpdateBoundingHierarchy() {
-  SceneNode* cur = this;
-  while (cur) {
-    cur->CalcChildrenBoundingVector();
-    cur = cur->parent();
-  }
-}
-
-Vector3 SceneNode::RevertTranformOnPos(const Vector3& v) {
-  Vector3 inverse_scale = scale().InverseCopy();
-  Vector3 ret = v;
-  ret -= holder().position();
-  ret.x = inverse_scale.x * ret.x;
-  ret.y = inverse_scale.y * ret.y;
-  ret.z = inverse_scale.z * ret.z;
-  return ret;
-}
-
-Vector3  SceneNode::ApplyTranformOnPos(const Vector3 &v) {
-  Vector3 s = scale();
-  Vector3 ret = v;
-  ret.x = s.x * ret.x;
-  ret.y = s.y * ret.y;
-  ret.z = s.z * ret.z;
-
-  ret += holder().position();
-  return ret;
+  SetLocalBounds(vmin, vmax);
 }
 
 void SceneNode::SetPosition(const Vector3& pos) {
   Vector3 oldpos = this->position();
-  Vector3 org_vmin = vmin_;
-  Vector3 org_vmax = vmax_;
-  vmin_ = RevertTranformOnPos(vmin_);
-  vmax_ = RevertTranformOnPos(vmax_);
   mutable_holder()->SetPosition(pos);
-  vmin_ = ApplyTranformOnPos(vmin_);
-  vmax_ = ApplyTranformOnPos(vmax_);
-
-  if (vmin_ != org_vmin || vmax_ != org_vmax) {
-    BoundsChanged(org_vmin, org_vmax);
-  }
   LocationChanged(oldpos);
 }
 
 void SceneNode::SetScale(const Vector3& v) {
   using namespace azer;
-  Vector3 org_vmin = vmin_;
-  Vector3 org_vmax = vmax_;
-  vmin_ = RevertTranformOnPos(vmin_);
-  vmax_ = RevertTranformOnPos(vmax_);
+  Vector3 org_scale = holder().scale();
   mutable_holder()->SetScale(v);
-  vmin_ = ApplyTranformOnPos(vmin_);
-  vmax_ = ApplyTranformOnPos(vmax_);
-  if (vmin_ != org_vmin || vmax_ != org_vmax) {
-    BoundsChanged(org_vmin, org_vmax);
+  if (v != org_scale) {
+    ScaleChanged(org_scale);
   }
 }
 
-void SceneNode::SetMin(const Vector3& v) {
-  Vector3 s = holder().scale();
-  Vector3 pos = holder().position();
-
-  Vector3 org_vmin = vmin_;
-  vmin_ = ApplyTranformOnPos(v);
-
-  if (vmin_ != org_vmin) {
-    BoundsChanged(org_vmin, vmax_);
-  }
-}
-
-void SceneNode::SetMax(const Vector3& v) {
-  Vector3 s = holder().scale();
-  Vector3 pos = holder().position();
-  Vector3 org_vmax = vmax_;
-  vmax_ = ApplyTranformOnPos(v);
-  if (vmax_ != org_vmax) {
-    BoundsChanged(vmin_, org_vmax);
-  }
+void SceneNode::SetLocalBounds(const Vector3& vmin, const Vector3& vmax) {
+  local_vmin_ = vmin;
+  local_vmax_ = vmax;
+  NotifyParentBoundsChanged();
 }
 
 void SceneNode::pitch(const Radians angle) {
@@ -441,23 +381,29 @@ void SceneNode::set_orientation(const Quaternion& q) {
 void SceneNode::LocationChanged(const Vector3& orgpos) {
   FOR_EACH_OBSERVER(SceneNodeObserver, 
                     observers_, 
-                    OnSceneNodeLocationChanged(this, orgpos));
+                    OnNodeLocationChanged(this, orgpos));
+  NotifyParentBoundsChanged();
+}
+
+void SceneNode::ScaleChanged(const Vector3& org_scale) {
+  FOR_EACH_OBSERVER(SceneNodeObserver, 
+                    observers_, 
+                    OnNodeScaleChanged(this, org_scale));
+  NotifyParentBoundsChanged();
 }
 
 void SceneNode::OrientationChanged(const Quaternion& origin_orient) {
   FOR_EACH_OBSERVER(SceneNodeObserver, 
                     observers_, 
-                    OnSceneNodeOrientationChanged(this, origin_orient));
+                    OnNodeOrientChanged(this, origin_orient));
+  NotifyParentBoundsChanged();
 }
 
-void SceneNode::BoundsChanged(const Vector3& orgmin, const Vector3& orgmax) {
+void SceneNode::NotifyParentBoundsChanged() {
   if (parent()) {
-    parent()->CalcChildrenBoundingVector();
+    // it will recusive call its' parent, if its local bounds changed.
+    parent()->UpdateBoundsByChildren();
   }
-
-  FOR_EACH_OBSERVER(SceneNodeObserver, 
-                    observers_, 
-                    OnSceneNodeBoundsChanged(this, orgmin, orgmax));
 }
 
 void SceneNode::SetNodeType(SceneNodeType type) {
@@ -497,5 +443,11 @@ Matrix4 GenWorldMatrixForSceneNode(SceneNode* node) {
     cur = cur->parent();
   }
   return world;
+}
+
+void GetSceneNodeBounds(SceneNode* node, Vector3* vmin, Vector3* vmax) {
+  Matrix4 mat = std::move(GenWorldMatrixForSceneNode(node));
+  *vmin = mat * Vector4(node->local_vmin(), 1.0);
+  *vmax = mat * Vector4(node->local_vmax(), 1.0);
 }
 }  // namespace lord

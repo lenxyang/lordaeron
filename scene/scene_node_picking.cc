@@ -11,17 +11,21 @@ SceneNodePickHelper::SceneNodePickHelper(azer::Ray* ray)
       picking_node_(NULL) {
 }
 
-SceneNodePickHelper::~SceneNodePickHelper() {
-}
+SceneNodePickHelper::~SceneNodePickHelper() {}
 
 SceneNode* SceneNodePickHelper::GetPickingNode() {
   return picking_node_;
 }
 
 void SceneNodePickHelper::OnTraverseBegin(SceneNode* root) {
+  worlds_.push(azer::Matrix4::kIdentity);
 }
 
 bool SceneNodePickHelper::OnTraverseNodeEnter(SceneNode* node) {
+  using namespace azer;
+  Vector3 vmin, vmax;
+  Matrix4 mat = std::move(worlds_.top() * node->holder().GenWorldMatrix());
+  worlds_.push(mat);
   if (picking_node_)
     return false;
 
@@ -32,9 +36,8 @@ bool SceneNodePickHelper::OnTraverseNodeEnter(SceneNode* node) {
   if (node->pickable())
     return false;
 
-  using namespace azer;
-  Vector3 vmin = node->vmin();
-  Vector3 vmax = node->vmax();
+  vmin = mat * Vector4(node->local_vmin(), 1.0);
+  vmax = mat * Vector4(node->local_vmax(), 1.0);  
   AxisAlignedBoundingBox aabb(vmin, vmax);
   if (aabb.IsIntersect(*ray_)) {
     if (node->has_child()) {
@@ -49,9 +52,11 @@ bool SceneNodePickHelper::OnTraverseNodeEnter(SceneNode* node) {
 }
 
 void SceneNodePickHelper::OnTraverseNodeExit(SceneNode* node) {
+  worlds_.pop();
 }
 
 void SceneNodePickHelper::OnTraverseEnd() {
+  DCHECK_EQ(worlds_.size(), 1u);
 }
 
 }  // namespace lord

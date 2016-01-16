@@ -8,15 +8,10 @@ namespace lord {
 class SceneNode;
 class SceneNodeObserver {
  public:
-  virtual void OnSceneNodeLocationChanged(SceneNode* node,
-                                          const azer::Vector3& prevpos) {
-  }
-
-  virtual void OnSceneNodeOrientationChanged(SceneNode* node, 
-                                             const azer::Quaternion& prev_orient) {}
-
-  virtual void OnSceneNodeBoundsChanged(SceneNode* node, 
-                                        const azer::Vector3& orgmin,
-                                        const azer::Vector3& orgmax) {}
+  virtual void OnNodeLocationChanged(SceneNode* n, const azer::Vector3& prev) {}
+  virtual void OnNodeOrientChanged(SceneNode* n, const azer::Quaternion& prev) {}
+  virtual void OnNodeScaleChanged(SceneNode* node, const azer::Vector3& prev) {}
+  virtual void OnNodeBoundsChanged(SceneNode* node, const azer::Vector3& orgmin,
+                                   const azer::Vector3& orgmax) {}
 };
 }  // namespace lord

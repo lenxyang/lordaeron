@@ -58,13 +58,18 @@ void FrameWindow::OnRender(const azer::FrameArgs& args) {
   renderer->Use();
   renderer->Clear(kRenderBgColor);
   renderer->ClearDepthAndStencil();
-  OnRenderFrame(args, renderer);
-  renderer->Use();
+  OnRenderBegin(args, renderer);
+
   if (draw_gridline_) {
     gridline_->Render(renderer);
   }
+
+  OnRenderFrame(args, renderer);
+  renderer->Use();
   interactive_->Render(renderer);
   camera_overlay_->Render(renderer);
+
+  OnRenderEnd(args, renderer);
 }
 
 void FrameWindow::OnInitUI() {

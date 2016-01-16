@@ -142,8 +142,10 @@ void RotationController::OnMouseMoved(const ui::MouseEvent& event) {
 }
 
 void RotationController::InitControllerObject(SceneNode* node) {
-  float radius = node->vmin().distance(node->vmax()) * 0.5f;
-  Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
+  Vector3 vmin, vmax;
+  GetSceneNodeBounds(node, &vmin, &vmax);
+  float radius = vmin.distance(vmax) * 0.5f;
+  Vector3 pos = (vmin + vmax) * 0.5f;
   object_->SetPosition(pos);
   object_->set_radius(radius);
 }
@@ -152,8 +154,10 @@ int32 RotationController::GetSelectedAxis(gfx::Point location) {
   SceneNode* node = context_->GetPickingNode();
   const Camera& camera = context_->window()->camera();
   DCHECK(node);
-  Vector3 pos = (node->vmin() + node->vmax()) * 0.5f;
-  float radius = node->vmin().distance(node->vmax()) * 0.5f;
+  Vector3 vmin, vmax;
+  GetSceneNodeBounds(node, &vmin, &vmax);
+  Vector3 pos = (vmin + vmax) * 0.5f;
+  float radius = vmin.distance(vmax) * 0.5f;
   Ray ray = context_->GetPickingRay(location);
   Plane px(Vector3(1.0f, 0.0f, 0.0f), -pos.x);
   Plane py(Vector3(0.0f, 1.0f, 0.0f), -pos.y);
