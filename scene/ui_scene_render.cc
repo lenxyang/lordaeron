@@ -136,14 +136,15 @@ bool LordLampNodeRenderDelegate::Init() {
 void LordLampNodeRenderDelegate::Update(const FrameArgs& args) {
   controller_->Update(args);
   bvprovider_->Update();
-}
-
-void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
   SceneNode* scene_node = GetSceneNode();
-  controller_->Render(renderer);
   if (scene_node->is_draw_bounding_volumn()) {
     tree_renderer_->AddBoundingVolumnMesh(bounding_mesh_);
   }
+}
+
+void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
+  controller_->Render(renderer);
+  
 }
   
 namespace {
@@ -199,18 +200,9 @@ void UISceneRender::OnFrameUpdateEnd(const FrameArgs& args) {
 }
 
 void UISceneRender::OnFrameRenderEnd(Renderer* renderer) {
-	/*
-  {
-    ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
-    for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
-      (*iter)->Render(renderer);
-    }
-  }
-
   for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
     (*iter)->Render(renderer);
   }
-  */
 
   for (auto iter = bvmesh_.begin(); iter != bvmesh_.end(); ++iter) {
     (*iter)->Render(renderer);
@@ -227,7 +219,11 @@ bool UISceneRender::OnRenderNode(RenderNode* node, Renderer* renderer) {
     return false;
   }
 
-  node->Render(renderer);
+  if (node->GetSceneNode()->type() != kLampSceneNode) {
+    node->Render(renderer);
+  } else {
+    blending_node_.push_back(node);
+  }
   for (auto iter = node->children().begin(); 
        iter != node->children().end(); ++iter) {
     OnRenderNode(iter->get(), renderer);
