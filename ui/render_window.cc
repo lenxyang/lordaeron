@@ -15,6 +15,10 @@ const Vector4 kRenderBgColor = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 RenderWindow::RenderWindow(const gfx::Rect& init_bounds)
     : nelf::MainFrame(init_bounds, LordEnv::instance()->GetNelfContext()),
       render_view_(NULL) {
+  Vector3 camera_pos(0.0f, 1.0f, 5.0f);
+  Vector3 lookat(0.0f, 1.0f, 0.0f);
+  Vector3 up(0.0f, 1.0f, 0.0f);
+  camera_.reset(camera_pos, lookat, up);
 }
 
 RenderWindow::RenderWindow(const gfx::Rect& init_bounds, 
@@ -22,6 +26,10 @@ RenderWindow::RenderWindow(const gfx::Rect& init_bounds,
     : nelf::MainFrame(init_bounds, LordEnv::instance()->GetNelfContext()),
       render_view_(NULL),
       render_loop_(render_loop) {
+  Vector3 camera_pos(0.0f, 1.0f, 5.0f);
+  Vector3 lookat(0.0f, 1.0f, 0.0f);
+  Vector3 up(0.0f, 1.0f, 0.0f);
+  camera_.reset(camera_pos, lookat, up);
 }
 
 RenderWindow::~RenderWindow() {
@@ -50,11 +58,6 @@ bool RenderWindow::Initialize() {
   this->window()->AddChildView(renderer_pane_);
   this->window()->SetRenderUI(true);
   window()->GetWidget()->AddObserver(this);
-
-  Vector3 camera_pos(0.0f, 1.0f, 5.0f);
-  Vector3 lookat(0.0f, 1.0f, 0.0f);
-  Vector3 up(0.0f, 1.0f, 0.0f);
-  camera_.reset(camera_pos, lookat, up);
   OnInit();
   return true;
 }
