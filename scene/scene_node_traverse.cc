@@ -22,8 +22,7 @@ void SceneNodeTraverse::TraverseNode(SceneNode* node) {
       SceneNodePtr child = node->child_at(i);
       TraverseNode(child.get());
     }
-
-    delegate_->OnTraverseNodeExit(node);
   }
+  delegate_->OnTraverseNodeExit(node);
 }
 }  // namespace lord

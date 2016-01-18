@@ -64,7 +64,9 @@ bool ScaleController::OnMousePressed(const ui::MouseEvent& event) {
   SceneNode* node = context_->GetObjectFromLocation(event.location());
   context_->SetPickingNode(node);
   if (node) {
-    float radius = node->vmin().distance(node->vmax()) * 0.5f;
+    Vector3 vmin, vmax;
+    GetSceneNodeBounds(node, &vmin, &vmax);
+    float radius = vmin.distance(vmax) * 0.5f;
     object_->set_length(radius * kAxisLengthMultiply);
     object_->SetPosition(node->position());
   }
@@ -86,7 +88,9 @@ void ScaleController::UpdateControllerObjectPos() {
   const float kAxisLengthMultiply = 1.1f;
   SceneNode* node = context_->GetPickingNode();
   DCHECK(node);
-  float radius = node->vmin().distance(node->vmax()) * 0.5f;
+  Vector3 vmin, vmax;
+  GetSceneNodeBounds(node, &vmin, &vmax);
+  float radius = vmin.distance(vmax) * 0.5f;
   object_->set_length(radius * kAxisLengthMultiply);
   object_->reset_selected();
   object_->SetPosition(node->position());

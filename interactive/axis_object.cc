@@ -17,8 +17,7 @@ XYZAxisObject::XYZAxisObject(DiffuseEffect* effect)
   params.axis_length = 0.82f;
   params.cone_radius = 0.18f;
   params.cone_height = 1.0f - params.axis_length;
-  axis_ = CreateLineAxisMeshPart(effect->vertex_desc(), params);
-  axis_->SetEffect(effect);
+  axis_ = CreateLineAxisMeshPart(effect, params, Matrix4::kIdentity);
   SetPosition(Vector3(0.0f, 0.0f, 0.0f));
   rotation_[0] = std::move(RotateZ(Degree(90.0f)));
   rotation_[1] = Matrix4::kIdentity;

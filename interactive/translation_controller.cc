@@ -212,7 +212,9 @@ void TranslationController::OnMouseMoved(const ui::MouseEvent& event) {
 void TranslationController::UpdateControllerObjectPos() {
   SceneNode* node = context_->GetPickingNode();
   DCHECK(node);
-  float radius = node->vmin().distance(node->vmax()) * 0.5f;
+  Vector3 vmin, vmax;
+  GetSceneNodeBounds(node, &vmin, &vmax);
+  float radius = vmin.distance(vmax) * 0.5f;
   object_->set_length(radius * kAxisLengthMultiply);
   object_->reset_selected();
   object_->SetPosition(node->position());

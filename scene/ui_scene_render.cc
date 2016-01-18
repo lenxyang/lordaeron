@@ -1,6 +1,7 @@
 #include "lordaeron/scene/ui_scene_render.h"
 
 #include "azer/render/render.h"
+#include "azer/render/geometry.h"
 #include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
 #include "lordaeron/effect/normal_line_effect.h"
@@ -35,13 +36,12 @@ LordSceneBVRenderProvider::LordSceneBVRenderProvider(RenderNode* node)
 
 void LordSceneBVRenderProvider::Update() {
   SceneNode* snode = node_->GetSceneNode();
-  Vector3 vmin = snode->vmin();
-  Vector3 vmax = snode->vmax();
+  Vector3 vmin, vmax;
+  GetSceneNodeBounds(snode, &vmin, &vmax);
   Vector3 center = (vmin + vmax) * 0.5f;
   Vector3 scale(vmax.x - vmin.x, vmax.y - vmin.y, vmax.z - vmin.z);
   scale_ = std::move(Scale(scale));
-  world_ = std::move(node_->GetWorld() * Translate(center)
-                     * scale_);
+  world_ = std::move(Translate(center) * scale_);
 }
 
 const Matrix4& LordSceneBVRenderProvider::GetPV() const {
@@ -69,8 +69,8 @@ bool LordObjectNodeRenderDelegate::Init() {
     }
   }
 
-  bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
   bvprovider_ = new LordSceneBVRenderProvider(node_);
+  bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
   bounding_mesh_->AddProvider(bvprovider_);
   normal_mesh_ = CreateNormalLineMeshForSceneNode(scene_node);
   if (normal_mesh_.get())
@@ -96,9 +96,11 @@ void LordObjectNodeRenderDelegate::Render(Renderer* renderer) {
 }
 
 // class LordLampNodeRenderDelegate
-LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(RenderNode* node)
+LordLampNodeRenderDelegate::LordLampNodeRenderDelegate(RenderNode* node,
+                                                       UISceneRender* renderer)
     : RenderNodeDelegate(node),
-      controller_(NULL) {
+      controller_(NULL),
+      tree_renderer_(renderer) {
   SceneNode* scene_node = GetSceneNode();
   CHECK(scene_node->type() == kLampSceneNode);
   CHECK(scene_node->parent() && scene_node->parent()->type() == kEnvSceneNode);
@@ -122,19 +124,29 @@ bool LordLampNodeRenderDelegate::Init() {
       CHECK(false);
   }
 
-  scene_node->SetMin(controller_->GetLightMesh()->vmin());
-  scene_node->SetMax(controller_->GetLightMesh()->vmax());
+  Vector3 vmin = controller_->GetLightMesh()->vmin();
+  Vector3 vmax = controller_->GetLightMesh()->vmax();
+  scene_node->SetLocalBounds(vmin, vmax);
+  bvprovider_ = new LordSceneBVRenderProvider(node_);
+  bounding_mesh_ = CreateBoundingBoxForSceneNode(scene_node);
+  bounding_mesh_->AddProvider(bvprovider_);
   return true;
 }
 
 void LordLampNodeRenderDelegate::Update(const FrameArgs& args) {
   controller_->Update(args);
+  bvprovider_->Update();
+  SceneNode* scene_node = GetSceneNode();
+  if (scene_node->is_draw_bounding_volumn()) {
+    tree_renderer_->AddBoundingVolumnMesh(bounding_mesh_);
+  }
 }
 
 void LordLampNodeRenderDelegate::Render(Renderer* renderer) {
   controller_->Render(renderer);
+  
 }
-
+  
 namespace {
 class TreeBuildDelegate : public RenderTreeBuilderDelegate {
  public:
@@ -159,7 +171,7 @@ TreeBuildDelegate::CreateRenderDelegate(RenderNode* node) {
           new LordObjectNodeRenderDelegate(node, tree_renderer_)).Pass();
     case kLampSceneNode:
       return scoped_ptr<RenderNodeDelegate>(
-          new LordLampNodeRenderDelegate(node)).Pass();
+          new LordLampNodeRenderDelegate(node, tree_renderer_)).Pass();
     default:
       NOTREACHED() << "no such type supported: " << node->GetSceneNode()->type();
       return scoped_ptr<RenderNodeDelegate>().Pass();
@@ -188,13 +200,6 @@ void UISceneRender::OnFrameUpdateEnd(const FrameArgs& args) {
 }
 
 void UISceneRender::OnFrameRenderEnd(Renderer* renderer) {
-  {
-    ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
-    for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
-      (*iter)->Render(renderer);
-    }
-  }
-
   for (auto iter = blending_node_.begin(); iter != blending_node_.end(); ++iter) {
     (*iter)->Render(renderer);
   }
@@ -230,12 +235,12 @@ bool UISceneRender::OnRenderNode(RenderNode* node, Renderer* renderer) {
 MeshPtr CreateBoundingBoxForSceneNode(SceneNode* node) {
   LordEnv* ctx = LordEnv::instance();
   EffectPtr effect = ctx->GetEffect(DiffuseEffect::kEffectName);
-  BoxObject* objptr = new BoxObject(effect->vertex_desc());
-  
-  MeshPartPtr objpart = objptr->CreateObject(effect.get());
+  MeshPartPtr objpart = CreateBoxMeshPart(effect, Matrix4::kIdentity);
+  objpart->SetEffect(effect);
   BlendingPtr blending = ctx->GetDefaultBlending();
   objpart->SetBlending(blending);
-  MeshPartPtr framepart = objptr->CreateFrameObject(effect.get());
+  MeshPartPtr framepart = CreateBoxFrameMeshPart(effect, Matrix4::kIdentity);
+  framepart->SetEffect(effect);
   MeshPtr mesh(new Mesh(ctx->GetEffectAdapterContext()));
   mesh->AddMeshPart(framepart);
   mesh->AddMeshPart(objpart);

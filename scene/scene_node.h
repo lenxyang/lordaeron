@@ -40,9 +40,8 @@ class SceneNodeData : public SceneNodeObserver {
   void SetSceneNode(SceneNode* node);
  private:
   // override SceneNodeObserver
-  void OnSceneNodeOrientationChanged(
-      SceneNode* node, const azer::Quaternion& prev_orient) override;
-  void OnSceneNodeLocationChanged(SceneNode* node, const azer::Vector3& prevpos) override;
+  void OnNodeOrientChanged(SceneNode* node, const azer::Quaternion& prev) override;
+  void OnNodeLocationChanged(SceneNode* node, const azer::Vector3& prev) override;
   azer::MeshPtr mesh_;
   LightPtr light_;
   SceneNode* node_;
@@ -73,12 +72,9 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void set_shadow_caster(bool v) {shadow_caster_ = v;}
   bool shadow_caster() const { return shadow_caster_;}
 
-  const azer::Vector3& vmin() const { return vmin_;}
-  const azer::Vector3& vmax() const { return vmax_;}
-  // attention: put the value without transform
-  // SceneNode will apply the transfrom in node
-  void SetMin(const azer::Vector3& v);
-  void SetMax(const azer::Vector3& v);
+  const azer::Vector3& local_vmin() const { return local_vmin_;}
+  const azer::Vector3& local_vmax() const { return local_vmax_;}
+  void SetLocalBounds(const azer::Vector3& vmin, const azer::Vector3& vmax);
 
   void AddChild(SceneNode* child);
   void RemoveChild(SceneNode* child);
@@ -143,12 +139,11 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
  protected:
   void InitMember();
   void BoundsChanged(const azer::Vector3& orgmin, const azer::Vector3& orgmax);
+  void ScaleChanged(const azer::Vector3& org_scale);
   void LocationChanged(const azer::Vector3& orgpos);
   void OrientationChanged(const azer::Quaternion& origin_orient);
-  azer::Vector3 RevertTranformOnPos(const azer::Vector3& vector);
-  azer::Vector3 ApplyTranformOnPos(const azer::Vector3& vector);
-  void UpdateBoundingHierarchy();
-  void CalcChildrenBoundingVector();
+  void NotifyParentBoundsChanged();
+  void UpdateBoundsByChildren();
   azer::TransformHolder* mutable_holder() { return &holder_;}
 
   SceneNode* GetLocalChild(const std::string& name);
@@ -166,13 +161,15 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void* user_data_;
   scoped_ptr<SceneNodeData> data_;
   azer::TransformHolder holder_;
-  azer::Vector3 vmin_;
-  azer::Vector3 vmax_;
 
+  // bounding
+  azer::Vector3 local_vmin_;
+  azer::Vector3 local_vmax_;
   ObserverList<SceneNodeObserver> observers_;
   DISALLOW_COPY_AND_ASSIGN(SceneNode);
 };
 
 const char* SceneNodeName(int32 type);
 azer::Matrix4 GenWorldMatrixForSceneNode(SceneNode* node);
+void GetSceneNodeBounds(SceneNode* node, azer::Vector3* vmin, azer::Vector3* vmax);
 }  // namespace lord

@@ -4,15 +4,16 @@
     <node name="node">
       <node name="env" type="environment">
 	<node name="dir">
-	  <location><position>4.0f, 4.0f, 0.0f</position></location>
+	  <location><position>4.0f, 0.0f, 0.0f</position></location>
 	  <refer type="light" path=":dir" />
 	</node>
-	<node name="dir">
+	<node name="spot">
 	  <location><position>-4.0f, 4.0f, 0.0f</position></location>
 	  <refer type="light" path=":spot" />
 	</node>
       </node>
       <node name="teaport">
+	<location><position>0.0f, 0.0f, 0.0f</position></location>
 	<refer type="mesh" path="//sandbox/lighting/data.xml:teaport"/>
       </node>
     </node>

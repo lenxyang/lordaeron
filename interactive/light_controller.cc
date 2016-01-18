@@ -12,75 +12,12 @@
 
 namespace lord {
 using namespace azer;
-const float kControllerObjectAlpha = 0.8f;
+const float kControllerObjectAlpha = 0.18f;
 
 namespace {
 void MergeMeshPart(MeshPart* merge_to, MeshPart* part) {
   for (int32 i = 0; i < part->entity_count(); ++i) {
     merge_to->AddEntity(part->entity_at(i));
-  }
-}
-void GenerateCrossLine(float radius, float y, VertexPack* vpack) {
-  VertexPos npos;
-  CHECK(GetSemanticIndex("normal", 0, vpack->desc(), &npos));
-  Vector4 normal(0.0f, 1.0f, 0.0f, 0.0f);
-
-  vpack->WriteVector4(Vector4(-radius, y, 0.0f, 1.0f), VertexPos(0, 0));
-  vpack->WriteVector4(normal, npos);
-  vpack->next(1);
-  vpack->WriteVector4(Vector4( radius, y, 0.0f, 1.0f), VertexPos(0, 0));
-  vpack->WriteVector4(normal, npos);
-  vpack->next(1);
-  vpack->WriteVector4(Vector4(0.0f, y, -radius, 1.0f), VertexPos(0, 0));
-  vpack->WriteVector4(normal, npos);
-  vpack->next(1);
-  vpack->WriteVector4(Vector4(0.0f, y,  radius, 1.0f), VertexPos(0, 0));
-  vpack->WriteVector4(normal, npos);
-  vpack->next(1);
-}
-
-void GenerateCircle(float radius, float y, int32 slice, VertexPack* vpack) {
-  VertexPos npos;
-  CHECK(GetSemanticIndex("normal", 0, vpack->desc(), &npos));
-  float degree = 360.0f / (float)slice;
-  Vector4 normal(0.0f, 1.0f, 0.0f, 0.0f);
-  for (int32 i = 0; i < slice + 1; ++i) {
-    int index = i % slice;
-    float x = cos(Degree(i * degree)) * radius;
-    float z = sin(Degree(i * degree)) * radius;
-    Vector4 pos(x, y, z, 1.0f);
-    for (int j = 0; j < 2; ++j) {
-      vpack->WriteVector4(pos, VertexPos(0, 0));
-      vpack->WriteVector4(normal, npos);
-      vpack->next(1);
-      if (i == 0 || i == slice)
-        break;
-    }
-  }
-}
-
-void TransformVertex(const Matrix4& trans, SlotVertexData* vdata,
-                     Vector3* vmin, Vector3* vmax) {
-  VertexDesc* desc = vdata->vertex_desc();
-  VertexPos posidx(0, 0);
-  VertexPos normalidx;
-  bool kHasNormal0Idx = GetSemanticIndex("normal", 0, desc, &normalidx);
-  Vector4 pos, normal;
-  VertexPack vpack(vdata);
-  vpack.first();
-  while (!vpack.end()) {
-    vpack.ReadVector4(&pos, posidx);
-    pos = trans * pos;
-    vpack.WriteVector4(pos, posidx);
-    UpdateVMinAndVMax(Vector3(pos.x, pos.y, pos.z), vmin, vmax);
-    if (kHasNormal0Idx) {
-      vpack.ReadVector4(&normal, normalidx);
-      normal = trans * normal;
-      normal.Normalize();
-      vpack.WriteVector4(normal, normalidx);
-    }
-
-    vpack.next(1);
   }
 }
 }  // namespace
@@ -91,15 +28,11 @@ LightControllerProvider::LightControllerProvider(RenderNode* node)
   Light* light = node->GetSceneNode()->mutable_data()->light();
   emission_ = light->diffuse() * 0.5f;
   color_ = light->diffuse();
-  local_transform_ = Matrix4::kIdentity;
+  color_.w = kControllerObjectAlpha;
 }
 
 void LightControllerProvider::Update() {
-  world_ = node_->GetWorld() * local_transform_;
-}
-
-void LightControllerProvider::SetLocalTransform(const Matrix4& local) {
-  local_transform_ = local;
+  world_ = node_->GetWorld();
 }
 
 const Matrix4& LightControllerProvider::GetPV() const {
@@ -137,10 +70,7 @@ PointLightController::PointLightController(RenderNode* node)
 void PointLightController::InitMesh() {
   GeoSphereParams param;
   param.radius = 0.1f;
-  param.slice = 24;
-  param.stack = 24;
-  MeshPartPtr part = CreateSphereMeshPart(effect_->vertex_desc(), param);
-  part->SetEffect(effect_);
+  MeshPartPtr part = CreateSphereMeshPart(effect_, param, Matrix4::kIdentity);
   light_mesh_->AddMeshPart(part.get());
 }
 
@@ -154,12 +84,9 @@ void PointLightController::InitControllerMesh() {
 
   GeoSphereParams param;
   param.radius = range;
-  param.slice = 24;
-  param.stack = 24;
-  MeshPartPtr part = CreateSphereMeshPart(effect_->vertex_desc(), param);
+  MeshPartPtr part = CreateSphereMeshPart(effect_, param, Matrix4::kIdentity);
   light_mesh_->AddMeshPart(part.get());
   part->SetBlending(blending.get());
-  part->SetEffect(effect_);
   controller_mesh_->AddMeshPart(part);
 }
 
@@ -182,7 +109,6 @@ SpotLightController::SpotLightController(RenderNode* node)
   rasterizer_state_->SetCullingMode(kCullNone);
   
   LordEnv* ctx = LordEnv::instance();
-  provider_->SetLocalTransform(std::move(RotateX(Degree(-90.0f))));
   effect_ = CreateDiffuseEffect();
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   controller_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
@@ -192,9 +118,7 @@ SpotLightController::SpotLightController(RenderNode* node)
   Light* light = scene_node->mutable_data()->light();
   InitMesh();
   InitControllerMesh();
-  // CreateCrossCircle(10.0f, light);
-  CreateCrossCircle(light->spot_light().range, light);
-  CreateBorderLine(light);
+  CreateFrameLine(light->spot_light().range, light);
 
   light_mesh_->AddProvider(provider_);
   controller_mesh_->AddProvider(provider_);
@@ -209,35 +133,31 @@ void SpotLightController::InitMesh() {
 
   RenderSystem* rs = RenderSystem::Current();
   VertexDesc* desc = effect_->vertex_desc();
-  const int32 kStack = 10, kSlice = 32;
   // spot cylinder
   MeshPartPtr part(new MeshPart(effect_));
-  light_mesh_->AddMeshPart(part);
+  Matrix4 rot = std::move(RotateX(Degree(-90.0f)));
   {
     // create VertexData
     GeoBarrelParams params;
-    params.slice = kSlice;
-    params.stack = kStack;
     params.height = kSpotHeight;
     params.top_radius = kSpotRadius;
     params.bottom_radius = kBaseRadius;
-    Matrix4 mat = std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f));
-    MeshPartPtr ptr = CreateCylinderMeshPart(effect_->vertex_desc(), mat, params);
+    Matrix4 mat = rot * std::move(Translate(0.0f, -(kSpotHeight - 0.5f), 0.0f));
+    MeshPartPtr ptr = CreateCylinderMeshPart(effect_, params, mat);
     MergeMeshPart(part, ptr);
   }
 
   {
     // create VertexData
-    Matrix4 mat = std::move(Translate(0.0f, -0.5f, 0.0f));
+    Matrix4 mat = rot * std::move(Translate(0.0f, -0.5f, 0.0f));
     GeoBarrelParams params;
-    params.slice = kSlice;
-    params.stack = kStack;
     params.height = kSpotHeight;
     params.top_radius = kBaseRadius;
     params.bottom_radius = kBaseRadius;
-    MeshPartPtr ptr = CreateCylinderMeshPart(effect_->vertex_desc(), mat, params);
+    MeshPartPtr ptr = CreateCylinderMeshPart(effect_, params, mat);
     MergeMeshPart(part, ptr);
   }
+  light_mesh_->AddMeshPart(part);
 }
 
 void SpotLightController::InitControllerMesh() {
@@ -248,22 +168,27 @@ void SpotLightController::InitControllerMesh() {
   BlendingPtr blending = ctx->GetDefaultBlending();
   const SpotLight& spot = light->spot_light();
   float range = spot.range;
-  
+  Matrix4 mat = std::move(RotateX(Degree(-90.0f)));
   float top_radius = kTopRadius;
   float inner_sine = std::sqrt(1 - spot.theta * spot.theta);
   float inner_radius = range * inner_sine / spot.theta;
   float outer_sine = std::sqrt(1 - spot.phi * spot.phi);
   float outer_radius = range * outer_sine / spot.phi;
-  GeometryObjectPtr obj1 = new CylinderObject(
-      effect_->vertex_desc(), inner_radius, top_radius, range, 64, 64, false);
-  MeshPartPtr inner_cone = obj1->CreateObject(effect_.get());
-  inner_cone->SetBlending(blending.get());
-  GeometryObjectPtr obj2 = new CylinderObject(
-      effect_->vertex_desc(), outer_radius, top_radius, range, 64, 64, false);
-  MeshPartPtr outer_cone = obj2->CreateObject(effect_.get());
-  outer_cone->SetBlending(blending.get());
-  controller_mesh_->AddMeshPart(inner_cone);
-  controller_mesh_->AddMeshPart(outer_cone);
+
+  MeshPartPtr part(new MeshPart(effect_));
+  VertexDesc* desc = effect_->vertex_desc();
+  GeoBarrelParams params;
+  params.height = range;
+  params.top_radius = inner_radius;
+  params.bottom_radius = top_radius;
+  EntityPtr ptr1 = CreateBarrelEntity(desc, params, mat);
+  params.top_radius = outer_radius;
+  params.bottom_radius = top_radius;
+  EntityPtr ptr2 = CreateBarrelEntity(desc, params, mat);
+  part->AddEntity(ptr1);
+  part->AddEntity(ptr2);
+  part->SetBlending(blending.get());
+  controller_mesh_->AddMeshPart(part);
 }
 
 void SpotLightController::Update(const FrameArgs& args) {
@@ -274,17 +199,17 @@ void SpotLightController::Render(Renderer* renderer) {
   {
     ScopedRasterizerState scoped_cull(renderer, rasterizer_state_);
     LightController::Render(renderer);
-  }
-
-  if (node_->GetSceneNode()->picked()) {
-    line_mesh_->Render(renderer);
-    controller_mesh_->Render(renderer);
+    if (node_->GetSceneNode()->picked()) {
+      line_mesh_->Render(renderer);
+      controller_mesh_->Render(renderer);
+    }
   }
 }
 
-void SpotLightController::CreateCrossCircle(float mid, Light* light) {
+void SpotLightController::CreateFrameLine(float mid, Light* light) {
   RenderSystem* rs = RenderSystem::Current();
   const SpotLight& spot = light->spot_light();
+  Matrix4 mat = std::move(RotateX(Degree(-90.0f)));
   float range = spot.range;
   float top_radius = kTopRadius;
   
@@ -298,58 +223,31 @@ void SpotLightController::CreateCrossCircle(float mid, Light* light) {
   float mid_outer = kTopRadius * (mid + outer_top) / outer_top;
   VertexDesc* desc = effect_->vertex_desc();
   float y = range - mid;
-
   int32 kSlice = 64;
-  int32 kVertexNum = kSlice * 4 + 4;
-  SlotVertexDataPtr vdata(new SlotVertexData(desc, kVertexNum));
-  VertexPack vpack(vdata.get());
-  vpack.first();
-  GenerateCircle(mid_inner, mid, kSlice, &vpack);
-  GenerateCircle(mid_outer, mid, kSlice, &vpack);
-  GenerateCrossLine(mid_outer, mid, &vpack);
-  EntityPtr entity(new Entity(effect_->vertex_desc()));
-  entity->SetVertexBuffer(rs->CreateVertexBuffer(VertexBuffer::Options(), vdata), 0);
-  entity->set_topology(kLineList);
-  MeshPartPtr part(new MeshPart(effect_.get()));
-  part->AddEntity(entity);
-  line_mesh_->AddMeshPart(part);
-}
-
-void SpotLightController::CreateBorderLine(Light* light) {
-  RenderSystem* rs = RenderSystem::Current();
-  const SpotLight& spot = light->spot_light();
-  float range = spot.range;
-  float top_radius = kTopRadius;
-  float outer_sine = std::sqrt(1 - spot.phi * spot.phi);
-  float outer_radius = range * outer_sine / spot.phi;
-  VertexPos npos;
-  Vector4 normal(0.0f, 1.0f, 0.0f, 0.0f);
-  SlotVertexDataPtr vdata(new SlotVertexData(effect_->vertex_desc(), 8));
-  VertexPack vpack(vdata.get());
-  CHECK(GetSemanticIndex("normal", 0, effect_->vertex_desc(), &npos));
-  vpack.first();
-
-  Vector4 pos[8] = {
-    Vector4(-top_radius, 0.0f, 0.0f, 1.0f),
-    Vector4(-outer_radius, spot.range, 0.0f, 1.0f),
-    Vector4( top_radius, 0.0f, 0.0f, 1.0f),
-    Vector4( outer_radius, spot.range, 0.0f, 1.0f),
-    Vector4(0.0f, 0.0f,       -top_radius,   1.0f),
-    Vector4(0.0f, spot.range, -outer_radius, 1.0f),
-    Vector4(0.0f, 0.0f,        top_radius,   1.0f),
-    Vector4(0.0f, spot.range,  outer_radius, 1.0f),
+  Matrix4 circle_mat = mat * Translate(0.0f, mid, 0.0f);
+  EntityPtr entity1 = CreateCircleEntity(desc, mid_inner, kSlice, circle_mat);
+  EntityPtr entity2 = CreateCircleEntity(desc, mid_outer, kSlice, circle_mat);
+  Vector3 points[] = {
+    Vector3(-mid_outer, mid, 0.0f),
+    Vector3( mid_outer, mid, 0.0f),
+    Vector3(0.0f, mid, -mid_outer),
+    Vector3(0.0f, mid,  mid_outer),
+    Vector3(-top_radius, 0.0f, 0.0f),
+    Vector3(-outer_radius, spot.range, 0.0f),
+    Vector3( top_radius, 0.0f, 0.0f),
+    Vector3( outer_radius, spot.range, 0.0f),
+    Vector3(0.0f, 0.0f,       -top_radius),
+    Vector3(0.0f, spot.range, -outer_radius),
+    Vector3(0.0f, 0.0f,        top_radius),
+    Vector3(0.0f, spot.range,  outer_radius),
   };
-  for (uint32 i = 0; i < arraysize(pos); ++i) {
-    vpack.WriteVector4(pos[i], VertexPos(0, 0));
-    vpack.WriteVector4(normal, npos);
-    vpack.next(1);
-  }
-
-  EntityPtr entity(new Entity(effect_->vertex_desc()));
-  entity->SetVertexBuffer(rs->CreateVertexBuffer(VertexBuffer::Options(), vdata), 0);
-  entity->set_topology(kLineList);
-  MeshPartPtr part(new MeshPart(effect_.get()));
-  part->AddEntity(entity);
+  EntityPtr cross_entity = CreateGeoPointsList(points, arraysize(points), desc, 
+                                               mat);
+  cross_entity->set_topology(kLineList);
+  MeshPartPtr part(new MeshPart(effect_));
+  part->AddEntity(cross_entity);
+  part->AddEntity(entity1);
+  part->AddEntity(entity2);
   line_mesh_->AddMeshPart(part);
 }
 
@@ -358,7 +256,6 @@ DirLightController::DirLightController(RenderNode* node)
     : LightController(node) {
   LordEnv* ctx = LordEnv::instance();
   effect_ = CreateDiffuseEffect();
-  provider_->SetLocalTransform(std::move(RotateX(Degree(-90.0f))));
   light_mesh_ = new Mesh(ctx->GetEffectAdapterContext());
   InitMesh();
   InitControllerMesh();
@@ -378,8 +275,8 @@ void DirLightController::InitMesh() {
   params.cone_radius = 0.2f;
   params.cone_height = 0.3f;
   params.slice = 24;
-  MeshPartPtr part = CreateAxisMeshPart(desc, params);
-  part->SetEffect(effect_);
+  Matrix4 mat = std::move(RotateX(Degree(-90.0f)));
+  MeshPartPtr part = CreateAxisMeshPart(effect_, params, mat);
   light_mesh_->AddMeshPart(part);
 }
 

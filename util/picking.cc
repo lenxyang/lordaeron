@@ -1,6 +1,7 @@
 #include "lordaeron/util/picking.h"
 
 #include "azer/render/render.h"
+#include "azer/render/geometry.h"
 #include "azer/render/util.h"
 #include "lordaeron/env.h"
 
@@ -55,9 +56,8 @@ PlanePickingHelper::PlanePickingHelper(const azer::Plane& plane)
     : show_picking_(false),
       plane_(plane) {
   effect_ = CreateDiffuseEffect();
-  GeometryObjectPtr ptr = new SphereObject(effect_->vertex_desc(), 32, 32);
-  sphere_ = new Entity(effect_->vertex_desc(), ptr->GetVertexBuffer(),
-                       ptr->GetIndicesBuffer());
+  GeoSphereParams param;
+  sphere_ = CreateSphereEntity(effect_->vertex_desc(), param, Matrix4::kIdentity);
   CreatePlane();
 }
 

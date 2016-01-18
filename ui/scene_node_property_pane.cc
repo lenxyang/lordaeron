@@ -16,14 +16,16 @@ SceneNodeContents::SceneNodeContents(SceneNode* node)
   name_textfield_->SetText(::base::UTF8ToUTF16(node->name()));
   AddChildView(name_textfield_);
 
+  azer::Vector3 vmin, vmax;
+  GetSceneNodeBounds(node, &vmin, &vmax);
   vmin_label_ = new views::Label(UTF8ToUTF16("Bounding Min"));
   AddChildView(vmin_label_);
-  vmin_control_ = new VectorControl(node->vmin());
+  vmin_control_ = new VectorControl(vmin);
   vmin_control_->SetReadOnly(true);
   AddChildView(vmin_control_);
   vmax_label_ = new views::Label(UTF8ToUTF16("Bounding Max"));
   AddChildView(vmax_label_);
-  vmax_control_ = new VectorControl(node->vmax());
+  vmax_control_ = new VectorControl(vmax);
   vmax_control_->SetReadOnly(true);
   AddChildView(vmax_control_);
 }

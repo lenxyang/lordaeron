@@ -29,8 +29,10 @@ class RenderWindow : public nelf::MainFrame,
  protected:
   virtual void OnInit() {}
   virtual void OnUpdateFrame(const azer::FrameArgs& args) = 0;
+  virtual void OnRenderBegin(const azer::FrameArgs&, azer::Renderer*) {}
   virtual void OnRenderFrame(const azer::FrameArgs& args, 
                              azer::Renderer* renderer) = 0;
+  virtual void OnRenderEnd(const azer::FrameArgs&, azer::Renderer*) {}
  protected:
   // override from nelf::RenderDelegate
   bool Initialize() override;
