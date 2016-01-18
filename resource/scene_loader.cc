@@ -162,6 +162,11 @@ bool SceneLoader::InitSceneNode(SceneNode* node, const ConfigNode* config,
     return false;
   }
 
+  for (auto iter = config->attributes().begin(); 
+       iter != config->attributes().end(); ++iter) {
+    node->AddAttr(iter->first, iter->second);
+  }
+
   if (config->GetAttr("cast_shadow") == "false") {
     node->set_shadow_caster(false);
   } else {
