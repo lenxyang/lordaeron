@@ -423,6 +423,18 @@ bool SceneNode::HasObserver(SceneNodeObserver* observer) {
   return observers_.HasObserver(observer);
 }
 
+void SceneNode::AddAttr(const std::string& name, const std::string& value) {
+  attributes_.insert(std::make_pair(name, value));
+}
+std::string SceneNode::GetAttr(const std::string& name) const {
+  auto iter = attributes_.find(name);
+  if (iter != attributes_.end()) {
+    return iter->second;
+  } else {
+    return std::string("");
+  }
+}
+
 const char* SceneNodeName(int32 type) {
   switch (type) {
     case kSceneNode: return "SceneNode";

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <vector>
 
 #include "base/memory/ref_counted.h"
@@ -132,6 +133,8 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void set_user_data(void* data) { user_data_ = data;}
   void* user_data() {return user_data_;}
   const void* user_data() const {return user_data_;}
+  void AddAttr(const std::string& name, const std::string& value);
+  std::string GetAttr(const std::string& name) const;
 
   void AddObserver(SceneNodeObserver* observer); 
   void RemoveObserver(SceneNodeObserver* observer);
@@ -161,6 +164,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   void* user_data_;
   scoped_ptr<SceneNodeData> data_;
   azer::TransformHolder holder_;
+  std::map<std::string, std::string> attributes_;
 
   // bounding
   azer::Vector3 local_vmin_;
