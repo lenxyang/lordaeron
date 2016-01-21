@@ -5,7 +5,7 @@
 #include "ui/views/controls/tree/tree_view_controller.h"
 #include "nelf/nelf.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/ui/window.h"
+#include "lordaeron/ui/window/window.h"
 
 namespace lord {
 

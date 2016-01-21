@@ -4,7 +4,7 @@
 #include "nelf/nelf.h"
 #include "lordaeron/env.h"
 #include "lordaeron/scene/scene_node.h"
-#include "lordaeron/ui/render_window.h"
+#include "lordaeron/ui/window/render_window.h"
 
 namespace azer {
 class Camera;

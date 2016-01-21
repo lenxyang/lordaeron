@@ -4,7 +4,7 @@
 #include "lordaeron/interactive/interactive_controller.h"
 #include "lordaeron/scene/scene_node.h"
 #include "lordaeron/scene/scene_node_picking.h"
-#include "lordaeron/ui/render_window.h"
+#include "lordaeron/ui/window/render_window.h"
 #include "lordaeron/util/picking.h"
 
 namespace lord {

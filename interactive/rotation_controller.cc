@@ -6,7 +6,7 @@
 #include "azer/render/geometry.h"
 #include "lordaeron/env.h"
 #include "lordaeron/effect/diffuse_effect.h"
-#include "lordaeron/ui/render_window.h"
+#include "lordaeron/ui/window/render_window.h"
 #include "lordaeron/interactive/interactive_context.h"
 
 namespace lord {
@@ -14,8 +14,8 @@ namespace lord {
 using namespace azer;
 
 namespace {
-bool PickingCircle(const azer::Vector3& pos, float radius,  const azer::Plane& p,
-                   const azer::Ray& ray, const Camera& camera, float* depth) {
+bool PickingCircle(const Vector3& pos, float radius,  const Plane& p,
+                   const Ray& ray, const Camera& camera, float* depth) {
   if (std::abs(ray.directional().dot(p.normal()) - 1.0) < 0.002) { 
     return true;
   }
@@ -39,10 +39,10 @@ RotationController::RotationController()
 RotationController::~RotationController() {
 }
 
-void RotationController::Update(const azer::FrameArgs& args) {
+void RotationController::Update(const FrameArgs& args) {
 }
 
-void RotationController::Render(azer::Renderer* renderer) {
+void RotationController::Render(Renderer* renderer) {
   SceneNode* node = context_->GetPickingNode();
   if (node) {
     const Camera& camera = context_->window()->camera();
@@ -214,9 +214,8 @@ void CircleCoordinateObject::set_radius(float radius) {
   world_[2] = std::move(axis_world_[2] * scale_);
 }
 
-void CircleCoordinateObject::Render(const azer::Matrix4& world,
-                                    const azer::Matrix4& pv, 
-                                    azer::Renderer* renderer) {
+void CircleCoordinateObject::Render(const Matrix4& world, const Matrix4& pv, 
+                                    Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
   effect_->SetDirLight(context->GetInternalLight());
   for (int i = 0; i < 3; ++i) {
@@ -256,11 +255,11 @@ void RotationControllerObject::set_radius(float r) {
   circles_->set_radius(r * 1.01);
 }
 
-void RotationControllerObject::SetPosition(azer::Vector3& position) {
+void RotationControllerObject::SetPosition(Vector3& position) {
   position_ = position;
 }
 
-void RotationControllerObject::SetSelectedColor(const azer::Vector4& color) {
+void RotationControllerObject::SetSelectedColor(const Vector4& color) {
   selected_color_ = color;
 }
 
@@ -281,8 +280,7 @@ void RotationControllerObject::SetSelectedAxis(int32 axis) {
   }
 }
 
-void RotationControllerObject::Render(const azer::Matrix4& pv, 
-                                      azer::Renderer* renderer) {
+void RotationControllerObject::Render(const Matrix4& pv, Renderer* renderer) {
   ScopedRasterizerState scoped_culling(renderer, rasterizer_state_);
   Matrix4 world = Translate(position_);
   Matrix4 lworld = std::move(world * Scale(radius_, radius_, radius_));

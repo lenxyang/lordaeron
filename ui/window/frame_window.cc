@@ -1,4 +1,4 @@
-#include "lordaeron/ui/frame_window.h"
+#include "lordaeron/ui/window/frame_window.h"
 
 #include "lordaeron/interactive/interactive_context.h"
 #include "lordaeron/render/coordinate.h"

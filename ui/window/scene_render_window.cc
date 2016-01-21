@@ -1,11 +1,11 @@
-#include "lordaeron/ui/scene_render_window.h"
+#include "lordaeron/ui/window/scene_render_window.h"
 
 #include "ui/views/layout/layout_manager.h"
 #include "azer/render/render.h"
 #include "lordaeron/env.h"
 #include "lordaeron/interactive/fps_camera_controller.h"
 #include "lordaeron/scene/scene_render.h"
-#include "lordaeron/ui/render_window.h"
+#include "lordaeron/ui/window/render_window.h"
 #include "lordaeron/ui/renderer_info_pane.h"
 
 namespace lord {

@@ -1,4 +1,4 @@
-#include "lordaeron/ui/window.h"
+#include "lordaeron/ui/window/window.h"
 
 #include "ui/views/layout/box_layout.h"
 #include "ui/views/controls/button/button.h"
