@@ -12,8 +12,7 @@ CameraOverlay::CameraOverlay(const Camera* camera)
   RenderSystem* rs = RenderSystem::Current();
     azer::Texture::Options rdopt;
   rdopt.size = gfx::Size(128, 128);
-  rdopt.target = (azer::Texture::BindTarget)
-      (azer::Texture::kRenderTarget | azer::Texture::kShaderResource);
+  rdopt.target = (kBindTargetRenderTarget | kBindTargetShaderResource);
   renderer_ = rs->CreateRenderer(rdopt);
   viewport_.bounds = gfx::Rect(rdopt.size);
   renderer_->SetViewport(viewport_);
