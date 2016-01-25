@@ -45,7 +45,7 @@ VariantResource EffectLoader::Load(const ConfigNode* node,
   for (auto iter = item.begin(); iter != item.end(); ++iter) {
     contents.clear();
     ConfigNode* n = iter->get();
-    GpuProgram::ShaderInfo info;
+    ShaderInfo info;
     info.stage = GetStageFromName(n->GetAttr("stage"));
     info.entry = n->GetAttr("entry");
     info.version = n->GetAttr("version");
