@@ -243,7 +243,7 @@ void SpotLightController::CreateFrameLine(float mid, Light* light) {
   };
   EntityPtr cross_entity = CreateGeoPointsList(points, arraysize(points), desc, 
                                                mat);
-  cross_entity->set_topology(kLineList);
+  cross_entity->set_primitive(kLineList);
   MeshPartPtr part(new MeshPart(effect_));
   part->AddEntity(cross_entity);
   part->AddEntity(entity1);

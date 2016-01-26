@@ -45,7 +45,7 @@ EntityPtr CreateLineList(const Vector4* pos, int32 count, VertexDesc* desc) {
   RenderSystem* rs = RenderSystem::Current();
   VertexBufferPtr vb = rs->CreateVertexBuffer(VertexBuffer::Options(), vdata);
   EntityPtr entity = new Entity(desc);
-  entity->set_topology(kLineList);
+  entity->set_primitive(kLineList);
   entity->SetVertexBuffer(vb, 0);
   return entity;
 }

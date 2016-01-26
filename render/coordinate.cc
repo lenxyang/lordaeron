@@ -31,7 +31,7 @@ CoordinateGrid::CoordinateGrid(float width, float height, int num)
 
   EntityPtr entity = CreateGeoPointsList(ptr.get(), kCount, effect_->vertex_desc(),
                                          Matrix4::kIdentity);
-  entity->set_topology(kLineList);
+  entity->set_primitive(kLineList);
   part_ = new MeshPart(effect_);
   part_->AddEntity(entity);
 }
