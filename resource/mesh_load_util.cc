@@ -169,7 +169,7 @@ const aiScene* MeshLoadUtil::LoadScene(const azer::ResPath& path,
 
   const aiScene* scene = importer->ReadFileFromMemory(
       (const void*)&contents[0], contents.size(), flags, 
-      ::base::UTF16ToUTF8(path.filename().as_string()).c_str());
+      ::base::UTF16ToUTF8(path.BaseName().as_string()).c_str());
   return scene;
 }
 
