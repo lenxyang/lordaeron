@@ -19,6 +19,7 @@ RenderWindow::RenderWindow(const gfx::Rect& init_bounds)
   Vector3 lookat(0.0f, 1.0f, 0.0f);
   Vector3 up(0.0f, 1.0f, 0.0f);
   camera_.reset(camera_pos, lookat, up);
+  clear_color_ = kRenderBgColor;
 }
 
 RenderWindow::RenderWindow(const gfx::Rect& init_bounds, 
@@ -30,6 +31,7 @@ RenderWindow::RenderWindow(const gfx::Rect& init_bounds,
   Vector3 lookat(0.0f, 1.0f, 0.0f);
   Vector3 up(0.0f, 1.0f, 0.0f);
   camera_.reset(camera_pos, lookat, up);
+  clear_color_ = kRenderBgColor;
 }
 
 RenderWindow::~RenderWindow() {
@@ -71,7 +73,7 @@ void RenderWindow::OnUpdate(const FrameArgs& args) {
 void RenderWindow::OnRender(const FrameArgs& args) {
   Renderer* renderer = window()->GetRenderer().get();
   renderer->Use();
-  renderer->Clear(kRenderBgColor);
+  renderer->Clear(clear_color_);
   renderer->ClearDepthAndStencil();
   OnRenderFrame(args, renderer);
 }

@@ -26,6 +26,7 @@ class RenderWindow : public nelf::MainFrame,
   azer::Camera* mutable_camera() { return &camera_;}
   const azer::Camera& camera() const { return camera_;}
   nelf::RenderLoop* GetRenderLoop() { return render_loop_.get();}
+  void SetClearColor(const azer::Vector4& color) { clear_color_ = color;}
  protected:
   virtual void OnInit() {}
   virtual void OnUpdateFrame(const azer::FrameArgs& args) = 0;
@@ -50,6 +51,7 @@ class RenderWindow : public nelf::MainFrame,
   scoped_refptr<nelf::RenderLoop> render_loop_;
   azer::Camera camera_;
   RendererInfoPane* renderer_pane_;
+  azer::Vector4 clear_color_;
   DISALLOW_COPY_AND_ASSIGN(RenderWindow);
 };
 }  // namespace lord
