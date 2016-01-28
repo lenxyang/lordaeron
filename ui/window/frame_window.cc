@@ -32,6 +32,8 @@ FrameWindow::~FrameWindow() {
 }
 
 bool FrameWindow::Initialize() {
+  mutable_camera()->reset(Vector3(0.0f, 8.0f, 12.0f), Vector3(0.0f, 0.0f, 0.0f),
+                          Vector3(0.0f, 1.0f, 0.0f));
   camera_overlay_.reset(new CameraOverlay(&camera()));
   gridline_.reset(new lord::CoordinateGrid(1.0f, 1.0f, 30));
   gridline_->SetColor(kGridLineColor);
@@ -81,8 +83,6 @@ void FrameWindow::OnInitUI() {
   inspector->Init();
   GetInteractive()->AddObserver(inspector->inspector_pane());
   inspector->Show();
-  mutable_camera()->reset(Vector3(0.0f, 8.0f, 12.0f), Vector3(0.0f, 0.0f, 0.0f),
-                          Vector3(0.0f, 1.0f, 0.0f));
   inspector->Dock(nelf::kDockLeft);
   ObjectControlToolbar* toolbar1 = new ObjectControlToolbar(this, GetInteractive());
   toolbar1->Float();
