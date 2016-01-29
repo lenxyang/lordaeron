@@ -60,6 +60,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   ~SceneNode();
   
   // attributes
+  int32 id() const { return id_;}
   void set_visible(bool visible) { visible_ = visible;}
   bool visible() const { return visible_;}
 
@@ -170,6 +171,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   azer::Vector3 local_vmin_;
   azer::Vector3 local_vmax_;
   ObserverList<SceneNodeObserver> observers_;
+  int32 id_;
   DISALLOW_COPY_AND_ASSIGN(SceneNode);
 };
 

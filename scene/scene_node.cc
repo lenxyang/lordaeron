@@ -1,6 +1,7 @@
 #include "lordaeron/scene/scene_node.h"
 
 #include "base/logging.h"
+#include "base/lazy_instance.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/string_util.h"
 #include "base/strings/string_tokenizer.h"
@@ -23,6 +24,16 @@ void CalcSceneOrientForZDirection(const Vector3& d, Quaternion* orient) {
   *orient = Quaternion::FromAxis(newx, newy, newz);
   Vector3 newzz = orient->zaxis();
 }
+
+class SceneIdAllocator {
+ public:
+  SceneIdAllocator() : allocated_(0) {}
+  int32 allocate() { return ++allocated_;}
+ private:
+  std::atomic<int32> allocated_;
+  DISALLOW_COPY_AND_ASSIGN(SceneIdAllocator);
+};
+static LazyInstance<SceneIdAllocator> id_alloc = LAZY_INSTANCE_INITIALIZER;
 }
 
 // class SceneNodeData
@@ -125,6 +136,7 @@ SceneNode::SceneNode(const std::string& name, SceneNodeType type,
 }
 
 void SceneNode::InitMember() {
+  id_ = id_alloc.Point()->allocate();
   visible_ = true;
   pickable_ = false;
   picked_ = false;
