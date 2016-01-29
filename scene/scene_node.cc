@@ -1,5 +1,6 @@
 #include "lordaeron/scene/scene_node.h"
 
+#include <atomic>
 #include "base/logging.h"
 #include "base/lazy_instance.h"
 #include "base/strings/stringprintf.h"
@@ -33,8 +34,40 @@ class SceneIdAllocator {
   std::atomic<int32> allocated_;
   DISALLOW_COPY_AND_ASSIGN(SceneIdAllocator);
 };
-static LazyInstance<SceneIdAllocator> id_alloc = LAZY_INSTANCE_INITIALIZER;
+static ::base::LazyInstance<SceneIdAllocator> id_alloc = LAZY_INSTANCE_INITIALIZER;
 }
+
+SceneNodeManager::SceneNodeManager() {}
+
+bool SceneNodeManager::Register(SceneNode* node) {
+  if (dict_.end() == dict_.find(node->id())) {
+    dict_.insert(std::make_pair(node->id(), node));
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool SceneNodeManager::Unregister(SceneNode* node) {
+  auto iter = dict_.find(node->id());
+  if (dict_.end() != iter) {
+    dict_.erase(iter);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+SceneNode* SceneNodeManager::Lookup(int32 id) {
+  auto iter = dict_.find(id);
+  if (dict_.end() != iter) {
+    return iter->second;
+  } else {
+    return NULL;
+  }
+}
+static ::base::LazyInstance<SceneNodeManager> scene_node_mgr =
+    LAZY_INSTANCE_INITIALIZER;
 
 // class SceneNodeData
 SceneNodeData::SceneNodeData(SceneNode* node)
@@ -111,6 +144,10 @@ void SceneNodeData::OnNodeOrientChanged(SceneNode* node, const Quaternion& prev)
 }
 
 // class SceneNode
+SceneNode* SceneNode::Lookup(int32 id) {
+  return scene_node_mgr.Pointer()->Lookup(id);
+}
+
 SceneNode::SceneNode() {
   InitMember();
 }
@@ -136,7 +173,8 @@ SceneNode::SceneNode(const std::string& name, SceneNodeType type,
 }
 
 void SceneNode::InitMember() {
-  id_ = id_alloc.Point()->allocate();
+  id_ = id_alloc.Pointer()->allocate();
+  scene_node_mgr.Pointer()->Register(this);
   visible_ = true;
   pickable_ = false;
   picked_ = false;
@@ -149,6 +187,7 @@ void SceneNode::InitMember() {
 }
 
 SceneNode::~SceneNode() {
+  scene_node_mgr.Pointer()->Unregister(this);
 }
 
 void SceneNode::AddChild(SceneNode* child) {

@@ -60,6 +60,7 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   ~SceneNode();
   
   // attributes
+  static SceneNode* Lookup(int32 id);
   int32 id() const { return id_;}
   void set_visible(bool visible) { visible_ = visible;}
   bool visible() const { return visible_;}
@@ -173,6 +174,17 @@ class SceneNode: public ::base::RefCounted<SceneNode> {
   ObserverList<SceneNodeObserver> observers_;
   int32 id_;
   DISALLOW_COPY_AND_ASSIGN(SceneNode);
+};
+
+class SceneNodeManager {
+ public:
+  SceneNodeManager();
+  bool Register(SceneNode* node);
+  bool Unregister(SceneNode* node);
+  SceneNode* Lookup(int32 id);
+ private:
+  std::map<int32, SceneNode*> dict_;
+  DISALLOW_COPY_AND_ASSIGN(SceneNodeManager);
 };
 
 const char* SceneNodeName(int32 type);
