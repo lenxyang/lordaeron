@@ -154,7 +154,3 @@ static_library("lordaeron") {
     "res",
   ]
 }
-
-group("sandbox") {
-  deps = ["sandbox"]
-}

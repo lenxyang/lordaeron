@@ -1,9 +1,0 @@
-
-group("sandbox") {
-  deps = [
-    "objects",
-    "scene",
-    "mesh",
-    "lighting",
-  ]
-}
