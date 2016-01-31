@@ -7,7 +7,6 @@
 
 #include "azer/render/render.h"
 #include "azer/render/util/effects/vertex_desc.h"
-#include "azer/render/util/shader_util.h"
 #include "lordaeron/scene/render_node.h"
 #include "lordaeron/scene/scene_node.h"
 
@@ -22,7 +21,7 @@ NormalLineEffect::~NormalLineEffect() {}
 const char* NormalLineEffect::GetEffectName() const {
   return kEffectName;
 }
-bool NormalLineEffect::Init(VertexDesc* desc, const ShaderPrograms& sources) {
+bool NormalLineEffect::Init(VertexDesc* desc, const Shaders& sources) {
   DCHECK(desc);
   DCHECK(sources.size() == kRenderPipelineStageNum);
   DCHECK(!sources[kVertexStage].code.empty());
@@ -56,7 +55,7 @@ void NormalLineEffect::InitGpuConstantTable() {
   gpu_table_[kPixelStage] = rs->CreateGpuConstantsTable(
       arraysize(ps_table_desc), ps_table_desc);
 }
-void NormalLineEffect::InitTechnique(const ShaderPrograms& sources) {
+void NormalLineEffect::InitTechnique(const Shaders& sources) {
   InitShaders(sources);
 }
 
@@ -90,16 +89,13 @@ void NormalLineEffect::ApplyGpuConstantTable(Renderer* renderer) {
 }
 
 NormalLineEffectPtr CreateNormalLineEffect() {
-  Effect::ShaderPrograms shaders;
-  CHECK(LoadShaderAtStage(kVertexStage, 
-                          "lordaeron/effect/normal_line.hlsl.vs",
-                          &shaders));
-  CHECK(LoadShaderAtStage(kGeometryStage, 
-                          "lordaeron/effect/normal_line.hlsl.gs",
-                          &shaders));
-  CHECK(LoadShaderAtStage(kPixelStage, 
-                          "lordaeron/effect/normal_line.hlsl.ps",
-                          &shaders));
+  Shaders shaders;
+  CHECK(LoadStageShader(kVertexStage, "lordaeron/effect/normal_line.hlsl.vs",
+                        &shaders));
+  CHECK(LoadStageShader(kGeometryStage, "lordaeron/effect/normal_line.hlsl.gs",
+                        &shaders));
+  CHECK(LoadStageShader(kPixelStage, "lordaeron/effect/normal_line.hlsl.ps",
+                        &shaders));
   NormalLineEffectPtr ptr(new NormalLineEffect);
   ptr->Init(PosNormalVertex::CreateVertexDesc(), shaders);
   return ptr;

@@ -38,7 +38,7 @@ int GetStageFromName(const std::string& name) {
 
 VariantResource EffectLoader::Load(const ConfigNode* node,
                                    ResourceLoadContext* ctx) {
-  Effect::ShaderPrograms program;
+  Shaders program;
   program.resize(kRenderPipelineStageNum);
   ConfigNodes item = node->GetTaggedChildren("shader");
   FileContents contents;

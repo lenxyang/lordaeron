@@ -5,7 +5,6 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "azer/render/render.h"
-#include "azer/render/util/shader_util.h"
 
 using namespace azer;
 
@@ -15,7 +14,7 @@ ColorEffect::ColorEffect() {}
 ColorEffect::~ColorEffect() {}
 
 const char* ColorEffect::GetEffectName() const {  return kEffectName;}
-bool ColorEffect::Init(azer::VertexDesc* desc, const ShaderPrograms& sources) {
+bool ColorEffect::Init(azer::VertexDesc* desc, const Shaders& sources) {
   DCHECK(sources.size() == kRenderPipelineStageNum);
   DCHECK(!sources[kVertexStage].code.empty());
   DCHECK(!sources[kPixelStage].code.empty());
@@ -43,7 +42,7 @@ void ColorEffect::InitGpuConstantTable() {
   gpu_table_[kPixelStage] = rs->CreateGpuConstantsTable(
       arraysize(ps_table_desc), ps_table_desc);
 }
-void ColorEffect::InitTechnique(const ShaderPrograms& sources) {
+void ColorEffect::InitTechnique(const Shaders& sources) {
   InitShaders(sources);
 }
 
@@ -64,11 +63,9 @@ namespace {
 const VertexDesc::Desc kVertexDesc[] = {{"POSITION", 0, kVec4},};
 }
 ColorEffectPtr CreateColorEffect() {
-  Effect::ShaderPrograms shaders;
-  CHECK(LoadShaderAtStage(
-      kVertexStage, "lordaeron/effect/color.hlsl.vs",&shaders));
-  CHECK(LoadShaderAtStage(
-      kPixelStage, "lordaeron/effect/color.hlsl.ps", &shaders));
+  Shaders shaders;
+  CHECK(LoadStageShader(kVertexStage, "lordaeron/effect/color.hlsl.vs",&shaders));
+  CHECK(LoadStageShader(kPixelStage, "lordaeron/effect/color.hlsl.ps", &shaders));
   VertexDescPtr vertex_desc(new VertexDesc(kVertexDesc, 1));
   ColorEffectPtr ptr(new ColorEffect);
   ptr->Init(vertex_desc, shaders);

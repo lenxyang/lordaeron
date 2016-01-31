@@ -10,7 +10,6 @@
 #include "lordaeron/scene/render_env_node.h"
 #include "lordaeron/scene/render_node.h"
 #include "lordaeron/scene/ui_scene_render.h"
-#include "azer/render/util/shader_util.h"
 
 using namespace azer;
 
@@ -26,7 +25,7 @@ DiffuseEffect::~DiffuseEffect() {
 const char* DiffuseEffect::GetEffectName() const {
   return kEffectName;
 }
-bool DiffuseEffect::Init(azer::VertexDesc* desc, const ShaderPrograms& sources) {
+bool DiffuseEffect::Init(azer::VertexDesc* desc, const Shaders& sources) {
   DCHECK(sources.size() == kRenderPipelineStageNum);
   DCHECK(!sources[kVertexStage].code.empty());
   DCHECK(!sources[kPixelStage].code.empty());
@@ -60,7 +59,7 @@ void DiffuseEffect::InitGpuConstantTable() {
   gpu_table_[kPixelStage] = rs->CreateGpuConstantsTable(
       arraysize(ps_table_desc), ps_table_desc);
 }
-void DiffuseEffect::InitTechnique(const ShaderPrograms& sources) {
+void DiffuseEffect::InitTechnique(const Shaders& sources) {
   InitShaders(sources);
 }
 
@@ -99,11 +98,11 @@ void DiffuseEffect::ApplyGpuConstantTable(Renderer* renderer) {
 }
 
 DiffuseEffectPtr CreateDiffuseEffect() {
-  Effect::ShaderPrograms shaders;
-  CHECK(LoadShaderAtStage(kVertexStage, "lordaeron/effect/colored_diffuse.hlsl.vs",
-                          &shaders));
-  CHECK(LoadShaderAtStage(kPixelStage, "lordaeron/effect/colored_diffuse.hlsl.ps",
-                          &shaders));
+  Shaders shaders;
+  CHECK(LoadStageShader(kVertexStage, "lordaeron/effect/colored_diffuse.hlsl.vs",
+                        &shaders));
+  CHECK(LoadStageShader(kPixelStage, "lordaeron/effect/colored_diffuse.hlsl.ps",
+                        &shaders));
   DiffuseEffectPtr ptr(new DiffuseEffect);
   ptr->Init(PosNormalVertex::CreateVertexDesc(), shaders);
   return ptr;
