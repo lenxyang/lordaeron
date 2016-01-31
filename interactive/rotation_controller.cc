@@ -92,9 +92,8 @@ bool RotationController::OnMousePressed(const ui::MouseEvent& event) {
 }
 
 bool RotationController::OnMouseDragged(const ui::MouseEvent& event) {
-  if (dragging_) {
-    SceneNode* node = context_->GetPickingNode();
-    DCHECK(node);
+  SceneNode* node = context_->GetPickingNode();
+  if (dragging_ && node) {
     float width = context_->window()->GetContentsBounds().width();
     float height = context_->window()->GetContentsBounds().height();
     Quaternion quaternion(origin_orient_);

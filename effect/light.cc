@@ -258,7 +258,7 @@ bool Light::HasObserver(LightObserver* observer) const {
 
 void InitShadowMapCamera(const Light* light, Camera* camera) {
   DCHECK_EQ(light->type(), kSpotLight);
-  Radians rad(std::acos(light->spot_light().phi) * 2.0f);
+  Radians rad(std::acos(light->spot_light().phi) * 2.0f * 1.25f);
   camera->mutable_frustum()->set_aspect(1.0f);
   camera->mutable_frustum()->set_fovy(sin(rad));
   Vector3 pos = light->spot_light().position;
