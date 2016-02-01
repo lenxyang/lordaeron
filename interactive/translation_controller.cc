@@ -224,10 +224,10 @@ TransformAxisObject::TransformAxisObject(DiffuseEffect* effect)
     : length_(1.0f),
       effect_(effect) {
   Plane xzplane = Plane(Vector3(0.0f, 1.0f, 0.0f), 0.0f);
-  rotation_[0] = std::move(MirrorTrans(xzplane)) * 
+  rotation_[0] = std::move(ReflectTrans(xzplane)) * 
       std::move(RotateZ(Degree(90.0f)));
   rotation_[1] = Matrix4::kIdentity;
-  rotation_[2] = std::move(MirrorTrans(xzplane)) * 
+  rotation_[2] = std::move(ReflectTrans(xzplane)) * 
       std::move(RotateX(Degree(-90.0f)));
   reset_color();
   CreatePlane(effect_->vertex_desc());
@@ -287,8 +287,10 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
   int32 count = static_cast<int32>(arraysize(rotation_));
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
-  ScopedRasterizerState scoped_render_state(renderer, rasterizer_state_);
-  ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
+  ScopedRasterizerState scoped_render_state(renderer);
+  ScopedDepthStencilState scoped_depth_state(renderer);
+  renderer->SetRasterizerState(rasterizer_state_);
+  renderer->SetDepthStencilState(depth_state_, 0);
   for (int32 i = 0; i < count; ++i) {
     Matrix4 lworld = std::move(world * rotation_[i]);
     effect_->SetDirLight(context->GetInternalLight());

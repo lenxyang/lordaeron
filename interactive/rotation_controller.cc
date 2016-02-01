@@ -280,7 +280,8 @@ void RotationControllerObject::SetSelectedAxis(int32 axis) {
 }
 
 void RotationControllerObject::Render(const Matrix4& pv, Renderer* renderer) {
-  ScopedRasterizerState scoped_culling(renderer, rasterizer_state_);
+  ScopedRasterizerState scoped_culling(renderer);
+  renderer->SetRasterizerState(rasterizer_state_);
   Matrix4 world = Translate(position_);
   Matrix4 lworld = std::move(world * Scale(radius_, radius_, radius_));
   renderer->SetPrimitiveTopology(kTriangleList);

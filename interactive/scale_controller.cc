@@ -103,10 +103,10 @@ ScaleAxisPlaneObject::ScaleAxisPlaneObject(DiffuseEffect* effect)
       inner_(0.35f),
       outer_(0.55f) {
   Plane xzplane = Plane(Vector3(0.0f, 1.0f, 0.0f), 0.0f);
-  rotation_[0] = std::move(MirrorTrans(xzplane)) * 
+  rotation_[0] = std::move(ReflectTrans(xzplane)) * 
       std::move(RotateZ(Degree(90.0f)));
   rotation_[1] = Matrix4::kIdentity;
-  rotation_[2] = std::move(MirrorTrans(xzplane)) * 
+  rotation_[2] = std::move(ReflectTrans(xzplane)) * 
       std::move(RotateX(Degree(-90.0f)));
   reset_color();
   set_length(1.0f);
@@ -178,8 +178,10 @@ void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
   BlendingPtr blending = context->GetDefaultBlending();
   renderer->UseBlending(blending.get(), 0);
-  ScopedRasterizerState scoped_render_state(renderer, rasterizer_state_);
-  ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
+  ScopedRasterizerState scoped_render_state(renderer);
+  ScopedDepthStencilState scoped_depth_state(renderer);
+  renderer->SetRasterizerState(rasterizer_state_);
+  renderer->SetDepthStencilState(depth_state_, 0);
   for (int32 i = 0; i < 3; ++i) {
     Matrix4 lworld = std::move(world_ * rotation_[i]);
     effect_->SetDirLight(context->GetInternalLight());

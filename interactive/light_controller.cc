@@ -197,7 +197,8 @@ void SpotLightController::Update(const FrameArgs& args) {
 
 void SpotLightController::Render(Renderer* renderer) {
   {
-    ScopedRasterizerState scoped_cull(renderer, rasterizer_state_);
+    ScopedRasterizerState scoped_cull(renderer);
+    renderer->SetRasterizerState(rasterizer_state_);
     LightController::Render(renderer);
     if (node_->GetSceneNode()->picked()) {
       line_mesh_->Render(renderer);

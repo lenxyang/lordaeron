@@ -47,7 +47,8 @@ void XYZAxisObject::SetPosition(const azer::Vector3& pos) {
 }
 
 void XYZAxisObject::Render(const Matrix4& pv, Renderer* renderer) {
-  ScopedDepthStencilState scoped_depth_state(renderer, depth_state_);
+  ScopedDepthStencilState scoped_depth_state(renderer);
+  renderer->SetDepthStencilState(depth_state_, 1);
   LordEnv* context = LordEnv::instance();
   Matrix4 world = std::move(Translate(position_));
   for (int32 i = 0; i < 3; ++i) {
