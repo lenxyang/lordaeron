@@ -222,7 +222,7 @@ void CircleCoordinateObject::Render(const Matrix4& world, const Matrix4& pv,
     effect_->SetColor(axis_color_[i]);
     effect_->SetWorld(w);
     effect_->SetPV(pv);
-    renderer->UseEffect(effect_.get());
+    renderer->BindEffect(effect_.get());
     circle_->Render(renderer);
   }
 }
@@ -288,12 +288,12 @@ void RotationControllerObject::Render(const Matrix4& pv, Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
 
   BlendingPtr blending = context->GetDefaultBlending();
-  renderer->UseBlending(blending.get(), 0);
+  renderer->SetBlending(blending.get(), 0, 0xffffffff);
   effect_->SetDirLight(context->GetInternalLight());
   effect_->SetColor(sphere_color_);
   effect_->SetWorld(lworld);
   effect_->SetPV(pv);
-  renderer->UseEffect(effect_.get());
+  renderer->BindEffect(effect_.get());
   sphere_->Render(renderer);
   renderer->ResetBlending();
 

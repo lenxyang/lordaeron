@@ -177,7 +177,7 @@ void ScaleAxisPlaneObject::InitPlaneFrame() {
 void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
   BlendingPtr blending = context->GetDefaultBlending();
-  renderer->UseBlending(blending.get(), 0);
+  renderer->SetBlending(blending.get(), 0, 0xffffffff);
   ScopedRasterizerState scoped_render_state(renderer);
   ScopedDepthStencilState scoped_depth_state(renderer);
   renderer->SetRasterizerState(rasterizer_state_);
@@ -188,7 +188,7 @@ void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
     effect_->SetColor(color_[i]);
     effect_->SetPV(pv);
     effect_->SetWorld(lworld);
-    renderer->UseEffect(effect_.get());
+    renderer->BindEffect(effect_.get());
     plane_->Render(renderer);
   }
 
@@ -196,7 +196,7 @@ void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
   effect_->SetColor(color_[3]);
   effect_->SetPV(pv);
   effect_->SetWorld(world_);
-  renderer->UseEffect(effect_.get());
+  renderer->BindEffect(effect_.get());
   center_plane_->Render(renderer);
   renderer->ResetBlending();
 
@@ -206,7 +206,7 @@ void ScaleAxisPlaneObject::Render(const azer::Matrix4& pv, Renderer* renderer) {
     effect_->SetColor(color_[i]);
     effect_->SetPV(pv);
     effect_->SetWorld(lworld);
-    renderer->UseEffect(effect_.get());
+    renderer->BindEffect(effect_.get());
     plane_frame_->Render(renderer);
   }
 }

@@ -286,7 +286,7 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
 
   int32 count = static_cast<int32>(arraysize(rotation_));
   BlendingPtr blending = context->GetDefaultBlending();
-  renderer->UseBlending(blending.get(), 0);
+  renderer->SetBlending(blending.get(), 0, 0xffffffff);
   ScopedRasterizerState scoped_render_state(renderer);
   ScopedDepthStencilState scoped_depth_state(renderer);
   renderer->SetRasterizerState(rasterizer_state_);
@@ -297,7 +297,7 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
     effect_->SetPV(pv);
     effect_->SetWorld(lworld);
     effect_->SetColor(color_[i]);
-    renderer->UseEffect(effect_.get());
+    renderer->BindEffect(effect_.get());
     plane_->Draw(renderer);
   }
 
@@ -309,7 +309,7 @@ void TransformAxisObject::Render(const Matrix4& pv, azer::Renderer* renderer) {
     effect_->SetPV(pv);
     effect_->SetWorld(lworld);
     effect_->SetColor(color_[i]);
-    renderer->UseEffect(effect_.get());
+    renderer->BindEffect(effect_.get());
     plane_frame_->Draw(renderer);
   }
 }

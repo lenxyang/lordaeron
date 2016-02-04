@@ -52,7 +52,7 @@ void CameraOverlay::Update() {
 void CameraOverlay::Render(Renderer* renderer) {
   LordEnv* context = LordEnv::instance();
   BlendingPtr blending = context->GetDefaultBlending();
-  renderer->UseBlending(blending.get(), 0);
+  renderer->SetBlending(blending.get(), 0, 0xffffffff);
   overlay_->SetTexture(renderer_->GetRenderTarget(0)->GetTexture());
   overlay_->Render(renderer);
   renderer->ResetBlending();
